@@ -1,0 +1,22 @@
+{
+    "name": "warpgate",
+    "title": "Warp Gate",
+    "description": "",
+    "version": "0.1",
+    "author": "honeybadger",
+    "authors": [
+      {
+        "name": "honeybadger",
+        "url": "https://github.com/trioderegion"
+      }
+    ],
+    "esmodules": [
+        "/scripts/warpgate.js"
+    ],
+    "socket": true,
+    "url": "https://github.com/trioderegion/warpgate",
+    "manifest": "",
+    "download": "",
+    "minimumCoreVersion": "0.8.5",
+    "compatibleCoreVersion": "0.8.8"
+}
