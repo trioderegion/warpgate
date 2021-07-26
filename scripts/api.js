@@ -30,7 +30,7 @@ export class api {
    * @param {Object} updates
    * @param {Object} callbacks
    *   pre: async function(templateData, updates). Executed after placement has been decided, but before updates have been issued. Used for modifying the updates based on position of the placement
-   *   place: async function(templateData, spawnedTokenDoc). Executed after token has be spawned and updated.
+   *   post: async function(templateData, spawnedTokenDoc). Executed after token has be spawned and updated. Good for animation triggers or chat messages.
    */
   static _spawn(spawnName, owner, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}) {
 
@@ -47,7 +47,7 @@ export class api {
         await spawnedTokenDoc.setFlag(MODULE.data.name, 'owner', game.user.id);
 
         /** post creation callback */
-        if (callbacks.post) callsbacks.post(templateData, spawnedTokenDoc);
+        if (callbacks.post) await callsbacks.post(templateData, spawnedTokenDoc);
 
       });
     }
