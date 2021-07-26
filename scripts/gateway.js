@@ -18,7 +18,6 @@ export class Gateway {
   static defaults() {
     MODULE[NAME] = {
     }
-
   }
 
   static queueUpdate(fn) {
@@ -26,6 +25,10 @@ export class Gateway {
   }
 
 
+  /** dnd5e helper function
+   * @param { Item5e } item
+   * @todo abstract further out of core code
+   */
   async _rollItemGetLevel(item) {
     const result = await item.roll();
     // extract the level at which the spell was cast
@@ -39,6 +42,7 @@ export class Gateway {
     const template = Crosshairs.fromToken(protoToken);
     template.actorSheet = owningActor.sheet;
     template.callBack = callBack;
+    template.protoToken = protoToken;
     template.drawPreview();
   }
 
@@ -56,36 +60,46 @@ export class Gateway {
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
 
-  static _createItemUpdates(updateMap, actor) {
-
-    let itemUpdates = [];
-    for( const name in updateMap ) {
-      itemUpdates.push({"_id": actor.items.getName(name).id, ...itemUpdates[name]});
-    }
-
-    return itemUpdates;
+  static _parseUpdateShorthand(itemUpdates, actor) {
+    let parsedUpdates = Object.keys(itemUpdates).map((key) => {
+      if (itemUpdates[key] === warpgate.CONST.DELETE) return { _id: null };
+      return {
+        _id: actor.items.getName(key)?.id ?? null,
+        ...itemUpdates[key]
+      }
+    });
+    parsedUpdates = parsedUpdates.filter( update => !!update._id);
+    return parsedUpdates;
   }
 
-  async _updateSummon(summonedDocument, itemUpdates, actorUpdates, tokenUpdates) {
+  static _parseDeleteShorthand(itemUpdates, actor) {
+    let parsedUpdates = Object.keys(itemUpdates).map((key) => {
+      if (itemUpdates[key] !== warpgate.CONST.DELETE) return null;
+      return actor.items.getName(key)?.id ?? null;
+    });
 
-    /** gather the user defined updates */
-    //const itemsUpdate = itemUpdateGenerator(castingLevel, summonerActor, summonedDocument);
-    //const summonUpdate = actorUpdateGenerator(castingLevel, summonerActor, summonedDocument);
-    //const tokenUpdate = tokenUpdateGenerator(castingLevel, summonerActor, summonedDocument);
+    parsedUpdates = parsedUpdates.filter( update => !!update);
+    return parsedUpdates;
+  }
 
+  /** @todo */
+  static _parseAddShorthand(itemUpdates, actor){
+
+  }
+
+  static async _updateSummon(summonedDocument, updates = {item: {}, actor: {}, token: {}}) {
     /** perform the updates */
-    await summonedDocument.update(tokenUpdates);
-    await summonedDocument.actor.update(actorUpdates);
-    return summonedDocument.actor.updateEmbeddedDocuments("Item", itemUpdates);
-  }
+    if (updates.token) await summonedDocument.update(updates.token);
+    if (updates.actor) await summonedDocument.actor.update(updates.actor);
 
-  /** Factory function to generate a hook method to spawn a given actor name
-   *  at a template's location */
-  static deleteTemplatesAndSpawn(actorName, summonerActor, castingLevel) {
-    return async (templateDocument) => {
-      const summonedDoc = (await _spawnActorAtTemplate(actorName, templateDocument))[0];
-      await templateDocument.delete();
-      await _updateSummon(summonedDoc, summonerActor, castingLevel);
+    /** split out the shorthand notation we've created */
+    if (updates.item) {
+      const parsedUpdates = Gateway._parseUpdateShorthand(updates.item, summonedDocument.actor);
+      const parsedDeletes = Gateway._parseDeleteShorthand(updates.item, summonedDocument.actor);
+
+      if (parsedUpdates.length > 0) await summonedDocument.actor.updateEmbeddedDocuments("Item", parsedUpdates);
+      if (parsedDeletes.length > 0) return summonedDocument.actor.deleteEmbeddedDocuments("Item", parsedDeletes);
     }
   }
+
 }

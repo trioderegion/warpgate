@@ -5,7 +5,7 @@ export class Crosshairs extends MeasuredTemplate {
     const templateData = {
       t: "circle",
       user: game.user.id,
-      distance: 2.5, //scale by token/grid size instead
+      distance: 2.5, //@todo scale by token/grid size instead
       x: 0,
       y: 0,
       fillColor: game.user.color
@@ -19,7 +19,69 @@ export class Crosshairs extends MeasuredTemplate {
     return templateObject;
   }
 
+  /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
+  /* get license 
+
+  /** @override */
+  async draw() {
+    this.clear();
+
+    // Load the texture
+    if ( this.data.texture ) {
+      this.texture = await loadTexture(this.data.texture, {fallback: 'icons/svg/hazard.svg'});
+    } else {
+      this.texture = null;
+    }
+
+    // Template shape
+    this.template = this.addChild(new PIXI.Graphics());
+
+    // Rotation handle
+    this.handle = this.addChild(new PIXI.Graphics());
+
+    // Draw the control icon
+    this.controlIcon = this.addChild(this._drawControlIcon());
+
+    // Draw the ruler measurement
+    this.ruler = this.addChild(this._drawRulerText());
+
+    // Update the shape and highlight grid squares
+    this.refresh();
+    this.highlightGrid();
+
+    // Enable interactivity, only if the Tile has a true ID
+    if ( this.id ) this.activateListeners();
+    return this;
+  }
+
+  /**
+   * Draw the ControlIcon for the MeasuredTemplate
+   * @return {ControlIcon}
+   * @private
+   */
+  _drawControlIcon() {
+    const size = Math.max(Math.round((canvas.dimensions.size * 0.5) / 20) * 20, 40);
+
+    //BEGIN WARPGATE
+    let icon = new ControlIcon({texture: this.protoToken.img, size: size});
+    //END WARPGATE
+    icon.x -= (size * 0.5);
+    icon.y -= (size * 0.5);
+    return icon;
+  }
+  
+  /**
+   * Update the displayed ruler tooltip text
+   * @private
+   */
+  _refreshRulerText() {
+    //BEGIN WARPGATE
+    this.ruler.text = this.protoToken.name;
+    //END WARPGATE
+    this.ruler.position.set(this.ray.dx + 10, this.ray.dy + 5);
+  }
   /* -----------EXAMPLE CODE FROM ABILITY-TEMPLATE.JS--------- */
+  /* GPL 3
 
   /**
    * Creates a preview of the spell template
@@ -56,7 +118,10 @@ export class Crosshairs extends MeasuredTemplate {
     this.clearHandlers(event);
     const destination = canvas.grid.getSnappedPosition(this.data.x, this.data.y, 2);
     this.data.update(destination);
+
+    //BEGIN WARPGATE
     this.callBack(this.data);
+    //END WARPGATE
   }
 
   _clearHandlers(event) {
@@ -76,6 +141,7 @@ export class Crosshairs extends MeasuredTemplate {
    */
   activatePreviewListeners() {
     this.moveTime = 0;
+    //BEGIN WARPGATE
     /* Activate listeners */
     this.activeMoveHandler = this._mouseMoveHandler.bind(this);
     this.activeLeftClickHandler = this._leftClickHandler.bind(this);
@@ -88,5 +154,6 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.stage.on("mousedown", this.activeLeftClickHandler);
 
     canvas.app.view.oncontextmenu = this.clearHandlers;
+    // END WARPGATE
   }
 }
