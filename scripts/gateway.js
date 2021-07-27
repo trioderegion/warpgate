@@ -47,15 +47,13 @@ export class Gateway {
   }
 
   /* returns promise of token creation */
-  static _spawnActorAtLocation(actorName, spawnPoint) {
-    let protoToken = duplicate(game.actors.getName(actorName).data.token);
-
+  static _spawnActorAtLocation(protoToken, spawnPoint) {
     protoToken.x = spawnPoint.x;
     protoToken.y = spawnPoint.y;
 
     // Increase this offset for larger summons
-    protoToken.x -= (canvas.scene.data.grid / 2 + (protoToken.width - 1) * canvas.scene.data.grid);
-    protoToken.y -= (canvas.scene.data.grid / 2 + (protoToken.height - 1) * canvas.scene.data.grid);
+    protoToken.x -= (canvas.scene.data.grid / 2 * (protoToken.width));
+    protoToken.y -= (canvas.scene.data.grid / 2 * (protoToken.height));
 
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
@@ -89,7 +87,6 @@ export class Gateway {
 
   static async _updateSummon(summonedDocument, updates = {item: {}, actor: {}, token: {}}) {
     /** perform the updates */
-    if (updates.token) await summonedDocument.update(updates.token);
     if (updates.actor) await summonedDocument.actor.update(updates.actor);
 
     /** split out the shorthand notation we've created */

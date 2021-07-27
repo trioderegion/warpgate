@@ -35,13 +35,17 @@ export class api {
    */
   static _spawn(spawnName, owner, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}) {
 
+    //get prototoken data
+    let protoData = duplicate(game.actors.getName(spawnName)?.data.token);
+    protoData = mergeObject(protoData, updates.token);
+
     const callBack = (templateData) => {
       Gateway.queueUpdate( async () => {
 
         /** pre creation callback */
         if (callbacks.pre) await callbacks.pre(templateData, updates);
 
-        const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(spawnName, templateData))[0];
+        const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData, templateData))[0];
         if (updates) await Gateway._updateSummon(spawnedTokenDoc, updates);
 
         /** flag this user as its creator */
@@ -53,8 +57,6 @@ export class api {
       });
     }
 
-    //get prototoken data
-    const protoData = game.actors.getName(spawnName).data.token;
     Gateway.drawCrosshairs(protoData, owner, callBack);
   }
 }

@@ -5,7 +5,8 @@ export class Crosshairs extends MeasuredTemplate {
     const templateData = {
       t: "circle",
       user: game.user.id,
-      distance: 2.5, //@todo scale by token/grid size instead
+      //distance: 2.5, //@todo scale by token/grid size instead
+      distance: 2.5 * tokenData.width,
       x: 0,
       y: 0,
       fillColor: game.user.color
