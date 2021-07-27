@@ -15,6 +15,7 @@ export class api {
   static globals() {
     window[MODULE.data.name] = {
       spawn : api._spawn,
+      wait : MODULE.wait,
       dnd5e : {
         rollItem : Gateway._rollItemGetLevel
       },
@@ -47,7 +48,7 @@ export class api {
         await spawnedTokenDoc.setFlag(MODULE.data.name, 'owner', game.user.id);
 
         /** post creation callback */
-        if (callbacks.post) await callsbacks.post(templateData, spawnedTokenDoc);
+        if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc);
 
       });
     }
