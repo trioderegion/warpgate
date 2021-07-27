@@ -24,7 +24,10 @@ const updates = {
 }
 
 const callbacks = {
-    pre: (template, update) => { console.log("Reinforcements incoming!")},
+    pre: async (template, update) => {
+        console.log("Spawning in 2 seconds...");
+        await warpgate.wait(2000);
+    },
     post: (template, token) => { console.log("Reinforcements have arrived.")}
 }
 warpgate.spawn("Spiritual Weapon", actor, updates, callbacks)
