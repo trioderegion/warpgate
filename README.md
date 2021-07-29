@@ -5,7 +5,7 @@
 Warp Gate, in its current form, is a system-agnostic library module for Foundry VTT that provides a select few number of public API functions to make programmatically spawning tokens and modifying those tokens easier for players and GMs alike.
 
 ## Usage
-### `warpgate.spawn(actorName, owner, updates = {}, callbacks = {})`
+### `warpgate.spawn(actorName, updates = {}, callbacks = {}, options = {})`
 Parameters:
 1. `String` Name of actor to spawn
 3. `Object` Updates to the spawned actor (optional). See "Update Shorthand".
