@@ -1,3 +1,20 @@
+/* 
+ * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
+ * Copyright (c) 2021 Matthew Haentschke.
+ * 
+ * This program is free software: you can redistribute it and/or modify  
+ * it under the terms of the GNU General Public License as published by  
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import { logger } from './logger.js'
 import { Gateway } from './gateway.js'
 import { MODULE } from './module.js'
@@ -27,19 +44,26 @@ export class api {
 
   /** Main driver
    * @param {String} spawnName
-   * @param {Actor} owner
-   * @param {Object} updates
-   * @param {Object} callbacks
+   * @param {Object} updates - item, actor, and token document updates. item updates use a "shorthand" notation.
+   * @param {Object} callbacks - functions to be executed at various stages of the spawning process
    *   pre: async function(templateData, updates). Executed after placement has been decided, but before updates have been issued. Used for modifying the updates based on position of the placement
    *   post: async function(templateData, spawnedTokenDoc). Executed after token has be spawned and updated. Good for animation triggers or chat messages.
+   * @param {Object} options
+   *   controllingActor: Actor. currently only used to minimize the sheet while placing.
    */
-  static _spawn(spawnName, owner, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}) {
+  static _spawn(spawnName, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}, options = {controllingActor: null}) {
 
     //get prototoken data
     let protoData = duplicate(game.actors.getName(spawnName)?.data.token);
     protoData = mergeObject(protoData, updates.token);
 
-    const callBack = (templateData) => {
+    /** core spawning logic:
+     * execute user's pre()
+     * Spawn actor with already modified prototoken data
+     * Update actor with changes
+     * execute user's post()
+     */
+    const onPlacement = (templateData) => {
       Gateway.queueUpdate( async () => {
 
         /** pre creation callback */
@@ -49,14 +73,16 @@ export class api {
         if (updates) await Gateway._updateSummon(spawnedTokenDoc, updates);
 
         /** flag this user as its creator */
-        await spawnedTokenDoc.setFlag(MODULE.data.name, 'owner', game.user.id);
+        const control = {user: game.user.id, actor: options.controllingActor}
+        await spawnedTokenDoc.actor.setFlag(MODULE.data.name, 'control', control);
 
         /** post creation callback */
         if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc);
 
+        if(options.owningActor) options.owningActor.sheet.maximize();
       });
     }
-
-    Gateway.drawCrosshairs(protoData, owner, callBack);
+    if(options.owningActor) options.owningActor.sheet.minimize();
+    Gateway.drawCrosshairs(protoData, onPlacement);
   }
 }

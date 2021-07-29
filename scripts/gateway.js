@@ -1,3 +1,20 @@
+/* 
+ * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
+ * Copyright (c) 2021 Matthew Haentschke.
+ * 
+ * This program is free software: you can redistribute it and/or modify  
+ * it under the terms of the GNU General Public License as published by  
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
 import {queueEntityUpdate} from './update-queue.js'
@@ -38,10 +55,9 @@ export class Gateway {
     return parseInt(level);
   }
 
-  static drawCrosshairs(protoToken, owningActor, callBack) {
+  static drawCrosshairs(protoToken, callback) {
     const template = Crosshairs.fromToken(protoToken);
-    template.actorSheet = owningActor.sheet;
-    template.callBack = callBack;
+    template.callback = callback;
     template.protoToken = protoToken;
     template.drawPreview();
   }
@@ -86,6 +102,12 @@ export class Gateway {
   }
 
   static async _updateSummon(summonedDocument, updates = {item: {}, actor: {}, token: {}}) {
+    /* ensure creator owns this token */
+    let permissions = { permission: duplicate(summonedDocument.actor.data.permission) };
+    permissions.permission[game.user.id] = 3;
+
+    updates.actor = mergeObject(updates.actor, permissions);
+
     /** perform the updates */
     if (updates.actor) await summonedDocument.actor.update(updates.actor);
 
@@ -95,8 +117,10 @@ export class Gateway {
       const parsedDeletes = Gateway._parseDeleteShorthand(updates.item, summonedDocument.actor);
 
       if (parsedUpdates.length > 0) await summonedDocument.actor.updateEmbeddedDocuments("Item", parsedUpdates);
-      if (parsedDeletes.length > 0) return summonedDocument.actor.deleteEmbeddedDocuments("Item", parsedDeletes);
+      if (parsedDeletes.length > 0) await summonedDocument.actor.deleteEmbeddedDocuments("Item", parsedDeletes);
     }
+
+    return;
   }
 
 }

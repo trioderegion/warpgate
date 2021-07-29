@@ -1,4 +1,4 @@
-/** MIT (c) DnD5e Helpers */
+/** MIT (c) 2021 DnD5e Helpers */
 
 import { logger } from './logger.js';
 
@@ -47,5 +47,17 @@ export class MODULE{
 
   static settings() {
 
+  }
+
+  static applySettings(settingsData){
+    Object.entries(settingsData).forEach(([key, data])=> {
+      game.settings.register(
+        MODULE.data.name, key, {
+          name : MODULE.localize(`setting.${key}.name`),
+          hint : MODULE.localize(`setting.${key}.hint`),
+          ...data
+        }
+      );
+    });
   }
 }

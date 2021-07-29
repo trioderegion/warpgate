@@ -1,3 +1,22 @@
+/* 
+ * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
+ * Copyright (c) 2021 Matthew Haentschke.
+ * 
+ * This program is free software: you can redistribute it and/or modify  
+ * it under the terms of the GNU General Public License as published by  
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import { logger } from './logger.js'
+
 export class Crosshairs extends MeasuredTemplate {
 
   static fromToken(tokenData) {
@@ -20,8 +39,25 @@ export class Crosshairs extends MeasuredTemplate {
     return templateObject;
   }
 
+  /**
+   * Set the displayed ruler tooltip text and position
+   * @private
+   */
+    //BEGIN WARPGATE
+  _setRulerText() {
+    this.ruler.text = this.protoToken.name;
+    /** swap the X and Y to use the default dx/dy of a ray (pointed right)
+    //to align the text to the bottom of the template */
+    this.ruler.position.set(this.ray.dy + 10, this.ray.dx + 5);
+    //END WARPGATE
+  }
+
   /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
-  /* get license 
+  /* Portions of the core package (MeasuredTemplate) repackaged 
+   * in accordance with the "Limited License Agreement for Module 
+   * Development, found here: https://foundryvtt.com/article/license/ 
+   * Changes noted where possible
+   */
 
   /** @override */
   async draw() {
@@ -38,7 +74,9 @@ export class Crosshairs extends MeasuredTemplate {
     this.template = this.addChild(new PIXI.Graphics());
 
     // Rotation handle
-    this.handle = this.addChild(new PIXI.Graphics());
+    //BEGIN WARPGATE
+    //this.handle = this.addChild(new PIXI.Graphics());
+    //END WARPGATE
 
     // Draw the control icon
     this.controlIcon = this.addChild(this._drawControlIcon());
@@ -48,11 +86,29 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Update the shape and highlight grid squares
     this.refresh();
-    this.highlightGrid();
+    //BEGIN WARPGATE
+    this._setRulerText();
+    //this.highlightGrid();
+    //END WARPGATE
 
     // Enable interactivity, only if the Tile has a true ID
     if ( this.id ) this.activateListeners();
     return this;
+  }
+
+  /**
+   * Draw the Text label used for the MeasuredTemplate
+   * @return {PreciseText}
+   * @private
+   */
+  _drawRulerText() {
+    const style = CONFIG.canvasTextStyle.clone();
+    style.fontSize = Math.max(Math.round(canvas.dimensions.size * 0.36 * 12) / 12, 36);
+    const text = new PreciseText(null, style);
+    //BEGIN WARPGATE
+    text.anchor.set(0.5, 0);
+    //END WARPGATE
+    return text;
   }
 
   /**
@@ -66,23 +122,90 @@ export class Crosshairs extends MeasuredTemplate {
     //BEGIN WARPGATE
     let icon = new ControlIcon({texture: this.protoToken.img, size: size});
     //END WARPGATE
-    icon.x -= (size * 0.5);
-    icon.y -= (size * 0.5);
+
+    icon.pivot.set(size*0.5, size*0.5);
+    //icon.x -= (size * 0.5);
+    //icon.y -= (size * 0.5);
+    icon.angle = this.tokenData.rotation;
     return icon;
   }
-  
-  /**
-   * Update the displayed ruler tooltip text
-   * @private
-   */
-  _refreshRulerText() {
+
+  /** @override */
+  refresh() {
+    let d = canvas.dimensions;
+    this.position.set(this.data.x, this.data.y);
+
+    // Extract and prepare data
+    let {direction, distance, angle, width} = this.data;
+    distance *= (d.size / d.distance);
+    width *= (d.size / d.distance);
+    direction = Math.toRadians(direction);
+
+    // Create ray and bounding rectangle
+    this.ray = Ray.fromAngle(this.data.x, this.data.y, direction, distance);
+
+    // Get the Template shape
+    switch ( this.data.t ) {
+      case "circle":
+        this.shape = this._getCircleShape(distance);
+        break;
+      default: logger.error("Non-circular Crosshairs is unsupported!");
+    }
+
+    // Draw the Template outline
+    this.template.clear()
+      .lineStyle(this._borderThickness, this.borderColor, 0.75)
+      .beginFill(0x000000, 0.0);
+
+    // Fill Color or Texture
+    if ( this.texture ) this.template.beginTextureFill({
+      texture: this.texture
+    });
+    else this.template.beginFill(0x000000, 0.0);
+
+    // Draw the shape
+    this.template.drawShape(this.shape);
+
+    // Draw origin and destination points
+    this.template.lineStyle(this._borderThickness, 0x000000)
+      .beginFill(0x000000, 0.5)
     //BEGIN WARPGATE
-    this.ruler.text = this.protoToken.name;
+      //.drawCircle(0, 0, 6)
+      //.drawCircle(this.ray.dx, this.ray.dy, 6);
     //END WARPGATE
-    this.ruler.position.set(this.ray.dx + 10, this.ray.dy + 5);
+
+    // Update visibility
+    this.controlIcon.visible = this.layer._active;
+    this.controlIcon.border.visible = this._hover;
+    this.controlIcon.angle = this.tokenData.rotation;
+
+    // Draw ruler text
+    //BEGIN WARPGATE
+    //this._refreshRulerText();
+    //END WARPGATE
+    return this;
   }
+  
+   /* END MEASUREDTEMPLATE.JS USAGE */
+
+
   /* -----------EXAMPLE CODE FROM ABILITY-TEMPLATE.JS--------- */
-  /* GPL 3
+  /* Foundry VTT 5th Edition
+   * Copyright (C) 2019  Foundry Network
+   *
+   * This program is free software: you can redistribute it and/or modify
+   * it under the terms of the GNU General Public License as published by
+   * the Free Software Foundation, either version 3 of the License, or
+   * (at your option) any later version.
+   *
+   * This program is distributed in the hope that it will be useful,
+   * but WITHOUT ANY WARRANTY; without even the implied warranty of
+   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   * GNU General Public License for more details.
+   *
+   * Original License: 
+   * https://gitlab.com/foundrynet/dnd5e/-/blob/master/LICENSE.txt
+   */
 
   /**
    * Creates a preview of the spell template
@@ -96,7 +219,10 @@ export class Crosshairs extends MeasuredTemplate {
     this.layer.preview.addChild(this);
 
     // Hide the sheet that originated the preview
-    if ( this.actorSheet ) this.actorSheet.minimize();
+    //BEGIN WARPGATE
+    //Handled by the api
+    //if ( this.actorSheet ) this.actorSheet.minimize();
+    //END WARPGATE
 
     // Activate interactivity
     this.activatePreviewListeners();
@@ -121,8 +247,23 @@ export class Crosshairs extends MeasuredTemplate {
     this.data.update(destination);
 
     //BEGIN WARPGATE
-    this.callBack(this.data);
+    this.callback(this.data);
     //END WARPGATE
+  }
+
+  // Rotate the template by 3 degree increments (mouse-wheel)
+  _mouseWheelHandler(event) {
+    if ( event.ctrlKey ) event.preventDefault(); // Avoid zooming the browser window
+    event.stopPropagation();
+    let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
+    let snap = event.shiftKey ? delta : 5;
+    //BEGIN WARPGATE
+    const direction = this.data.direction + (snap * Math.sign(event.deltaY))
+    this.data.update({direction});
+    this.tokenData.rotation = direction
+    logger.debug(`New Rotation: ${this.tokenData.rotation}`);
+    //END WARPGATE
+    this.refresh();
   }
 
   _clearHandlers(event) {
@@ -132,8 +273,11 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
     this.initialLayer.activate();
-    this.actorSheet.maximize();
 
+    //BEGIN WARPGATE
+    // Show the sheet that originated the preview
+    if ( this.actorSheet ) this.actorSheet.maximize();
+    //END WARPGATE
   }
 
   /**
@@ -146,6 +290,8 @@ export class Crosshairs extends MeasuredTemplate {
     /* Activate listeners */
     this.activeMoveHandler = this._mouseMoveHandler.bind(this);
     this.activeLeftClickHandler = this._leftClickHandler.bind(this);
+    this.activeWheelHandler = this._mouseWheelHandler.bind(this);
+
     this.clearHandlers = this._clearHandlers.bind(this);
 
     // Update placement (mouse-move)
@@ -154,7 +300,13 @@ export class Crosshairs extends MeasuredTemplate {
     // Confirm the workflow (left-click)
     canvas.stage.on("mousedown", this.activeLeftClickHandler);
 
+    // Mouse Wheel rotate
+    canvas.app.view.onwheel = this.activeWheelHandler;
+    
+    // Right click cancel
     canvas.app.view.oncontextmenu = this.clearHandlers;
     // END WARPGATE
   }
+
+  /** END ABILITY-TEMPLATE.JS USAGE */
 }
