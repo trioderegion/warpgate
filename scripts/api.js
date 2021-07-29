@@ -73,7 +73,7 @@ export class api {
         if (updates) await Gateway._updateSummon(spawnedTokenDoc, updates);
 
         /** flag this user as its creator */
-        const control = {user: game.user.id, actor: options.controllingActor.id}
+        const control = {user: game.user.id, actor: options.controllingActor?.id}
         await spawnedTokenDoc.actor.setFlag(MODULE.data.name, 'control', control);
 
         /** post creation callback */
