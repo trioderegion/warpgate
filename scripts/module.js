@@ -16,7 +16,7 @@ export class MODULE{
       MODULE.data = await (await fetch(`${PATH}/module.json`)).json() ?? {data:{name: 'warpgate'}};
     }catch(err){
       logger.debug(`Error getting Module ${PATH} data`, err);
-      Module.data = { name: NAME };
+      MODULE.data = { name: NAME };
     }
     MODULE.data.path = PATH;
     logger.info("Module Data Built");
