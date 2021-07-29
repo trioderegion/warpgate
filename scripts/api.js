@@ -73,16 +73,16 @@ export class api {
         if (updates) await Gateway._updateSummon(spawnedTokenDoc, updates);
 
         /** flag this user as its creator */
-        const control = {user: game.user.id, actor: options.controllingActor}
+        const control = {user: game.user.id, actor: options.controllingActor.id}
         await spawnedTokenDoc.actor.setFlag(MODULE.data.name, 'control', control);
 
         /** post creation callback */
         if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc);
 
-        if(options.owningActor) options.owningActor.sheet.maximize();
+        if(options.controllingActor) options.controllingActor.sheet.maximize();
       });
     }
-    if(options.owningActor) options.owningActor.sheet.minimize();
+    if(options.controllingActor) options.controllingActor.sheet.minimize();
     Gateway.drawCrosshairs(protoData, onPlacement);
   }
 }
