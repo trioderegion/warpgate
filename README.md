@@ -39,6 +39,9 @@ warpgate.spawn("Name of actor to warp in", updates, callbacks, options)
 
 The primary function of Warp Gate. When executed, it will create a custom MeasuredTemplate that is used to place the spawned token and handle any customizations provided in the Update object.
 
+### `async warpgate.wait(timeMs)`
+Helper function. Waits for a specified amount of time (be sure to await!). Useful for timings with animations in the pre/post callbacks.
+
 ## Update Shorthand
 The `update` object can contain up to three keys: `token`, `actor`, and `item`. The `token` and `actor` key values are standard update objects as one would use in `actor.update({...data})`.
 The `item` key uses a shorthand notation to make creating the updates easier. Notably, it does not require the `_id` field to be part of the update object for a given item.
