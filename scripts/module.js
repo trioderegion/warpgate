@@ -13,7 +13,7 @@ export class MODULE{
 
   static async build(){
     try{
-      MODULE.data = await (await fetch(`${PATH}/module.json`)).json() ?? {data:{name: 'warpgate'}}};
+      MODULE.data = await (await fetch(`${PATH}/module.json`)).json() ?? {data:{name: 'warpgate'}};
     }catch(err){
       logger.debug(`Error getting Module ${PATH} data`, err);
     }
