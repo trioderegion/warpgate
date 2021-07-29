@@ -63,3 +63,7 @@ The `callbacks` object has two expected keys: `pre` and `post` and provide a way
 * Ability for non-GMs to "dismiss" (delete) tokens that they have spawned.
 * Ability to create items for the actor during spawning
 * Additional system-specific helper functions
+
+## Special Thanks
+* siliconsaint for the inspiration to turn a set of absurd macros into something usable.
+* LorduFreeman for the pre and post callbacks and immediately using it for beautiful things.
