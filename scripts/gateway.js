@@ -106,7 +106,7 @@ export class Gateway {
     let permissions = { permission: duplicate(summonedDocument.actor.data.permission) };
     permissions.permission[game.user.id] = 3;
 
-    updates.actor = mergeObject(updates.actor, permissions);
+    updates.actor = mergeObject(updates.actor ?? {}, permissions);
 
     /** perform the updates */
     if (updates.actor) await summonedDocument.actor.update(updates.actor);
