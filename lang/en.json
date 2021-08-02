@@ -4,6 +4,9 @@
       "name" : "Debug",
       "hint" : "Enables extended debug logging and data collection"
     }
+  },
+  "display" : {
+    "dismiss" : "Dismiss"
   }
 
 }

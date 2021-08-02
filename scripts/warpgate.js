@@ -23,14 +23,18 @@
  */
 import { MODULE } from './module.js';
 import { logger } from './logger.js';
-import { api } from './api.js'
-import { Gateway } from './gateway.js'
+import { api } from './api.js';
+import { Gateway } from './gateway.js';
+import { UserInterface } from './user-interface.js';
+import { Comms } from './comms.js';
 
 const SUB_MODULES = {
   MODULE,
   logger,
   api,
-  Gateway
+  Gateway,
+  UserInterface,
+  Comms
 }
 
 /*

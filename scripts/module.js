@@ -34,6 +34,14 @@ export class MODULE{
     return game.i18n.format(...args);
   }
 
+  static firstGM(){
+    return game.users.find(u => u.isGM && u.active);
+  }
+
+  static isFirstGM(){
+    return game.user.id === MODULE.firstGM()?.id;
+  }
+
   static async wait(ms){
     return new Promise((resolve)=> setTimeout(resolve, ms))
   }

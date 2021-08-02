@@ -19,6 +19,7 @@ import {logger} from './logger.js'
 import {MODULE} from './module.js'
 import {queueEntityUpdate} from './update-queue.js'
 import {Crosshairs} from './crosshairs.js'
+import { Comms } from './comms.js'
 
 const NAME = "Gateway";
 
@@ -61,6 +62,32 @@ export class Gateway {
     template.protoToken = protoToken;
     template.drawPreview();
   }
+
+  static dismissSpawn(tokenId, sceneId) {
+
+    /** @todo localize */
+    if (!tokenId || !sceneId){
+      logger.error("Cannot dismiss null token or from a null scene.");
+      return;
+    }
+
+    Gateway.queueUpdate( async () => {
+      logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
+
+      /** GMs can always delete tokens */
+      if (game.user.isGM) {
+        await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+      } else {
+        /** otherwise, we need to send a request for deletion */
+        if (!MODULE.firstGM()){
+          logger.error("No GM available for dismiss request.");
+          return;
+        }
+
+        Comms.requestDismissSpawn(tokenId, sceneId);
+      }
+
+    })}
 
   /* returns promise of token creation */
   static _spawnActorAtLocation(protoToken, spawnPoint) {

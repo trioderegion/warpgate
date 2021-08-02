@@ -32,6 +32,7 @@ export class api {
   static globals() {
     window[MODULE.data.name] = {
       spawn : api._spawn,
+      dismiss : Gateway.dismissSpawn,
       wait : MODULE.wait,
       dnd5e : {
         rollItem : Gateway._rollItemGetLevel

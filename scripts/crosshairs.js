@@ -25,10 +25,11 @@ export class Crosshairs extends MeasuredTemplate {
       t: "circle",
       user: game.user.id,
       //distance: 2.5, //@todo scale by token/grid size instead
-      distance: 2.5 * tokenData.width,
+      distance: (canvas.scene.data.gridDistance / 2) * tokenData.width,
       x: 0,
       y: 0,
-      fillColor: game.user.color
+      fillColor: game.user.color,
+      layer: canvas.activeLayer
     }
 
     //create the MeasuredTemplate document
@@ -175,7 +176,7 @@ export class Crosshairs extends MeasuredTemplate {
     //END WARPGATE
 
     // Update visibility
-    this.controlIcon.visible = this.layer._active;
+    this.controlIcon.visible = true;//this.layer._active;
     this.controlIcon.border.visible = this._hover;
     this.controlIcon.angle = this.tokenData.rotation;
 
@@ -211,11 +212,8 @@ export class Crosshairs extends MeasuredTemplate {
    * Creates a preview of the spell template
    */
   drawPreview() {
-    this.initialLayer = canvas.activeLayer;
-
     // Draw the template and switch to the template layer
     this.draw();
-    this.layer.activate();
     this.layer.preview.addChild(this);
 
     // Hide the sheet that originated the preview
@@ -272,7 +270,6 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
-    this.initialLayer.activate();
 
     //BEGIN WARPGATE
     // Show the sheet that originated the preview
@@ -282,7 +279,6 @@ export class Crosshairs extends MeasuredTemplate {
 
   /**
    * Activate listeners for the template preview
-   * @param {CanvasLayer} initialLayer  The initially active CanvasLayer to re-activate after the workflow is complete
    */
   activatePreviewListeners() {
     this.moveTime = 0;
