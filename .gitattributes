@@ -9,6 +9,7 @@
 *.png binary
 *.webp binary
 *.zip binary
+*.gif binary
 
 .github/ export-ignore
 module.zip export-ignore
