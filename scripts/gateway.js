@@ -47,7 +47,7 @@ export class Gateway {
    * @param { Item5e } item
    * @todo abstract further out of core code
    */
-  async _rollItemGetLevel(item) {
+  static async _rollItemGetLevel(item) {
     const result = await item.roll();
     // extract the level at which the spell was cast
     if (!result) return 0;
