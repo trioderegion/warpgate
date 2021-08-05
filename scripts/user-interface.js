@@ -50,6 +50,12 @@ export class UserInterface {
     if ( !(controlData.user === game.user.id) &&
           !game.user.isGM) return;
 
+    /* do not add duplicate buttons! */
+    if(html.closest('.app').find('.dismiss-warpgate').length !== 0) {
+      logger.debug('Dismiss button already present');  
+      return;
+    }
+
     let dismissButton = $(`<a class="dismiss-warpgate" title="dismiss"><i class="fas fa-user-slash"></i>${MODULE.localize("display.dismiss")}</a>`);
 
     dismissButton.click( (/*event*/) => {
