@@ -52,11 +52,14 @@ export class api {
    * @param {Object} options
    *   controllingActor: Actor. currently only used to minimize the sheet while placing.
    */
-  static _spawn(spawnName, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}, options = {controllingActor: null}) {
+  static async _spawn(spawnName, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}, options = {controllingActor: null}) {
 
     //get prototoken data
-    let protoData = duplicate(game.actors.getName(spawnName)?.data.token);
-    protoData = mergeObject(protoData, updates.token);
+    let protoData = await game.actors.getName(spawnName)?.getTokenData(updates.token);
+    if(!protoData) {
+      logger.error(`Could not find proto token data for ${spawnName}`);
+      return;
+    }
 
     /** core spawning logic:
      * execute user's pre()

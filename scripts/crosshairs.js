@@ -46,7 +46,7 @@ export class Crosshairs extends MeasuredTemplate {
    */
     //BEGIN WARPGATE
   _setRulerText() {
-    this.ruler.text = this.protoToken.name;
+    this.ruler.text = this.tokenData.name;
     /** swap the X and Y to use the default dx/dy of a ray (pointed right)
     //to align the text to the bottom of the template */
     this.ruler.position.set(this.ray.dy + 10, this.ray.dx + 5);
@@ -121,7 +121,7 @@ export class Crosshairs extends MeasuredTemplate {
     const size = Math.max(Math.round((canvas.dimensions.size * 0.5) / 20) * 20, 40);
 
     //BEGIN WARPGATE
-    let icon = new ControlIcon({texture: this.protoToken.img, size: size});
+    let icon = new ControlIcon({texture: this.tokenData.img, size: size});
     //END WARPGATE
 
     icon.pivot.set(size*0.5, size*0.5);
@@ -137,9 +137,11 @@ export class Crosshairs extends MeasuredTemplate {
     this.position.set(this.data.x, this.data.y);
 
     // Extract and prepare data
-    let {direction, distance, angle, width} = this.data;
+    let {direction, distance} = this.data;
     distance *= (d.size / d.distance);
-    width *= (d.size / d.distance);
+    //BEGIN WARPGATE
+    //width *= (d.size / d.distance);
+    //END WARPGATE
     direction = Math.toRadians(direction);
 
     // Create ray and bounding rectangle

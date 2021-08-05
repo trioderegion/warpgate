@@ -3,10 +3,18 @@
     "debug" : {
       "name" : "Debug",
       "hint" : "Enables extended debug logging and data collection"
+    },
+    "openDelete" : {
+      "name" : "Unrestricted dismissal",
+      "hint" : "Allows players to dismiss unowned tokens"
     }
   },
   "display" : {
     "dismiss" : "Dismiss"
+  },
+  "error" : {
+    "noGM" : "There is no GM available for dismiss request.",
+    "unownedDelete" : "Cannot delete unowned token."
   }
 
 }

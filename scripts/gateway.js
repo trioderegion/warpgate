@@ -26,11 +26,18 @@ const NAME = "Gateway";
 export class Gateway {
 
   static register() {
-
+    this.settings();
   }
 
   static settings() {
+    const config = true;
+    const settingsData = {
+      openDelete : {
+        scope: "world", config, default: false, type: Boolean,
+      },
+    };
 
+    MODULE.applySettings(settingsData);
   }
 
   static defaults() {
@@ -59,7 +66,6 @@ export class Gateway {
   static drawCrosshairs(protoToken, callback) {
     const template = Crosshairs.fromToken(protoToken);
     template.callback = callback;
-    template.protoToken = protoToken;
     template.drawPreview();
   }
 
@@ -67,8 +73,18 @@ export class Gateway {
 
     /** @todo localize */
     if (!tokenId || !sceneId){
-      logger.error("Cannot dismiss null token or from a null scene.");
+      logger.debug("Cannot dismiss null token or from a null scene.", tokenId, sceneId);
       return;
+    }
+
+    /* check for permission to delete freely */
+    if (!MODULE.setting('openDelete')) {
+      /* check permissions on token */
+      const tokenData = game.scenes.get(sceneId)?.getEmbeddedDocument("Token",tokenId);
+      if (!tokenData.isOwner) {
+        logger.error(MODULE.localize('error.unownedDelete'));
+        return;
+      }
     }
 
     Gateway.queueUpdate( async () => {
@@ -80,7 +96,7 @@ export class Gateway {
       } else {
         /** otherwise, we need to send a request for deletion */
         if (!MODULE.firstGM()){
-          logger.error("No GM available for dismiss request.");
+          logger.error('error.noGm');
           return;
         }
 
@@ -90,7 +106,7 @@ export class Gateway {
     })}
 
   /* returns promise of token creation */
-  static _spawnActorAtLocation(protoToken, spawnPoint) {
+  static async _spawnActorAtLocation(protoToken, spawnPoint) {
     protoToken.x = spawnPoint.x;
     protoToken.y = spawnPoint.y;
 
@@ -98,6 +114,7 @@ export class Gateway {
     protoToken.x -= (canvas.scene.data.grid / 2 * (protoToken.width));
     protoToken.y -= (canvas.scene.data.grid / 2 * (protoToken.height));
 
+    await protoToken.update({...protoToken});
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
 
@@ -128,7 +145,7 @@ export class Gateway {
 
   }
 
-  static async _updateSummon(summonedDocument, updates = {item: {}, actor: {}, token: {}}) {
+  static async _updateSummon(summonedDocument, updates = {}) {
     /* ensure creator owns this token */
     let permissions = { permission: duplicate(summonedDocument.actor.data.permission) };
     permissions.permission[game.user.id] = 3;
