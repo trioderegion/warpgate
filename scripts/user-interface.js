@@ -41,7 +41,7 @@ export class UserInterface {
   static addDismissButton(app, html, data) {
     const token = data.options.token;
 
-    const controlData = token.actor.getFlag(MODULE.data.name, 'control');
+    const controlData = token?.actor.getFlag(MODULE.data.name, 'control');
 
     /** this is not a warpgate spawned actor */
     if (!controlData) return;
