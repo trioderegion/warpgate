@@ -1,0 +1,952 @@
+{
+  "name": "Spiritual Badger",
+  "type": "npc",
+  "img": "icons/creatures/mammals/humanoid-cat-skulking-teal.webp",
+  "data": {
+    "abilities": {
+      "str": {
+        "value": 14,
+        "proficient": 0
+      },
+      "dex": {
+        "value": 13,
+        "proficient": 0
+      },
+      "con": {
+        "value": 16,
+        "proficient": 0
+      },
+      "int": {
+        "value": 14,
+        "proficient": 0
+      },
+      "wis": {
+        "value": 10,
+        "proficient": 0
+      },
+      "cha": {
+        "value": 6,
+        "proficient": 0
+      }
+    },
+    "attributes": {
+      "ac": {
+        "flat": null,
+        "calc": "default",
+        "formula": "",
+        "value": 11
+      },
+      "hp": {
+        "value": 10,
+        "min": 0,
+        "max": 10,
+        "temp": 0,
+        "tempmax": 0,
+        "formula": ""
+      },
+      "init": {
+        "value": 0,
+        "bonus": 0
+      },
+      "movement": {
+        "burrow": 0,
+        "climb": 0,
+        "fly": 0,
+        "swim": 0,
+        "walk": 30,
+        "units": "ft",
+        "hover": false
+      },
+      "senses": {
+        "darkvision": 60,
+        "blindsight": 0,
+        "tremorsense": 0,
+        "truesight": 0,
+        "units": "ft",
+        "special": ""
+      },
+      "spellcasting": "int"
+    },
+    "details": {
+      "biography": {
+        "value": "",
+        "public": ""
+      },
+      "alignment": "N/A",
+      "race": "",
+      "type": {
+        "value": "fey",
+        "subtype": "",
+        "swarm": "",
+        "custom": ""
+      },
+      "environment": "",
+      "cr": 8,
+      "spellLevel": 0,
+      "xp": {
+        "value": 10
+      },
+      "source": ""
+    },
+    "traits": {
+      "size": "med",
+      "di": {
+        "value": [
+          "psychic"
+        ],
+        "custom": ""
+      },
+      "dr": {
+        "value": [],
+        "custom": ""
+      },
+      "dv": {
+        "value": [],
+        "custom": ""
+      },
+      "ci": {
+        "value": [],
+        "custom": ""
+      },
+      "languages": {
+        "value": [
+          "deep"
+        ],
+        "custom": "Understand languages of caster"
+      }
+    },
+    "currency": {
+      "pp": 0,
+      "gp": 0,
+      "ep": 0,
+      "sp": 0,
+      "cp": 0
+    },
+    "skills": {
+      "acr": {
+        "value": 0,
+        "ability": "dex"
+      },
+      "ani": {
+        "value": 0,
+        "ability": "wis"
+      },
+      "arc": {
+        "value": 0,
+        "ability": "int"
+      },
+      "ath": {
+        "value": 0,
+        "ability": "str"
+      },
+      "dec": {
+        "value": 0,
+        "ability": "cha"
+      },
+      "his": {
+        "value": 0,
+        "ability": "int"
+      },
+      "ins": {
+        "value": 0,
+        "ability": "wis"
+      },
+      "itm": {
+        "value": 0,
+        "ability": "cha"
+      },
+      "inv": {
+        "value": 0,
+        "ability": "int"
+      },
+      "med": {
+        "value": 0,
+        "ability": "wis"
+      },
+      "nat": {
+        "value": 0,
+        "ability": "int"
+      },
+      "prc": {
+        "value": 0,
+        "ability": "wis"
+      },
+      "prf": {
+        "value": 0,
+        "ability": "cha"
+      },
+      "per": {
+        "value": 0,
+        "ability": "cha"
+      },
+      "rel": {
+        "value": 0,
+        "ability": "int"
+      },
+      "slt": {
+        "value": 0,
+        "ability": "dex"
+      },
+      "ste": {
+        "value": 0,
+        "ability": "dex"
+      },
+      "sur": {
+        "value": 0,
+        "ability": "wis"
+      }
+    },
+    "spells": {
+      "spell1": {
+        "value": 0,
+        "override": null
+      },
+      "spell2": {
+        "value": 0,
+        "override": null
+      },
+      "spell3": {
+        "value": 0,
+        "override": null
+      },
+      "spell4": {
+        "value": 0,
+        "override": null
+      },
+      "spell5": {
+        "value": 0,
+        "override": null
+      },
+      "spell6": {
+        "value": 0,
+        "override": null
+      },
+      "spell7": {
+        "value": 0,
+        "override": null
+      },
+      "spell8": {
+        "value": 0,
+        "override": null
+      },
+      "spell9": {
+        "value": 0,
+        "override": null
+      },
+      "pact": {
+        "value": 0,
+        "override": null
+      }
+    },
+    "bonuses": {
+      "mwak": {
+        "attack": "",
+        "damage": ""
+      },
+      "rwak": {
+        "attack": "",
+        "damage": ""
+      },
+      "msak": {
+        "attack": "",
+        "damage": ""
+      },
+      "rsak": {
+        "attack": "",
+        "damage": ""
+      },
+      "abilities": {
+        "check": "",
+        "save": "",
+        "skill": ""
+      },
+      "spell": {
+        "dc": ""
+      }
+    },
+    "resources": {
+      "legact": {
+        "value": 0,
+        "max": 0
+      },
+      "legres": {
+        "value": 0,
+        "max": 0
+      },
+      "lair": {
+        "value": false,
+        "initiative": 0
+      }
+    }
+  },
+  "token": {
+    "_id": "xLklUMyMQwAxNFB5",
+    "name": "Badger",
+    "displayName": 50,
+    "actorId": "dP2MyFgSwrXsKhop",
+    "actorLink": false,
+    "actorData": {},
+    "img": "icons/creatures/mammals/humanoid-cat-skulking-teal.webp",
+    "tint": null,
+    "width": 1,
+    "height": 1,
+    "scale": 1,
+    "mirrorX": false,
+    "mirrorY": false,
+    "x": null,
+    "y": null,
+    "elevation": null,
+    "lockRotation": false,
+    "rotation": 0,
+    "effects": [],
+    "alpha": 1,
+    "hidden": false,
+    "vision": false,
+    "dimSight": 0,
+    "brightSight": 0,
+    "dimLight": 0,
+    "brightLight": 0,
+    "sightAngle": 0,
+    "lightAngle": 0,
+    "lightColor": null,
+    "lightAlpha": 0.25,
+    "lightAnimation": {
+      "speed": 5,
+      "intensity": 5
+    },
+    "disposition": 1,
+    "displayBars": 50,
+    "bar1": {
+      "attribute": "attributes.hp"
+    },
+    "bar2": {
+      "attribute": ""
+    },
+    "flags": {
+      "tokenmagic": {}
+    },
+    "tokenId": null,
+    "randomImg": false
+  },
+  "items": [
+    {
+      "_id": "zCp2PYzYj0bbK0RW",
+      "name": "Multiattack",
+      "type": "weapon",
+      "img": "systems/dnd5e/icons/skills/weapon_24.jpg",
+      "data": {
+        "description": {
+          "value": "<p># of attacks: Half spell level rounded down</p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "quantity": 1,
+        "weight": 0,
+        "price": 0,
+        "attunement": 0,
+        "equipped": true,
+        "rarity": "",
+        "identified": true,
+        "activation": {
+          "type": "",
+          "cost": 0,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": null,
+          "width": null,
+          "units": "",
+          "type": ""
+        },
+        "range": {
+          "value": null,
+          "long": null,
+          "units": ""
+        },
+        "uses": {
+          "value": 0,
+          "max": 0,
+          "per": null
+        },
+        "consume": {
+          "type": "",
+          "target": null,
+          "amount": null
+        },
+        "ability": null,
+        "actionType": "",
+        "attackBonus": 0,
+        "chatFlavor": "",
+        "critical": null,
+        "damage": {
+          "parts": [],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "",
+          "dc": null,
+          "scaling": "spell"
+        },
+        "armor": {
+          "value": 10
+        },
+        "hp": {
+          "value": 0,
+          "max": 0,
+          "dt": null,
+          "conditions": ""
+        },
+        "weaponType": "natural",
+        "properties": {
+          "ada": false,
+          "amm": false,
+          "fin": false,
+          "fir": false,
+          "foc": false,
+          "hvy": false,
+          "lgt": false,
+          "lod": false,
+          "mgc": false,
+          "rch": false,
+          "rel": false,
+          "ret": false,
+          "sil": false,
+          "spc": false,
+          "thr": false,
+          "two": false,
+          "ver": false,
+          "nodam": false,
+          "fulldam": false,
+          "halfdam": false
+        },
+        "proficient": true,
+        "attuned": false
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "permission": {
+        "default": 0,
+        "esqMQHmlRoNRcrNB": 3
+      }
+    },
+    {
+      "_id": "gKvU3GbGPrXp358S",
+      "name": "Claws",
+      "type": "weapon",
+      "img": "icons/creatures/claws/claw-straight-orange.webp",
+      "data": {
+        "description": {
+          "value": "<p>Melee Weapon Attack, 5ft.</p>\n<p>To Hit: Caster's spell attack modifier</p>\n<p>Damage: 1d8 + 2 + spell level slashing</p>\n<p> </p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "quantity": 1,
+        "weight": 0,
+        "price": 0,
+        "attunement": 0,
+        "equipped": true,
+        "rarity": "",
+        "identified": true,
+        "activation": {
+          "type": "action",
+          "cost": 1,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": 1,
+          "width": null,
+          "units": "",
+          "type": "creature"
+        },
+        "range": {
+          "value": 5,
+          "long": null,
+          "units": "ft"
+        },
+        "uses": {
+          "value": 0,
+          "max": "0",
+          "per": ""
+        },
+        "consume": {
+          "type": "",
+          "target": "",
+          "amount": null
+        },
+        "ability": "",
+        "actionType": "mwak",
+        "attackBonus": "0",
+        "chatFlavor": "",
+        "critical": null,
+        "damage": {
+          "parts": [
+            [
+              "1d8 + @mod",
+              "slashing"
+            ]
+          ],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "",
+          "dc": null,
+          "scaling": "spell"
+        },
+        "armor": {
+          "value": 10
+        },
+        "hp": {
+          "value": 0,
+          "max": 0,
+          "dt": null,
+          "conditions": ""
+        },
+        "weaponType": "natural",
+        "properties": {
+          "ada": false,
+          "amm": false,
+          "fin": false,
+          "fir": false,
+          "foc": false,
+          "hvy": false,
+          "lgt": false,
+          "lod": false,
+          "mgc": false,
+          "rch": false,
+          "rel": false,
+          "ret": false,
+          "sil": false,
+          "spc": false,
+          "thr": false,
+          "two": false,
+          "ver": false,
+          "nodam": false,
+          "fulldam": false,
+          "halfdam": false
+        },
+        "proficient": true,
+        "attuned": false
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "permission": {
+        "default": 0,
+        "esqMQHmlRoNRcrNB": 3
+      }
+    },
+    {
+      "_id": "kHciQtw0ei6WWU5g",
+      "name": "Thick Hide",
+      "type": "feat",
+      "img": "icons/commodities/leather/fur-white.webp",
+      "data": {
+        "description": {
+          "value": "<p>Snake Eater Badger</p>\n<p>The badger may end one condition affecting it spell level number of times per day.</p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "activation": {
+          "type": "none",
+          "cost": 0,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": null,
+          "width": null,
+          "units": "",
+          "type": ""
+        },
+        "range": {
+          "value": null,
+          "long": null,
+          "units": ""
+        },
+        "uses": {
+          "value": 0,
+          "max": "0",
+          "per": ""
+        },
+        "consume": {
+          "type": "",
+          "target": "",
+          "amount": null
+        },
+        "ability": null,
+        "actionType": "",
+        "attackBonus": 0,
+        "chatFlavor": "",
+        "critical": null,
+        "damage": {
+          "parts": [],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "",
+          "dc": null,
+          "scaling": "spell"
+        },
+        "requirements": "",
+        "recharge": {
+          "value": null,
+          "charged": false
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 100000,
+      "permission": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "ckbbb6VclQLLp79J",
+      "name": "Intimidate",
+      "type": "weapon",
+      "img": "icons/creatures/magical/spirit-poison-smoke-green.webp",
+      "data": {
+        "description": {
+          "value": "<p>Wis Saving Throw vs. caster's spell save DC.</p>\n<p>Fail: Frightened until the end of the badger's next turn</p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "quantity": 1,
+        "weight": 0,
+        "price": 0,
+        "attunement": 0,
+        "equipped": true,
+        "rarity": "",
+        "identified": true,
+        "activation": {
+          "type": "",
+          "cost": 0,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": null,
+          "width": null,
+          "units": "",
+          "type": ""
+        },
+        "range": {
+          "value": null,
+          "long": null,
+          "units": ""
+        },
+        "uses": {
+          "value": 0,
+          "max": 0,
+          "per": null
+        },
+        "consume": {
+          "type": "",
+          "target": null,
+          "amount": null
+        },
+        "ability": "",
+        "actionType": "save",
+        "attackBonus": 0,
+        "chatFlavor": "",
+        "critical": null,
+        "damage": {
+          "parts": [],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "wis",
+          "dc": null,
+          "scaling": "flat"
+        },
+        "armor": {
+          "value": 10
+        },
+        "hp": {
+          "value": 0,
+          "max": 0,
+          "dt": null,
+          "conditions": ""
+        },
+        "weaponType": "natural",
+        "properties": {
+          "ada": false,
+          "amm": false,
+          "fin": false,
+          "fir": false,
+          "foc": false,
+          "hvy": false,
+          "lgt": false,
+          "lod": false,
+          "mgc": false,
+          "rch": false,
+          "rel": false,
+          "ret": false,
+          "sil": false,
+          "spc": false,
+          "thr": false,
+          "two": false,
+          "ver": false
+        },
+        "proficient": true
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 0,
+      "permission": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "tAw4hCmVQIVYeIrh",
+      "name": "Flatten",
+      "type": "feat",
+      "img": "icons/environment/settlement/house-two-stories-small.webp",
+      "data": {
+        "description": {
+          "value": "<p>Bacon Badger</p>\n<p>The badger can move through openings as little as 1 inch wide.</p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "activation": {
+          "type": "",
+          "cost": 0,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": null,
+          "width": null,
+          "units": "",
+          "type": ""
+        },
+        "range": {
+          "value": null,
+          "long": null,
+          "units": ""
+        },
+        "uses": {
+          "value": 0,
+          "max": 0,
+          "per": null
+        },
+        "consume": {
+          "type": "",
+          "target": null,
+          "amount": null
+        },
+        "ability": null,
+        "actionType": "",
+        "attackBonus": 0,
+        "chatFlavor": "",
+        "critical": null,
+        "damage": {
+          "parts": [],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "",
+          "dc": null,
+          "scaling": "spell"
+        },
+        "requirements": "",
+        "recharge": {
+          "value": null,
+          "charged": false
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 300000,
+      "permission": {
+        "default": 0
+      },
+      "flags": {}
+    },
+    {
+      "_id": "mrTcSzMXNsqBh8u7",
+      "name": "Hide",
+      "type": "feat",
+      "img": "icons/magic/perception/silhouette-stealth-shadow.webp",
+      "data": {
+        "description": {
+          "value": "<p>Bacon Badger</p>\n<p>Can turn invisible at will as an action.</p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "activation": {
+          "type": "action",
+          "cost": 1,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": null,
+          "width": null,
+          "units": "",
+          "type": ""
+        },
+        "range": {
+          "value": null,
+          "long": null,
+          "units": ""
+        },
+        "uses": {
+          "value": 0,
+          "max": "0",
+          "per": ""
+        },
+        "consume": {
+          "type": "",
+          "target": "",
+          "amount": null
+        },
+        "ability": null,
+        "actionType": "",
+        "attackBonus": 0,
+        "chatFlavor": "",
+        "critical": null,
+        "damage": {
+          "parts": [],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "",
+          "dc": null,
+          "scaling": "spell"
+        },
+        "requirements": "",
+        "recharge": {
+          "value": null,
+          "charged": false
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 400000,
+      "permission": {
+        "default": 0,
+        "XL7yGGafpBtRncHr": 3
+      },
+      "flags": {}
+    },
+    {
+      "_id": "LMKd8zls9QYZ5KBO",
+      "name": "Regeneration",
+      "type": "feat",
+      "img": "systems/dnd5e/icons/skills/red_33.jpg",
+      "data": {
+        "description": {
+          "value": "<p>Snake Eater Badger</p>\n<p>The badger regains 10 Hit points at the start of its turn.</p>",
+          "chat": "",
+          "unidentified": ""
+        },
+        "source": "",
+        "activation": {
+          "type": "",
+          "cost": null,
+          "condition": ""
+        },
+        "duration": {
+          "value": null,
+          "units": ""
+        },
+        "target": {
+          "value": null,
+          "width": null,
+          "units": null,
+          "type": "self"
+        },
+        "range": {
+          "value": null,
+          "long": null,
+          "units": "self"
+        },
+        "uses": {
+          "value": 0,
+          "max": 0,
+          "per": ""
+        },
+        "consume": {
+          "type": "",
+          "target": "",
+          "amount": null
+        },
+        "ability": "",
+        "actionType": "heal",
+        "attackBonus": 0,
+        "chatFlavor": "",
+        "critical": null,
+        "damage": {
+          "parts": [],
+          "versatile": ""
+        },
+        "formula": "",
+        "save": {
+          "ability": "",
+          "dc": null,
+          "scaling": "spell"
+        },
+        "requirements": "",
+        "recharge": {
+          "value": null,
+          "charged": false
+        }
+      },
+      "effects": [],
+      "folder": null,
+      "sort": 200000,
+      "permission": {
+        "default": 0
+      }
+    }
+  ],
+  "effects": [],
+  "sort": 0,
+  "flags": {
+    "exportSource": {
+      "world": "macro-bench",
+      "system": "dnd5e",
+      "coreVersion": "0.8.8",
+      "systemVersion": "1.4.1"
+    },
+    "core": {
+      "sourceId": "Actor.dP2MyFgSwrXsKhop"
+    }
+  }
+}
