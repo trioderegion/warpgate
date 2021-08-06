@@ -16,9 +16,13 @@
  */
 
 import { logger } from './logger.js'
+import { MODULE } from './module.js'
 
 export class Crosshairs extends MeasuredTemplate {
 
+  /* @todo need to make a proper constructor with
+   * the fields that I am adding to MeasuredTemplate
+   */
   static fromToken(tokenData) {
 
     const templateData = {
@@ -36,6 +40,7 @@ export class Crosshairs extends MeasuredTemplate {
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
     const templateObject = new this(template);
     templateObject.tokenData = tokenData;
+    templateObject.inFlight = false;
 
     return templateObject;
   }
@@ -215,6 +220,7 @@ export class Crosshairs extends MeasuredTemplate {
    */
   drawPreview() {
     // Draw the template and switch to the template layer
+    this.inFlight = true;
     this.draw();
     this.layer.preview.addChild(this);
 
@@ -226,6 +232,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Activate interactivity
     this.activatePreviewListeners();
+    return MODULE.waitFor( () => !this.inFlight )
   }
 
   /* -------------------------------------------- */
@@ -276,6 +283,7 @@ export class Crosshairs extends MeasuredTemplate {
     //BEGIN WARPGATE
     // Show the sheet that originated the preview
     if ( this.actorSheet ) this.actorSheet.maximize();
+    this.inFlight = false;
     //END WARPGATE
   }
 

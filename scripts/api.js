@@ -86,7 +86,8 @@ export class api {
         if(options.controllingActor) options.controllingActor.sheet.maximize();
       });
     }
+
     if(options.controllingActor) options.controllingActor.sheet.minimize();
-    Gateway.drawCrosshairs(protoData, onPlacement);
+    return Gateway.drawCrosshairs(protoData, onPlacement);
   }
 }

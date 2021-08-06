@@ -14,7 +14,8 @@ export class MODULE{
   static async build(){
     MODULE.data = { 
       name: NAME,
-      path: PATH
+      path: PATH,
+      title: "Warp Gate"
     };
     logger.info("Module Data Built");
   }

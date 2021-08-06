@@ -7,6 +7,10 @@
     "openDelete" : {
       "name" : "Unrestricted dismissal",
       "hint" : "Allows players to dismiss unowned tokens"
+    },
+    "showDismissLabel" : {
+      "name" : "Show dismiss button label",
+      "hint" : "Show the dismiss icon and label, or just the icon on the sheet header."
     }
   },
   "display" : {
@@ -14,7 +18,10 @@
   },
   "error" : {
     "noGM" : "There is no GM available for dismiss request.",
-    "unownedDelete" : "Cannot delete unowned token."
+    "unownedDelete" : "Cannot delete unowned token.",
+    "createItem": "Creating Item",
+    "updateItem": "Updating Item",
+    "deleteItem": "Deleting Item"
   }
 
 }

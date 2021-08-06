@@ -23,11 +23,23 @@ import { MODULE } from './module.js'
 export class UserInterface {
 
   static register() {
-    UserInterface.hooks();
+    this.hooks();
+    this.settings();
   }
 
   static hooks() {
     Hooks.on("renderActorSheet", UserInterface._renderActorSheet);
+  }
+
+  static settings() {
+    const config = true;
+    const settingsData = {
+      showDismissLabel : {
+        scope: "client", config, default: true, type: Boolean,
+      },
+    };
+
+    MODULE.applySettings(settingsData);
   }
 
   static _renderActorSheet(app, html, data) {
@@ -56,7 +68,8 @@ export class UserInterface {
       return;
     }
 
-    let dismissButton = $(`<a class="dismiss-warpgate" title="dismiss"><i class="fas fa-user-slash"></i>${MODULE.localize("display.dismiss")}</a>`);
+    const label = MODULE.setting('showDismissLabel') ? MODULE.localize("display.dismiss") : ""
+    let dismissButton = $(`<a class="dismiss-warpgate" title="dismiss"><i class="fas fa-user-slash"></i>${label}</a>`);
 
     dismissButton.click( (/*event*/) => {
       if (!token) {

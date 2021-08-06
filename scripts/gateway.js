@@ -66,7 +66,7 @@ export class Gateway {
   static drawCrosshairs(protoToken, callback) {
     const template = Crosshairs.fromToken(protoToken);
     template.callback = callback;
-    template.drawPreview();
+    return template.drawPreview();
   }
 
   static dismissSpawn(tokenId, sceneId) {
@@ -142,6 +142,22 @@ export class Gateway {
 
   /** @todo */
   static _parseAddShorthand(itemUpdates, actor){
+    let parsedAdds = Object.keys(itemUpdates).map((key) => {
+
+      /* ignore deletes */
+      if (itemUpdates[key] === warpgate.CONST.DELETE) return false;
+
+      /* ignore item updates for items that exist */
+      if (actor.items.getName(key) != null) return false;
+
+      return {
+        name: key,
+        ...itemUpdates[key]
+      }
+
+    });
+    parsedAdds = parsedAdds.filter( update => !!update);
+    return parsedAdds;
 
   }
 
@@ -157,11 +173,27 @@ export class Gateway {
 
     /** split out the shorthand notation we've created */
     if (updates.item) {
+      const parsedAdds = Gateway._parseAddShorthand(updates.item, summonedDocument.actor);
       const parsedUpdates = Gateway._parseUpdateShorthand(updates.item, summonedDocument.actor);
       const parsedDeletes = Gateway._parseDeleteShorthand(updates.item, summonedDocument.actor);
 
-      if (parsedUpdates.length > 0) await summonedDocument.actor.updateEmbeddedDocuments("Item", parsedUpdates);
-      if (parsedDeletes.length > 0) await summonedDocument.actor.deleteEmbeddedDocuments("Item", parsedDeletes);
+      try {
+        if (parsedAdds.length > 0) await summonedDocument.actor.createEmbeddedDocuments("Item", parsedAdds);
+      } catch (e) {
+        logger.error(`${MODULE.localize('error.createItem')}: ${e}`)
+      } 
+
+      try {
+        if (parsedUpdates.length > 0) await summonedDocument.actor.updateEmbeddedDocuments("Item", parsedUpdates);
+      } catch (e) {
+        logger.error(`${MODULE.localize('error.updateItem')}: ${e}`)
+      }
+
+      try {
+        if (parsedDeletes.length > 0) await summonedDocument.actor.deleteEmbeddedDocuments("Item", parsedDeletes);
+      } catch (e) {
+        logger.error(`${MODULE.localize('error.deleteItem')}: ${e}`)
+      }
     }
 
     return;
