@@ -151,8 +151,8 @@ export class Gateway {
       if (actor.items.getName(key) != null) return false;
 
       return {
-        name: key,
-        ...itemUpdates[key]
+        ...itemUpdates[key],
+        name: key
       }
 
     });
