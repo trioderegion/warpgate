@@ -7,6 +7,9 @@ Warp Gate, in its current form, is a system-agnostic library module for Foundry 
 https://user-images.githubusercontent.com/14878515/127940403-40301919-8a12-42e0-b3c4-7711f6e64b3b.mp4
 
 ## Usage
+
+Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpgate/wiki) for specific examples and further discussion!
+
 ### `await warpgate.spawn(actorName, updates = {}, callbacks = {}, options = {})`
 Parameters:
 1. `String` Name of actor to spawn
@@ -14,7 +17,7 @@ Parameters:
 4. `Object` Callback functions (optional). See "Callback Functions".
 5. `Object` (optional) Currently, only expects `controllingActor` and simply minimizes its open sheet for a clearer view of the canvas during placement.
 
-The player spawning the token will also be given Owner permissions for that specific token actor. This means that players can spawn any creature in the world.
+The primary function of Warp Gate. When executed, it will create a custom MeasuredTemplate that is used to place the spawned token and handle any customizations provided in the Update object. `spawn` will return a Promise that can be awaited, which can be used in loops to spawn multiple tokens, one after another. The player spawning the token will also be given Owner permissions for that specific token actor. This means that players can spawn any creature in the world.
 
 Example:
 ```
@@ -40,10 +43,12 @@ const options: {controllingActor: actor}
 warpgate.spawn("Name of actor to warp in", updates, callbacks, options)
 ```
 
-The primary function of Warp Gate. When executed, it will create a custom MeasuredTemplate that is used to place the spawned token and handle any customizations provided in the Update object. `spawn` will return a Promise that can be awaited, which can be used in loops to spawn multiple tokens, one after another.
 
 ### `async warpgate.wait(timeMs)`
 Helper function. Waits for a specified amount of time (be sure to await!). Useful for timings with animations in the pre/post callbacks.
+
+### `warpgate.dismiss(tokenId, sceneId)`
+Deletes the specified token from the specified scene. This function allows anyone to delete any specified token unless this functionality is restricted to only owned tokens in Warp Gate's module settings. This is the same function called by the "Dismiss" header button on owned actor sheets.
 
 ## Update Shorthand
 The `update` object can contain up to three keys: `token`, `actor`, and `item`. The `token` and `actor` key values are standard update objects as one would use in `actor.update({...data})`.
