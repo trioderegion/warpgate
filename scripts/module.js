@@ -95,7 +95,7 @@ export class MODULE{
         buttons,
         close: () => resolve(true)
       }, {
-        width: 300, height: 'auto' //25 + (data.buttons.length * 45),
+        width: 300, height: 'auto' 
       });
 
       await dialog._render(true);
@@ -106,18 +106,21 @@ export class MODULE{
   /* example
    * warpgate.dialog([
    *  {
-   *    type: 'select', label: "poo", 
-   *    options: ['hehe', 'ugly', 'bald']
+   *    type: 'select', label: "Selection dropdown", 
+   *    options: ['hehe', 'harhar', 'trololol']
    *  },{
    *    type:'header', label:'Test Header'
    *  },{
-   *    type: 'button', label: 'next', options: 'past'
+   *    type: 'button', label: 'Button is completely ignored' 
    *  },{
-   *    type: 'radio', label: '<h2>future</h2>', options: 'past'
-   *  }]
-   *  , "Select insult")
+   *    type: 'radio', label: '<h2>HTML+label</h2>', options: 'group1'
+   *  },{
+   *    type: 'info', label: 'Just informative text'
+   *  }],
+   *  "Select some things",
+   *  "Custom submit button text")
    */
-  static async dialog(data = {}, title = `Prompt`) {
+  static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
     data = data instanceof Array ? data : [data];
 
     return await new Promise((resolve) => {
@@ -127,6 +130,8 @@ export class MODULE{
         if (type.toLowerCase() === 'button') { return '' }
         if (type.toLowerCase() === 'header') {
             return `<tr><td colspan="2"><h2>${label}</h2></td></tr>`;
+        } else if (type.toLowerCase() === 'info') {
+            return `<tr><td>${label}</td></tr>`;
         } else if (type.toLowerCase() === `select`) {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
         } else if (type.toLowerCase() === `checkbox` || type.toLowerCase() == `radio` ) {
@@ -141,7 +146,7 @@ export class MODULE{
         title, content,
         buttons: {
           Ok: {
-            label: `Ok`, callback: (html) => {
+            label: submitLabel, callback: (html) => {
               resolve(Array(data.length).fill().map((e, i) => {
                 let {type} = data[i];
                 if (type.toLowerCase() === `select`) {
