@@ -34,6 +34,8 @@ export class api {
       spawn : api._spawn,
       dismiss : Gateway.dismissSpawn,
       wait : MODULE.wait,
+      dialog : MODULE.dialog,
+      buttonDialog : MODULE.buttonDialog,
       dnd5e : {
         rollItem : Gateway._rollItemGetLevel
       },
