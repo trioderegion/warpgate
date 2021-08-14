@@ -33,7 +33,7 @@ export class Crosshairs extends MeasuredTemplate {
       x: 0,
       y: 0,
       fillColor: game.user.color,
-      layer: canvas.activeLayer
+      //layer: canvas.activeLayer
     }
 
     //create the MeasuredTemplate document
@@ -220,7 +220,9 @@ export class Crosshairs extends MeasuredTemplate {
    */
   drawPreview() {
     // Draw the template and switch to the template layer
+    this.initialLayer = canvas.activeLayer;
     this.inFlight = true;
+    this.layer.activate();
     this.draw();
     this.layer.preview.addChild(this);
 
@@ -279,6 +281,7 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
+    this.initialLayer.activate();
 
     //BEGIN WARPGATE
     // Show the sheet that originated the preview
