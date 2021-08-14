@@ -60,7 +60,7 @@ export class api {
    * @param {Object} options
    *   controllingActor: Actor. currently only used to minimize the sheet while placing.
    *   duplicates: Number. Default = 1. Will spawn multiple copies of the chosen actor nearby the spawn point
-   *   collision: Boolean. Default = false. Will move spawned token to a nearby square if the chosen point is occupied
+   *   collision: Boolean. Default = true if using duplicates, false otherwise. Will move spawned token to a nearby square if the chosen point is occupied
    *       by a token or wall.
    */
   static async _spawn(spawnName, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}, options = {}) {
@@ -79,16 +79,16 @@ export class api {
      * execute user's post()
      */
     const onPlacement = (templateData) => {
-      Gateway.queueUpdate( async () => {
+      Gateway.queueUpdate(async () => {
 
         /** pre creation callback */
         if (callbacks.pre) await callbacks.pre(templateData, updates);
 
         const duplicates = options.duplicates > 0 ? options.duplicates : 1;
 
-        for(let iteration = 0; iteration < duplicates; iteration++) {
-          
-          const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData, {x: templateData.x, y: templateData.y}, options.collision ?? false))[0];
+        for (let iteration = 0; iteration < duplicates; iteration++) {
+
+          const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData, {x: templateData.x, y: templateData.y}, options.collision ?? (options.duplicates > 1)))[0];
           logger.debug('Spawned token with data: ', protoData);
           if (updates) await Gateway._updateSummon(spawnedTokenDoc, updates);
 
@@ -96,17 +96,22 @@ export class api {
           const control = {user: game.user.id, actor: options.controllingActor?.id}
           await spawnedTokenDoc.actor.setFlag(MODULE.data.name, 'control', control);
 
-          /** post creation callback */
-          if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc, updates, iteration);
+          /** post creation callback -- use iter+1 because this update is referring to the NEXT iteration */
+          if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc, updates, iteration + 1);
 
           /** if we are dealing with a wild card and need a fresh one for next iteration */
-          if (spawnedTokenDoc.actor.data.token.randomImg && duplicates > 1) { 
-            /* get a fresh copy */
-            protoData = (await spawnedTokenDoc.actor.getTokenData()).toObject(); 
+          if (duplicates > 1) {
+            if (spawnedTokenDoc.actor.data.token.randomImg) {
+              /* get a fresh copy */
+              protoData = (await spawnedTokenDoc.actor.getTokenData(updates.token)).toObject();
+            } else {
+              /* update current prototoken */
+              mergeObject(protoData, updates.token);
+            }
           }
-        }
 
-        if(options.controllingActor) options.controllingActor.sheet.maximize();
+          if (options.controllingActor) options.controllingActor.sheet.maximize();
+        }
       });
     }
 

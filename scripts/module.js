@@ -78,7 +78,7 @@ export class MODULE{
  *    }]
  *  })
  */
-  static async buttonDialog(data) {
+  static async buttonDialog(data, direction = 'row') {
     return await new Promise(async (resolve) => {
       let buttons = {}, dialog;
 
@@ -95,11 +95,11 @@ export class MODULE{
         buttons,
         close: () => resolve(true)
       }, {
-        width: 300, height: 'auto' 
+        /*width: '100%',*/ height: '100%' 
       });
 
       await dialog._render(true);
-      dialog.element.find('.dialog-buttons').css({'flex-direction': 'column'});
+      dialog.element.find('.dialog-buttons').css({'flex-direction': direction});
     });
   }
 
@@ -131,7 +131,7 @@ export class MODULE{
         if (type.toLowerCase() === 'header') {
             return `<tr><td colspan="2"><h2>${label}</h2></td></tr>`;
         } else if (type.toLowerCase() === 'info') {
-            return `<tr><td>${label}</td></tr>`;
+            return `<tr><td colspan="2">${label}</td></tr>`;
         } else if (type.toLowerCase() === `select`) {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
         } else if (type.toLowerCase() === `checkbox` || type.toLowerCase() == `radio` ) {
