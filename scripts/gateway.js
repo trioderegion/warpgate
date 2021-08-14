@@ -20,6 +20,7 @@ import {MODULE} from './module.js'
 import {queueEntityUpdate} from './update-queue.js'
 import {Crosshairs} from './crosshairs.js'
 import { Comms } from './comms.js'
+import {Propagator} from './propagator.js'
 
 const NAME = "Gateway";
 
@@ -106,15 +107,28 @@ export class Gateway {
     })}
 
   /* returns promise of token creation */
-  static async _spawnActorAtLocation(protoToken, spawnPoint) {
+  static async _spawnActorAtLocation(protoToken, spawnPoint, collision) {
+
+    // Increase this offset for larger summons
+    spawnPoint.x -= (canvas.scene.data.grid  * (protoToken.width/2));
+    spawnPoint.y -= (canvas.scene.data.grid  * (protoToken.height/2));
+    
+    /* call ripper's placement algorithm for collision checks
+     * which will try to avoid tokens and walls
+     */
+    if (collision) {
+      const openPosition = Propagator.getFreePosition(protoToken, spawnPoint);  
+      if(!openPosition) {
+        /** @todo localize */
+        logger.info('Could not locate open locations near chosen location. Overlapping at chosen location:', spawnPoint);
+      } else {
+        spawnPoint = openPosition
+      }
+    }
+
     protoToken.x = spawnPoint.x;
     protoToken.y = spawnPoint.y;
 
-    // Increase this offset for larger summons
-    protoToken.x -= (canvas.scene.data.grid / 2 * (protoToken.width));
-    protoToken.y -= (canvas.scene.data.grid / 2 * (protoToken.height));
-
-    await protoToken.update({...protoToken});
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
 

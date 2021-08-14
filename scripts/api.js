@@ -47,17 +47,26 @@ export class api {
 
   /** Main driver
    * @param {String} spawnName
+   *
    * @param {Object} updates - item, actor, and token document updates. item updates use a "shorthand" notation.
+   *
    * @param {Object} callbacks - functions to be executed at various stages of the spawning process
-   *   pre: async function(templateData, updates). Executed after placement has been decided, but before updates have been issued. Used for modifying the updates based on position of the placement
-   *   post: async function(templateData, spawnedTokenDoc). Executed after token has be spawned and updated. Good for animation triggers or chat messages.
+   *   pre: async function(templateData, updates). Executed after placement has been decided, but before updates 
+   *       have been issued. Used for modifying the updates based on position of the placement
+   *   post: async function(templateData, spawnedTokenDoc, updates, iteration). Executed after token has be spawned and updated. 
+   *       Good for animation triggers or chat messages. Also used to change the update object for the next iteration 
+   *       in case of duplicates being spawned. Iteration is 0 indexed.
+   *
    * @param {Object} options
    *   controllingActor: Actor. currently only used to minimize the sheet while placing.
+   *   duplicates: Number. Default = 1. Will spawn multiple copies of the chosen actor nearby the spawn point
+   *   collision: Boolean. Default = false. Will move spawned token to a nearby square if the chosen point is occupied
+   *       by a token or wall.
    */
-  static async _spawn(spawnName, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}, options = {controllingActor: null}) {
+  static async _spawn(spawnName, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}, options = {}) {
 
     //get prototoken data
-    let protoData = await game.actors.getName(spawnName)?.getTokenData(updates.token);
+    let protoData = (await game.actors.getName(spawnName)?.getTokenData(updates.token)).toObject();
     if(!protoData) {
       logger.error(`Could not find proto token data for ${spawnName}`);
       return;
@@ -75,15 +84,27 @@ export class api {
         /** pre creation callback */
         if (callbacks.pre) await callbacks.pre(templateData, updates);
 
-        const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData, templateData))[0];
-        if (updates) await Gateway._updateSummon(spawnedTokenDoc, updates);
+        const duplicates = options.duplicates > 0 ? options.duplicates : 1;
 
-        /** flag this user as its creator */
-        const control = {user: game.user.id, actor: options.controllingActor?.id}
-        await spawnedTokenDoc.actor.setFlag(MODULE.data.name, 'control', control);
+        for(let iteration = 0; iteration < duplicates; iteration++) {
+          
+          const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData, {x: templateData.x, y: templateData.y}, options.collision ?? false))[0];
+          logger.debug('Spawned token with data: ', protoData);
+          if (updates) await Gateway._updateSummon(spawnedTokenDoc, updates);
 
-        /** post creation callback */
-        if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc);
+          /** flag this user as its creator */
+          const control = {user: game.user.id, actor: options.controllingActor?.id}
+          await spawnedTokenDoc.actor.setFlag(MODULE.data.name, 'control', control);
+
+          /** post creation callback */
+          if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc, updates, iteration);
+
+          /** if we are dealing with a wild card and need a fresh one for next iteration */
+          if (spawnedTokenDoc.actor.data.token.randomImg && duplicates > 1) { 
+            /* get a fresh copy */
+            protoData = (await spawnedTokenDoc.actor.getTokenData()).toObject(); 
+          }
+        }
 
         if(options.controllingActor) options.controllingActor.sheet.maximize();
       });

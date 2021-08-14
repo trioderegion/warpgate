@@ -254,7 +254,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.data.update(destination);
 
     //BEGIN WARPGATE
-    this.callback(this.data);
+    this.callback(this.data.toObject());
     //END WARPGATE
   }
 
