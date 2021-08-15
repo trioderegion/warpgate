@@ -31,7 +31,7 @@ Deletes the specified token from the specified scene. This function allows anyon
 
 ### `async warpgate.buttonDialog(data, direction = 'row')`
 Helper function for quickly creating a simple dialog with labeled buttons and associated data. Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
-* `data` {Array of Objects}: Contains two keys `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `const data = [{label: 'First Choice, value: {token {name: 'First'}}, {label: 'Second Choice', value: {token: {name: 'Second}}}]`
+* `data` {Array of Objects}: Contains two keys `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `const data = {buttons: [{label: 'First Choice', value: {token {name: 'First'}}, {label: 'Second Choice', value: {token: {name: 'Second'}}}]}`
 * `direction` {String} (optional): `'column'` or `'row'` accepted. Controls layout direction of dialog.
 
 ### `async warpgate.dialog(data, title = 'Prompt', submitLabel = 'Ok')`
