@@ -53,6 +53,7 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | radio | group name | selected: {String} `label`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
 | checkbox | none | {Boolean} `true`/`false` checked/unchecked | Can use options as `radio` type, which assigns the input's `name` property for external interfacing |
 | number | (as `text`) | {Number} final value of text field converted to a number |
+| select | array of option labels | {String} label of choice | | 
 
 
 ## Update Shorthand
