@@ -1,3 +1,25 @@
+/* theripper93
+ * Copyright (C) 2021 dnd-randomizer
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * Original License: 
+ * https://github.com/theripper93/dnd-randomizer/blob/master/LICENSE
+ */
+
+/* WARPGATE CHANGES
+ * exporting propagator class
+ * removed test function from original code
+ */
+
 export class Propagator{
     // Find a non occupid cell in the grid that matches the size of the token given an origin
     static getFreePosition(tokenData,origin, collision = true){

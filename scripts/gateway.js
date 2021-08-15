@@ -70,7 +70,7 @@ export class Gateway {
     return template.drawPreview();
   }
 
-  static dismissSpawn(tokenId, sceneId) {
+  static async dismissSpawn(tokenId, sceneId) {
 
     /** @todo localize */
     if (!tokenId || !sceneId){
@@ -88,23 +88,24 @@ export class Gateway {
       }
     }
 
-    Gateway.queueUpdate( async () => {
-      logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
+    
+    logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
 
-      /** GMs can always delete tokens */
-      if (game.user.isGM) {
-        await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
-      } else {
-        /** otherwise, we need to send a request for deletion */
-        if (!MODULE.firstGM()){
-          logger.error('error.noGm');
-          return;
-        }
-
-        Comms.requestDismissSpawn(tokenId, sceneId);
+    /** GMs can always delete tokens */
+    if (game.user.isGM) {
+      await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+    } else {
+      /** otherwise, we need to send a request for deletion */
+      if (!MODULE.firstGM()){
+        logger.error('error.noGm');
+        return;
       }
 
-    })}
+      Comms.requestDismissSpawn(tokenId, sceneId);
+    }
+    
+    return;
+  }
 
   /* returns promise of token creation */
   static async _spawnActorAtLocation(protoToken, spawnPoint, collision) {

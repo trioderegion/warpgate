@@ -68,16 +68,16 @@ export class MODULE{
     });
   }
 
-/*
- * ex. warpgate.buttonDialog({
- *  title: 'press one', 
- *  buttons: [
- *    {
- *      label: 'Hello World',
- *      value : {token: {name: 'test'}}
- *    }]
- *  })
- */
+  /*
+   * Helper function for quickly creating a simple dialog with labeled buttons and associated data. 
+   * Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
+   *
+   * @param `data` {Array of Objects}: Contains two keys `label` and `value`. Label corresponds to the 
+   *     button's text. Value corresponds to the return value if this button is pressed. Ex. 
+   *     `const data = [{label: 'First Choice, value: {token {name: 'First'}}, {label: 'Second Choice',
+   *         value: {token: {name: 'Second}}}]`
+   * @param `direction` {String} (optional): `'column'` or `'row'` accepted. Controls layout direction of dialog.
+   */
   static async buttonDialog(data, direction = 'row') {
     return await new Promise(async (resolve) => {
       let buttons = {}, dialog;
@@ -103,23 +103,7 @@ export class MODULE{
     });
   }
 
-  /* example
-   * warpgate.dialog([
-   *  {
-   *    type: 'select', label: "Selection dropdown", 
-   *    options: ['hehe', 'harhar', 'trololol']
-   *  },{
-   *    type:'header', label:'Test Header'
-   *  },{
-   *    type: 'button', label: 'Button is completely ignored' 
-   *  },{
-   *    type: 'radio', label: '<h2>HTML+label</h2>', options: 'group1'
-   *  },{
-   *    type: 'info', label: 'Just informative text'
-   *  }],
-   *  "Select some things",
-   *  "Custom submit button text")
-   */
+  /* See readme at github.com/trioderegion/warpgate */
   static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
     data = data instanceof Array ? data : [data];
 

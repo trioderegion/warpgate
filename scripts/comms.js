@@ -39,7 +39,7 @@ export class Comms {
     game.socket.on(`module.${MODULE.data.name}`, Comms._receiveSocket);
   }
 
-  static _receiveSocket(socketData) {
+  static async _receiveSocket(socketData) {
     logger.debug("Received socket data => ", socketData);
 
     /** let the first GM handle all sockets */
@@ -47,12 +47,14 @@ export class Comms {
 
     switch (socketData.op){
       case ops.DISMISS_SPAWN:
-        Gateway.dismissSpawn(socketData.tokenId, socketData.sceneId);
+        await Gateway.dismissSpawn(socketData.tokenId, socketData.sceneId);
         break;
       default:
         logger.error("Unrecognized socket request", socketData);
         break;
     }
+
+    return;
   }
 
   static _emit(socketData) {
