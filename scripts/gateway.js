@@ -64,10 +64,11 @@ export class Gateway {
     return parseInt(level);
   }
 
-  static drawCrosshairs(protoToken, callback) {
+  static async drawCrosshairs(protoToken) {
     const template = Crosshairs.fromToken(protoToken);
-    template.callback = callback;
-    return template.drawPreview();
+    //template.callback = callback;
+    await template.drawPreview();
+    return template.data.toObject();
   }
 
   static async dismissSpawn(tokenId, sceneId) {
@@ -184,13 +185,16 @@ export class Gateway {
     updates.actor = mergeObject(updates.actor ?? {}, permissions);
 
     /** perform the updates */
+    logger.debug('Perfoming update on (actor/updates)',summonedDocument.actor, updates);
     if (updates.actor) await summonedDocument.actor.update(updates.actor);
+    logger.debug('Update complete');
 
     /** split out the shorthand notation we've created */
     if (updates.item) {
       const parsedAdds = Gateway._parseAddShorthand(updates.item, summonedDocument.actor);
       const parsedUpdates = Gateway._parseUpdateShorthand(updates.item, summonedDocument.actor);
       const parsedDeletes = Gateway._parseDeleteShorthand(updates.item, summonedDocument.actor);
+      logger.debug('Updating actor items (actor/items)',summonedDocument.actor, parsedAdds, parsedUpdates, parsedDeletes);
 
       try {
         if (parsedAdds.length > 0) await summonedDocument.actor.createEmbeddedDocuments("Item", parsedAdds);
