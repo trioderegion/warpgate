@@ -36,6 +36,9 @@ export class Gateway {
       openDelete : {
         scope: "world", config, default: false, type: Boolean,
       },
+      updateDelay : {
+        scope: "client", config, default: 20, type: Number
+      }
     };
 
     MODULE.applySettings(settingsData);
@@ -64,10 +67,10 @@ export class Gateway {
     return parseInt(level);
   }
 
-  static drawCrosshairs(protoToken, callback) {
-    const template = Crosshairs.fromToken(protoToken);
-    template.callback = callback;
-    return template.drawPreview();
+  static async drawCrosshairs(label = '', tokenSize = 1, icon = 'icons/svg/dice-target.svg') {
+    const template = new Crosshairs(label, tokenSize, icon);
+    await template.drawPreview();
+    return template.data.toObject();
   }
 
   static async dismissSpawn(tokenId, sceneId) {
@@ -111,24 +114,23 @@ export class Gateway {
   static async _spawnActorAtLocation(protoToken, spawnPoint, collision) {
 
     // Increase this offset for larger summons
-    spawnPoint.x -= (canvas.scene.data.grid  * (protoToken.width/2));
-    spawnPoint.y -= (canvas.scene.data.grid  * (protoToken.height/2));
+    let internalSpawnPoint = {x: spawnPoint.x - (canvas.scene.data.grid  * (protoToken.width/2)),
+        y:spawnPoint.y - (canvas.scene.data.grid  * (protoToken.height/2))}
     
     /* call ripper's placement algorithm for collision checks
      * which will try to avoid tokens and walls
      */
     if (collision) {
-      const openPosition = Propagator.getFreePosition(protoToken, spawnPoint);  
+      const openPosition = Propagator.getFreePosition(protoToken, internalSpawnPoint);  
       if(!openPosition) {
         /** @todo localize */
         logger.info('Could not locate open locations near chosen location. Overlapping at chosen location:', spawnPoint);
       } else {
-        spawnPoint = openPosition
+        internalSpawnPoint = openPosition
       }
     }
 
-    protoToken.x = spawnPoint.x;
-    protoToken.y = spawnPoint.y;
+    protoToken.update(internalSpawnPoint);
 
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
@@ -184,6 +186,8 @@ export class Gateway {
     updates.actor = mergeObject(updates.actor ?? {}, permissions);
 
     /** perform the updates */
+    logger.debug('Perfoming update on (actor/updates)',summonedDocument.actor, updates);
+    await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
     if (updates.actor) await summonedDocument.actor.update(updates.actor);
 
     /** split out the shorthand notation we've created */
@@ -191,6 +195,7 @@ export class Gateway {
       const parsedAdds = Gateway._parseAddShorthand(updates.item, summonedDocument.actor);
       const parsedUpdates = Gateway._parseUpdateShorthand(updates.item, summonedDocument.actor);
       const parsedDeletes = Gateway._parseDeleteShorthand(updates.item, summonedDocument.actor);
+      logger.debug('Updating actor items (actor/items)',summonedDocument.actor, parsedAdds, parsedUpdates, parsedDeletes);
 
       try {
         if (parsedAdds.length > 0) await summonedDocument.actor.createEmbeddedDocuments("Item", parsedAdds);

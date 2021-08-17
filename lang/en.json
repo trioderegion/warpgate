@@ -11,6 +11,10 @@
     "showDismissLabel" : {
       "name" : "Show dismiss button label",
       "hint" : "Show the dismiss icon and label, or just the icon on the sheet header."
+    },
+    "updateDelay" : {
+      "name" : "Update delay (ms)",
+      "hint" : "Temporary workaround. Increase this value if you are encountering errors with duplicate placement. Lower this value for faster placement."
     }
   },
   "display" : {

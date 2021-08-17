@@ -20,9 +20,28 @@ import { MODULE } from './module.js'
 
 export class Crosshairs extends MeasuredTemplate {
 
+  constructor(label = '', tokenSize = 1, tokenImage = 'icons/svg/dice-target.svg'){
+     const templateData = {
+      t: "circle",
+      user: game.user.id,
+      distance: (canvas.scene.data.gridDistance / 2) * tokenSize,
+      x: 0,
+      y: 0,
+      fillColor: game.user.color,
+    }   
+
+    const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
+    super(template);
+
+    this.tokenImage = tokenImage;
+    this.inFlight = false;
+    this.label = label;
+  }
+
   /* @todo need to make a proper constructor with
    * the fields that I am adding to MeasuredTemplate
    */
+  /*
   static fromToken(tokenData) {
 
     const templateData = {
@@ -44,6 +63,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     return templateObject;
   }
+  */
 
   /**
    * Set the displayed ruler tooltip text and position
@@ -51,7 +71,7 @@ export class Crosshairs extends MeasuredTemplate {
    */
     //BEGIN WARPGATE
   _setRulerText() {
-    this.ruler.text = this.tokenData.name;
+    this.ruler.text = this.label;
     /** swap the X and Y to use the default dx/dy of a ray (pointed right)
     //to align the text to the bottom of the template */
     this.ruler.position.set(this.ray.dy + 10, this.ray.dx + 5);
@@ -126,13 +146,13 @@ export class Crosshairs extends MeasuredTemplate {
     const size = Math.max(Math.round((canvas.dimensions.size * 0.5) / 20) * 20, 40);
 
     //BEGIN WARPGATE
-    let icon = new ControlIcon({texture: this.tokenData.img, size: size});
+    let icon = new ControlIcon({texture: this.tokenImage, size: size});
     //END WARPGATE
 
     icon.pivot.set(size*0.5, size*0.5);
     //icon.x -= (size * 0.5);
     //icon.y -= (size * 0.5);
-    icon.angle = this.tokenData.rotation;
+    icon.angle = this.data.direction;
     return icon;
   }
 
@@ -185,7 +205,7 @@ export class Crosshairs extends MeasuredTemplate {
     // Update visibility
     this.controlIcon.visible = true;//this.layer._active;
     this.controlIcon.border.visible = this._hover;
-    this.controlIcon.angle = this.tokenData.rotation;
+    this.controlIcon.angle = this.data.direction;
 
     // Draw ruler text
     //BEGIN WARPGATE
@@ -256,7 +276,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.data.update(destination);
 
     //BEGIN WARPGATE
-    this.callback(this.data.toObject());
+    //this.callback(this.data.toObject());
     //END WARPGATE
   }
 
@@ -269,8 +289,7 @@ export class Crosshairs extends MeasuredTemplate {
     //BEGIN WARPGATE
     const direction = this.data.direction + (snap * Math.sign(event.deltaY))
     this.data.update({direction});
-    this.tokenData.rotation = direction
-    logger.debug(`New Rotation: ${this.tokenData.rotation}`);
+    logger.debug(`New Rotation: ${direction}`);
     //END WARPGATE
     this.refresh();
   }
