@@ -23,6 +23,12 @@ Parameters:
 	- `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
 	- `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
 
+### `async warpgate.spawnAt(location, tokenData, updates, callbacks, options)`
+An alternate, more module friendly spawning function. Will create a token from the provided token data and updates at the designated location. 
+* location {Object} of the form {x: Number, y: Number} designating the token's _center point_
+* tokenData {TokenData} the base token data from which to spawn a new token and apply updates to it.
+* updates, callsbacks, options: See `warpgate.spawn`.
+
 ### `async warpgate.wait(timeMs)`
 Helper function. Waits for a specified amount of time in milliseconds (be sure to await!). Useful for timings with animations in the pre/post callbacks.
 
@@ -72,13 +78,17 @@ Assigning the dict key to the special constant `warpgate.CONST.DELETE` will remo
 
 ## Callback Functions
 The `callbacks` object has two expected keys: `pre` and `post` and provide a way to execute custom code during the spawning process. Both key values are type `async function`.
-* `async pre(templateData, updates)`: Executed after placement has been decided, but before updates have been issued or tokens spawned. Used for modifying the updates based on position of the placement.
+
+### `async pre(templateData, updates)`
+Executed after placement has been decided, but before updates have been issued or tokens spawned. Used for modifying the updates based on position of the placement.
 	* `templateData` {Object} Data of the template preview used for placement.
 	* `updates` {Object} The update object passed into `warpgate#spawn`.
-* `async post(templateData, spawnedTokenDoc, updates, iteration)`: Executed after the token has been spawned and any updates applied. Good for animation triggers, or chat messages. Additionally, when utilizing the `duplicates` option, the update object used to spawn this token is passed in for modification during the _next_ iteration.
+
+### `async post(templateData, spawnedTokenDoc, updates, iteration)`
+Executed after the token has been spawned and any updates applied. Good for animation triggers, or chat messages. Additionally, when utilizing the `duplicates` option, the update object used to spawn the next token is passed in for modification for the indicated iteration. Note, the same update object is used throughout the spawning process, being modified as desired on each iteration.
  	* `templateData` {Object} Data of the template preview used for placement.
  	* `spawnedTokenDoc` {TokenDocument} The token spawned by this iteration.
-	* `updates` {Object} The update object passed into `warpgate#spawn`.
+	* `updates` {Object} The update object from the just spawned token. Will be applied to default prototoken data for next iteration
 	* `iteration` {Number} The iteration index of the _next_ iteration. 0-indexed.
 
 ## Special Thanks

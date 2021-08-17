@@ -36,6 +36,9 @@ export class Gateway {
       openDelete : {
         scope: "world", config, default: false, type: Boolean,
       },
+      updateDelay : {
+        scope: "client", config, default: 20, type: Number
+      }
     };
 
     MODULE.applySettings(settingsData);
@@ -64,9 +67,8 @@ export class Gateway {
     return parseInt(level);
   }
 
-  static async drawCrosshairs(protoToken) {
-    const template = Crosshairs.fromToken(protoToken);
-    //template.callback = callback;
+  static async drawCrosshairs(label = '', tokenSize = 1, icon = 'icons/svg/dice-target.svg') {
+    const template = new Crosshairs(label, tokenSize, icon);
     await template.drawPreview();
     return template.data.toObject();
   }
@@ -112,24 +114,23 @@ export class Gateway {
   static async _spawnActorAtLocation(protoToken, spawnPoint, collision) {
 
     // Increase this offset for larger summons
-    spawnPoint.x -= (canvas.scene.data.grid  * (protoToken.width/2));
-    spawnPoint.y -= (canvas.scene.data.grid  * (protoToken.height/2));
+    let internalSpawnPoint = {x: spawnPoint.x - (canvas.scene.data.grid  * (protoToken.width/2)),
+        y:spawnPoint.y - (canvas.scene.data.grid  * (protoToken.height/2))}
     
     /* call ripper's placement algorithm for collision checks
      * which will try to avoid tokens and walls
      */
     if (collision) {
-      const openPosition = Propagator.getFreePosition(protoToken, spawnPoint);  
+      const openPosition = Propagator.getFreePosition(protoToken, internalSpawnPoint);  
       if(!openPosition) {
         /** @todo localize */
         logger.info('Could not locate open locations near chosen location. Overlapping at chosen location:', spawnPoint);
       } else {
-        spawnPoint = openPosition
+        internalSpawnPoint = openPosition
       }
     }
 
-    protoToken.x = spawnPoint.x;
-    protoToken.y = spawnPoint.y;
+    protoToken.update(internalSpawnPoint);
 
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
@@ -186,8 +187,8 @@ export class Gateway {
 
     /** perform the updates */
     logger.debug('Perfoming update on (actor/updates)',summonedDocument.actor, updates);
+    await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
     if (updates.actor) await summonedDocument.actor.update(updates.actor);
-    logger.debug('Update complete');
 
     /** split out the shorthand notation we've created */
     if (updates.item) {

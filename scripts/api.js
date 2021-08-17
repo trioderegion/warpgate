@@ -32,6 +32,7 @@ export class api {
   static globals() {
     window[MODULE.data.name] = {
       spawn : api._spawn,
+      spawnAt : api._spawnAt,
       dismiss : Gateway.dismissSpawn,
       wait : MODULE.wait,
       dialog : MODULE.dialog,
@@ -62,8 +63,11 @@ export class api {
    *   duplicates: Number. Default = 1. Will spawn multiple copies of the chosen actor nearby the spawn point
    *   collision: Boolean. Default = true if using duplicates, false otherwise. Will move spawned token to a nearby square if the chosen point is occupied
    *       by a token or wall.
+   *
+   *
+   * @return Promise<[{String}]> list of created token ids
    */
-  static async _spawn(spawnName, updates = {item: {}, actor: {}, token: {}}, callbacks = {pre: null, post: null}, options = {}) {
+  static async _spawn(spawnName, updates = {item, actor, token} = {}, callbacks = {pre: null, post: null}, options = {}) {
     //get source actor
     const sourceActor = game.actors.getName(spawnName);
     if(!sourceActor) {
@@ -71,81 +75,85 @@ export class api {
       return;
     }
 
-    //get prototoken data
-    let protoData = (await sourceActor.getTokenData(updates.token)).toObject();
+    //get prototoken data -- need to prepare potential wild cards for the template preview
+    let protoData = (await sourceActor.getTokenData(updates.token));
     if(!protoData) {
       logger.error(`Could not find proto token data for ${spawnName}`);
       return;
     }
 
-    
-
     if(options.controllingActor) options.controllingActor.sheet.minimize();
-    let templateData = await Gateway.drawCrosshairs(protoData);
 
-    mergeObject(protoData, templateData.tokenData);
-    await api._runSpawn(templateData, sourceActor.id, updates, callbacks, options);
+    let templateData = await Gateway.drawCrosshairs(protoData.name, protoData.width, protoData.img);
+    let spawnLocation = {x: templateData.x, y:templateData.y}
+
+    mergeObject(updates, {token: {rotation: templateData.direction}});
+
+    return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
 
-  /** core spawning logic:
-       * execute user's pre()
-       * Spawn actor with already modified prototoken data
-       * Update actor with changes
-       * execute user's post()
-       */
-  static async _runSpawn(templateData, sourceActorId, updates, callbacks, options) {
-    const sourceActor = await game.actors.get(sourceActorId);
-    let protoData = (await sourceActor.getTokenData()).toObject();
+  /* Places a token with provided default protodata at location
+   * When using duplicates, a default protodata will be obtained
+   * each iteration with all token updates applied.
+   *
+   * @param {Object} spawnLocation = {x:number, y:number}
+   * @param {TokenData} protoData
+   *
+   * @return Promise<[{String}]> list of created token ids
+   *
+   * core spawning logic:
+   * 0) execute user's pre()
+   * 1) Spawn actor with updated prototoken data 
+   * 2) Update actor with actor and item changes
+   * 3) execute user's post()
+   * 4) if more duplicates, get fresh proto data and update it, goto 1
+   */
+  static async _spawnAt(spawnLocation, protoData, updates, callbacks, options) {
+
+    const sourceActor = game.actors.get(protoData.actorId);
+    let createdIds = [];
 
     /** pre creation callback */
-    if (callbacks.pre) await callbacks.pre(templateData, updates);
+    if (callbacks.pre) await callbacks.pre(spawnLocation, updates);
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
+
+    /* merge in changes to the prototoken */
+    protoData.update(updates.token);
 
     for (let iteration = 0; iteration < duplicates; iteration++) {
 
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
 
       const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData,
-        {x: templateData.x, y: templateData.y},
+        spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
 
-      logger.debug('Spawned token with data: ', protoData);
+      createdIds.push(spawnedTokenDoc.id);
 
-      if (updates) {
-        await Gateway._updateSummon(spawnedTokenDoc, updates);
-      }
+      logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
 
       /** flag this user as its creator */
-      const control = {user: game.user.id, actor: options.controllingActor?.id}
+      const flags = {warpgate: {control: {user: game.user.id, actor: options.controllingActor?.id}}}
+      mergeObject(updates, {actor: {flags}});
 
-      logger.debug('Flagging control', control);
-
-      await spawnedTokenDoc.actor.setFlag(MODULE.data.name, 'control', control);
-
+      await Gateway._updateSummon(spawnedTokenDoc, updates);
+     
       /** post creation callback -- use iter+1 because this update is referring to the NEXT iteration */
-      logger.debug('Firing post callback, if any', callbacks.post);
-      if (callbacks.post) await callbacks.post(templateData, spawnedTokenDoc, updates, iteration + 1);
+      if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration + 1);
       
-      logger.debug('Preparing for next iteration');
-      /** if we are dealing with a wild card and need a fresh one for next iteration */
+      /** if we are dealing with duplicates, get a fresh set of proto data for next iteration */
       if (duplicates > 1) {
-        if (sourceActor.data.token.randomImg) {
-          /* get a fresh copy */
-          let newToken = (await sourceActor.getTokenData(updates.token)).toObject();
-          mergeObject(protoData, mergeObject(newToken, updates.token))
-          
-        } else {
-          /* update current prototoken */
-          mergeObject(protoData, updates.token);
-        }
+
+        /* get a fresh copy */
+        protoData = (await sourceActor.getTokenData(updates.token));
+        logger.debug('protoData for next loop:',protoData);
       }
-      logger.debug('protoData for next loop:',protoData);
 
       if (options.controllingActor) options.controllingActor.sheet.maximize();
     }
 
-    return;
+    return createdIds;
   }
 
 }
