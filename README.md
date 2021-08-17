@@ -79,17 +79,17 @@ Assigning the dict key to the special constant `warpgate.CONST.DELETE` will remo
 ## Callback Functions
 The `callbacks` object has two expected keys: `pre` and `post` and provide a way to execute custom code during the spawning process. Both key values are type `async function`.
 
-### `async pre(templateData, updates)`
+### `async pre(location, updates)`
 Executed after placement has been decided, but before updates have been issued or tokens spawned. Used for modifying the updates based on position of the placement.
-	* `templateData` {Object} Data of the template preview used for placement.
-	* `updates` {Object} The update object passed into `warpgate#spawn`.
+ * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
+ * `updates` {Object} The update object passed into `warpgate#spawn`.
 
-### `async post(templateData, spawnedTokenDoc, updates, iteration)`
+### `async post(location, spawnedTokenDoc, updates, iteration)`
 Executed after the token has been spawned and any updates applied. Good for animation triggers, or chat messages. Additionally, when utilizing the `duplicates` option, the update object used to spawn the next token is passed in for modification for the indicated iteration. Note, the same update object is used throughout the spawning process, being modified as desired on each iteration.
- 	* `templateData` {Object} Data of the template preview used for placement.
- 	* `spawnedTokenDoc` {TokenDocument} The token spawned by this iteration.
-	* `updates` {Object} The update object from the just spawned token. Will be applied to default prototoken data for next iteration
-	* `iteration` {Number} The iteration index of the _next_ iteration. 0-indexed.
+ * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
+ * `spawnedTokenDoc` {TokenDocument} The token spawned by this iteration.
+ * `updates` {Object} The update object from the just spawned token. Will be applied to default prototoken data for next iteration
+ * `iteration` {Number} The iteration index of the _next_ iteration. 0-indexed.
 
 ## Special Thanks
 * siliconsaint for the inspiration to turn a set of absurd macros into something usable and constantly pushing the envelope.
