@@ -37,6 +37,9 @@ export class api {
       wait : MODULE.wait,
       dialog : MODULE.dialog,
       buttonDialog : MODULE.buttonDialog,
+      crosshairs: {
+        show: Gateway.showCrosshairs
+      },
       dnd5e : {
         rollItem : Gateway._rollItemGetLevel
       },
@@ -84,10 +87,14 @@ export class api {
 
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    let templateData = await Gateway.drawCrosshairs(protoData.name, protoData.width, protoData.img);
+    const templateData = await Gateway.showCrosshairs(protoData.width, protoData.name, protoData.img);
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
-    mergeObject(updates, {token: {rotation: templateData.direction}});
+    /* calculate any scaling that may have happened */
+    const scale = templateData.width / protoData.width;
+
+    /* insert changes from the template into the updates data */
+    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.width, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }

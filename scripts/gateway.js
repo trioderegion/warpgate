@@ -67,8 +67,8 @@ export class Gateway {
     return parseInt(level);
   }
 
-  static async drawCrosshairs(label = '', tokenSize = 1, icon = 'icons/svg/dice-target.svg') {
-    const template = new Crosshairs(label, tokenSize, icon);
+  static async showCrosshairs(gridUnits = 1, img = 'icons/svg/dice-target.svg', label = '' ) {
+    const template = new Crosshairs(gridUnits, {label, img});
     await template.drawPreview();
     return template.data.toObject();
   }
