@@ -35,9 +35,11 @@ export class Crosshairs extends MeasuredTemplate {
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
     super(template);
 
+    /** @todo all of these fields should be part of the source data schema for this class */
     this.icon = data.icon ?? 'icons/svg/dice-target.svg';
     this.label = data.label ?? '';
     this.inFlight = false;
+    this.cancelled = true
   }
 
 
@@ -247,11 +249,12 @@ export class Crosshairs extends MeasuredTemplate {
   }
 
   _leftClickHandler(event){
-    this.clearHandlers(event);
     const destination = canvas.grid.getSnappedPosition(this.data.x, this.data.y, 2);
     const width = this.data.distance / (canvas.scene.data.gridDistance / 2);
-    this.data.update({destination, width});
-
+    this.data.update({destination, width, cancelled: false});
+    this.cancelled = false;
+    this.clearHandlers(event);
+    
     //BEGIN WARPGATE
     //this.callback(this.data.toObject());
     //END WARPGATE
@@ -274,6 +277,15 @@ export class Crosshairs extends MeasuredTemplate {
     }
     //END WARPGATE
     this.refresh();
+  }
+
+  _cancelHandler(event) {
+    /** @todo until i make a proper CrosshairsData class
+     * a distance of 0 indicates a canceled placement
+     */
+    this.cancelled = true;
+
+    this.clearHandlers(event);
   }
 
   _clearHandlers(event) {
@@ -300,6 +312,7 @@ export class Crosshairs extends MeasuredTemplate {
     /* Activate listeners */
     this.activeMoveHandler = this._mouseMoveHandler.bind(this);
     this.activeLeftClickHandler = this._leftClickHandler.bind(this);
+    this.cancelHandler = this._cancelHandler.bind(this);
     this.activeWheelHandler = this._mouseWheelHandler.bind(this);
 
     this.clearHandlers = this._clearHandlers.bind(this);
@@ -314,7 +327,7 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.app.view.onwheel = this.activeWheelHandler;
     
     // Right click cancel
-    canvas.app.view.oncontextmenu = this.clearHandlers;
+    canvas.app.view.oncontextmenu = this.cancelHandler;
     // END WARPGATE
   }
 

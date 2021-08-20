@@ -70,7 +70,7 @@ export class api {
    *
    * @return Promise<[{String}]> list of created token ids
    */
-  static async _spawn(spawnName, updates = {item, actor, token} = {}, callbacks = {pre: null, post: null}, options = {}) {
+  static async _spawn(spawnName, updates = {}, callbacks = {pre: null, post: null}, options = {}) {
     //get source actor
     const sourceActor = game.actors.getName(spawnName);
     if(!sourceActor) {
@@ -87,7 +87,10 @@ export class api {
 
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    const templateData = await Gateway.showCrosshairs(protoData.width, protoData.name, protoData.img);
+    const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
+
+    if (templateData.cancelled) return;
+
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
     /* calculate any scaling that may have happened */

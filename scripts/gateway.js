@@ -67,10 +67,21 @@ export class Gateway {
     return parseInt(level);
   }
 
-  static async showCrosshairs(gridUnits = 1, img = 'icons/svg/dice-target.svg', label = '' ) {
-    const template = new Crosshairs(gridUnits, {label, img});
+  /* Displays a circular template attached to the mouse cursor that snaps to grid centers
+   * and grid intersections
+   * @param {Number} gridUnits: How large to draw the circular template in grid squares
+   * @param {String} icon: Icon to display in the center of the template
+   * @param {String} label: Text to display under the template
+   */
+  static async showCrosshairs(gridUnits = 1, icon = 'icons/svg/dice-target.svg', label = '' ) {
+    const template = new Crosshairs(gridUnits, {label, icon});
     await template.drawPreview();
-    return template.data.toObject();
+    let dataObj = template.data.toObject();
+
+    /** @todo temporary workaround */
+    dataObj.cancelled = template.cancelled;
+
+    return dataObj;
   }
 
   static async dismissSpawn(tokenId, sceneId) {
