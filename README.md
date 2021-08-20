@@ -67,7 +67,7 @@ Creates a circular template attached to the cursor. Its size is in grid squares/
 * @param {String} icon: Icon to display in the center of the template
 * @param {String} label: Text to display under the template
 
-`return value` {Customized TemplateData}: Contains all of the fields as MeasuredTemplateData with the following notes additions
+`return value` {Object}: Contains all of the fields as MeasuredTemplateData with the following changes
 * `width`: the final size of the template's diamater.
 * `cancelled` {Boolean}: if the user cancelled creation via right click. 
 
