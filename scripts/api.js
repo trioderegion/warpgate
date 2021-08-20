@@ -70,7 +70,7 @@ export class api {
    *
    * @return Promise<[{String}]> list of created token ids
    */
-  static async _spawn(spawnName, updates = {}, callbacks = {pre: null, post: null}, options = {}) {
+  static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
     //get source actor
     const sourceActor = game.actors.getName(spawnName);
     if(!sourceActor) {
@@ -118,7 +118,7 @@ export class api {
    * 3) execute user's post()
    * 4) if more duplicates, get fresh proto data and update it, goto 1
    */
-  static async _spawnAt(spawnLocation, protoData, updates, callbacks, options) {
+  static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
 
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
