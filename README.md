@@ -61,6 +61,16 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | number | (as `text`) | {Number} final value of text field converted to a number |
 | select | array of option labels | {String} label of choice | | 
 
+### `async warpgate.crosshairs.show(size = 1, icon = 'icons/svg/dice-target.svg', label = '')`
+Creates a circular template attached to the cursor. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template.
+* @param {Number} gridUnits: How large to draw the circular template in grid squares
+* @param {String} icon: Icon to display in the center of the template
+* @param {String} label: Text to display under the template
+
+`return value` {Object}: Contains all of the fields as MeasuredTemplateData with the following changes
+* `width`: the final size of the template's diamater.
+* `cancelled` {Boolean}: if the user cancelled creation via right click. 
+
 
 ## Update Shorthand
 The `update` object can contain up to three keys: `token`, `actor`, and `item`. The `token` and `actor` key values are standard update objects as one would use in `actor.update({...data})`.

@@ -20,50 +20,35 @@ import { MODULE } from './module.js'
 
 export class Crosshairs extends MeasuredTemplate {
 
-  constructor(label = '', tokenSize = 1, tokenImage = 'icons/svg/dice-target.svg'){
+  constructor(gridSize = 1, data = {}){
      const templateData = {
       t: "circle",
       user: game.user.id,
-      distance: (canvas.scene.data.gridDistance / 2) * tokenSize,
-      x: 0,
-      y: 0,
+      distance: (canvas.scene.data.gridDistance / 2) * gridSize,
+      x: data.x ?? 0,
+      y: data.y ?? 0,
       fillColor: game.user.color,
+      width: gridSize,
+      texture: data.texture ?? null,
     }   
 
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
     super(template);
 
-    this.tokenImage = tokenImage;
+    /** @todo all of these fields should be part of the source data schema for this class */
+    this.icon = data.icon ?? 'icons/svg/dice-target.svg';
+    this.label = data.label ?? '';
     this.inFlight = false;
-    this.label = label;
+    this.cancelled = true
   }
 
-  /* @todo need to make a proper constructor with
-   * the fields that I am adding to MeasuredTemplate
+
+  /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
+  /* Portions of the core package (MeasuredTemplate) repackaged 
+   * in accordance with the "Limited License Agreement for Module 
+   * Development, found here: https://foundryvtt.com/article/license/ 
+   * Changes noted where possible
    */
-  /*
-  static fromToken(tokenData) {
-
-    const templateData = {
-      t: "circle",
-      user: game.user.id,
-      //distance: 2.5, //@todo scale by token/grid size instead
-      distance: (canvas.scene.data.gridDistance / 2) * tokenData.width,
-      x: 0,
-      y: 0,
-      fillColor: game.user.color,
-      //layer: canvas.activeLayer
-    }
-
-    //create the MeasuredTemplate document
-    const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
-    const templateObject = new this(template);
-    templateObject.tokenData = tokenData;
-    templateObject.inFlight = false;
-
-    return templateObject;
-  }
-  */
 
   /**
    * Set the displayed ruler tooltip text and position
@@ -77,13 +62,6 @@ export class Crosshairs extends MeasuredTemplate {
     this.ruler.position.set(this.ray.dy + 10, this.ray.dx + 5);
     //END WARPGATE
   }
-
-  /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
-  /* Portions of the core package (MeasuredTemplate) repackaged 
-   * in accordance with the "Limited License Agreement for Module 
-   * Development, found here: https://foundryvtt.com/article/license/ 
-   * Changes noted where possible
-   */
 
   /** @override */
   async draw() {
@@ -114,7 +92,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.refresh();
     //BEGIN WARPGATE
     this._setRulerText();
-    //this.highlightGrid();
+    this.highlightGrid();
     //END WARPGATE
 
     // Enable interactivity, only if the Tile has a true ID
@@ -146,7 +124,7 @@ export class Crosshairs extends MeasuredTemplate {
     const size = Math.max(Math.round((canvas.dimensions.size * 0.5) / 20) * 20, 40);
 
     //BEGIN WARPGATE
-    let icon = new ControlIcon({texture: this.tokenImage, size: size});
+    let icon = new ControlIcon({texture: this.icon, size: size});
     //END WARPGATE
 
     icon.pivot.set(size*0.5, size*0.5);
@@ -271,10 +249,12 @@ export class Crosshairs extends MeasuredTemplate {
   }
 
   _leftClickHandler(event){
-    this.clearHandlers(event);
     const destination = canvas.grid.getSnappedPosition(this.data.x, this.data.y, 2);
-    this.data.update(destination);
-
+    const width = this.data.distance / (canvas.scene.data.gridDistance / 2);
+    this.data.update({destination, width, cancelled: false});
+    this.cancelled = false;
+    this.clearHandlers(event);
+    
     //BEGIN WARPGATE
     //this.callback(this.data.toObject());
     //END WARPGATE
@@ -287,11 +267,25 @@ export class Crosshairs extends MeasuredTemplate {
     let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
     let snap = event.shiftKey ? delta : 5;
     //BEGIN WARPGATE
-    const direction = this.data.direction + (snap * Math.sign(event.deltaY))
-    this.data.update({direction});
-    logger.debug(`New Rotation: ${direction}`);
+    if (event.shiftKey) {
+      const distance = this.data.distance + canvas.scene.data.gridDistance / 2 * (Math.sign(event.deltaY));
+      this.data.update({distance : Math.max(distance,canvas.scene.data.gridDistance/2)});
+    } else {
+      const direction = this.data.direction + (snap * Math.sign(event.deltaY))
+      this.data.update({direction});
+      logger.debug(`New Rotation: ${direction}`);
+    }
     //END WARPGATE
     this.refresh();
+  }
+
+  _cancelHandler(event) {
+    /** @todo until i make a proper CrosshairsData class
+     * a distance of 0 indicates a canceled placement
+     */
+    this.cancelled = true;
+
+    this.clearHandlers(event);
   }
 
   _clearHandlers(event) {
@@ -318,6 +312,7 @@ export class Crosshairs extends MeasuredTemplate {
     /* Activate listeners */
     this.activeMoveHandler = this._mouseMoveHandler.bind(this);
     this.activeLeftClickHandler = this._leftClickHandler.bind(this);
+    this.cancelHandler = this._cancelHandler.bind(this);
     this.activeWheelHandler = this._mouseWheelHandler.bind(this);
 
     this.clearHandlers = this._clearHandlers.bind(this);
@@ -332,7 +327,7 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.app.view.onwheel = this.activeWheelHandler;
     
     // Right click cancel
-    canvas.app.view.oncontextmenu = this.clearHandlers;
+    canvas.app.view.oncontextmenu = this.cancelHandler;
     // END WARPGATE
   }
 

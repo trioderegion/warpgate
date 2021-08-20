@@ -37,6 +37,9 @@ export class api {
       wait : MODULE.wait,
       dialog : MODULE.dialog,
       buttonDialog : MODULE.buttonDialog,
+      crosshairs: {
+        show: Gateway.showCrosshairs
+      },
       dnd5e : {
         rollItem : Gateway._rollItemGetLevel
       },
@@ -67,7 +70,7 @@ export class api {
    *
    * @return Promise<[{String}]> list of created token ids
    */
-  static async _spawn(spawnName, updates = {item, actor, token} = {}, callbacks = {pre: null, post: null}, options = {}) {
+  static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
     //get source actor
     const sourceActor = game.actors.getName(spawnName);
     if(!sourceActor) {
@@ -84,10 +87,17 @@ export class api {
 
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    let templateData = await Gateway.drawCrosshairs(protoData.name, protoData.width, protoData.img);
+    const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
+
+    if (templateData.cancelled) return;
+
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
-    mergeObject(updates, {token: {rotation: templateData.direction}});
+    /* calculate any scaling that may have happened */
+    const scale = templateData.width / protoData.width;
+
+    /* insert changes from the template into the updates data */
+    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.width, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
@@ -108,7 +118,7 @@ export class api {
    * 3) execute user's post()
    * 4) if more duplicates, get fresh proto data and update it, goto 1
    */
-  static async _spawnAt(spawnLocation, protoData, updates, callbacks, options) {
+  static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
 
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
