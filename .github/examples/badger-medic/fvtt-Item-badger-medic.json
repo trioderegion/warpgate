@@ -1,0 +1,117 @@
+{
+  "name": "Badger Medic",
+  "type": "spell",
+  "img": "modules/saints-war/assets/tokens/badgermedic.webp",
+  "data": {
+    "description": {
+      "value": "<p>You call for support and a Badger Medic is choppered in.  The medic airdrops in a space that is a 5-cube you can see within range.  The medic looks like a humanoid badger.  Until your requisition ends, whenever you or a creature you can see moves into the medic's space for the first time on a turn or starts its turn there, you can issue orders for the badger to apply first aid of 1d6 hit points to that creature (no action required). The medic can't heal robots or the living dead.  As a bonus action on your turn, you can move the badger up to 30 feet to a space you can see.</p>\n<p><strong>At higher rank.</strong> When you call for support using an order of rank 3rd or higher, the first aid increases 1d6 for each order level above 2nd.</p>\n<p> </p>\n<p><img src=\"modules/saints-war/assets/tokens/badgermedic.webp\" width=\"300\" height=\"301\" /></p>",
+      "chat": "",
+      "unidentified": ""
+    },
+    "source": "",
+    "activation": {
+      "type": "bonus",
+      "cost": 1,
+      "condition": ""
+    },
+    "duration": {
+      "value": 1,
+      "units": "minute"
+    },
+    "target": {
+      "value": null,
+      "width": null,
+      "units": "",
+      "type": ""
+    },
+    "range": {
+      "value": 60,
+      "long": null,
+      "units": "ft"
+    },
+    "uses": {
+      "value": 0,
+      "max": "0",
+      "per": ""
+    },
+    "consume": {
+      "type": "",
+      "target": "",
+      "amount": null
+    },
+    "ability": "",
+    "actionType": "other",
+    "attackBonus": 0,
+    "chatFlavor": "",
+    "critical": null,
+    "damage": {
+      "parts": [],
+      "versatile": ""
+    },
+    "formula": "",
+    "save": {
+      "ability": "",
+      "dc": null,
+      "scaling": "spell"
+    },
+    "level": 2,
+    "school": "con",
+    "components": {
+      "value": "",
+      "vocal": true,
+      "somatic": true,
+      "material": false,
+      "ritual": false,
+      "concentration": true
+    },
+    "materials": {
+      "value": "",
+      "consumed": false,
+      "cost": 0,
+      "supply": 0
+    },
+    "preparation": {
+      "mode": "prepared",
+      "prepared": false
+    },
+    "scaling": {
+      "mode": "none",
+      "formula": ""
+    }
+  },
+  "effects": [],
+  "sort": 0,
+  "flags": {
+    "itemacro": {
+      "macro": {
+        "data": {
+          "_id": null,
+          "name": "Badger Medic",
+          "type": "script",
+          "author": "esqMQHmlRoNRcrNB",
+          "img": "icons/svg/dice-target.svg",
+          "scope": "global",
+          "command": "//\n//provided by siliconsaint for honeybadger's warpgate v1.5.0\n//https://github.com/trioderegion/warpgate\n//\n\nconst actorD = game.actors.get(args[0].actor._id);\nconst level = args[0].spellLevel;\nlet summonType = \"Badger Medic\";\nlet healScale = '';\n    \nif ((level-2) > 0){\n    healScale = `+ ${(level-2)}d6[upcast]`;\n}\n\nlet updates = {\n    token : {\n        'name':`${summonType} of ${actorD.name}`\n    },\n    actor: {\n        'name' : `${summonType} of ${actorD.name}`,\n    },\n    item: {\n        \"First Aid\":{\n            'data.damage.parts': [[`1d6 ${healScale}`, 'healing']]\n        }\n    }\n}\n\nfunction greetings(templateData, summonedToken){\n    ChatMessage.create({speaker: {alias: 'Badger Medic'},content: `<img src=\"${summonedToken.data.img}\" width=\"40\" height=\"40\" style=\"border:0px\"> Don't die on me soldier!`})\n    \n}\n\n\nconst callbacks = {\n    post: async (template, token) => {\n    await warpgate.wait(1000);\n    greetings(template,token);\n    }\n};\n\nconst options = {controllingActor: actor};\n\n//summon token\nwarpgate.spawn(summonType, updates, callbacks, options);",
+          "folder": null,
+          "sort": 0,
+          "permission": {
+            "default": 0
+          },
+          "flags": {}
+        }
+      }
+    },
+    "core": {
+      "sourceId": "Item.38o29jsJmIB7tPwD"
+    },
+    "midi-qol": {
+      "onUseMacroName": "ItemMacro"
+    },
+    "exportSource": {
+      "world": "epic",
+      "system": "dnd5e",
+      "coreVersion": "0.8.9",
+      "systemVersion": "1.4.2"
+    }
+  }
+}
