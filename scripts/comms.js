@@ -18,9 +18,12 @@
 import { logger } from './logger.js'
 import { MODULE } from './module.js'
 import { Gateway } from './gateway.js' 
+import { Events } from './events.js'
+import {queueUpdate, flush} from './update-queue.js'
 
 const ops = {
-  DISMISS_SPAWN : "dismiss" //tokenId, sceneId, userId
+  DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId
+  EVENT : "event" //name, ...payload
 }
 
 export class Comms {
@@ -39,38 +42,68 @@ export class Comms {
     game.socket.on(`module.${MODULE.data.name}`, Comms._receiveSocket);
   }
 
-  static async _receiveSocket(socketData) {
+  static _receiveSocket(socketData) {
     logger.debug("Received socket data => ", socketData);
 
-    /** let the first GM handle all sockets */
-    if (!MODULE.isFirstGM()) return;
 
-    switch (socketData.op){
-      case ops.DISMISS_SPAWN:
-        await Gateway.dismissSpawn(socketData.tokenId, socketData.sceneId);
-        break;
-      default:
-        logger.error("Unrecognized socket request", socketData);
-        break;
-    }
+    queueUpdate( async () => {
+      switch (socketData.op){
+        case ops.DISMISS_SPAWN:
+          /* let the first GM handle all dismissals */
+          if (MODULE.isFirstGM()) await Gateway.dismissSpawn(socketData.payload.tokenId, socketData.payload.sceneId, socketData.payload.userId);
+          break;
+        case ops.EVENT:
+          /* all users should respond to events */
+          await Events.run(socketData.eventName, socketData.payload);
+          break;
+        default:
+          logger.error("Unrecognized socket request", socketData);
+          break;
+      }
+    });
 
     return;
   }
 
   static _emit(socketData) {
     socket.emit(`module.${MODULE.data.name}`, socketData);
+
+    /* always send events to self as well */
+    return Comms._receiveSocket(socketData);
   }
 
   static requestDismissSpawn(tokenId, sceneId) {
     /** craft the socket data */
     const data = {
       op : ops.DISMISS_SPAWN,
-      tokenId,
-      sceneId,
-      userId : game.user.id
+      payload : { tokenId, sceneId, userId: game.user.id }
     }
     
-    Comms._emit(data);
+    return Comms._emit(data);
+  }
+
+  static notifyEvent(name, payload, onBehalf = game.user.id) {
+    /** insert common fields */
+    payload.sceneId = canvas.scene.id;
+    payload.userId = onBehalf;
+
+    /* craft the socket data */
+    const data = {
+      op : ops.EVENT,
+      eventName: name,
+      payload
+    }
+
+    return Comms._emit(data);
+  }
+
+  static packToken(tokenDoc) {
+    const tokenData = tokenDoc.toObject();
+    delete tokenData.actorData;
+
+    let actorData = tokenDoc.actor?.toObject() ?? {};
+    actorData.token = tokenData;
+    return actorData;
   }
 
 }

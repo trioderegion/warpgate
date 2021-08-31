@@ -25,6 +25,7 @@ import { MODULE } from './module.js';
 import { logger } from './logger.js';
 import { api } from './api.js';
 import { Gateway } from './gateway.js';
+import { Mutator } from './mutator.js';
 import { UserInterface } from './user-interface.js';
 import { Comms } from './comms.js';
 
@@ -33,6 +34,7 @@ const SUB_MODULES = {
   logger,
   api,
   Gateway,
+  Mutator,
   UserInterface,
   Comms
 }
@@ -49,5 +51,5 @@ Hooks.on(`setup`, () => {
   Object.values(SUB_MODULES).forEach(cl => cl.register());
 
   //GlobalTesting
-  //Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
+  Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
 });

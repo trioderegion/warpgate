@@ -19,6 +19,7 @@
 import { logger } from './logger.js'
 import { Gateway } from './gateway.js'
 import { MODULE } from './module.js'
+import {queueUpdate} from './update-queue.js'
 
 export class UserInterface {
 
@@ -37,6 +38,9 @@ export class UserInterface {
       showDismissLabel : {
         scope: "client", config, default: true, type: Boolean,
       },
+      showRevertLabel : {
+        scope: "client", config, default: true, type: Boolean,
+      }
     };
 
     MODULE.applySettings(settingsData);
@@ -48,6 +52,7 @@ export class UserInterface {
     logger.debug("data |", data);
     
     UserInterface.addDismissButton(app, html, data);
+    UserInterface.addRevertMutation(app, html, data);
   }
 
   static addDismissButton(app, html, data) {
@@ -69,7 +74,7 @@ export class UserInterface {
     }
 
     const label = MODULE.setting('showDismissLabel') ? MODULE.localize("display.dismiss") : ""
-    let dismissButton = $(`<a class="dismiss-warpgate" title="dismiss"><i class="fas fa-user-slash"></i>${label}</a>`);
+    let dismissButton = $(`<a class="dismiss-warpgate" title="${MODULE.localize('display.dismiss')}"><i class="fas fa-user-slash"></i>${label}</a>`);
 
     dismissButton.click( (/*event*/) => {
       if (!token) {
@@ -87,4 +92,59 @@ export class UserInterface {
     dismissButton.insertAfter(title);
 
   }
+
+  static addRevertMutation(app, html, data) {
+
+    /* do not add duplicate buttons! */
+    let foundButton = html.closest('.app').find('.revert-warpgate')
+
+    /* we remove the current button on each render
+     * in case the render was triggered by a mutation
+     * event and we need to update the tool tip
+     * on the revert stack
+     */
+    if (foundButton) {
+      foundButton.remove();
+    }
+
+    const token = data.options.token;
+
+    const mutateStack = token?.actor?.getFlag(MODULE.data.name, 'mutate');
+
+    /* this is not a warpgate mutated actor,
+     * or there are no remaining stacks to peel */
+    if (!mutateStack || mutateStack.length == 0) return;
+
+    /** do not add the button if we are not the user who mutated last AND we arent the GM */
+    const mutateData = mutateStack[mutateStack.length-1];
+    if ( !(mutateData.user === game.user.id) &&
+          !game.user.isGM) return;
+
+    /* construct the revert button */
+    const label = MODULE.setting('showRevertLabel') ? MODULE.localize("display.revert") : ""
+    const stackCount = mutateStack.length > 1 ? ` 1/${mutateStack.length}` : '';
+    let revertButton = $(`<a class="revert-warpgate" title="${MODULE.localize('display.revert')}${stackCount}"><i class="fas fa-undo-alt"></i>${label}</a>`);
+
+    revertButton.click( (/*event*/) => {
+      if (!token) {
+        logger.error("Could not find token associated with this sheet.");
+        return;
+      }
+
+      /* need to queue this since 'click' could
+       * happen at any time.
+       * Do not need to remove the button here 
+       * as it will be refreshed on the render call
+       */
+      queueUpdate( async () => {
+        await Mutator.revertMutation(token);
+        app?.render(false);
+      });
+
+    });
+
+    let title = html.closest('.app').find('.window-title');
+    revertButton.insertAfter(title);
+  }
+
 }

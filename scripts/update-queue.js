@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import {MODULE} from './module.js'
 
 let updateQueues = new Map();
 
@@ -29,17 +30,26 @@ let updateQueues = new Map();
  * @param {String} entity       the name of the entity type, ex. 'Combat' or 'Scene'
  * @param {Function} updateFn   the function that handles the actual update (can be async)
  */
-export function queueEntityUpdate(entity, updateFn) {
 
+export function queueUpdate(updateFn) {
+
+  /** queue the update for this entity */
+  getQueue().queueUpdate(updateFn);
+}
+
+export function flush() {
+  return getQueue().flush();
+}
+
+function getQueue(entity = "default"){
   /** if this is a new entity type, create the queue object to manage it */
   if(!updateQueues.has(entity)) {
     updateQueues.set(entity, new UpdateQueue(entity));
   }
 
   /** queue the update for this entity */
-  updateQueues.get(entity).queueUpdate(updateFn);
+  return updateQueues.get(entity);
 }
-
 /** 
  * Helper class to manage database updates that occur from
  * hooks that may fire back to back.
@@ -64,6 +74,10 @@ class UpdateQueue {
     if (!this.inFlight) {
       this.runUpdate();
     }
+  }
+
+  flush() {
+    return MODULE.waitFor( () => !this.inFlight )
   }
 
   async runUpdate(){

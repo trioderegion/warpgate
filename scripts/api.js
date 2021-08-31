@@ -17,7 +17,10 @@
 
 import { logger } from './logger.js'
 import { Gateway } from './gateway.js'
+import { Mutator } from './mutator.js'
 import { MODULE } from './module.js'
+import { Comms } from './comms.js'
+import { Events } from './events.js'
 
 export class api {
 
@@ -34,6 +37,8 @@ export class api {
       spawn : api._spawn,
       spawnAt : api._spawnAt,
       dismiss : Gateway.dismissSpawn,
+      mutate : Mutator.mutate,
+      revert : Mutator.revertMutation,
       wait : MODULE.wait,
       dialog : MODULE.dialog,
       buttonDialog : MODULE.buttonDialog,
@@ -44,7 +49,20 @@ export class api {
         rollItem : Gateway._rollItemGetLevel
       },
       CONST : {
-        DELETE : 'delete'
+        DELETE : 'delete',
+      },
+      EVENT : {
+          PLACEMENT: 'wg_placement',
+          SPAWN: 'wg_spawn',
+          DISMISS: 'wg_dismiss',
+          REVERT: 'wg_revert',
+          MUTATE: 'wg_mutate'
+      },
+      event : {
+        watch : Events.watch,
+        trigger : Events.trigger,
+        remove : Events.remove,
+        notify : Comms.notifyEvent,
       }
     }
   }
@@ -66,11 +84,13 @@ export class api {
    *   duplicates: Number. Default = 1. Will spawn multiple copies of the chosen actor nearby the spawn point
    *   collision: Boolean. Default = true if using duplicates, false otherwise. Will move spawned token to a nearby square if the chosen point is occupied
    *       by a token or wall.
+   *   comparisonKeys: Object. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
    *
    *
    * @return Promise<[{String}]> list of created token ids
    */
   static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
+
     //get source actor
     const sourceActor = game.actors.getName(spawnName);
     if(!sourceActor) {
@@ -88,6 +108,8 @@ export class api {
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
     const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
+
+    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
     if (templateData.cancelled) return;
 
@@ -120,6 +142,12 @@ export class api {
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
 
+    /* Support legacy fields */
+    if (updates.item){
+      console.warn('You are using "updates.item" which has been deprecated in favor of "updates.embedded.Item"');
+      updates.embedded = mergeObject(updates.embedded ?? {}, {"Item": updates.item})
+    }
+
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
 
@@ -135,9 +163,10 @@ export class api {
 
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
 
-      const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData,
+      const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
+
 
       createdIds.push(spawnedTokenDoc.id);
 
@@ -145,10 +174,20 @@ export class api {
 
       /** flag this user as its creator */
       const flags = {warpgate: {control: {user: game.user.id, actor: options.controllingActor?.id}}}
-      mergeObject(updates, {actor: {flags}});
+      updates.actor = mergeObject(updates.actor ?? {} , {flags});
 
-      await Gateway._updateSummon(spawnedTokenDoc, updates);
-     
+      /* ensure creator owns this token */
+      let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
+      permissions.permission[game.user.id] = 3;
+
+      updates.actor = mergeObject(updates.actor ?? {}, permissions);
+
+      await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
+      
+      const actorData = Comms.packToken(spawnedTokenDoc);
+      
+      await warpgate.event.notify(warpgate.EVENT.SPAWN, {actorData, iteration});
+
       /** post creation callback -- use iter+1 because this update is referring to the NEXT iteration */
       if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration + 1);
       

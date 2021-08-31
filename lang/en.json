@@ -12,13 +12,18 @@
       "name" : "Show dismiss button label",
       "hint" : "Show the dismiss icon and label, or just the icon on the sheet header."
     },
+    "showRevertLabel" : {
+      "name" : "Show revert button label",
+      "hint" : "Show the revert icon and label, or just the icon on the sheet header."
+    },
     "updateDelay" : {
       "name" : "Update delay (ms)",
       "hint" : "Temporary workaround. Increase this value if you are encountering errors with duplicate placement. Lower this value for faster placement."
     }
   },
   "display" : {
-    "dismiss" : "Dismiss"
+    "dismiss" : "Dismiss",
+    "revert" : "Revert"
   },
   "error" : {
     "noGM" : "There is no GM available for dismiss request.",

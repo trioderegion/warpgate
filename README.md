@@ -3,24 +3,23 @@
 
 **Reinforcements have arrived**
 
-Warp Gate, in its current form, is a system-agnostic library module for Foundry VTT that provides a select few number of public API functions to make programmatically spawning tokens and modifying those tokens easier for players and GMs alike.
+Warp Gate, in its current form, is a system-agnostic library module for Foundry VTT that provides a growing number of API functions to make programmatically spawning tokens and modifying those tokens easier for players and GMs alike.
 
 https://user-images.githubusercontent.com/14878515/127940403-40301919-8a12-42e0-b3c4-7711f6e64b3b.mp4
 
-## Usage
 
 Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpgate/wiki) for specific examples and further discussion!
 
+## Spawning Commands
+
 ### `async warpgate.spawn(actorName, updates = {}, callbacks = {}, options = {})`
 The primary function of Warp Gate. When executed, it will create a custom MeasuredTemplate that is used to place the spawned token and handle any customizations provided in the `updates` object. `warpgate#spawn` will return a Promise that can be awaited, which can be used in loops to spawn multiple tokens, one after another. The player spawning the token will also be given Owner permissions for that specific token actor. This means that players can spawn any creature available in the world.
-
-Parameters:
-* actorName {String}: Name of actor to spawn
-* updates {Object} Updates to the spawned actor (optional). See "Update Shorthand".
-* callbacks {Object} Callback functions (optional). See "Callback Functions".
-* options {Object} Options (optional) 
-	- `controllingActor` {Actor} will minimize this actor's open sheet (if any) for a clearer view of the canvas during placement. Also flags the created token with this actor's id. Default `null`.
-	- `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
+ * actorName {String}: Name of actor to spawn
+ * updates {Object} Updates to the spawned actor (optional). See "Update Shorthand".
+ * callbacks {Object} Callback functions (optional). See "Callback Functions".
+ * options {Object} Options (optional) 
+ 	- `controllingActor` {Actor} will minimize this actor's open sheet (if any) for a clearer view of the canvas during placement. Also flags the created token with this actor's id. Default `null`.
+ 	- `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
 	- `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
 
 ### `async warpgate.spawnAt(location, tokenData, updates, callbacks, options)`
@@ -28,6 +27,82 @@ An alternate, more module friendly spawning function. Will create a token from t
 * location {Object} of the form {x: Number, y: Number} designating the token's _center point_
 * tokenData {TokenData} the base token data from which to spawn a new token and apply updates to it.
 * updates, callsbacks, options: See `warpgate.spawn`.
+
+### Spawn Callback Functions
+The `callbacks` object has two expected keys: `pre` and `post` and provide a way to execute custom code during the spawning process. Both key values are type `async function`.  Below are the function signatures expected and all arguments are optional. If the callback function modifies `updates` or `location`, it is often best to do this via `mergeObject` due to pass by reference restrictions.
+
+#### `async pre(location, updates)`
+Executed after placement has been decided, but before updates have been issued or tokens spawned. Used for modifying the updates based on position of the placement.
+ * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
+ * `updates` {Object} The update object passed into `warpgate#spawn`.
+
+ * `return value` {Promise}
+
+#### `async post(location, spawnedTokenDoc, updates, iteration)`
+Executed after the token has been spawned and any updates applied. Good for animation triggers, or chat messages. Additionally, when utilizing the `duplicates` option, the update object used to spawn the next token is passed in for modification for the indicated iteration. Note, the same update object is used throughout the spawning process, being modified as desired on each iteration.
+ * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
+ * `spawnedTokenDoc` {TokenDocument} The token spawned by this iteration.
+ * `updates` {Object} The update object from the just spawned token. Will be applied to default prototoken data for next iteration
+ * `iteration` {Number} The iteration index of the _next_ iteration. 0-indexed.
+ 
+ * `return value` {Promise}
+
+
+## Mutation Commands
+
+### `async warpgate.mutate(tokenDoc, updates = {}, callbacks = {}, options = {})`
+   
+Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
+
+ * tokenDoc {TokenDocument}: Token document to update, does not accept Token Placeable.
+ * updates {Object = {}}: As `warpgate.spawn`.
+ * callbacks {Object = {}}. Two provided callback locations: `delta` and `post`. Both are awaited.
+  delta {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
+    @param {Object} delta. Computed change of the actor based on `updates`.
+    @param {TokenDocument} tokenDoc. Token being modified.
+  post {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
+    @param {TokenDocument} tokenDoc. Token that has been modified.
+    @param {Object} updates. See parent `updates` parameter.
+
+@param {Object = {}} options
+  comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
+  permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
+
+@return {Promise<Object>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
+
+
+### `async warpgate.revert(tokenDoc)`
+
+### Mutate Callback Functions
+Two provided callback locations: `delta` and `post`. Both are awaited and operate similarly to the callbacks used in `warpgate.spawn`.
+  
+#### `async delta(delta, tokenDoc)` 
+Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage. For example, current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
+ * `delta` {Object}: Computed change of the actor based on `updates`.
+ * `tokenDoc` {TokenDocument}: Token being modified.
+
+ * `return value` {Promise}
+
+### `async post(tokenDoc, updates)` 
+Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
+ * tokenDoc {TokenDocument}: Token that has been modified.
+ * updates {Object}: See parent `updates` parameter.
+
+ * `return value` {Promise}
+
+## Crosshairs Commands
+
+### `async warpgate.crosshairs.show(size = 1, icon = 'icons/svg/dice-target.svg', label = '')`
+Creates a circular template attached to the cursor. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template.
+* size {Number} How large to draw the circular template in grid squares
+* icon {String} Icon to display in the center of the template
+* lable {String} Text to display under the template
+
+`return value` {Object}: Contains all of the fields as MeasuredTemplateData with the following changes
+* `width` {Number} the final size of the template's diamater in grid squares.
+* `cancelled` {Boolean} if the user cancelled creation via right click. 
+
+## Helper Functions
 
 ### `async warpgate.wait(timeMs)`
 Helper function. Waits for a specified amount of time in milliseconds (be sure to await!). Useful for timings with animations in the pre/post callbacks.
@@ -37,7 +112,7 @@ Deletes the specified token from the specified scene. This function allows anyon
 
 ### `async warpgate.buttonDialog(data, direction = 'row')`
 Helper function for quickly creating a simple dialog with labeled buttons and associated data. Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
-* `data` {Array of Objects}: Contains two keys `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `const data = {buttons: [{label: 'First Choice', value: {token {name: 'First'}}, {label: 'Second Choice', value: {token: {name: 'Second'}}}]}`
+* `data` {Objects}: Standard dialog keys apart from the contents of `data.buttons`, which is an array of objects containing two keys `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `const data = {buttons: [{label: 'First Choice', value: {token {name: 'First'}}, {label: 'Second Choice', value: {token: {name: 'Second'}}}]}`
 * `direction` {String} (optional): `'column'` or `'row'` accepted. Controls layout direction of dialog.
 
 ### `async warpgate.dialog(data, title = 'Prompt', submitLabel = 'Ok')`
@@ -61,45 +136,75 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | number | (as `text`) | {Number} final value of text field converted to a number |
 | select | array of option labels | {String} label of choice | | 
 
-### `async warpgate.crosshairs.show(size = 1, icon = 'icons/svg/dice-target.svg', label = '')`
-Creates a circular template attached to the cursor. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template.
-* @param {Number} gridUnits: How large to draw the circular template in grid squares
-* @param {String} icon: Icon to display in the center of the template
-* @param {String} label: Text to display under the template
 
-`return value` {Object}: Contains all of the fields as MeasuredTemplateData with the following changes
-* `width`: the final size of the template's diamater.
-* `cancelled` {Boolean}: if the user cancelled creation via right click. 
 
 
 ## Update Shorthand
-The `update` object can contain up to three keys: `token`, `actor`, and `item`. The `token` and `actor` key values are standard update objects as one would use in `actor.update({...data})`.
-The `item` key uses a shorthand notation to make creating the updates easier. Notably, it does not require the `_id` field to be part of the update object for a given item.  There are three operations that this dict object controls -- adding, updating, deleting (in that order).
+The `update` object can contain up to three keys: `token`, `actor`, and `item`. The `token` and `actor` key values are standard update objects as one would use in `Actor#update`.  The `item` key uses a shorthand notation to make creating the updates easier. Notably, it does not require the `_id` field to be part of the update object for a given item.  There are three operations that this object controls -- adding, updating, deleting (in that order).
 
 ### Add
-Given a dict key of a **non-existing** item, the value contains the data object for item creation compatible with `Item.create({...value})`. This object can be constructed in-place by hand, or gotten from a template item and modified using `"Item To Add": game.items.getName("Name of Item").data`. Note: the name contained in the dict key will override the `name` field in any provided creation data.
+Given a key of a **non-existing** item, the value contains the data object for item creation compatible with `Item#create`. This object can be constructed in-place by hand, or gotten from a template item and modified using `"Item To Add": game.items.getName("Name of Item").data`. Note: the name contained in the key will override the `name` field in any provided creation data.
 
 ### Update
-Given a dict key of an existing item, the value contains the data object compatible with `Item.update({...value})`
+Given a key of an existing item, the value contains the data object compatible with `Item#update`
 
 ### Delete
-Assigning the dict key to the special constant `warpgate.CONST.DELETE` will remove this item (if it exists) from the spawned actor.
+Assigning the key to the special constant `warpgate.CONST.DELETE` will remove this item (if it exists) from the spawned actor. e.g.
 `{"Item Name To Delete": warpgate.CONST.DELETE}`
 
-## Callback Functions
-The `callbacks` object has two expected keys: `pre` and `post` and provide a way to execute custom code during the spawning process. Both key values are type `async function`.
 
-### `async pre(location, updates)`
-Executed after placement has been decided, but before updates have been issued or tokens spawned. Used for modifying the updates based on position of the placement.
- * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
- * `updates` {Object} The update object passed into `warpgate#spawn`.
+## Event System
+Warp Gate includes a hook-like event system that can be used to respond to stages of the spawning and dismissal process. Additionally, the event notify function is exposed so that users and module authors can create custom events in any context.
 
-### `async post(location, spawnedTokenDoc, updates, iteration)`
-Executed after the token has been spawned and any updates applied. Good for animation triggers, or chat messages. Additionally, when utilizing the `duplicates` option, the update object used to spawn the next token is passed in for modification for the indicated iteration. Note, the same update object is used throughout the spawning process, being modified as desired on each iteration.
- * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
- * `spawnedTokenDoc` {TokenDocument} The token spawned by this iteration.
- * `updates` {Object} The update object from the just spawned token. Will be applied to default prototoken data for next iteration
- * `iteration` {Number} The iteration index of the _next_ iteration. 0-indexed.
+The console log below shows the order of the built-in Warp Gate events as they related to spawning and dismissing a token:
+
+![Event_Flow](.github/assets/event_timing.png)
+
+### `warpgate.event.watch(eventName, function, conditionFn = () => { return true; })`
+Similar in operation to `Hooks.on`, with two exceptions. First, the provided function can be asynchronous and will be awaited. Second, an optional `conditionFn` parameter is added to help comparmentalize logic between detecting the desired event and responding to said event.
+ * `eventName` {String} Event name to watch for; It is recommended to use the enums found in `warpgate.EVENT`.
+ * `function` {async Function(eventData)} Function to execute when this event has passed the condition function. Will be awaited
+ * `conditionFn` {Function(eventData)} Optional. Function to determine if the primary function should be executed.
+
+ * `return value` {Number} Function id assigned to this event.
+
+### `warpgate.event.trigger(eventName, function, conditionFn)`
+Identical to `watch`, except that this function will only be called once, when the condition is met.
+ * `eventName` {String} Event name on which to trigger; It is recommended to use the enums found in `warpgate.EVENT`.
+ * `function` {async Function(eventData)} Function to execute when this event has passed the condition function. Will be awaited.
+ * `conditionFn` {Function(eventData)} Optional. Determine if the primary function should be executed.
+
+ * `return value` {Number} Function id assigned to this event.
+
+### `warpgate.event.remove(functionId)`
+Removes a `watch` or `trigger` by its provided id -- obtained by the return value of `watch` and `trigger`.
+ * `functionId` {Number} Id of function to remove.
+
+ * `return value` {Boolean} Indicates if a function was successfully found and removed.
+
+### `async warpgate.event.notify(eventName, eventData, onBehalf = game.user.id)`
+Allow custom events to be fired using the Warp Gate event system. Is broadcast to all users, including the initiator.
+ * eventName {String} Name of this event. Watches and triggers use this name to register themselves.
+ * eventData {Object} The data that will be provided to watches and triggers and their condition functions.
+ * onBehalf {String} User ID that will be used in place of the current user in the cases of a relayed request to the GM (e.g. dismissal).
+
+ * `return value` {Promise} The client that initiated this event can optionally wait for the event's _local_ execution to finish before moving on.
+
+### eventData
+The following table describes the stock events that occur within warpgate. All event names are contained within `warpgate.EVENT`
+
+| Event | Data | Timing | Notes |
+| -- | -- | -- |
+| <common> | {sceneId, userId} | | userId is the initiator |
+| PLACEMENT | {templateData, tokenData} | After placement has been decided | The MeasuredTemplate data used to spawn the token, and the final token data that will be spawned. There is no actor data provided.  |
+| SPAWN | {actorData, iteration} | After each token has been created | Iteration this actor was spawned on. See **actorData**, below. |
+| DISMISS | {actorData} | After any token is dismissed via `warpgate.dismiss` | see **actorData**, below |
+| MUTATE | {actorData, updates} | After a token has been mutated, but before the initiating client has run its post mutate callback | see **actorData**, below.
+| REVERT | {actorData, updates} | After a token has been fully reverted to its previous state | updates are the changes that are applied to the provided actorData (see below) to produce the final reverted state.
+
+#### actorData
+This object is a customized version of `Actor#toObject` with the following change:
+ * `token` now contains the final token data, including position. Equivalent to `Token#toObject` with its `actorData` field removed (as it is redundant).
 
 ## Special Thanks
 * siliconsaint for the inspiration to turn a set of absurd macros into something usable and constantly pushing the envelope.

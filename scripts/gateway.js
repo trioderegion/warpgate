@@ -17,7 +17,6 @@
 
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
-import {queueEntityUpdate} from './update-queue.js'
 import {Crosshairs} from './crosshairs.js'
 import { Comms } from './comms.js'
 import {Propagator} from './propagator.js'
@@ -49,11 +48,6 @@ export class Gateway {
     }
   }
 
-  static queueUpdate(fn) {
-    queueEntityUpdate("gateway", fn);
-  }
-
-
   /** dnd5e helper function
    * @param { Item5e } item
    * @todo abstract further out of core code
@@ -84,7 +78,7 @@ export class Gateway {
     return dataObj;
   }
 
-  static async dismissSpawn(tokenId, sceneId) {
+  static async dismissSpawn(tokenId, sceneId, onBehalf = game.user.id) {
 
     /** @todo localize */
     if (!tokenId || !sceneId){
@@ -105,24 +99,26 @@ export class Gateway {
     
     logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
 
-    /** GMs can always delete tokens */
-    if (game.user.isGM) {
-      await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+    if (!MODULE.firstGM()){
+      logger.error('error.noGm');
+      return;
+    }
+
+    /** first gm drives */
+    if (MODULE.isFirstGM()) {
+      const tokenDocs = await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+      const actorData = Comms.packToken(tokenDocs[0]);
+      await warpgate.event.notify(warpgate.EVENT.DISMISS, {actorData}, onBehalf);
     } else {
       /** otherwise, we need to send a request for deletion */
-      if (!MODULE.firstGM()){
-        logger.error('error.noGm');
-        return;
-      }
-
-      Comms.requestDismissSpawn(tokenId, sceneId);
+      await Comms.requestDismissSpawn(tokenId, sceneId);
     }
     
     return;
   }
 
   /* returns promise of token creation */
-  static async _spawnActorAtLocation(protoToken, spawnPoint, collision) {
+  static async _spawnTokenAtLocation(protoToken, spawnPoint, collision) {
 
     // Increase this offset for larger summons
     let internalSpawnPoint = {x: spawnPoint.x - (canvas.scene.data.grid  * (protoToken.width/2)),
@@ -146,88 +142,6 @@ export class Gateway {
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
 
-  static _parseUpdateShorthand(itemUpdates, actor) {
-    let parsedUpdates = Object.keys(itemUpdates).map((key) => {
-      if (itemUpdates[key] === warpgate.CONST.DELETE) return { _id: null };
-      return {
-        _id: actor.items.getName(key)?.id ?? null,
-        ...itemUpdates[key]
-      }
-    });
-    parsedUpdates = parsedUpdates.filter( update => !!update._id);
-    return parsedUpdates;
-  }
-
-  static _parseDeleteShorthand(itemUpdates, actor) {
-    let parsedUpdates = Object.keys(itemUpdates).map((key) => {
-      if (itemUpdates[key] !== warpgate.CONST.DELETE) return null;
-      return actor.items.getName(key)?.id ?? null;
-    });
-
-    parsedUpdates = parsedUpdates.filter( update => !!update);
-    return parsedUpdates;
-  }
-
-  /** @todo */
-  static _parseAddShorthand(itemUpdates, actor){
-    let parsedAdds = Object.keys(itemUpdates).map((key) => {
-
-      /* ignore deletes */
-      if (itemUpdates[key] === warpgate.CONST.DELETE) return false;
-
-      /* ignore item updates for items that exist */
-      if (actor.items.getName(key) != null) return false;
-
-      return {
-        ...itemUpdates[key],
-        name: key
-      }
-
-    });
-    parsedAdds = parsedAdds.filter( update => !!update);
-    return parsedAdds;
-
-  }
-
-  static async _updateSummon(summonedDocument, updates = {}) {
-    /* ensure creator owns this token */
-    let permissions = { permission: duplicate(summonedDocument.actor.data.permission) };
-    permissions.permission[game.user.id] = 3;
-
-    updates.actor = mergeObject(updates.actor ?? {}, permissions);
-
-    /** perform the updates */
-    logger.debug('Perfoming update on (actor/updates)',summonedDocument.actor, updates);
-    await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
-    if (updates.actor) await summonedDocument.actor.update(updates.actor);
-
-    /** split out the shorthand notation we've created */
-    if (updates.item) {
-      const parsedAdds = Gateway._parseAddShorthand(updates.item, summonedDocument.actor);
-      const parsedUpdates = Gateway._parseUpdateShorthand(updates.item, summonedDocument.actor);
-      const parsedDeletes = Gateway._parseDeleteShorthand(updates.item, summonedDocument.actor);
-      logger.debug('Updating actor items (actor/items)',summonedDocument.actor, parsedAdds, parsedUpdates, parsedDeletes);
-
-      try {
-        if (parsedAdds.length > 0) await summonedDocument.actor.createEmbeddedDocuments("Item", parsedAdds);
-      } catch (e) {
-        logger.error(`${MODULE.localize('error.createItem')}: ${e}`)
-      } 
-
-      try {
-        if (parsedUpdates.length > 0) await summonedDocument.actor.updateEmbeddedDocuments("Item", parsedUpdates);
-      } catch (e) {
-        logger.error(`${MODULE.localize('error.updateItem')}: ${e}`)
-      }
-
-      try {
-        if (parsedDeletes.length > 0) await summonedDocument.actor.deleteEmbeddedDocuments("Item", parsedDeletes);
-      } catch (e) {
-        logger.error(`${MODULE.localize('error.deleteItem')}: ${e}`)
-      }
-    }
-
-    return;
-  }
+  
 
 }
