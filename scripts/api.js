@@ -18,6 +18,8 @@
 import { logger } from './logger.js'
 import { Gateway } from './gateway.js'
 import { MODULE } from './module.js'
+import { Comms } from './comms.js'
+import { Events } from './events.js'
 
 export class api {
 
@@ -44,7 +46,18 @@ export class api {
         rollItem : Gateway._rollItemGetLevel
       },
       CONST : {
-        DELETE : 'delete'
+        DELETE : 'delete',
+      },
+      EVENT : {
+          PLACEMENT: 'wg_placement',
+          SPAWN: 'wg_spawn',
+          DISMISS: 'wg_dismiss',
+      },
+      event : {
+        watch : Events.watch,
+        trigger : Events.trigger,
+        remove : Events.remove,
+        notify : Comms.notifyEvent,
       }
     }
   }
@@ -90,6 +103,8 @@ export class api {
     const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
 
     if (templateData.cancelled) return;
+
+    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, protoData, user: game.user.id});
 
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
@@ -138,6 +153,8 @@ export class api {
       const spawnedTokenDoc = (await Gateway._spawnActorAtLocation(protoData,
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
+
+      await warpgate.event.notify(warpgate.EVENT.SPAWN, {tokenId: spawnedTokenDoc.id, sceneId: spawnedTokenDoc.parent.id, iteration, user: game.user.id});
 
       createdIds.push(spawnedTokenDoc.id);
 

@@ -29,7 +29,8 @@ let updateQueues = new Map();
  * @param {String} entity       the name of the entity type, ex. 'Combat' or 'Scene'
  * @param {Function} updateFn   the function that handles the actual update (can be async)
  */
-export function queueEntityUpdate(entity, updateFn) {
+export function queueUpdate(updateFn) {
+  const entity = "default"
 
   /** if this is a new entity type, create the queue object to manage it */
   if(!updateQueues.has(entity)) {
