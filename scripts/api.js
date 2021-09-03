@@ -18,6 +18,8 @@
 import { logger } from './logger.js'
 import { Gateway } from './gateway.js'
 import { MODULE } from './module.js'
+import { Comms } from './comms.js'
+import { Events } from './events.js'
 
 export class api {
 
@@ -44,7 +46,18 @@ export class api {
         rollItem : Gateway._rollItemGetLevel
       },
       CONST : {
-        DELETE : 'delete'
+        DELETE : 'delete',
+      },
+      EVENT : {
+          PLACEMENT: 'wg_placement',
+          SPAWN: 'wg_spawn',
+          DISMISS: 'wg_dismiss',
+      },
+      event : {
+        watch : Events.watch,
+        trigger : Events.trigger,
+        remove : Events.remove,
+        notify : Comms.notifyEvent,
       }
     }
   }
@@ -90,6 +103,8 @@ export class api {
     const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
 
     if (templateData.cancelled) return;
+
+    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
@@ -139,6 +154,7 @@ export class api {
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
 
+
       createdIds.push(spawnedTokenDoc.id);
 
       logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
@@ -148,7 +164,11 @@ export class api {
       mergeObject(updates, {actor: {flags}});
 
       await Gateway._updateSummon(spawnedTokenDoc, updates);
-     
+      
+      const actorData = Comms.packToken(spawnedTokenDoc);
+      
+      await warpgate.event.notify(warpgate.EVENT.SPAWN, {actorData, iteration});
+
       /** post creation callback -- use iter+1 because this update is referring to the NEXT iteration */
       if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration + 1);
       

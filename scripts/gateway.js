@@ -17,7 +17,7 @@
 
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
-import {queueEntityUpdate} from './update-queue.js'
+import {queueUpdate} from './update-queue.js'
 import {Crosshairs} from './crosshairs.js'
 import { Comms } from './comms.js'
 import {Propagator} from './propagator.js'
@@ -49,11 +49,6 @@ export class Gateway {
     }
   }
 
-  static queueUpdate(fn) {
-    queueEntityUpdate("gateway", fn);
-  }
-
-
   /** dnd5e helper function
    * @param { Item5e } item
    * @todo abstract further out of core code
@@ -84,7 +79,7 @@ export class Gateway {
     return dataObj;
   }
 
-  static async dismissSpawn(tokenId, sceneId) {
+  static async dismissSpawn(tokenId, sceneId, onBehalf = game.user.id) {
 
     /** @todo localize */
     if (!tokenId || !sceneId){
@@ -105,16 +100,18 @@ export class Gateway {
     
     logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
 
-    /** GMs can always delete tokens */
-    if (game.user.isGM) {
-      await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+    if (!MODULE.firstGM()){
+      logger.error('error.noGm');
+      return;
+    }
+
+    /** first gm drives */
+    if (MODULE.isFirstGM()) {
+      const tokenDocs = await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+      const actorData = Comms.packToken(tokenDocs[0]);
+      await warpgate.event.notify(warpgate.EVENT.DISMISS, {actorData}, onBehalf);
     } else {
       /** otherwise, we need to send a request for deletion */
-      if (!MODULE.firstGM()){
-        logger.error('error.noGm');
-        return;
-      }
-
       Comms.requestDismissSpawn(tokenId, sceneId);
     }
     
