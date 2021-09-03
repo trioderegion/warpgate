@@ -133,9 +133,9 @@ Removes a `watch` or `trigger` by its provided id -- obtained by the return valu
 
 ### `async warpgate.event.notify(eventName, eventData, onBehalf = game.user.id)`
 Allow custom events to be fired using the Warp Gate event system. Is broadcast to all users, including the initiator.
- * eventName {String} Name of this event. Watches and triggers use this name to register themselves.
- * eventData {Object} The data that will be provided to watches and triggers and their condition functions.
- * onBehalf {String} User ID that will be used in place of the current user in the cases of a relayed request to the GM (e.g. dismissal).
+ * `eventName` {String} Name of this event. Watches and triggers use this name to register themselves.
+ * `eventData` {Object} The data that will be provided to watches and triggers and their condition functions.
+ * `onBehalf` {String} User ID that will be used in place of the current user in the cases of a relayed request to the GM (e.g. dismissal).
 
  * `return value` {Promise} The client that initiated this event can optionally wait for the event's _local_ execution to finish before moving on.
 
@@ -143,8 +143,8 @@ Allow custom events to be fired using the Warp Gate event system. Is broadcast t
 The following table describes the stock events that occur within warpgate. All event names are contained within `warpgate.EVENT`
 
 | Event | Data | Timing | Notes |
-| -- | -- | -- |
-| <common> | {sceneId, userId} | | userId is the initiator |
+| -- | -- | -- | -- |
+| (common) | {sceneId, userId} | | userId is the initiator |
 | PLACEMENT | {templateData, tokenData} | After placement has been decided | The MeasuredTemplate data used to spawn the token, and the final token data that will be spawned. There is no actor data provided.  |
 | SPAWN | {actorData, iteration} | After each token has been created | Iteration this actor was spawned on. See **actorData**, below. |
 | DISMISS | {actorData} | After any token is dismissed via `warpgate.dismiss` | see **actorData**, below |
