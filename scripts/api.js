@@ -104,7 +104,7 @@ export class api {
 
     if (templateData.cancelled) return;
 
-    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, protoData, user: game.user.id});
+    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
@@ -154,7 +154,6 @@ export class api {
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
 
-      await warpgate.event.notify(warpgate.EVENT.SPAWN, {tokenId: spawnedTokenDoc.id, sceneId: spawnedTokenDoc.parent.id, iteration, user: game.user.id});
 
       createdIds.push(spawnedTokenDoc.id);
 
@@ -165,7 +164,11 @@ export class api {
       mergeObject(updates, {actor: {flags}});
 
       await Gateway._updateSummon(spawnedTokenDoc, updates);
-     
+      
+      const actorData = Comms.packToken(spawnedTokenDoc);
+      
+      await warpgate.event.notify(warpgate.EVENT.SPAWN, {actorData, iteration});
+
       /** post creation callback -- use iter+1 because this update is referring to the NEXT iteration */
       if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration + 1);
       

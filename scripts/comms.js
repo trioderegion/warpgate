@@ -48,11 +48,11 @@ export class Comms {
     switch (socketData.op){
       case ops.DISMISS_SPAWN:
         /* let the first GM handle all dismissals */
-        if (MODULE.isFirstGM()) await Gateway.dismissSpawn(socketData.payload.tokenId, socketData.payload.sceneId);
+        if (MODULE.isFirstGM()) await Gateway.dismissSpawn(socketData.payload.tokenId, socketData.payload.sceneId, socketData.payload.userId);
         break;
       case ops.EVENT:
         /* all users should respond to events */
-        await Events.run(socketData.name, socketData.payload);
+        await Events.run(socketData.eventName, socketData.payload);
         break;
       default:
         logger.error("Unrecognized socket request", socketData);
@@ -73,23 +73,34 @@ export class Comms {
     /** craft the socket data */
     const data = {
       op : ops.DISMISS_SPAWN,
-      tokenId,
-      sceneId,
-      userId : game.user.id
+      payload : { tokenId, sceneId, userId: game.user.id }
     }
     
     Comms._emit(data);
   }
 
-  static notifyEvent(name, payload) {
+  static notifyEvent(name, payload, onBehalf = game.user.id) {
+    /** insert common fields */
+    payload.sceneId = canvas.scene.id;
+    payload.userId = onBehalf;
+
     /* craft the socket data */
     const data = {
       op : ops.EVENT,
-      name,
+      eventName: name,
       payload
     }
 
     return Comms._emit(data);
+  }
+
+  static packToken(tokenDoc) {
+    const tokenData = tokenDoc.toObject();
+    delete tokenData.actorData;
+
+    let actorData = tokenDoc.actor.toObject();
+    actorData.token = tokenData;
+    return actorData;
   }
 
 }

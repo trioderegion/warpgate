@@ -79,7 +79,7 @@ export class Gateway {
     return dataObj;
   }
 
-  static async dismissSpawn(tokenId, sceneId) {
+  static async dismissSpawn(tokenId, sceneId, onBehalf = game.user.id) {
 
     /** @todo localize */
     if (!tokenId || !sceneId){
@@ -107,8 +107,9 @@ export class Gateway {
 
     /** first gm drives */
     if (MODULE.isFirstGM()) {
-      await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
-      await warpgate.event.notify(warpgate.EVENT.DISMISS, {tokenId, sceneId, user: game.user.id});
+      const tokenDocs = await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+      const actorData = Comms.packToken(tokenDocs[0]);
+      await warpgate.event.notify(warpgate.EVENT.DISMISS, {actorData}, onBehalf);
     } else {
       /** otherwise, we need to send a request for deletion */
       Comms.requestDismissSpawn(tokenId, sceneId);

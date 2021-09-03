@@ -1,7 +1,7 @@
 import { logger } from './logger.js'
 import { queueUpdate } from './update-queue.js'
 
-let hooks = {};
+let watches = {};
 let triggers = {};
 let id = 0;
 
@@ -10,17 +10,19 @@ Array.prototype.removeIf = function (callback) {
   while (i--) {
     if (callback(this[i], i)) {
       this.splice(i, 1);
+      return true;
     }
   }
+
+  return false;
 };
 
 export class Events {
 
   static watch(name, fn, condition = () => {return true;}) {
-    if (!hooks[name]) hooks[name] = [];
-    // @todo generate an ID for this
+    if (!watches[name]) watches[name] = [];
     id++;
-    hooks[name].push({fn, condition, id});
+    watches[name].push({fn, condition, id});
     return id;
   }
 
@@ -32,7 +34,7 @@ export class Events {
   }
 
   static async run(name, data) {
-    for (const {fn, condition, id} of hooks[name] ?? []) {
+    for (const {fn, condition, id} of watches[name] ?? []) {
       if (condition(data)) {
         logger.debug(`${name} | ${id} passes watch condition`);
         await fn(data);
@@ -60,14 +62,16 @@ export class Events {
     triggers[name] = keep;
   }
 
-  static remove(name, id) {
+  static remove(id) {
     const searchFn = (elem) => {return elem.id === id};
 
-    let hookPage = hooks[name] ?? [];
-    hookPage.removeIf(searchFn)
+    const tryRemove = (page) => page.removeIf(searchFn);
 
-    let triggerPage = triggers[name] ?? [];
-    triggerPage.removeIf(searchFn)
+    const hookRemove = Object.values(watches).map( tryRemove ).reduce( (sum, current) => { return sum || current }, false);
+
+    const triggerRemove = Object.values(triggers).map( tryRemove ).reduce( (sum, current) => { return sum || current }, false);
+
+    return hookRemove || triggerRemove;
   }
 }
 
