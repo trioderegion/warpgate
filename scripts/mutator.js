@@ -17,6 +17,7 @@
 
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
+import {Comms} from './Comms.js'
 
 const NAME = "Mutator";
 
