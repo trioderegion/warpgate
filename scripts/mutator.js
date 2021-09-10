@@ -35,7 +35,7 @@ export class Mutator {
   static _parseUpdateShorthand(collection, updates, comparisonKey) {
     let parsedUpdates = Object.keys(updates).map((key) => {
       if (updates[key] === warpgate.CONST.DELETE) return { _id: null };
-      const _id = collection.find( element => getProperty(element.data,comparisonKey) === key ) ?? null;
+      const _id = collection.find( element => getProperty(element.data,comparisonKey) === key )?.id ?? null;
       return {
         _id,
         ...updates[key]
