@@ -60,18 +60,20 @@ Given an update argument identical to `warpgate.spawn` and a token document, wil
   - `delta` {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
    - `delta` {Object}: Computed change of the actor based on `updates`.
    - `tokenDoc` {TokenDocument}: Token being modified.
- - post {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
+ - `post` {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
    - `tokenDoc` {TokenDocument}: Token that has been modified.
    - `updates` {Object}: See parent `updates` parameter.
-
  * `options` {Object = {}}
   - comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: `{'ActiveEffect' : 'label'}` will tell warpgate that its key, "Rage", should be checked against the `ActiveEffect#data.label` field rather than the default `Document#name` field.
   - permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
 
- * {Promise<Object>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
-
-
+* `return value` {Promise\<Object\>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
+ 
 ### `async warpgate.revert(tokenDoc)`
+Removes the latest mutation applied to the provided token's actor.
+ * `tokenDoc` {TokenDocument}: Token document to update, does not accept Token Placeable.
+ 
+ * `return value` {Promise\<Object\>}: The update object applied to the actor to revert the mutation operation.
 
 ### Mutate Callback Functions
 Two provided callback locations: `delta` and `post`. Both are awaited and operate similarly to the callbacks used in `warpgate.spawn`.
@@ -83,10 +85,10 @@ Called after the update delta has been generated, but before it is stored on the
 
  * `return value` {Promise}
 
-### `async post(tokenDoc, updates)` 
+#### `async post(tokenDoc, updates)` 
 Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
- * tokenDoc {TokenDocument}: Token that has been modified.
- * updates {Object}: See parent `updates` parameter.
+ * `tokenDoc` {TokenDocument}: Token that has been modified.
+ * `updates` {Object}: See parent `updates` parameter.
 
  * `return value` {Promise}
 
