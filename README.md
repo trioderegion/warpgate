@@ -201,13 +201,13 @@ Allow custom events to be fired using the Warp Gate event system. Is broadcast t
 The following table describes the stock events that occur within warpgate. All event names are contained within `warpgate.EVENT`
 
 | Event | Data | Timing | Notes |
-| -- | -- | -- |
+| -- | -- | -- | -- |
 | <common> | {sceneId, userId} | | userId is the initiator |
 | PLACEMENT | {templateData, tokenData} | After placement has been decided | The MeasuredTemplate data used to spawn the token, and the final token data that will be spawned. There is no actor data provided.  |
 | SPAWN | {actorData, iteration} | After each token has been created | Iteration this actor was spawned on. See **actorData**, below. |
 | DISMISS | {actorData} | After any token is dismissed via `warpgate.dismiss` | see **actorData**, below |
-| MUTATE | {actorData, updates} | After a token has been mutated, but before the initiating client has run its post mutate callback | see **actorData**, below.
-| REVERT | {actorData, updates} | After a token has been fully reverted to its previous state | updates are the changes that are applied to the provided actorData (see below) to produce the final reverted state.
+| MUTATE | {actorData, updates} | After a token has been mutated, but before the initiating client has run its post mutate callback | see **actorData**, below. |
+| REVERT | {actorData, updates} | After a token has been fully reverted to its previous state | updates are the changes that are applied to the provided actorData (see below) to produce the final reverted state. |
 
 #### actorData
 This object is a customized version of `Actor#toObject` with the following change:
