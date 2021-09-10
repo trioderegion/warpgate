@@ -113,6 +113,8 @@ export class api {
 
     if (templateData.cancelled) return;
 
+    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
+
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
     /* calculate any scaling that may have happened */

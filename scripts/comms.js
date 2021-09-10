@@ -106,4 +106,28 @@ export class Comms {
     return actorData;
   }
 
+  static notifyEvent(name, payload, onBehalf = game.user.id) {
+    /** insert common fields */
+    payload.sceneId = canvas.scene.id;
+    payload.userId = onBehalf;
+
+    /* craft the socket data */
+    const data = {
+      op : ops.EVENT,
+      eventName: name,
+      payload
+    }
+
+    return Comms._emit(data);
+  }
+
+  static packToken(tokenDoc) {
+    const tokenData = tokenDoc.toObject();
+    delete tokenData.actorData;
+
+    let actorData = tokenDoc.actor.toObject();
+    actorData.token = tokenData;
+    return actorData;
+  }
+
 }
