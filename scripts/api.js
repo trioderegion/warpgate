@@ -70,7 +70,7 @@ export class api {
   /** Main driver
    * @param {String} spawnName
    *
-   * @param {Object} updates - item, actor, and token document updates. item updates use a "shorthand" notation.
+   * @param {Object} updates - embedded document, actor, and token document updates. embedded updates use a "shorthand" notation.
    *
    * @param {Object} callbacks - functions to be executed at various stages of the spawning process
    *   pre: async function(templateData, updates). Executed after placement has been decided, but before updates 

@@ -54,21 +54,21 @@ Executed after the token has been spawned and any updates applied. Good for anim
    
 Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
 
- * tokenDoc {TokenDocument}: Token document to update, does not accept Token Placeable.
- * updates {Object = {}}: As `warpgate.spawn`.
- * callbacks {Object = {}}. Two provided callback locations: `delta` and `post`. Both are awaited.
-  delta {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
-    @param {Object} delta. Computed change of the actor based on `updates`.
-    @param {TokenDocument} tokenDoc. Token being modified.
-  post {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
-    @param {TokenDocument} tokenDoc. Token that has been modified.
-    @param {Object} updates. See parent `updates` parameter.
+ * `tokenDoc` {TokenDocument}: Token document to update, does not accept Token Placeable.
+ * `updates` {Object = {}}: As `warpgate.spawn`.
+ * `callbacks` {Object = {}}. Two provided callback locations: `delta` and `post`. Both are awaited.
+  - `delta` {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
+   - `delta` {Object}: Computed change of the actor based on `updates`.
+   - `tokenDoc` {TokenDocument}: Token being modified.
+ - post {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
+   - `tokenDoc` {TokenDocument}: Token that has been modified.
+   - `updates` {Object}: See parent `updates` parameter.
 
-@param {Object = {}} options
-  comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
-  permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
+ * `options` {Object = {}}
+  - comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: `{'ActiveEffect' : 'label'}` will tell warpgate that its key, "Rage", should be checked against the `ActiveEffect#data.label` field rather than the default `Document#name` field.
+  - permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
 
-@return {Promise<Object>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
+ * {Promise<Object>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
 
 
 ### `async warpgate.revert(tokenDoc)`
@@ -140,18 +140,23 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 
 
 ## Update Shorthand
-The `update` object can contain up to three keys: `token`, `actor`, and `item`. The `token` and `actor` key values are standard update objects as one would use in `Actor#update`.  The `item` key uses a shorthand notation to make creating the updates easier. Notably, it does not require the `_id` field to be part of the update object for a given item.  There are three operations that this object controls -- adding, updating, deleting (in that order).
+The `update` object can contain up to three keys: `token`, `actor`, and `embedded`. The `token` and `actor` key values are standard update objects as one would use in `Actor#update`.  The `embedded` key uses a shorthand notation to make creating the updates for embedded documents (such as items) easier. Notably, it does not require the `_id` field to be part of the update object for a given embedded document type.  There are three operations that this object controls -- adding, updating, deleting (in that order).
+
+Note: As of 1.7.0, the `item` field of the update object has been deprecated. Instead, place the value of the item field at `update.embedded.Item`. Support for this field will be removed in 1.9.0.
 
 ### Add
-Given a key of a **non-existing** item, the value contains the data object for item creation compatible with `Item#create`. This object can be constructed in-place by hand, or gotten from a template item and modified using `"Item To Add": game.items.getName("Name of Item").data`. Note: the name contained in the key will override the `name` field in any provided creation data.
+Given a key of a **non-existing** embedded document, the value contains the data object for document creation compatible with `createEmbeddedDocuments`. This object can be constructed in-place by hand, or gotten from a template document and modified using `"Item To Add": game.items.getName("Name of Item").data`. As an example. Note: the name contained in the key will override the `name` field in any provided creation data.
 
 ### Update
-Given a key of an existing item, the value contains the data object compatible with `Item#update`
+Given a key of an existing document, the value contains the data object compatible with `updateEmbeddedDocuments`
 
 ### Delete
-Assigning the key to the special constant `warpgate.CONST.DELETE` will remove this item (if it exists) from the spawned actor. e.g.
+Assigning the key to the special constant `warpgate.CONST.DELETE` will remove this document (if it exists) from the spawned actor. e.g.
 `{"Item Name To Delete": warpgate.CONST.DELETE}`
 
+### `embedded` Structure
+The `embedded` field expects an object with keys corresponding to a embedded document type. Each value for these keys contains an object keyed by "comparison names". Each value for the comparison name keys is an object compatible with the desired add, update, or delete operation.
+`{ Embedded Name : { Comparison Name : Update Object, Next Comparison Name : Update Object, etc...} }`
 
 ## Event System
 Warp Gate includes a hook-like event system that can be used to respond to stages of the spawning and dismissal process. Additionally, the event notify function is exposed so that users and module authors can create custom events in any context.
