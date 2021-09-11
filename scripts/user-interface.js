@@ -20,6 +20,7 @@ import { logger } from './logger.js'
 import { Gateway } from './gateway.js'
 import { MODULE } from './module.js'
 import {queueUpdate} from './update-queue.js'
+import { Mutator } from './mutator.js'
 
 export class UserInterface {
 
