@@ -21,6 +21,7 @@ import { Mutator } from './mutator.js'
 import { MODULE } from './module.js'
 import { Comms } from './comms.js'
 import { Events } from './events.js'
+import { queueUpdate } from './update-queue.js'
 
 export class api {
 
@@ -44,6 +45,9 @@ export class api {
       buttonDialog : MODULE.buttonDialog,
       crosshairs: {
         show: Gateway.showCrosshairs
+      },
+      plugin: {
+        queueUpdate
       },
       dnd5e : {
         rollItem : Gateway._rollItemGetLevel
