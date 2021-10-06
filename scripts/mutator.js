@@ -269,8 +269,7 @@ export class Mutator {
     const tokenDelta = Mutator._deepDiffMapper().map(tokenData, updatedToken);
 
     /* get the actor changes (no embeds) */
-    let actorData = tokenDoc.actor.data.toObject()
-    delete actorData.items;
+    const actorData = Mutator._getRootActorData(tokenDoc.actor);
 
     const updatedActor = mergeObject(actorData, updates.actor, {inplace:false});
     const actorDelta = Mutator._deepDiffMapper().map(actorData, updatedActor);
@@ -289,6 +288,21 @@ export class Mutator {
     logger.debug('Token Delta', tokenDelta, 'Actor Delta', actorDelta, 'Embedded Delta', embeddedDelta);
 
     return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta}
+  }
+
+  /* returns the actor data sans ALL embedded collections */
+  static _getRootActorData(actorDoc) {
+    let actorData = actorDoc.data.toObject();
+
+    /* get the key NAME of the embedded document type.
+     * ex. not 'ActiveEffect' (the class name), 'effect' the collection's field name
+     */
+    const embeddedFields = Object.values(Actor.implementation.metadata.embedded).map( thisClass => thisClass.metadata.collection );
+
+    /* delete any embedded fields from the actor data */
+    embeddedFields.forEach( field => { delete actorData[field] } )
+
+    return actorData;
   }
 
   static _deepDiffMapper() {
@@ -376,7 +390,11 @@ export class Mutator {
         return Object.prototype.toString.call(x) === '[object Object]';
       },
       isValue: function (x) {
-        return !this.isObject(x) && !this.isArray(x);
+        /* mmh: we are going to treat ANYTHING that is
+         * not an object as the 'final' value to use.
+         * We do not want to deep diff array values.
+         */
+        return !this.isObject(x) /*&& !this.isArray(x)*/;
       }
     }
   }
