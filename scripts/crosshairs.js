@@ -232,7 +232,9 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Activate interactivity
     this.activatePreviewListeners();
-    return MODULE.waitFor( () => !this.inFlight )
+
+    /* wait _indefinitely_ for placement to be decided. */
+    return MODULE.waitFor( () => !this.inFlight, -1 )
   }
 
   /* -------------------------------------------- */

@@ -44,12 +44,20 @@ export class MODULE{
     return new Promise((resolve)=> setTimeout(resolve, ms))
   }
 
-  static async waitFor(fn, m = 200, w = 100, i = 0){
-    while(!fn(i, ((i*w)/100)) && i < m){
-      i++;
-      await MODULE.wait(w);
+  static async waitFor(fn, maxIter = 600, iterWaitTime = 100, i = 0){
+    const continueWait = (current, max) => {
+
+      /* negative max iter means wait forever */
+      if (maxIter < 0) return true;
+      
+      return current < max;
     }
-    return i === m ? false : true;
+
+    while(!fn(i, ((i*iterWaitTime)/100)) && continueWait(i, maxIter)){
+      i++;
+      await MODULE.wait(iterWaitTime);
+    }
+    return i === maxIter ? false : true;
   }
 
   static settings() {
