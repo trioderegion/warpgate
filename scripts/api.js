@@ -22,6 +22,7 @@ import { MODULE } from './module.js'
 import { Comms } from './comms.js'
 import { Events } from './events.js'
 import { queueUpdate } from './update-queue.js'
+import { Crosshairs } from './crosshairs.js'
 
 export class api {
 
@@ -67,6 +68,9 @@ export class api {
         trigger : Events.trigger,
         remove : Events.remove,
         notify : Comms.notifyEvent,
+      },
+      abstract : {
+        Crosshairs,
       }
     }
   }
