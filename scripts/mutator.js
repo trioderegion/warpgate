@@ -24,11 +24,30 @@ const NAME = "Mutator";
 export class Mutator {
   static register() {
     Mutator.defaults();
+    Mutator.hooks();
   }
 
   static defaults(){
     MODULE[NAME] = {
       comparisonKey: 'name'
+    }
+  }
+
+  static hooks() {
+    Hooks.on('preUpdateToken', Mutator._correctActorLink)
+  }
+
+  static _correctActorLink(tokenDoc, update) {
+
+    /* if the actorId has been updated AND its being set to null,
+     * check if we can patch/fix this warpgate spawn
+     */
+    if (update.hasOwnProperty('actorId') && update.actorId === null) {
+      const sourceActorId = tokenDoc.getFlag(MODULE.data.name, 'sourceActorId') ?? false;
+      if (sourceActorId) {
+        logger.debug(`Detected spawned token with unowned actor ${sourceActorId}. Correcting token update.`, tokenDoc, update);
+        update.actorId = sourceActorId;
+      }
     }
   }
 

@@ -164,6 +164,18 @@ export class api {
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
 
+    /* Flag this token with its original actor to work around
+     * updating the token properties of a token linked to
+     * an unowned actor
+     */
+    const tokenFlags = { 
+      [MODULE.data.name]: {
+        sourceActorId: sourceActor.id
+      }
+    }
+
+    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags})
+
     /* merge in changes to the prototoken */
     protoData.update(updates.token);
 
@@ -180,9 +192,13 @@ export class api {
 
       logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
 
-      /** flag this user as its creator */
-      const flags = {warpgate: {control: {user: game.user.id, actor: options.controllingActor?.id}}}
-      updates.actor = mergeObject(updates.actor ?? {} , {flags});
+      /* flag this user as the actor's creator */
+      const actorFlags = {
+        [MODULE.data.name]: {
+          control: {user: game.user.id, actor: options.controllingActor?.id},
+        }
+      }
+      updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags});
 
       /* ensure creator owns this token */
       let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
