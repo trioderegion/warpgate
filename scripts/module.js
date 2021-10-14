@@ -76,6 +76,11 @@ export class MODULE{
     });
   }
 
+  static getMouseStagePos() {
+    const mouse = canvas.app.renderer.plugins.interaction.mouse;
+    return mouse.getLocalPosition(canvas.app.stage);
+  }
+
   /*
    * Helper function for quickly creating a simple dialog with labeled buttons and associated data. 
    * Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.

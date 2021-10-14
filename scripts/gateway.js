@@ -97,6 +97,14 @@ export class Gateway {
   }
 
   static async _showCrosshairs(config = {}, callbacks = {}) {
+
+    /* if a specific initial location is not provided, grab the current mouse location */
+    if(!config.hasOwnProperty('x') && !config.hasOwnProperty('y')) {
+      const mouseLoc = MODULE.getMouseStagePos();
+      config.x = mouseLoc.x;
+      config.y = mouseLoc.y;
+    }
+
     config = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
 
     const template = new Crosshairs(config, callbacks);
