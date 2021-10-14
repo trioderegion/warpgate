@@ -76,6 +76,25 @@ export class MODULE{
     });
   }
 
+  static async getTokenData(actorName, tokenUpdates){
+    
+    //get source actor
+    const sourceActor = game.actors.getName(actorName);
+    if(!sourceActor) {
+      logger.error(`Could not find world actor named "${actorName}"`);
+      return false;
+    }
+
+    //get prototoken data -- need to prepare potential wild cards for the template preview
+    let protoData = (await sourceActor.getTokenData(tokenUpdates));
+    if(!protoData) {
+      logger.error(`Could not find proto token data for ${actorName}`);
+      return false;
+    }
+    
+    return protoData;
+  }
+
   /*
    * Helper function for quickly creating a simple dialog with labeled buttons and associated data. 
    * Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.

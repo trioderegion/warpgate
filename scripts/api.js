@@ -99,20 +99,10 @@ export class api {
    */
   static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
 
-    //get source actor
-    const sourceActor = game.actors.getName(spawnName);
-    if(!sourceActor) {
-      logger.error(`Could not find world actor named "${spawnName}"`);
-      return;
-    }
+    let protoData = await MODULE.getTokenData(spawnName, updates.token ?? {});
 
-    //get prototoken data -- need to prepare potential wild cards for the template preview
-    let protoData = (await sourceActor.getTokenData(updates.token));
-    if(!protoData) {
-      logger.error(`Could not find proto token data for ${spawnName}`);
-      return;
-    }
-
+    if (!protoData) return;
+    
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
     const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
@@ -149,6 +139,13 @@ export class api {
    * 4) if more duplicates, get fresh proto data and update it, goto 1
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
+
+    /* Detect if the protoData is actually a name, and generate token data */
+    if (typeof protoData == 'string'){
+      protoData = await MODULE.getTokenData(protoData, updates.token ?? {});
+    }
+
+    if (!protoData) return;
 
     /* Support legacy fields */
     if (updates.item){
