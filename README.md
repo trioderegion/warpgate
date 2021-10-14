@@ -30,6 +30,8 @@ Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpga
   - [post](#post)
 - [Crosshairs Commands](#crosshairs-commands)
   - [show](#show)
+- [Crosshairs Config](#crosshairs-config)
+- [Crosshairs Callback Functions](#crosshairs-callback-functions)
 - [Helper Functions](#helper-functions)
   - [wait](#wait)
   - [dismiss](#dismiss)
@@ -58,8 +60,8 @@ Signature: `async warpgate.spawn(actorName, updates = {}, callbacks = {}, option
 
 The primary function of Warp Gate. When executed, it will create a custom MeasuredTemplate that is used to place the spawned token and handle any customizations provided in the `updates` object. `warpgate#spawn` will return a Promise that can be awaited, which can be used in loops to spawn multiple tokens, one after another. The player spawning the token will also be given Owner permissions for that specific token actor. This means that players can spawn any creature available in the world.
  * actorName {String}: Name of actor to spawn
- * updates {Object} Updates to the spawned actor (optional). See "Update Shorthand".
- * callbacks {Object} Callback functions (optional). See "Callback Functions".
+ * updates {Object} Updates to the spawned actor (optional). See [Update Shorthand](#update-shorthand).
+ * callbacks {Object} Callback functions (optional). See [Spawn Callback Functions](#spawn-callback-functions) and [Crosshairs Callback Functions](#crosshairs-callback-functions).
  * options {Object} Options (optional) 
  	- `controllingActor` {Actor} will minimize this actor's open sheet (if any) for a clearer view of the canvas during placement. Also flags the created token with this actor's id. Default `null`.
  	- `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
@@ -161,15 +163,21 @@ Called after the actor has been mutated and after the mutate event has triggered
 
 ### show
 
-Signature: `async warpgate.crosshairs.show(size = 1, icon = 'icons/svg/dice-target.svg', label = '')`
+Signature: `async warpgate.crosshairs.show(config = {}, callbacks = {})`
+
+Deprecated Signature: `async warpgate.crosshairs.show(size = 1, icon = 'icons/svg/dice-target.svg', label = '')`
+
 Creates a circular template attached to the cursor. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template.
-* size {Number} How large to draw the circular template in grid squares
-* icon {String} Icon to display in the center of the template
-* lable {String} Text to display under the template
+* config {Object} Configuration settings for how the crosshairs template should be displayed. See [Crosshairs Config](#crosshairs-config).
+* callbacks {Object} Functions executed at certain stages of the crosshair display process. See [Crosshairs Callback Functions](#crosshairs-callback-functions)
 
 `return value` {Object}: Contains all of the fields as MeasuredTemplateData with the following changes
 * `width` {Number} the final size of the template's diamater in grid squares.
-* `cancelled` {Boolean} if the user cancelled creation via right click. 
+* `cancelled` {Boolean} if the user cancelled creation via right click.
+
+## Crosshairs Config
+
+## Crosshairs Callback Functions
 
 ## Helper Functions
 
@@ -216,9 +224,6 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | checkbox | none | {Boolean} `true`/`false` checked/unchecked | Can use options as `radio` type, which assigns the input's `name` property for external interfacing |
 | number | (as `text`) | {Number} final value of text field converted to a number |
 | select | array of option labels | {String} label of choice | | 
-
-
-
 
 ## Update Shorthand
 The `update` object can contain up to three keys: `token`, `actor`, and `embedded`. The `token` and `actor` key values are standard update objects as one would use in `Actor#update` and `Token#update`.  The `embedded` key uses a shorthand notation to make creating the updates for embedded documents (such as items) easier. Notably, it does not require the `_id` field to be part of the update object for a given embedded document type.  There are three operations that this object controls -- adding, updating, deleting (in that order).
