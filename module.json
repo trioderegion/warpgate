@@ -23,7 +23,7 @@
     "socket": true,
     "url": "https://github.com/trioderegion/warpgate",
     "manifest": "https://raw.githubusercontent.com/trioderegion/warpgate/preview/1.8.0-beta.1/module.json",
-    "download": "https://github.com/trioderegion/warpgate/raw/preview/1.8.0-beta.1/module.zip",
+    "download": "https://github.com/trioderegion/warpgate/blob/preview/1.8.0-beta.1/module.zip?raw=true",
     "minimumCoreVersion": "0.8.5",
     "compatibleCoreVersion": "0.8.9"
 }
