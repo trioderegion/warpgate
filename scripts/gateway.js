@@ -27,6 +27,7 @@ export class Gateway {
 
   static register() {
     this.settings();
+    this.defaults();
   }
 
   static settings() {
@@ -45,6 +46,22 @@ export class Gateway {
 
   static defaults() {
     MODULE[NAME] = {
+      get crosshairsConfig() {
+        return {
+          size: 1,
+          icon: 'icons/svg/dice-target.svg',
+          label: '',
+          tag: 'crosshairs',
+          drawIcon: true,
+          drawOutline: true,
+          interval: 2,
+
+          //Measured template defaults
+          texture: null,
+          x: 0,
+          y: 0,
+        }
+      }
     }
   }
 
@@ -67,8 +84,22 @@ export class Gateway {
    * @param {String} icon: Icon to display in the center of the template
    * @param {String} label: Text to display under the template
    */
-  static async showCrosshairs(gridUnits = 1, icon = 'icons/svg/dice-target.svg', label = '' ) {
-    const template = new Crosshairs(gridUnits, {label, icon});
+  static async showCrosshairs(...args) {
+    let config = args[0] ?? {};
+    let callbacks = args[1] ?? {};
+
+    if( (typeof args[0] == 'number') || (args.length > 1 && typeof args[1] !== 'object')) {
+      console.warn('You are using show(gridUnits, icon, label) which has been deprecated in favor of show(config, callbacks)');
+      config = {size: args[0] ?? 1, icon: args[1] ?? 'icons/svg/dice-target.svg', label: args[2] ?? ''};
+    }
+    
+    return Gateway._showCrosshairs(config, callbacks);
+  }
+
+  static async _showCrosshairs(config = {}, callbacks = {}) {
+    config = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
+
+    const template = new Crosshairs(config, callbacks);
     await template.drawPreview();
     let dataObj = template.data.toObject();
 
@@ -78,7 +109,7 @@ export class Gateway {
     return dataObj;
   }
 
-  static async dismissSpawn(tokenId, sceneId, onBehalf = game.user.id) {
+  static async dismissSpawn(tokenId, sceneId = canvas.scene?.id, onBehalf = game.user.id) {
 
     /** @todo localize */
     if (!tokenId || !sceneId){
