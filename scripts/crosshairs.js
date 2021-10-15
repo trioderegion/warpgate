@@ -36,17 +36,53 @@ export class Crosshairs extends MeasuredTemplate {
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
     super(template);
 
-    /** @todo all of these fields should be part of the source data schema for this class */
+    /** @TODO all of these fields should be part of the source data schema for this class **/
+
+    /* image path to display in the center (under mouse cursor) */
     this.icon = config.icon;
+
+    /* text to display below crosshairs' circle */
     this.label = config.label;
+
+    /* Offsets the default position of the label (in pixels) */
+    this.labelOffset = config.labelOffset;
+
+    /* Arbitrary field used to identify this instance
+     * of a Crosshairs in the canvas.templates.preview
+     * list
+     */
     this.tag = config.tag;
+
+    /* Should the center icon be shown? */
     this.drawIcon = config.drawIcon;
+
+    /* Should the outer circle be shown? */
     this.drawOutline = config.drawOutline;
+
+    /* Number of quantization steps along
+     * a square's edge (N+1 snap points 
+     * along each edge, conting endpoints)
+     */
     this.interval = config.interval;
 
+    /* Callback functions to execute
+     * at particular times
+     */
     this.callbacks = callbacks;
 
+    /* Indicates if the user is actively 
+     * placing the crosshairs.
+     * Setting this to true in the show
+     * callback will stop execution
+     * and report the current mouse position
+     * as the chosen location
+     */
     this.inFlight = false;
+
+    /* indicates if the placement of
+     * crosshairs was canceled (with
+     * a right click)
+     */
     this.cancelled = true;
   }
 
@@ -67,7 +103,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.ruler.text = this.label;
     /** swap the X and Y to use the default dx/dy of a ray (pointed right)
     //to align the text to the bottom of the template */
-    this.ruler.position.set(0, this.width/2 + 5);
+    this.ruler.position.set(-this.ruler.width/2 + this.labelOffset.x, this.template.height/2 + 5 + this.labelOffset.y);
     //END WARPGATE
   }
 
@@ -119,7 +155,8 @@ export class Crosshairs extends MeasuredTemplate {
     style.fontSize = Math.max(Math.round(canvas.dimensions.size * 0.36 * 12) / 12, 36);
     const text = new PreciseText(null, style);
     //BEGIN WARPGATE
-    text.anchor.set(0.5, 0);
+    //text.anchor.set(0.5, 0);
+    text.anchor.set(0, 0);
     //END WARPGATE
     return text;
   }
@@ -160,37 +197,35 @@ export class Crosshairs extends MeasuredTemplate {
     // Create ray and bounding rectangle
     this.ray = Ray.fromAngle(this.data.x, this.data.y, direction, distance);
 
-    if(this.drawOutline) {
     // Get the Template shape
-      switch ( this.data.t ) {
-        case "circle":
-          this.shape = this._getCircleShape(distance);
-          break;
-        default: logger.error("Non-circular Crosshairs is unsupported!");
-      }
-
-      // Draw the Template outline
-      this.template.clear()
-        .lineStyle(this._borderThickness, this.borderColor, 0.75)
-        .beginFill(0x000000, 0.0);
-
-      // Fill Color or Texture
-      if ( this.texture ) this.template.beginTextureFill({
-        texture: this.texture
-      });
-      else this.template.beginFill(0x000000, 0.0);
-
-      // Draw the shape
-      this.template.drawShape(this.shape);
-
-      // Draw origin and destination points
-      this.template.lineStyle(this._borderThickness, 0x000000)
-        .beginFill(0x000000, 0.5)
-      //BEGIN WARPGATE
-      //.drawCircle(0, 0, 6)
-      //.drawCircle(this.ray.dx, this.ray.dy, 6);
-      //END WARPGATE
+    switch ( this.data.t ) {
+      case "circle":
+        this.shape = this._getCircleShape(distance);
+        break;
+      default: logger.error("Non-circular Crosshairs is unsupported!");
     }
+
+    // Draw the Template outline
+    this.template.clear()
+      .lineStyle(this._borderThickness, this.borderColor, 0x000000, this.drawOutline ? 0.75 : 0)
+      .beginFill(0x000000, 0.0);
+
+    // Fill Color or Texture
+    if ( this.texture ) this.template.beginTextureFill({
+      texture: this.texture
+    });
+    else this.template.beginFill(0x000000, 0.0);
+
+    // Draw the shape
+    this.template.drawShape(this.shape);
+
+    // Draw origin and destination points
+    //BEGIN WARPGATE
+    this.template.lineStyle(this._borderThickness, 0x000000, this.drawOutline ? 0.75 : 0)
+      .beginFill(0x000000, 0.5)
+    //.drawCircle(0, 0, 6)
+    //.drawCircle(this.ray.dx, this.ray.dy, 6);
+    //END WARPGATE
 
     // Update visibility
     if (this.drawIcon) {

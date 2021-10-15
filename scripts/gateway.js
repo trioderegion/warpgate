@@ -51,6 +51,10 @@ export class Gateway {
           size: 1,
           icon: 'icons/svg/dice-target.svg',
           label: '',
+          labelOffset: {
+            x: 0,
+            y: 0
+          },
           tag: 'crosshairs',
           drawIcon: true,
           drawOutline: true,
@@ -98,16 +102,19 @@ export class Gateway {
 
   static async _showCrosshairs(config = {}, callbacks = {}) {
 
+    
+
+    let mergedConfig = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
+
     /* if a specific initial location is not provided, grab the current mouse location */
     if(!config.hasOwnProperty('x') && !config.hasOwnProperty('y')) {
-      const mouseLoc = MODULE.getMouseStagePos();
-      config.x = mouseLoc.x;
-      config.y = mouseLoc.y;
+      let mouseLoc = MODULE.getMouseStagePos();
+      mouseLoc = canvas.grid.getSnappedPosition(mouseLoc.x, mouseLoc.y, mergedConfig.interval);
+      mergedConfig.x = mouseLoc.x;
+      mergedConfig.y = mouseLoc.y;
     }
 
-    config = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
-
-    const template = new Crosshairs(config, callbacks);
+    const template = new Crosshairs(mergedConfig, callbacks);
     await template.drawPreview();
     let dataObj = template.data.toObject();
 
