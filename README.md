@@ -30,6 +30,7 @@ Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpga
   - [post](#post)
 - [Crosshairs Commands](#crosshairs-commands)
   - [show](#show)
+  - [getTag](#gettag)
 - [Crosshairs Config](#crosshairs-config)
 - [Crosshairs Callback Functions](#crosshairs-callback-functions)
 - [Helper Functions](#helper-functions)
@@ -171,9 +172,18 @@ Creates a circular template attached to the cursor. Its size is in grid squares/
 * `config` {Object} Configuration settings for how the crosshairs template should be displayed. See [Crosshairs Config](#crosshairs-config).
 * `callbacks` {Object} Functions executed at certain stages of the crosshair display process. See [Crosshairs Callback Functions](#crosshairs-callback-functions)
 
-`return value` {Object}: Contains all of the fields as MeasuredTemplateData with the following changes
+`return value` {Object} Contains all of the fields as MeasuredTemplateData with the following changes
 * `width` {Number} the final size of the template's diamater in grid squares.
 * `cancelled` {Boolean} if the user cancelled creation via right click.
+
+### getTag
+
+Signature: `warpgate.crosshairs.getTag(key)`
+
+Will retrieve the active crosshairs instance with the defined tag identifier.
+* `key` {\*} Will be compared against the Crosshairs `tag` field for equality.
+
+`return value` {Crosshairs} Active Crosshairs matching the given key or `undefined` if no match
 
 ## Crosshairs Config
 
@@ -185,7 +195,7 @@ This object controls how the crosshairs will be displayed and decorated. Each fi
 * `labelOffset` {Object} Pixel offset from the label's initial relative position below the outline
   * `x` {Number}(`0`)
   * `y` {Number}(`0`)
-* `tag` {*}(`'crosshairs'`) Arbitrary value used to identify this crosshairs object
+* `tag` {\*}(`'crosshairs'`) Arbitrary value used to identify this crosshairs object
 * `drawIcon` {Boolean}(`true`) Controls the display of the center icon of the crosshairs
 * `drawOutline` {Boolean}(`true`) Controls the display of the outline circle of the crosshairs
 * `interval` {Number}(`2`) Subgrid granularity per square. Each square will be divided N-1 times. Ex. the default value produces one snap point on the center of the edge.
