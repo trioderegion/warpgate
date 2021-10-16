@@ -86,6 +86,9 @@ export class Crosshairs extends MeasuredTemplate {
     this.cancelled = true;
   }
 
+  static getTag(key) {
+    return canvas.templates.preview.children.find( child => child.tag === key )
+  }
 
   /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
   /* Portions of the core package (MeasuredTemplate) repackaged 
@@ -207,7 +210,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Draw the Template outline
     this.template.clear()
-      .lineStyle(this._borderThickness, this.borderColor, 0x000000, this.drawOutline ? 0.75 : 0)
+      .lineStyle(this._borderThickness, this.borderColor, this.drawOutline ? 0.75 : 0)
       .beginFill(0x000000, 0.0);
 
     // Fill Color or Texture
@@ -221,8 +224,8 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Draw origin and destination points
     //BEGIN WARPGATE
-    this.template.lineStyle(this._borderThickness, 0x000000, this.drawOutline ? 0.75 : 0)
-      .beginFill(0x000000, 0.5)
+    //this.template.lineStyle(this._borderThickness, 0x000000, this.drawOutline ? 0.75 : 0)
+    //  .beginFill(0x000000, 0.5)
     //.drawCircle(0, 0, 6)
     //.drawCircle(this.ray.dx, this.ray.dy, 6);
     //END WARPGATE
@@ -268,22 +271,20 @@ export class Crosshairs extends MeasuredTemplate {
   async drawPreview() {
     // Draw the template and switch to the template layer
     this.initialLayer = canvas.activeLayer;
-    this.inFlight = true;
     this.layer.activate();
     this.draw();
     this.layer.preview.addChild(this);
 
     // Hide the sheet that originated the preview
     //BEGIN WARPGATE
-    //Handled by the api
-    //if ( this.actorSheet ) this.actorSheet.minimize();
-    //END WARPGATE
-
+    this.inFlight = true;
+    
     // Activate interactivity
     this.activatePreviewListeners();
     
     // Callbacks
     if (this.callbacks?.show) {
+      //await
       this.callbacks.show(this);
       //if (this.inFlight == false) {
       //  this._clearHandlers();
@@ -296,6 +297,7 @@ export class Crosshairs extends MeasuredTemplate {
       this.clearHandlers();
     }
 
+    //END WARPGATE
     return this;
   }
 
@@ -345,12 +347,21 @@ export class Crosshairs extends MeasuredTemplate {
   }
 
   _clearHandlers(event) {
-    this.layer.preview.removeChildren();
+    //WARPGATE BEGIN
+    /* remove only ourselves, in case of multiple */
+    this.layer.preview.removeChild(this);
+    //WARPGATE END
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
-    this.initialLayer.activate();
+
+    /* moving off this layer also deletes ALL active previews?
+     * unexpected, but manageable
+     */
+    if(this.layer.preview.children.length == 0){
+      this.initialLayer.activate();
+    }
 
     //BEGIN WARPGATE
     // Show the sheet that originated the preview

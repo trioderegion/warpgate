@@ -45,7 +45,8 @@ export class api {
       dialog : MODULE.dialog,
       buttonDialog : MODULE.buttonDialog,
       crosshairs: {
-        show: Gateway.showCrosshairs
+        show: Gateway.showCrosshairs,
+        getTag: Crosshairs.getTag,
       },
       plugin: {
         queueUpdate
