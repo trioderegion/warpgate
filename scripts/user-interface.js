@@ -126,10 +126,17 @@ export class UserInterface {
     const stackCount = mutateStack.length > 1 ? ` 1/${mutateStack.length}` : '';
     let revertButton = $(`<a class="revert-warpgate" title="${MODULE.localize('display.revert')}${stackCount}"><i class="fas fa-undo-alt"></i>${label}</a>`);
 
-    revertButton.click( (/*event*/) => {
+    revertButton.click( async (event) => {
       if (!token) {
         logger.error("Could not find token associated with this sheet.");
         return;
+      }
+
+      let name = undefined;
+
+      if (event.shiftKey) {
+        const buttons = mutateStack.map( mutation => {return {label: mutation.name, value: mutation.name}} )
+        name = await warpgate.buttonDialog({buttons, title: 'Select mutation to revert'}, 'column');
       }
 
       /* need to queue this since 'click' could
@@ -138,7 +145,7 @@ export class UserInterface {
        * as it will be refreshed on the render call
        */
       queueUpdate( async () => {
-        await Mutator.revertMutation(token);
+        await Mutator.revertMutation(token, name);
         app?.render(false);
       });
 
