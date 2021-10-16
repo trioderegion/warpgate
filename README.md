@@ -177,7 +177,30 @@ Creates a circular template attached to the cursor. Its size is in grid squares/
 
 ## Crosshairs Config
 
+This object controls how the crosshairs will be displayed and decorated. Each field is optional and the default value is listed in parentheses.
+
+* size {Number}(`1`) The initial diameter of the crosshairs outline in grid squares
+* icon {String}(`'icons/svg/dice-target.svg'`) The icon displayed in the center of the crosshairs
+* label {String}(`''`) The text to display below the crosshairs outline
+* labelOffset {Object} Pixel offset from the label's initial relative position below the outline
+  * x {Number}(`0`)
+  * y {Number}(`0`)
+* tag {*}(`'crosshairs'`) Arbitrary value used to identify this crosshairs object
+* drawIcon {Boolean}(`true`) Controls the display of the center icon of the crosshairs
+* drawOutline {Boolean}(`true`) Controls the display of the outline circle of the crosshairs
+* interval {Number}(`2`) Subgrid granularity per square. Each square will be divided N-1 times. Ex. the default value produces one snap point on the center of the edge.
+
 ## Crosshairs Callback Functions
+
+The `callbacks` object, as used by `show`, has one expected key: `show`
+
+### show
+
+Expected signature: `await show(crosshairs)`
+
+Called after the crosshairs have be drawn and listeners activate. This function is not awaited
+
+* crosshairs {Crosshairs} The current crosshairs template that has just been drawn. Derived from MeasuredTemplate and can be modified to alter the appears of the crosshairs itself. All of the fields in the [Crosshairs Config](#crosshairs-config) object can be modified directly. Any fields owned by MeasuredTemplate must be changed via `crosshairs.update` as other DocumentData classes. Async functions will run in parallel while the user is moving the crosshairs. Serial functions will block detection of the left and right click operations until return.
 
 ## Helper Functions
 
