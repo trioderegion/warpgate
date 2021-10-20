@@ -137,6 +137,7 @@ export class UserInterface {
       if (event.shiftKey) {
         const buttons = mutateStack.map( mutation => {return {label: mutation.name, value: mutation.name}} )
         name = await warpgate.buttonDialog({buttons, title: 'Select mutation to revert'}, 'column');
+        if (name === true) return;
       }
 
       /* need to queue this since 'click' could

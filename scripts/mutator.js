@@ -302,6 +302,12 @@ export class Mutator {
       /* otherwise, retrieve and remove */
       mutateData = mutateStack.splice(index, 1)[0];
 
+      for( let i = index; i < mutateStack.length; i++){
+        const stackUpdate = filterObject(mutateData.delta, mutateStack[i].delta);
+        mergeObject(mutateStack[i].delta, stackUpdate);
+        mutateData.delta = MODULE.unique(mutateData.delta, mutateStack[i].delta)
+      }
+
     } else {
       /* pop the most recent mutation */
       mutateData = mutateStack?.pop();
@@ -327,15 +333,16 @@ export class Mutator {
     /* get token changes */
     let tokenData = tokenDoc.data.toObject()
     delete tokenData.actorData;
-
-    const updatedToken = mergeObject(tokenData, updates.token, {inplace:false});
-    const tokenDelta = Mutator._deepDiffMapper().map(tokenData, updatedToken);
+    
+    const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
+    //const updatedToken = mergeObject(tokenData, updates.token, {inplace:false});
+    //const tokenDelta = Mutator._deepDiffMapper().map(tokenData, updatedToken);
 
     /* get the actor changes (no embeds) */
     const actorData = Mutator._getRootActorData(tokenDoc.actor);
-
-    const updatedActor = mergeObject(actorData, updates.actor, {inplace:false});
-    const actorDelta = Mutator._deepDiffMapper().map(actorData, updatedActor);
+    const actorDelta = diffObject(updates.actor ?? {}, actorData, {inner:true});
+    //const updatedActor = mergeObject(actorData, updates.actor, {inplace:false});
+    //const actorDelta = Mutator._deepDiffMapper().map(actorData, updatedActor);
 
     /* get the changes from the embeds */
     let embeddedDelta = {};
