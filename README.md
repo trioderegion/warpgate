@@ -126,6 +126,7 @@ Given an update argument identical to `warpgate.spawn` and a token document, wil
  * `options` {Object = {}}
   - comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: `{'ActiveEffect' : 'label'}` will tell warpgate that its key, "Rage", should be checked against the `ActiveEffect#data.label` field rather than the default `Document#name` field.
   - permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
+  - name: {String = randomId()}. User provided name, or identifier, for this particular mutation operation. Used for 'named revert'.
 
 * `return value` {Promise\<Object\>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent). Includes the mutation name, which is particularly useful if no name was provided and a random ID is generated.
  
