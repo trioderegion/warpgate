@@ -103,20 +103,20 @@ export class api {
     //get source actor
     const sourceActor = game.actors.getName(spawnName);
     if(!sourceActor) {
-      logger.error(`Could not find world actor named "${spawnName}"`);
+      logger.error(MODULE.format('error.findActorFail', {name: spawnName}));
       return;
     }
 
     //get prototoken data -- need to prepare potential wild cards for the template preview
     let protoData = (await sourceActor.getTokenData(updates.token));
     if(!protoData) {
-      logger.error(`Could not find proto token data for ${spawnName}`);
+      logger.error(MODULE.format('error.findProtoFail', {name: spawnName}));
       return;
     }
 
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    const templateData = await Gateway.showCrosshairs({width: protoData.width, icon: protoData.img, name: protoData.name});
+    const templateData = await Gateway.showCrosshairs({width: protoData.width, icon: protoData.img, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
 
     await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
@@ -150,12 +150,6 @@ export class api {
    * 4) if more duplicates, get fresh proto data and update it, goto 1
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
-
-    /* Support legacy fields */
-    if (updates.item){
-      console.warn('You are using "updates.item" which has been deprecated in favor of "updates.embedded.Item"');
-      updates.embedded = mergeObject(updates.embedded ?? {}, {"Item": updates.item})
-    }
 
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];

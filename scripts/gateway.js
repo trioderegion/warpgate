@@ -102,8 +102,6 @@ export class Gateway {
 
   static async _showCrosshairs(config = {}, callbacks = {}) {
 
-    
-
     let mergedConfig = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
 
     /* if a specific initial location is not provided, grab the current mouse location */
@@ -126,7 +124,6 @@ export class Gateway {
 
   static async dismissSpawn(tokenId, sceneId = canvas.scene?.id, onBehalf = game.user.id) {
 
-    /** @todo localize */
     if (!tokenId || !sceneId){
       logger.debug("Cannot dismiss null token or from a null scene.", tokenId, sceneId);
       return;
@@ -176,8 +173,7 @@ export class Gateway {
     if (collision) {
       const openPosition = Propagator.getFreePosition(protoToken, internalSpawnPoint);  
       if(!openPosition) {
-        /** @todo localize */
-        logger.info('Could not locate open locations near chosen location. Overlapping at chosen location:', spawnPoint);
+        logger.info(MODULE.localize('error.noOpenLocation'));
       } else {
         internalSpawnPoint = openPosition
       }

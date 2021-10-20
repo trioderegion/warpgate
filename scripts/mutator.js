@@ -256,6 +256,7 @@ export class Mutator {
   /* Will peel off the last applied mutation change from the provided token document
    * 
    * @param {TokenDocument} tokenDoc. Token document to revert the last applied mutation.
+   * @param {String = undefined} mutationName. Specific mutation name to revert. optional.
    *
    * @return {Promise<Object>} The mutation data (updates) used for this revert operation
    */
@@ -328,7 +329,7 @@ export class Mutator {
     } else {
       await actor.setFlag(MODULE.data.name, 'mutate', mutateStack);
     }
-
+    logger.debug('Final revert update:', mutateData);
     return mutateData;
   }
 
@@ -343,14 +344,10 @@ export class Mutator {
     delete tokenData.actorData;
     
     const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
-    //const updatedToken = mergeObject(tokenData, updates.token, {inplace:false});
-    //const tokenDelta = Mutator._deepDiffMapper().map(tokenData, updatedToken);
 
     /* get the actor changes (no embeds) */
     const actorData = Mutator._getRootActorData(tokenDoc.actor);
     const actorDelta = diffObject(updates.actor ?? {}, actorData, {inner:true});
-    //const updatedActor = mergeObject(actorData, updates.actor, {inplace:false});
-    //const actorDelta = Mutator._deepDiffMapper().map(actorData, updatedActor);
 
     /* get the changes from the embeds */
     let embeddedDelta = {};

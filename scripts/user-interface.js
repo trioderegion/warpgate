@@ -79,7 +79,7 @@ export class UserInterface {
 
     dismissButton.click( (/*event*/) => {
       if (!token) {
-        logger.error("Could not find token associated with this sheet.");
+        logger.error(MODULE.localize('error.sheetNoToken'));
         return;
       }
       const {id, parent} = token;
@@ -128,7 +128,7 @@ export class UserInterface {
 
     revertButton.click( async (event) => {
       if (!token) {
-        logger.error("Could not find token associated with this sheet.");
+        logger.error(MODULE.localize('error.sheetNoToken'));
         return;
       }
 
@@ -136,7 +136,7 @@ export class UserInterface {
 
       if (event.shiftKey) {
         const buttons = mutateStack.map( mutation => {return {label: mutation.name, value: mutation.name}} )
-        name = await warpgate.buttonDialog({buttons, title: 'Select mutation to revert'}, 'column');
+        name = await warpgate.buttonDialog({buttons, title: MODULE.localize('display.revertDialogTitle')}, 'column');
         if (name === true) return;
       }
 

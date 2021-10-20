@@ -23,14 +23,19 @@
   },
   "display" : {
     "dismiss" : "Dismiss",
-    "revert" : "Revert"
+    "revert" : "Revert",
+    "revertDialogTitle" : "Select mutation to revert"
   },
   "error" : {
     "noGM" : "There is no GM available for dismiss request.",
     "unownedDelete" : "Cannot delete unowned token.",
     "createItem": "Creating Item",
     "updateItem": "Updating Item",
-    "deleteItem": "Deleting Item"
+    "deleteItem": "Deleting Item",
+    "sheetNoToken": "Could not find token associated with this sheet.",
+    "findActorFail": "Could not find world actor named {name}",
+    "findProtoFail": "Could not find proto-token data for {name}",
+    "noOpenLocation": "Could not locate open locations near chosen spawn point. Spawning at chosen point instead."
   }
 
 }
