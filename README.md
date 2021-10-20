@@ -68,6 +68,8 @@ The primary function of Warp Gate. When executed, it will create a custom Measur
  	- `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
 	- `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
 
+ * `return value` {Array<Strings>} IDs of all created tokens
+
 ### spawnAt
 
 Signature: `async warpgate.spawnAt(location, tokenData, updates, callbacks, options)`
@@ -75,7 +77,7 @@ Signature: `async warpgate.spawnAt(location, tokenData, updates, callbacks, opti
 An alternate, more module friendly spawning function. Will create a token from the provided token data and updates at the designated location. 
 * location {Object} of the form {x: Number, y: Number} designating the token's _center point_
 * tokenData {TokenData} the base token data from which to spawn a new token and apply updates to it.
-* updates, callsbacks, options: See `warpgate.spawn`.
+* updates, callsbacks, options, and return value: See `warpgate.spawn`.
 
 ## Spawn Callback Functions
 
@@ -125,14 +127,15 @@ Given an update argument identical to `warpgate.spawn` and a token document, wil
   - comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: `{'ActiveEffect' : 'label'}` will tell warpgate that its key, "Rage", should be checked against the `ActiveEffect#data.label` field rather than the default `Document#name` field.
   - permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
 
-* `return value` {Promise\<Object\>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
+* `return value` {Promise\<Object\>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent). Includes the mutation name, which is particularly useful if no name was provided and a random ID is generated.
  
 ### revert
 
-Signature: `async warpgate.revert(tokenDoc)`
+Signature: `async warpgate.revert(tokenDoc, mutationName = undefined)`
 
-Removes the latest mutation applied to the provided token's actor.
+Removes the latest mutation applied to the provided token's actor. Using the default parameters behaves as the "revert" header button on the character sheet does. Note: Shift-clicking on the revert header button will present a button dialog from which specific mutations can be reverted.
  * `tokenDoc` {TokenDocument}: Token document to update, does not accept Token Placeable.
+ * `mutationName` {String = undefined}: Specific mutation to revert from the provided token.
  
  * `return value` {Promise\<Object\>}: The update object applied to the actor to revert the mutation operation.
 
@@ -168,7 +171,7 @@ Signature: `async warpgate.crosshairs.show(config = {}, callbacks = {})`
 
 Deprecated Signature: `async warpgate.crosshairs.show(size = 1, icon = 'icons/svg/dice-target.svg', label = '')`
 
-Creates a circular template attached to the cursor. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template.
+Creates a circular template attached to the cursor. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template. Note: Shift+Scroll will increase/decrease the size of the crosshairs outline, which increases or decreases the size of the token spawned, independent of other modifications.
 * `config` {Object} Configuration settings for how the crosshairs template should be displayed. See [Crosshairs Config](#crosshairs-config).
 * `callbacks` {Object} Functions executed at certain stages of the crosshair display process. See [Crosshairs Callback Functions](#crosshairs-callback-functions)
 

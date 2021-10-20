@@ -182,7 +182,6 @@ export class api {
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
 
-
       createdIds.push(spawnedTokenDoc.id);
 
       logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
