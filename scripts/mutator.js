@@ -303,8 +303,16 @@ export class Mutator {
       mutateData = mutateStack.splice(index, 1)[0];
 
       for( let i = index; i < mutateStack.length; i++){
+
+        /* get the values stored in our delta and push any overlapping ones to
+         * the mutation next in the stack
+         */
         const stackUpdate = filterObject(mutateData.delta, mutateStack[i].delta);
         mergeObject(mutateStack[i].delta, stackUpdate);
+
+        /* remove any changes that exist higher in the stack, we have
+         * been overriden and should not restore these values
+         */
         mutateData.delta = MODULE.unique(mutateData.delta, mutateStack[i].delta)
       }
 
