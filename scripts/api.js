@@ -116,7 +116,7 @@ export class api {
 
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
+    const templateData = await Gateway.showCrosshairs({width: protoData.width, icon: protoData.img, name: protoData.name});
 
     await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
