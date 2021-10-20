@@ -207,19 +207,19 @@ export class Mutator {
    *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
    *   name: {String = randomId()}. User provided name, or identifier, for this particular mutation operation. Used for 'named revert'.
    *
-   * @return {Promise<Object>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
+   * @return {Promise<Object>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent).
    */
   static async mutate(tokenDoc, updates = {}, callbacks = {}, options = {}) {
     
     /* if this is not a permanent mutation, create the delta and store it */
-    let delta = {}
+    let mutateInfo = {}
     if(!options.permanent) {
-      delta = Mutator._createDelta(tokenDoc, updates);
+      let delta = Mutator._createDelta(tokenDoc, updates);
 
       /* allow user to modify delta if needed */
       if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
       
-      Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
+      mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
     }
   
     /* prepare the event data *before* the token is modified */
@@ -231,17 +231,19 @@ export class Mutator {
 
     if(callbacks.post) await callbacks.post(tokenDoc, updates);
 
-    return delta;
+    return mutateInfo;
   }
 
   static _mergeMutateDelta(actorDoc, delta, updates, options) {
 
     let mutateStack = actorDoc.getFlag(MODULE.data.name, 'mutate') ?? [];
-    mutateStack.push({delta, user: game.user.id, comparisonKeys: options.comparisonKeys ?? {}, name: options.name ?? randomID()});
+    const mutateInfo = {delta, user: game.user.id, comparisonKeys: options.comparisonKeys ?? {}, name: options.name ?? randomID()};
+    mutateStack.push(mutateInfo);
 
     const flags = {warpgate: {mutate: mutateStack}};
     updates.actor = mergeObject(updates.actor ?? {}, {flags});
-
+    
+    return mutateInfo;
   }
 
   /* @return {Promise} */
