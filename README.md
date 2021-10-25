@@ -65,21 +65,21 @@ The primary function of Warp Gate. When executed, it will create a custom Measur
  * callbacks {Object} Callback functions (optional). See [Spawn Callback Functions](#spawn-callback-functions) and [Crosshairs Callback Functions](#crosshairs-callback-functions).
  * options {Object} Options (optional) 
  	- `controllingActor` {Actor} will minimize this actor's open sheet (if any) for a clearer view of the canvas during placement. Also flags the created token with this actor's id. Default `null`.
- 	- `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
-	- `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
-   	- `comparisonKeys` {Object}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
-        - `crosshairs` {Object}. A crosshairs configuration object to be used for this spawning process
+  - `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
+  - `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
+  - `comparisonKeys` {Object}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
+  - `crosshairs` {Object}. A crosshairs configuration object to be used for this spawning process
 
- * `return value` {Array<Strings>} IDs of all created tokens
+`return value` {Array<Strings>} IDs of all created tokens
 
 ### spawnAt
 
 Signature: `async warpgate.spawnAt(location, tokenData, updates, callbacks, options)`
 
 An alternate, more module friendly spawning function. Will create a token from the provided token data and updates at the designated location. 
-* location {Object} of the form {x: Number, y: Number} designating the token's _center point_
-* tokenData {TokenData} the base token data from which to spawn a new token and apply updates to it.
-* updates, callsbacks, options, and return value: See `warpgate.spawn`.
+* `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
+* `tokenData` {TokenData} the base token data from which to spawn a new token and apply updates to it.
+* `updates`, `callsbacks`, `options`, and `return value`: See [`warpgate.spawn`](#spawn).
 
 ## Spawn Callback Functions
 
@@ -119,17 +119,17 @@ Given an update argument identical to `warpgate.spawn` and a token document, wil
  * `updates` {Object = {}}: As `warpgate.spawn`.
  * `callbacks` {Object = {}}. Two provided callback locations: `delta` and `post`. Both are awaited.
   - `delta` {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
-   - `delta` {Object}: Computed change of the actor based on `updates`.
-   - `tokenDoc` {TokenDocument}: Token being modified.
+    - `delta` {Object}: Computed change of the actor based on `updates`.
+    - `tokenDoc` {TokenDocument}: Token being modified.
  - `post` {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
    - `tokenDoc` {TokenDocument}: Token that has been modified.
    - `updates` {Object}: See parent `updates` parameter.
  * `options` {Object = {}}
-  - comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: `{'ActiveEffect' : 'label'}` will tell warpgate that its key, "Rage", should be checked against the `ActiveEffect#data.label` field rather than the default `Document#name` field.
-  - permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
-  - name: {String = randomId()}. User provided name, or identifier, for this particular mutation operation. Used for 'named revert'.
+   - `comparisonKeys`: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: `{'ActiveEffect' : 'label'}` will tell warpgate that its key, "Rage", should be checked against the `ActiveEffect#data.label` field rather than the default `Document#name` field.
+   - `permanent`: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
+   - `name`: {String = randomId()}. User provided name, or identifier, for this particular mutation operation. Used for 'named revert'.
 
-* `return value` {Promise\<Object\>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent). Includes the mutation name, which is particularly useful if no name was provided and a random ID is generated.
+`return value` {Promise\<Object\>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent). Includes the mutation name, which is particularly useful if no name was provided and a random ID is generated.
  
 ### revert
 
@@ -236,7 +236,7 @@ Deletes the specified token from the specified scene. This function allows anyon
 Signature: `async warpgate.buttonDialog(data, direction = 'row')`
 
 Helper function for quickly creating a simple dialog with labeled buttons and associated data. Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
-* `data` {Objects}: Standard dialog keys apart from the contents of `data.buttons`, which is an array of objects containing two keys `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `const data = {buttons: [{label: 'First Choice', value: {token {name: 'First'}}, {label: 'Second Choice', value: {token: {name: 'Second'}}}]}`
+* `data` {Objects}: Standard dialog keys apart from the contents of `data.buttons`, which is an array of objects containing two keys `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `{buttons: [{label: 'First Choice', value: {token: {name: 'First'}}}, {label: 'Second Choice', value: {token: {name: 'Second'}}}]}`
 * `direction` {String} (optional): `'column'` or `'row'` accepted. Controls layout direction of dialog.
 
 ### dialog
