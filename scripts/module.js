@@ -93,6 +93,7 @@ export class MODULE{
     }
     
     return protoData;
+  }
 
   static getMouseStagePos() {
     const mouse = canvas.app.renderer.plugins.interaction.mouse;
