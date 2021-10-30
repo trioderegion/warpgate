@@ -119,6 +119,9 @@ export class Gateway {
     /** @todo temporary workaround */
     dataObj.cancelled = template.cancelled;
 
+    /* mirror the input variables for the output as well */
+    dataObj.size = dataObj.width
+
     return dataObj;
   }
 

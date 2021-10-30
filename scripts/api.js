@@ -116,7 +116,7 @@ export class api {
 
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    const templateData = await Gateway.showCrosshairs({width: protoData.width, icon: protoData.img, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
+    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: protoData.img, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
 
     await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
@@ -128,7 +128,7 @@ export class api {
     const scale = templateData.width / protoData.width;
 
     /* insert changes from the template into the updates data */
-    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.width, height: protoData.height*scale}});
+    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.size, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
