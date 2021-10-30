@@ -20,28 +20,75 @@ import { MODULE } from './module.js'
 
 export class Crosshairs extends MeasuredTemplate {
 
-  constructor(gridSize = 1, data = {}){
+  //constructor(gridSize = 1, data = {}){
+  constructor(config, callbacks = {}){
      const templateData = {
       t: "circle",
       user: game.user.id,
-      distance: (canvas.scene.data.gridDistance / 2) * gridSize,
-      x: data.x ?? 0,
-      y: data.y ?? 0,
+      distance: (canvas.scene.data.gridDistance / 2) * config.size,
+      x: config.x,
+      y: config.y,
       fillColor: game.user.color,
-      width: gridSize,
-      texture: data.texture ?? null,
+      width: config.size,
+      texture: config.texture
     }   
 
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
     super(template);
 
-    /** @todo all of these fields should be part of the source data schema for this class */
-    this.icon = data.icon ?? 'icons/svg/dice-target.svg';
-    this.label = data.label ?? '';
+    /** @TODO all of these fields should be part of the source data schema for this class **/
+
+    /* image path to display in the center (under mouse cursor) */
+    this.icon = config.icon;
+
+    /* text to display below crosshairs' circle */
+    this.label = config.label;
+
+    /* Offsets the default position of the label (in pixels) */
+    this.labelOffset = config.labelOffset;
+
+    /* Arbitrary field used to identify this instance
+     * of a Crosshairs in the canvas.templates.preview
+     * list
+     */
+    this.tag = config.tag;
+
+    /* Should the center icon be shown? */
+    this.drawIcon = config.drawIcon;
+
+    /* Should the outer circle be shown? */
+    this.drawOutline = config.drawOutline;
+
+    /* Number of quantization steps along
+     * a square's edge (N+1 snap points 
+     * along each edge, conting endpoints)
+     */
+    this.interval = config.interval;
+
+    /* Callback functions to execute
+     * at particular times
+     */
+    this.callbacks = callbacks;
+
+    /* Indicates if the user is actively 
+     * placing the crosshairs.
+     * Setting this to true in the show
+     * callback will stop execution
+     * and report the current mouse position
+     * as the chosen location
+     */
     this.inFlight = false;
-    this.cancelled = true
+
+    /* indicates if the placement of
+     * crosshairs was canceled (with
+     * a right click)
+     */
+    this.cancelled = true;
   }
 
+  static getTag(key) {
+    return canvas.templates.preview.children.find( child => child.tag === key )
+  }
 
   /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
   /* Portions of the core package (MeasuredTemplate) repackaged 
@@ -59,7 +106,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.ruler.text = this.label;
     /** swap the X and Y to use the default dx/dy of a ray (pointed right)
     //to align the text to the bottom of the template */
-    this.ruler.position.set(this.ray.dy + 10, this.ray.dx + 5);
+    this.ruler.position.set(-this.ruler.width/2 + this.labelOffset.x, this.template.height/2 + 5 + this.labelOffset.y);
     //END WARPGATE
   }
 
@@ -83,7 +130,8 @@ export class Crosshairs extends MeasuredTemplate {
     //END WARPGATE
 
     // Draw the control icon
-    this.controlIcon = this.addChild(this._drawControlIcon());
+    //if(this.drawIcon) 
+      this.controlIcon = this.addChild(this._drawControlIcon());
 
     // Draw the ruler measurement
     this.ruler = this.addChild(this._drawRulerText());
@@ -110,7 +158,8 @@ export class Crosshairs extends MeasuredTemplate {
     style.fontSize = Math.max(Math.round(canvas.dimensions.size * 0.36 * 12) / 12, 36);
     const text = new PreciseText(null, style);
     //BEGIN WARPGATE
-    text.anchor.set(0.5, 0);
+    //text.anchor.set(0.5, 0);
+    text.anchor.set(0, 0);
     //END WARPGATE
     return text;
   }
@@ -125,6 +174,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     //BEGIN WARPGATE
     let icon = new ControlIcon({texture: this.icon, size: size});
+    icon.visible = this.drawIcon;
     //END WARPGATE
 
     icon.pivot.set(size*0.5, size*0.5);
@@ -160,7 +210,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Draw the Template outline
     this.template.clear()
-      .lineStyle(this._borderThickness, this.borderColor, 0.75)
+      .lineStyle(this._borderThickness, this.borderColor, this.drawOutline ? 0.75 : 0)
       .beginFill(0x000000, 0.0);
 
     // Fill Color or Texture
@@ -173,21 +223,23 @@ export class Crosshairs extends MeasuredTemplate {
     this.template.drawShape(this.shape);
 
     // Draw origin and destination points
-    this.template.lineStyle(this._borderThickness, 0x000000)
-      .beginFill(0x000000, 0.5)
     //BEGIN WARPGATE
-      //.drawCircle(0, 0, 6)
-      //.drawCircle(this.ray.dx, this.ray.dy, 6);
+    //this.template.lineStyle(this._borderThickness, 0x000000, this.drawOutline ? 0.75 : 0)
+    //  .beginFill(0x000000, 0.5)
+    //.drawCircle(0, 0, 6)
+    //.drawCircle(this.ray.dx, this.ray.dy, 6);
     //END WARPGATE
 
     // Update visibility
-    this.controlIcon.visible = true;//this.layer._active;
-    this.controlIcon.border.visible = this._hover;
-    this.controlIcon.angle = this.data.direction;
+    if (this.drawIcon) {
+      this.controlIcon.visible = true;
+      this.controlIcon.border.visible = this._hover
+      this.controlIcon.angle = this.data.direction;
+    }
 
     // Draw ruler text
     //BEGIN WARPGATE
-    //this._refreshRulerText();
+    this._setRulerText()
     //END WARPGATE
     return this;
   }
@@ -216,25 +268,37 @@ export class Crosshairs extends MeasuredTemplate {
   /**
    * Creates a preview of the spell template
    */
-  drawPreview() {
+  async drawPreview() {
     // Draw the template and switch to the template layer
     this.initialLayer = canvas.activeLayer;
-    this.inFlight = true;
     this.layer.activate();
     this.draw();
     this.layer.preview.addChild(this);
 
     // Hide the sheet that originated the preview
     //BEGIN WARPGATE
-    //Handled by the api
-    //if ( this.actorSheet ) this.actorSheet.minimize();
-    //END WARPGATE
-
+    this.inFlight = true;
+    
     // Activate interactivity
     this.activatePreviewListeners();
+    
+    // Callbacks
+    if (this.callbacks?.show) {
+      //await
+      this.callbacks.show(this);
+      //if (this.inFlight == false) {
+      //  this._clearHandlers();
+      //}
+    }
 
     /* wait _indefinitely_ for placement to be decided. */
-    return MODULE.waitFor( () => !this.inFlight, -1 )
+    await MODULE.waitFor( () => !this.inFlight, -1 )
+    if (this.activeHandlers) {
+      this.clearHandlers();
+    }
+
+    //END WARPGATE
+    return this;
   }
 
   /* -------------------------------------------- */
@@ -244,7 +308,7 @@ export class Crosshairs extends MeasuredTemplate {
     let now = Date.now(); // Apply a 20ms throttle
     if ( now - this.moveTime <= 20 ) return;
     const center = event.data.getLocalPosition(this.layer);
-    const snapped = canvas.grid.getSnappedPosition(center.x, center.y, 2);
+    const snapped = canvas.grid.getSnappedPosition(center.x, center.y, this.interval);
     this.data.update({x: snapped.x, y: snapped.y});
     this.refresh();
     this.moveTime = now;
@@ -256,10 +320,6 @@ export class Crosshairs extends MeasuredTemplate {
     this.data.update({destination, width, cancelled: false});
     this.cancelled = false;
     this.clearHandlers(event);
-    
-    //BEGIN WARPGATE
-    //this.callback(this.data.toObject());
-    //END WARPGATE
   }
 
   // Rotate the template by 3 degree increments (mouse-wheel)
@@ -282,25 +342,31 @@ export class Crosshairs extends MeasuredTemplate {
   }
 
   _cancelHandler(event) {
-    /** @todo until i make a proper CrosshairsData class
-     * a distance of 0 indicates a canceled placement
-     */
     this.cancelled = true;
-
     this.clearHandlers(event);
   }
 
   _clearHandlers(event) {
-    this.layer.preview.removeChildren();
+    //WARPGATE BEGIN
+    /* remove only ourselves, in case of multiple */
+    this.layer.preview.removeChild(this);
+    //WARPGATE END
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
-    this.initialLayer.activate();
+
+    /* moving off this layer also deletes ALL active previews?
+     * unexpected, but manageable
+     */
+    if(this.layer.preview.children.length == 0){
+      this.initialLayer.activate();
+    }
 
     //BEGIN WARPGATE
     // Show the sheet that originated the preview
     if ( this.actorSheet ) this.actorSheet.maximize();
+    this.activeHandlers = false;
     this.inFlight = false;
     //END WARPGATE
   }
@@ -311,7 +377,10 @@ export class Crosshairs extends MeasuredTemplate {
   activatePreviewListeners() {
     this.moveTime = 0;
     //BEGIN WARPGATE
+    this.activeHandlers = true;
+
     /* Activate listeners */
+
     this.activeMoveHandler = this._mouseMoveHandler.bind(this);
     this.activeLeftClickHandler = this._leftClickHandler.bind(this);
     this.cancelHandler = this._cancelHandler.bind(this);
@@ -330,6 +399,7 @@ export class Crosshairs extends MeasuredTemplate {
     
     // Right click cancel
     canvas.app.view.oncontextmenu = this.cancelHandler;
+
     // END WARPGATE
   }
 

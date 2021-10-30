@@ -93,6 +93,39 @@ export class MODULE{
     }
     
     return protoData;
+
+  static getMouseStagePos() {
+    const mouse = canvas.app.renderer.plugins.interaction.mouse;
+    return mouse.getLocalPosition(canvas.app.stage);
+  }
+
+  static unique( object, remove ) {
+    // Validate input
+    const ts = getType(object);
+    const tt = getType(remove);
+    if ( (ts !== "Object") || (tt !== "Object")) throw new Error("One of source or template are not Objects!");
+
+    // Define recursive filtering function
+    const _filter = function(s, t, filtered) {
+      for ( let [k, v] of Object.entries(s) ) {
+        let has = t.hasOwnProperty(k);
+        let x = t[k];
+
+        // Case 1 - inner object
+        if ( has && (getType(v) === "Object") && (getType(x) === "Object") ) {
+          filtered[k] = _filter(v, x, {});
+        }
+
+        // Case 2 - inner key
+        else if ( !has ) {
+          filtered[k] = v;
+        }
+      }
+      return filtered;
+    };
+
+    // Begin filtering at the outer-most layer
+    return _filter(object, remove, {});
   }
 
   /*

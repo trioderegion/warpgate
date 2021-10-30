@@ -24,11 +24,30 @@ const NAME = "Mutator";
 export class Mutator {
   static register() {
     Mutator.defaults();
+    Mutator.hooks();
   }
 
   static defaults(){
     MODULE[NAME] = {
       comparisonKey: 'name'
+    }
+  }
+
+  static hooks() {
+    Hooks.on('preUpdateToken', Mutator._correctActorLink)
+  }
+
+  static _correctActorLink(tokenDoc, update) {
+
+    /* if the actorId has been updated AND its being set to null,
+     * check if we can patch/fix this warpgate spawn
+     */
+    if (update.hasOwnProperty('actorId') && update.actorId === null) {
+      const sourceActorId = tokenDoc.getFlag(MODULE.data.name, 'sourceActorId') ?? false;
+      if (sourceActorId) {
+        logger.debug(`Detected spawned token with unowned actor ${sourceActorId}. Correcting token update.`, tokenDoc, update);
+        update.actorId = sourceActorId;
+      }
     }
   }
 
@@ -186,20 +205,21 @@ export class Mutator {
    * @param {Object = {}} options
    *   comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
    *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
+   *   name: {String = randomId()}. User provided name, or identifier, for this particular mutation operation. Used for 'named revert'.
    *
-   * @return {Promise<Object>} The change produced by the provided updates, if they are tracked (i.e. not permanent).
+   * @return {Promise<Object>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent).
    */
   static async mutate(tokenDoc, updates = {}, callbacks = {}, options = {}) {
     
     /* if this is not a permanent mutation, create the delta and store it */
-    let delta = {}
+    let mutateInfo = {}
     if(!options.permanent) {
-      delta = Mutator._createDelta(tokenDoc, updates);
+      let delta = Mutator._createDelta(tokenDoc, updates);
+
+      /* allow user to modify delta if needed */
       if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
-      let mutateStack = tokenDoc.actor.getFlag(MODULE.data.name, 'mutate') ?? [];
-      mutateStack.push({delta, user: game.user.id, comparisonKeys: options.comparisonKeys ?? {}});
-      const flags = {warpgate: {mutate: mutateStack}};
-      updates.actor = mergeObject(updates.actor ?? {}, {flags});
+      
+      mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
     }
   
     /* prepare the event data *before* the token is modified */
@@ -211,7 +231,19 @@ export class Mutator {
 
     if(callbacks.post) await callbacks.post(tokenDoc, updates);
 
-    return delta;
+    return mutateInfo;
+  }
+
+  static _mergeMutateDelta(actorDoc, delta, updates, options) {
+
+    let mutateStack = actorDoc.getFlag(MODULE.data.name, 'mutate') ?? [];
+    const mutateInfo = {delta, user: game.user.id, comparisonKeys: options.comparisonKeys ?? {}, name: options.name ?? randomID()};
+    mutateStack.push(mutateInfo);
+
+    const flags = {warpgate: {mutate: mutateStack}};
+    updates.actor = mergeObject(updates.actor ?? {}, {flags});
+    
+    return mutateInfo;
   }
 
   /* @return {Promise} */
@@ -226,12 +258,13 @@ export class Mutator {
   /* Will peel off the last applied mutation change from the provided token document
    * 
    * @param {TokenDocument} tokenDoc. Token document to revert the last applied mutation.
+   * @param {String = undefined} mutationName. Specific mutation name to revert. optional.
    *
    * @return {Promise<Object>} The mutation data (updates) used for this revert operation
    */
-  static async revertMutation(tokenDoc) {
-    let mutateStack = tokenDoc?.actor?.getFlag(MODULE.data.name, 'mutate');
-    const mutateData = mutateStack?.pop();
+  static async revertMutation(tokenDoc, mutationName = undefined) {
+
+    const mutateData = await Mutator._popMutation(tokenDoc?.actor, mutationName);
 
     if (!!mutateData) {
 
@@ -240,19 +273,66 @@ export class Mutator {
       /* perform the revert with the stored delta */
       await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
 
-      /* if there are no mutations left on the stack, remove our flag data
-       * otherwise, store the remaining mutations */
-      if (mutateStack.length == 0)
-        await tokenDoc.actor.unsetFlag(MODULE.data.name, 'mutate');
-      else
-        await tokenDoc.actor.setFlag(MODULE.data.name, 'mutate', mutateStack);
-
       /* notify clients */
       await warpgate.event.notify(warpgate.EVENT.REVERT, {actorData, updates: mutateData});
       return mutateData;
     }
 
     return false;
+  }
+
+  static async _popMutation(actor, mutationName) {
+
+    let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate');
+
+    if (!mutateStack || !actor){
+      logger.debug(`Could not pop mutation named ${mutationName} from actor ${actor?.name}`);
+      return undefined;
+    }
+
+    let mutateData = undefined;
+
+    if (!!mutationName) {
+      /* find specific mutation */
+      const index = mutateStack.findIndex( mutation => mutation.name === mutationName );
+
+      /* check for no result and error */
+      if ( index < 0 ) {
+        logger.error(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
+        return undefined;
+      }
+
+      /* otherwise, retrieve and remove */
+      mutateData = mutateStack.splice(index, 1)[0];
+
+      for( let i = index; i < mutateStack.length; i++){
+
+        /* get the values stored in our delta and push any overlapping ones to
+         * the mutation next in the stack
+         */
+        const stackUpdate = filterObject(mutateData.delta, mutateStack[i].delta);
+        mergeObject(mutateStack[i].delta, stackUpdate);
+
+        /* remove any changes that exist higher in the stack, we have
+         * been overriden and should not restore these values
+         */
+        mutateData.delta = MODULE.unique(mutateData.delta, mutateStack[i].delta)
+      }
+
+    } else {
+      /* pop the most recent mutation */
+      mutateData = mutateStack?.pop();
+    }
+
+    /* if there are no mutations left on the stack, remove our flag data
+     * otherwise, store the remaining mutations */
+    if (mutateStack.length == 0) {
+      await actor.unsetFlag(MODULE.data.name, 'mutate');
+    } else {
+      await actor.setFlag(MODULE.data.name, 'mutate', mutateStack);
+    }
+    logger.debug('Final revert update:', mutateData);
+    return mutateData;
   }
 
   /* given a token document and the standard update object,
@@ -264,15 +344,12 @@ export class Mutator {
     /* get token changes */
     let tokenData = tokenDoc.data.toObject()
     delete tokenData.actorData;
-
-    const updatedToken = mergeObject(tokenData, updates.token, {inplace:false});
-    const tokenDelta = Mutator._deepDiffMapper().map(tokenData, updatedToken);
+    
+    const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
 
     /* get the actor changes (no embeds) */
     const actorData = Mutator._getRootActorData(tokenDoc.actor);
-
-    const updatedActor = mergeObject(actorData, updates.actor, {inplace:false});
-    const actorDelta = Mutator._deepDiffMapper().map(actorData, updatedActor);
+    const actorDelta = diffObject(updates.actor ?? {}, actorData, {inner:true});
 
     /* get the changes from the embeds */
     let embeddedDelta = {};
@@ -301,6 +378,9 @@ export class Mutator {
 
     /* delete any embedded fields from the actor data */
     embeddedFields.forEach( field => { delete actorData[field] } )
+
+    /* do not delta our own delta flags */
+    //if (actorData.flags?.warpgate) delete actorData.flags.warpgate
 
     return actorData;
   }

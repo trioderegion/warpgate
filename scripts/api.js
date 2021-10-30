@@ -45,7 +45,8 @@ export class api {
       dialog : MODULE.dialog,
       buttonDialog : MODULE.buttonDialog,
       crosshairs: {
-        show: Gateway.showCrosshairs
+        show: Gateway.showCrosshairs,
+        getTag: Crosshairs.getTag,
       },
       plugin: {
         queueUpdate
@@ -105,7 +106,7 @@ export class api {
     
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    const templateData = await Gateway.showCrosshairs(protoData.width, protoData.img, protoData.name);
+    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: protoData.img, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
 
     await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
@@ -117,7 +118,7 @@ export class api {
     const scale = templateData.width / protoData.width;
 
     /* insert changes from the template into the updates data */
-    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.width, height: protoData.height*scale}});
+    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.size, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
@@ -147,12 +148,6 @@ export class api {
 
     if (!protoData) return;
 
-    /* Support legacy fields */
-    if (updates.item){
-      console.warn('You are using "updates.item" which has been deprecated in favor of "updates.embedded.Item"');
-      updates.embedded = mergeObject(updates.embedded ?? {}, {"Item": updates.item})
-    }
-
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
 
@@ -160,6 +155,18 @@ export class api {
     if (callbacks.pre) await callbacks.pre(spawnLocation, updates);
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
+
+    /* Flag this token with its original actor to work around
+     * updating the token properties of a token linked to
+     * an unowned actor
+     */
+    const tokenFlags = { 
+      [MODULE.data.name]: {
+        sourceActorId: sourceActor.id
+      }
+    }
+
+    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags})
 
     /* merge in changes to the prototoken */
     protoData.update(updates.token);
@@ -172,14 +179,17 @@ export class api {
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
 
-
       createdIds.push(spawnedTokenDoc.id);
 
       logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
 
-      /** flag this user as its creator */
-      const flags = {warpgate: {control: {user: game.user.id, actor: options.controllingActor?.id}}}
-      updates.actor = mergeObject(updates.actor ?? {} , {flags});
+      /* flag this user as the actor's creator */
+      const actorFlags = {
+        [MODULE.data.name]: {
+          control: {user: game.user.id, actor: options.controllingActor?.id},
+        }
+      }
+      updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags});
 
       /* ensure creator owns this token */
       let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
