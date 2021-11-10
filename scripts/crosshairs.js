@@ -72,7 +72,7 @@ export class Crosshairs extends MeasuredTemplate {
         this.interval = 2;
         break;
       default:
-        this.interval = config.interval;
+        this.interval = +config.interval;
         break;
     }
 
