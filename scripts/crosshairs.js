@@ -63,7 +63,18 @@ export class Crosshairs extends MeasuredTemplate {
      * a square's edge (N+1 snap points 
      * along each edge, conting endpoints)
      */
-    this.interval = config.interval;
+    switch (config.interval) {
+      case 'corner':
+        this.interval = 1;
+        break;
+      case 'center':
+        this.centerOnSquare = true;
+        this.interval = 2;
+        break;
+      default:
+        this.interval = config.interval;
+        break;
+    }
 
     /* Callback functions to execute
      * at particular times
@@ -308,18 +319,31 @@ export class Crosshairs extends MeasuredTemplate {
     let now = Date.now(); // Apply a 20ms throttle
     if ( now - this.moveTime <= 20 ) return;
     const center = event.data.getLocalPosition(this.layer);
-    const snapped = canvas.grid.getSnappedPosition(center.x, center.y, this.interval);
+    const snapped = this._getSnappedPosition(center, this.interval);
     this.data.update({x: snapped.x, y: snapped.y});
     this.refresh();
     this.moveTime = now;
   }
 
   _leftClickHandler(event){
-    const destination = canvas.grid.getSnappedPosition(this.data.x, this.data.y, 2);
+    const destination = this._getSnappedPosition(data, 2);
     const width = this.data.distance / (canvas.scene.data.gridDistance / 2);
     this.data.update({destination, width, cancelled: false});
     this.cancelled = false;
     this.clearHandlers(event);
+  }
+
+  _getSnappedPosition({ x, y }, interval) {
+    const snapped = canvas.grid.getSnappedPosition(x, y, interval);
+    if (this.centerOnSquare) {
+      if (!(snapped.x % canvas.grid.size)) {
+        snapped.x += canvas.grid.size / 2;
+      }
+      if (!(snapped.y % canvas.grid.size)) {
+        snapped.y += canvas.grid.size / 2;
+      }
+    }
+    return snapped;
   }
 
   // Rotate the template by 3 degree increments (mouse-wheel)
