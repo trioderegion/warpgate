@@ -337,11 +337,17 @@ export class Crosshairs extends MeasuredTemplate {
     const snapped = canvas.grid.getSnappedPosition(x, y, interval);
     if (this.centerOnSquare) {
       const { size } = canvas.grid;
-      if (!(snapped.x % size)) {
-        snapped.x += size / 2;
+      if (snapped.x % size === 0) {
+        const changeX = x > snapped.x
+          ? size / 2
+          : -size / 2;
+        snapped.x += changeX;
       }
-      if (!(snapped.y % size)) {
-        snapped.y += size / 2;
+      if (snapped.y % size === 0) {
+        const changeY = y > snapped.y
+          ? size / 2
+          : -size / 2;
+        snapped.y += changeY;
       }
     }
     return snapped;
