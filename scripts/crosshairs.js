@@ -90,6 +90,12 @@ export class Crosshairs extends MeasuredTemplate {
     return canvas.templates.preview.children.find( child => child.tag === key )
   }
 
+  static _getSnappedPosition({x,y}, interval){
+    const offset = interval < 0 ? canvas.grid.size/2 : 0;
+    const snapped = canvas.grid.getSnappedPosition(x - offset, y - offset, interval);
+    return {x: snapped.x + offset, y: snapped.y + offset};
+  }
+
   /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
   /* Portions of the core package (MeasuredTemplate) repackaged 
    * in accordance with the "Limited License Agreement for Module 
@@ -308,14 +314,14 @@ export class Crosshairs extends MeasuredTemplate {
     let now = Date.now(); // Apply a 20ms throttle
     if ( now - this.moveTime <= 20 ) return;
     const center = event.data.getLocalPosition(this.layer);
-    const snapped = canvas.grid.getSnappedPosition(center.x, center.y, this.interval);
-    this.data.update({x: snapped.x, y: snapped.y});
+    const {x,y} = Crosshairs._getSnappedPosition(center, this.interval);
+    this.data.update({x, y});
     this.refresh();
     this.moveTime = now;
   }
 
   _leftClickHandler(event){
-    const destination = canvas.grid.getSnappedPosition(this.data.x, this.data.y, 2);
+    const destination = Crosshairs._getSnappedPosition(this.data, this.interval);
     const width = this.data.distance / (canvas.scene.data.gridDistance / 2);
     this.data.update({destination, width, cancelled: false});
     this.cancelled = false;

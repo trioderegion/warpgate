@@ -203,7 +203,7 @@ This object controls how the crosshairs will be displayed and decorated. Each fi
 * `tag` {\*}(`'crosshairs'`) Arbitrary value used to identify this crosshairs object
 * `drawIcon` {Boolean}(`true`) Controls the display of the center icon of the crosshairs
 * `drawOutline` {Boolean}(`true`) Controls the display of the outline circle of the crosshairs
-* `interval` {Number}(`2`) Subgrid granularity per square. Each square will be divided N-1 times. Ex. the default value produces one snap point on the center of the edge.
+* `interval` {Number}(`2`) Sub-grid granularity per square. Snap points will be created every 1/`interval` grid spaces. Positive values begin snapping at grid intersections. Negative values begin snapping at the center of the square. Ex. the default value of 2 produces two snap points -- one at the edge and one at the center; `interval` of 1 will snap to grid intersections; `interval` of -1 will snap to grid centers.
 
 ## Crosshairs Callback Functions
 
