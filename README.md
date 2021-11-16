@@ -31,6 +31,7 @@ Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpga
 - [Crosshairs Commands](#crosshairs-commands)
   - [show](#show)
   - [getTag](#gettag)
+  - [collect](#collect)
 - [Crosshairs Config](#crosshairs-config)
 - [Crosshairs Callback Functions](#crosshairs-callback-functions)
 - [Helper Functions](#helper-functions)
@@ -171,8 +172,6 @@ Called after the actor has been mutated and after the mutate event has triggered
 
 Signature: `async warpgate.crosshairs.show(config = {}, callbacks = {})`
 
-Deprecated Signature: `async warpgate.crosshairs.show(size = 1, icon = 'icons/svg/dice-target.svg', label = '')`
-
 Creates a circular template attached to the cursor. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template. Note: Shift+Scroll will increase/decrease the size of the crosshairs outline, which increases or decreases the size of the token spawned, independent of other modifications.
 * `config` {Object} Configuration settings for how the crosshairs template should be displayed. See [Crosshairs Config](#crosshairs-config).
 * `callbacks` {Object} Functions executed at certain stages of the crosshair display process. See [Crosshairs Callback Functions](#crosshairs-callback-functions)
@@ -189,21 +188,38 @@ Will retrieve the active crosshairs instance with the defined tag identifier.
 * `key` {\*} Will be compared against the Crosshairs `tag` field for equality.
 
 `return value` {Crosshairs} Active Crosshairs matching the given key or `undefined` if no match
+	
+### collect
+
+Signature: `warpgate.crosshairs.collect(crosshairsData, types, containedFilter = Gateway._containsCenter)`
+
+Returns desired types of placeables whose center point is within the crosshairs radius or another user defined filter function.
+                                                                                                        
+* `crosshairsData` {Object}. Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
+* `types` {Array<String> = `['Token']`} Collects the desired embedded placeable types.
+* `containedFilter` {Function = `Gateway._containsCenter`}. Optional function for determining if a placeable is contained by the crosshairs. Default function tests for centerpoint containment. Expected signature `Boolean function(placeable, crosshairsData)`: given a Placeable object and the crosshairs data, return a boolean indicating if the placeable should be counted as contained with the crosshair's area. 
+                                                                                                        
+`return` {Object<embeddedName: collected>} List of collected placeables keyed by embeddedName
 
 ## Crosshairs Config
 
 This object controls how the crosshairs will be displayed and decorated. Each field is optional and the default value is listed in parentheses.
 
-* `size` {Number}(`1`) The initial diameter of the crosshairs outline in grid squares
-* `icon` {String}(`'icons/svg/dice-target.svg'`) The icon displayed in the center of the crosshairs
-* `label` {String}(`''`) The text to display below the crosshairs outline
+* `size` {Number = `1`} The initial diameter of the crosshairs outline in grid squares
+* `icon` {String = `'icons/svg/dice-target.svg'`} The icon displayed in the center of the crosshairs
+* `label` {String = `''`} The text to display below the crosshairs outline
 * `labelOffset` {Object} Pixel offset from the label's initial relative position below the outline
-  * `x` {Number}(`0`)
-  * `y` {Number}(`0`)
+  * `x` {Number = `0`}
+  * `y` {Number = `0`}
 * `tag` {\*}(`'crosshairs'`) Arbitrary value used to identify this crosshairs object
-* `drawIcon` {Boolean}(`true`) Controls the display of the center icon of the crosshairs
-* `drawOutline` {Boolean}(`true`) Controls the display of the outline circle of the crosshairs
-* `interval` {Number}(`2`) Sub-grid granularity per square. Snap points will be created every 1/`interval` grid spaces. Positive values begin snapping at grid intersections. Negative values begin snapping at the center of the square. Ex. the default value of 2 produces two snap points -- one at the edge and one at the center; `interval` of 1 will snap to grid intersections; `interval` of -1 will snap to grid centers.
+* `drawIcon` {Boolean = `true`} Controls the display of the center icon of the crosshairs
+* `drawOutline` {Boolean = `true`} Controls the display of the outline circle of the crosshairs
+* `interval` {Number = `2`} Sub-grid granularity per square. Snap points will be created every 1/`interval` grid spaces. Positive values begin snapping at grid intersections. Negative values begin snapping at the center of the square. Ex. the default value of 2 produces two snap points -- one at the edge and one at the center; `interval` of 1 will snap to grid intersections; `interval` of -1 will snap to grid centers.
+* `fillAlpha` {Number = `0`} Alpha (opacity) of the template's fill color (if any).
+* `fillColor` {String = `game.user.color`} Color of the template's fill when no texture is used.
+* `texture` {String = null} Asset path of the texture to draw inside the crosshairs border.
+* `tileTexture` {Boolean = false} Indicates if the texture is tileable and does not need specific offset/scaling to be drawn correctly. By default, the chosen texture will be position and scaled such that the center of the texture image resides at the center of the crosshairs template.
+* `lockSize` {Boolean = true} Controls the ability of the user to scale the size of the crosshairs using shift+scroll. When locked, shift+scroll acts as a "coarse rotation" step for rotating the center icon.
 
 ## Crosshairs Callback Functions
 
