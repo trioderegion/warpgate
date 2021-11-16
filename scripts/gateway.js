@@ -88,23 +88,8 @@ export class Gateway {
 
   /* Displays a circular template attached to the mouse cursor that snaps to grid centers
    * and grid intersections
-   * @param {Number} gridUnits: How large to draw the circular template in grid squares
-   * @param {String} icon: Icon to display in the center of the template
-   * @param {String} label: Text to display under the template
-   */
-  static async showCrosshairs(...args) {
-    let config = args[0] ?? {};
-    let callbacks = args[1] ?? {};
-
-    if( (typeof args[0] == 'number') || (args.length > 1 && typeof args[1] !== 'object')) {
-      console.warn('You are using show(gridUnits, icon, label) which has been deprecated in favor of show(config, callbacks)');
-      config = {size: args[0] ?? 1, icon: args[1] ?? 'icons/svg/dice-target.svg', label: args[2] ?? ''};
-    }
-    
-    return Gateway._showCrosshairs(config, callbacks);
-  }
-
-  static async _showCrosshairs(config = {}, callbacks = {}) {
+   */ 
+  static async showCrosshairs(config = {}, callbacks = {}) {
 
     let mergedConfig = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
 
