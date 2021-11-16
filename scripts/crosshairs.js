@@ -62,6 +62,10 @@ export class Crosshairs extends MeasuredTemplate {
     /* Opacity of the fill color */
     this.fillAlpha = config.fillAlpha;
 
+    /* Should the texture (if any) be tiled
+     * or scaled and offset? */
+    this.tileTexture = config.tileTexture;
+
     /* Number of quantization steps along
      * a square's edge (N+1 snap points 
      * along each edge, conting endpoints)
@@ -220,13 +224,28 @@ export class Crosshairs extends MeasuredTemplate {
     // Draw the Template outline
     this.template.clear()
       .lineStyle(this._borderThickness, this.borderColor, this.drawOutline ? 0.75 : 0)
+    //BEGIN WARPGATE
       //.beginFill(/*0x000000, 0.0*/this.fillColor, this.alpha);
+    //END WARPGATE
+
 
     // Fill Color or Texture
-    if ( this.texture ) this.template.beginTextureFill({
-      texture: this.texture
-    });
-    else this.template.beginFill(this.fillColor, this.fillAlpha);
+
+    if ( this.texture ) {
+      /* assume 0,0 is top left of texture
+       * and scale/offset this texture (due to origin
+       * at center of template). tileTexture indicates
+       * that this texture is tilable and does not 
+       * need to be scaled/offset */
+      const scale = this.tileTexture ? 1 : distance * 2 / this.texture.width;
+      const offset = this.tileTexture ? 0 : distance;
+      this.template.beginTextureFill({
+        texture: this.texture,
+        matrix: new PIXI.Matrix().scale(scale, scale).translate(-offset,-offset)
+      });
+    } else { 
+      this.template.beginFill(this.fillColor, this.fillAlpha);
+    }
 
     // Draw the shape
     this.template.drawShape(this.shape);
@@ -326,8 +345,11 @@ export class Crosshairs extends MeasuredTemplate {
   _leftClickHandler(event){
     const destination = Crosshairs._getSnappedPosition(this.data, this.interval);
     const width = this.data.distance / (canvas.scene.data.gridDistance / 2);
+    const radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
+    this.radius = radius;
     this.data.update({destination, width, cancelled: false});
     this.cancelled = false;
+
     this.clearHandlers(event);
   }
 

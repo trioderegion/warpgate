@@ -47,6 +47,7 @@ export class api {
       crosshairs: {
         show: Gateway.showCrosshairs,
         getTag: Crosshairs.getTag,
+        collect: Gateway.collectPlaceables,
       },
       plugin: {
         queueUpdate

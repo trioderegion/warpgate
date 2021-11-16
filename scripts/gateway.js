@@ -60,6 +60,7 @@ export class Gateway {
           drawOutline: true,
           interval: 2,
           fillAlpha: 0,
+          tileTexture: false,
 
           //Measured template defaults
           texture: null,
@@ -120,11 +121,39 @@ export class Gateway {
 
     /** @todo temporary workaround */
     dataObj.cancelled = template.cancelled;
+    dataObj.parent = template.document.parent;
+    dataObj.radius = template.radius;
 
     /* mirror the input variables for the output as well */
     dataObj.size = dataObj.width
 
     return dataObj;
+  }
+
+  /*
+   * Returns desired types of placeables whose center point
+   * is within the crosshairs radius.
+   *
+   * @param crosshairsData {Object}. Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
+   * @param types {Array<String>} (['Token']). Collects the desired embedded placeable types.
+   *
+   * @return {Object<embeddedName: collected>} List of collected placeables keyed by embeddedName
+   */
+  static collectPlaceables( crosshairsData, types = ['Token'] ) {
+
+    const calcDistance = (A, B) => { return Math.hypot(A.x-B.x, A.y-B.y) };
+    
+    const result = types.reduce( (acc, embeddedName) => {
+      const collection = crosshairsData.parent.getEmbeddedCollection(embeddedName);
+      const contained = collection.filter( (document) => {
+        const distance = calcDistance(document.object.center, crosshairsData);
+        return distance <= crosshairsData.radius;
+      });
+      acc[embeddedName] = contained;
+      return acc;
+    }, {});
+
+    return result;
   }
 
   static async dismissSpawn(tokenId, sceneId = canvas.scene?.id, onBehalf = game.user.id) {
