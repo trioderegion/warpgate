@@ -94,6 +94,9 @@ export class Crosshairs extends MeasuredTemplate {
      * a right click)
      */
     this.cancelled = true;
+
+    /* current radius in pixels */
+    this.radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
   }
 
   static getTag(key) {
@@ -366,6 +369,8 @@ export class Crosshairs extends MeasuredTemplate {
     if (event.shiftKey && !this.lockSize) {
       const distance = this.data.distance + canvas.scene.data.gridDistance / 2 * (Math.sign(event.deltaY));
       this.data.update({distance : Math.max(distance,canvas.scene.data.gridDistance/2)});
+      const radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
+      this.radius = radius;
     } else {
       const direction = this.data.direction + (snap * Math.sign(event.deltaY))
       this.data.update({direction});

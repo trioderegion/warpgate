@@ -122,7 +122,7 @@ export class Gateway {
 
     /** @todo temporary workaround */
     dataObj.cancelled = template.cancelled;
-    dataObj.parent = template.document.parent;
+    dataObj.scene = template.scene;
     dataObj.radius = template.radius;
 
     /* mirror the input variables for the output as well */
@@ -131,25 +131,36 @@ export class Gateway {
     return dataObj;
   }
 
+  /* tests if a placeable's center point is within
+   * the radius of the crosshairs
+   */
+  static _containsCenter(placeable, crosshairsData) {
+    const calcDistance = (A, B) => { return Math.hypot(A.x-B.x, A.y-B.y) };
+
+    const distance = calcDistance(placeable.center, crosshairsData);
+    return distance <= crosshairsData.radius;
+  }
+
   /*
    * Returns desired types of placeables whose center point
    * is within the crosshairs radius.
    *
    * @param crosshairsData {Object}. Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
    * @param types {Array<String>} (['Token']). Collects the desired embedded placeable types.
+   * @param containedFilter {Function} (`_containsCenter`). Optional function for determining if a placeable
+   *   is contained by the crosshairs. Default function tests for centerpoint containment.
    *
    * @return {Object<embeddedName: collected>} List of collected placeables keyed by embeddedName
    */
-  static collectPlaceables( crosshairsData, types = ['Token'] ) {
+  static collectPlaceables( crosshairsData, types = ['Token'], containedFilter = Gateway._containsCenter ) {
 
-    const calcDistance = (A, B) => { return Math.hypot(A.x-B.x, A.y-B.y) };
-    
     const result = types.reduce( (acc, embeddedName) => {
-      const collection = crosshairsData.parent.getEmbeddedCollection(embeddedName);
+      const collection = crosshairsData.scene.getEmbeddedCollection(embeddedName);
+
       const contained = collection.filter( (document) => {
-        const distance = calcDistance(document.object.center, crosshairsData);
-        return distance <= crosshairsData.radius;
+        return containedFilter(document.object, crosshairsData);
       });
+
       acc[embeddedName] = contained;
       return acc;
     }, {});
