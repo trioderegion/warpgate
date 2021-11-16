@@ -28,9 +28,9 @@ export class Crosshairs extends MeasuredTemplate {
       distance: (canvas.scene.data.gridDistance / 2) * config.size,
       x: config.x,
       y: config.y,
-      fillColor: game.user.color,
+      fillColor: config.fillColor,
       width: config.size,
-      texture: config.texture
+      texture: config.texture,
     }   
 
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
@@ -58,6 +58,9 @@ export class Crosshairs extends MeasuredTemplate {
 
     /* Should the outer circle be shown? */
     this.drawOutline = config.drawOutline;
+
+    /* Opacity of the fill color */
+    this.fillAlpha = config.fillAlpha;
 
     /* Number of quantization steps along
      * a square's edge (N+1 snap points 
@@ -217,13 +220,13 @@ export class Crosshairs extends MeasuredTemplate {
     // Draw the Template outline
     this.template.clear()
       .lineStyle(this._borderThickness, this.borderColor, this.drawOutline ? 0.75 : 0)
-      .beginFill(0x000000, 0.0);
+      //.beginFill(/*0x000000, 0.0*/this.fillColor, this.alpha);
 
     // Fill Color or Texture
     if ( this.texture ) this.template.beginTextureFill({
       texture: this.texture
     });
-    else this.template.beginFill(0x000000, 0.0);
+    else this.template.beginFill(this.fillColor, this.fillAlpha);
 
     // Draw the shape
     this.template.drawShape(this.shape);

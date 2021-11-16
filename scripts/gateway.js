@@ -59,11 +59,13 @@ export class Gateway {
           drawIcon: true,
           drawOutline: true,
           interval: 2,
+          fillAlpha: 0,
 
           //Measured template defaults
           texture: null,
           x: 0,
           y: 0,
+          fillColor: game.user.color,
         }
       }
     }
