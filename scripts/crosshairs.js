@@ -66,6 +66,9 @@ export class Crosshairs extends MeasuredTemplate {
      * or scaled and offset? */
     this.tileTexture = config.tileTexture;
 
+    /* locks the size of crosshairs (shift+scroll) */
+    this.lockSize = config.lockSize;
+
     /* Number of quantization steps along
      * a square's edge (N+1 snap points 
      * along each edge, conting endpoints)
@@ -360,7 +363,7 @@ export class Crosshairs extends MeasuredTemplate {
     let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
     let snap = event.shiftKey ? delta : 5;
     //BEGIN WARPGATE
-    if (event.shiftKey) {
+    if (event.shiftKey && !this.lockSize) {
       const distance = this.data.distance + canvas.scene.data.gridDistance / 2 * (Math.sign(event.deltaY));
       this.data.update({distance : Math.max(distance,canvas.scene.data.gridDistance/2)});
     } else {

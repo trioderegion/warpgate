@@ -61,6 +61,7 @@ export class Gateway {
           interval: 2,
           fillAlpha: 0,
           tileTexture: false,
+          lockSize: true,
 
           //Measured template defaults
           texture: null,
