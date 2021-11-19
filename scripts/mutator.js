@@ -213,6 +213,10 @@ export class Mutator {
     
     /* if this is not a permanent mutation, create the delta and store it */
     let mutateInfo = {}
+
+    /* expand the object to handle property paths correctly */
+    updates = expandObject(updates);
+
     if(!options.permanent) {
       let delta = Mutator._createDelta(tokenDoc, updates);
 
