@@ -195,7 +195,7 @@ Signature: `warpgate.crosshairs.collect(crosshairsData, types, containedFilter =
 
 Returns desired types of placeables whose center point is within the crosshairs radius or another user defined filter function.
                                                                                                         
-* `crosshairsData` {Object}. Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
+* `crosshairsData` {Object}. Requires at least {x,y,radius,scene} (all in pixels)
 * `types` {Array<String> = `['Token']`} Collects the desired embedded placeable types.
 * `containedFilter` {Function = `Gateway._containsCenter`}. Optional function for determining if a placeable is contained by the crosshairs. Default function tests for centerpoint containment. Expected signature `Boolean function(placeable, crosshairsData)`: given a Placeable object and the crosshairs data, return a boolean indicating if the placeable should be counted as contained with the crosshair's area. 
                                                                                                         
