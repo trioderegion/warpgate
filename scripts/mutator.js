@@ -126,6 +126,11 @@ export class Mutator {
     return inverted;
   }
 
+  static _convertObjToHTML(obj) {
+    const stringified = JSON.stringify(obj, undefined, '$SPACING');
+    return stringified.replaceAll('\n', '<br>').replaceAll('$SPACING', '&nbsp;&nbsp;&nbsp;&nbsp;');
+  }
+
   /* run the provided updates for the given embedded collection name from the owner */
   static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name'){
     
@@ -186,6 +191,34 @@ export class Mutator {
     return;
   }
 
+  static async handleMutationRequest(payload) {
+    
+    /* First, are we the first player owner? If not, stop, they will handle it */
+    const tokenDoc = game.scenes.get(payload.sceneId).getEmbeddedDocument('Token', payload.tokenId);
+    if (MODULE.isFirstOwner(tokenDoc.actor) && (await Mutator._queryRequest(payload))) {
+      /* first owner accepts mutation -- apply it */
+      await Mutator.mutate(tokenDoc, payload.updates, payload.callbacks, payload.options);
+    }
+  }
+
+  static async _queryRequest(requestPayload) {
+    const requestedUpdate = Mutator._convertObjToHTML(requestPayload.updates);
+    let userResponse = false;
+
+    /* for now, wait until they say Accept or Reject (Inspect not implemented) */
+    do {
+      userResponse = await warpgate.buttonDialog({buttons: [{label: 'Accept', value: true}, {label: 'Reject', value: false}, {label: 'Inspect', value: 'inspect'}], content: requestedUpdate, title: 'Requested Mutation'});
+
+      if(userResponse === 'inspect') {
+        ui.notifications.warn("Detailed inspection not available at this time")
+      }
+
+    } while (userResponse === 'inspect')
+
+    return userResponse;
+
+  }
+
 
   /* 
    * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
@@ -217,25 +250,31 @@ export class Mutator {
     /* expand the object to handle property paths correctly */
     updates = expandObject(updates);
 
-    if(!options.permanent) {
-      let delta = Mutator._createDelta(tokenDoc, updates);
+    if (tokenDoc.actor.isOwner) {
 
-      /* allow user to modify delta if needed */
-      if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
-      
-      mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
+      if(!options.permanent) {
+        let delta = Mutator._createDelta(tokenDoc, updates);
+
+        /* allow user to modify delta if needed */
+        if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
+
+        mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
+      }
+
+      /* prepare the event data *before* the token is modified */
+      const actorData = Comms.packToken(tokenDoc);
+
+      await Mutator._update(tokenDoc, updates, options);
+
+      await warpgate.event.notify(warpgate.EVENT.MUTATE, {actorData, updates});
+
+      if(callbacks.post) await callbacks.post(tokenDoc, updates);
+
+      return mutateInfo;
+    } else {
+      Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, callbacks, options });
+      return;
     }
-  
-    /* prepare the event data *before* the token is modified */
-    const actorData = Comms.packToken(tokenDoc);
-
-    await Mutator._update(tokenDoc, updates, options);
-
-    await warpgate.event.notify(warpgate.EVENT.MUTATE, {actorData, updates});
-
-    if(callbacks.post) await callbacks.post(tokenDoc, updates);
-
-    return mutateInfo;
   }
 
   static _mergeMutateDelta(actorDoc, delta, updates, options) {

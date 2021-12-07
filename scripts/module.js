@@ -40,6 +40,27 @@ export class MODULE{
     return game.user.id === MODULE.firstGM()?.id;
   }
 
+  static firstOwner(doc){
+    /* null docs could mean an empty lookup, null docs are not owned by anyone */
+    if (!doc) return false;
+
+    const playerOwners = Object.entries(doc.data.permission)
+      .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
+      .map(([id, level])=> id);
+
+    if(playerOwners.length > 0) {
+      return game.users.get(playerOwners[0]);
+    }
+
+    /* if no online player owns this actor, fall back to first GM */
+    return MODULE.firstGM();
+  }
+
+  /* Players first, then GM */
+  static isFirstOwner(doc){
+    return game.user.id === MODULE.firstOwner(doc).id;
+  }
+
   static async wait(ms){
     return new Promise((resolve)=> setTimeout(resolve, ms))
   }
