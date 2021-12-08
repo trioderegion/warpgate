@@ -39,7 +39,7 @@ export class Crosshairs extends MeasuredTemplate {
     /** @TODO all of these fields should be part of the source data schema for this class **/
 
     /* image path to display in the center (under mouse cursor) */
-    this.icon = config.icon;
+    this.icon = config.icon ?? Crosshairs.ERROR_TEXTURE;
 
     /* text to display below crosshairs' circle */
     this.label = config.label;
@@ -98,6 +98,8 @@ export class Crosshairs extends MeasuredTemplate {
     /* current radius in pixels */
     this.radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
   }
+
+  static ERROR_TEXTURE = 'icons/svg/hazard.svg'
 
   static getTag(key) {
     return canvas.templates.preview.children.find( child => child.tag === key )
