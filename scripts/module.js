@@ -175,9 +175,9 @@ export class MODULE{
         title: data.title,
         content: data.content,
         buttons,
-        close: () => resolve(true)
+        close: () => resolve(false)
       }, {
-        /*width: '100%',*/ height: '100%' 
+        /*width: '100%',*/ height: '100%', ...data.options 
       });
 
       await dialog._render(true);

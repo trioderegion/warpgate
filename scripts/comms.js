@@ -106,15 +106,16 @@ export class Comms {
   /*
    * payload = {updates, callbacks, options}
    * @TODO callbacks are unhandled at this time
+   * @param options
+   *   * description - message to display to receiving user
    */
-  static requestMutate(tokenId, sceneId, { updates = {}, callbacks = {}, options = {} } = {}, description = options.name, onBehalf = game.user.id ) {
+  static requestMutate(tokenId, sceneId, { updates = {}, callbacks = {}, options = {} } = {}, onBehalf = game.user.id ) {
     
     /* insert common fields */
     const payload = {
       userId: onBehalf,
       tokenId,
       sceneId,
-      description,
       updates,
       callbacks,
       options

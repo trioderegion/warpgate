@@ -195,25 +195,38 @@ export class Mutator {
     
     /* First, are we the first player owner? If not, stop, they will handle it */
     const tokenDoc = game.scenes.get(payload.sceneId).getEmbeddedDocument('Token', payload.tokenId);
-    if (MODULE.isFirstOwner(tokenDoc.actor) && (await Mutator._queryRequest(payload))) {
+    if (MODULE.isFirstOwner(tokenDoc.actor) && (await Mutator._queryRequest(tokenDoc, payload))) {
       /* first owner accepts mutation -- apply it */
       await Mutator.mutate(tokenDoc, payload.updates, payload.callbacks, payload.options);
     }
   }
 
-  static async _queryRequest(requestPayload) {
-    const requestedUpdate = Mutator._convertObjToHTML(requestPayload.updates);
+  static async _queryRequest(tokenDoc, requestPayload) {
+
+    const modeSwitch = {
+      description: {label: 'Inspect', value: 'inspect', content: `<p>${requestPayload.options.description}</p>`},
+      inspect: {label: 'Description', value: 'description', content: Mutator._convertObjToHTML(requestPayload.updates)}
+    }
+
+    const title = `${game.users.get(requestPayload.userId).name} is Mutating ${tokenDoc.name}`;
+
     let userResponse = false;
+    let modeButton = modeSwitch.description;
 
-    /* for now, wait until they say Accept or Reject (Inspect not implemented) */
     do {
-      userResponse = await warpgate.buttonDialog({buttons: [{label: 'Accept', value: true}, {label: 'Reject', value: false}, {label: 'Inspect', value: 'inspect'}], content: requestedUpdate, title: 'Requested Mutation'});
+      userResponse = await warpgate.buttonDialog({buttons: [{label: 'Find Target', value: 'select'}, {label: 'Accept', value: true}, {label: 'Reject', value: false}, modeButton], content: modeButton.content, title, options: {top: 100}});
 
-      if(userResponse === 'inspect') {
-        ui.notifications.warn("Detailed inspection not available at this time")
+      if (userResponse === 'select') {
+        if (tokenDoc.object) {
+          tokenDoc.object.control({releaseOthers: true});
+          await canvas.animatePan({x: tokenDoc.data.x, y: tokenDoc.data.y});
+        }
+      } else if (userResponse !== false && userResponse !== true) {
+        /* swap modes and re-render */
+        modeButton = modeSwitch[userResponse];
       }
 
-    } while (userResponse === 'inspect')
+    } while (userResponse !== false && userResponse !== true)
 
     return userResponse;
 
@@ -228,7 +241,10 @@ export class Mutator {
    * @param {Object = {}} updates. As `warpgate.spawn`.
    *
    * @param {Object = {}} callbacks. Two provided callback locations: delta and post. Both are awaited.
-   *   delta {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
+   *   delta {Function(delta, tokenDoc)} Called after the update delta has been generated, but before
+   *    it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP 
+   *    are increased by 10, but when reverted, you want to keep the extra Current HP applied. 
+   *    Update the delta object with the desired HP to return to after revert, or remove it entirely.
    *     @param {Object} delta. Computed change of the actor based on `updates`.
    *     @param {TokenDocument} tokenDoc. Token being modified.
    *   post {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
@@ -236,9 +252,14 @@ export class Mutator {
    *     @param {Object} updates. See parent `updates` parameter.
    *
    * @param {Object = {}} options
-   *   comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
-   *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
-   *   name: {String = randomId()}. User provided name, or identifier, for this particular mutation operation. Used for 'named revert'.
+   *   comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for 
+   *    comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
+   *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to 
+   *    the actor, which does not store the update delta information required to revert mutation.
+   *   name: {String = randomId()}. User provided name, or identifier, for this particular mutation
+   *    operation. Used for 'named revert'.
+   *   description: {String = options.name}. User provided description (message) that will be displayed 
+   *    to the owning user when/if the mutation is requested.
    *
    * @return {Promise<Object>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent).
    */
