@@ -109,7 +109,7 @@ export class Comms {
    * @param options
    *   * description - message to display to receiving user
    */
-  static requestMutate(tokenId, sceneId, { updates = {}, callbacks = {}, options = {} } = {}, onBehalf = game.user.id ) {
+  static requestMutate(tokenId, sceneId, { updates = {}, options = {} } = {}, onBehalf = game.user.id ) {
     
     /* insert common fields */
     const payload = {
@@ -117,7 +117,6 @@ export class Comms {
       tokenId,
       sceneId,
       updates,
-      callbacks,
       options
     }
 

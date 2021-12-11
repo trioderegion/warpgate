@@ -197,15 +197,19 @@ export class Mutator {
     const tokenDoc = game.scenes.get(payload.sceneId).getEmbeddedDocument('Token', payload.tokenId);
     if (MODULE.isFirstOwner(tokenDoc.actor) && (await Mutator._queryRequest(tokenDoc, payload))) {
       /* first owner accepts mutation -- apply it */
-      await Mutator.mutate(tokenDoc, payload.updates, payload.callbacks, payload.options);
+      /* requests will never have callbacks */
+      await Mutator.mutate(tokenDoc, payload.updates, {}, payload.options);
     }
   }
 
   static async _queryRequest(tokenDoc, requestPayload) {
 
+    let displayUpdate = duplicate(requestPayload.updates);
+    if (displayUpdate.actor?.flags?.warpgate?.mutate) delete displayUpdate.actor.flags.warpgate.mutate;
+
     const modeSwitch = {
       description: {label: 'Inspect', value: 'inspect', content: `<p>${requestPayload.options.description}</p>`},
-      inspect: {label: 'Description', value: 'description', content: Mutator._convertObjToHTML(requestPayload.updates)}
+      inspect: {label: 'Description', value: 'description', content: Mutator._convertObjToHTML(displayUpdate)}
     }
 
     const title = `${game.users.get(requestPayload.userId).name} is Mutating ${tokenDoc.name}`;
@@ -260,34 +264,45 @@ export class Mutator {
    *    operation. Used for 'named revert'.
    *   description: {String = options.name}. User provided description (message) that will be displayed 
    *    to the owning user when/if the mutation is requested.
+   *   delta: {Object = {}}. The final change to be applied. Overrides 
    *
    * @return {Promise<Object>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent).
    */
   static async mutate(tokenDoc, updates = {}, callbacks = {}, options = {}) {
     
-    /* if this is not a permanent mutation, create the delta and store it */
-    let mutateInfo = {}
+    /* providing a delta means you are managing the
+     * entire data change (including mutation stack changes).
+     * Typically used by remote requests */
+
+    /* create a default mutation info assuming we were provided
+     * with the final delta already or the change is permanent
+     */
+    let mutateInfo = Mutator._createMutateInfo( options.delta ?? {}, options );
 
     /* expand the object to handle property paths correctly */
     updates = expandObject(updates);
 
-    // @TODO If a delta was not provided in options.delta, generate it
+    // If a delta was not provided in options.delta, generate it
     // (and the resulting mutate info) and store it in options
     // THEN pack the token and start the update process and local callback
     // if we are the owner.
     // OTHERWISE register the post callback as a trigger for pending response
     // and request the mutation from the owner.
+    if(!options.permanent) {
+
+      /* if we have the delta provided, trust it */
+      let delta = options.delta ?? Mutator._createDelta(tokenDoc, updates);
+
+      /* allow user to modify delta if needed (remote updates will never have callbacks) */
+      if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
+
+      /* update the mutation info with the final updates including mutate stack info */
+      mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
+
+      options.delta = delta;
+    } 
 
     if (tokenDoc.actor.isOwner) {
-
-      if(!options.permanent) {
-        let delta = Mutator._createDelta(tokenDoc, updates);
-
-        /* allow user to modify delta if needed */
-        if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
-
-        mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
-      }
 
       /* prepare the event data *before* the token is modified */
       const actorData = Comms.packToken(tokenDoc);
@@ -298,17 +313,25 @@ export class Mutator {
 
       if(callbacks.post) await callbacks.post(tokenDoc, updates);
 
-      return mutateInfo;
     } else {
       // @TODO check that the owning user is online (firstOwner)
       // @TODO register event triggers to listen for pending response
 
       /* broadcast the request to mutate the token */
-      Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, callbacks, options });
+      Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
 
-
-      return;
     }
+
+    return mutateInfo;
+  }
+
+  static _createMutateInfo( delta, options ) {
+    return {
+      delta,
+      user: game.user.id,
+      comparisonKeys: options.comparisonKeys ?? {},
+      name: options.name ?? randomID()
+    };
   }
 
   static _mergeMutateDelta(actorDoc, delta, updates, options) {
@@ -319,7 +342,7 @@ export class Mutator {
     /* create the information needed to revert this mutation and push
      * it onto the stack
      */
-    const mutateInfo = {delta, user: game.user.id, comparisonKeys: options.comparisonKeys ?? {}, name: options.name ?? randomID()};
+    const mutateInfo = Mutator._createMutateInfo( delta, options );
     mutateStack.push(mutateInfo);
 
     /* Create a new mutation stack flag data and store it in the update object */
