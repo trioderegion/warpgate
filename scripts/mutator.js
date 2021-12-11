@@ -271,6 +271,13 @@ export class Mutator {
     /* expand the object to handle property paths correctly */
     updates = expandObject(updates);
 
+    // @TODO If a delta was not provided in options.delta, generate it
+    // (and the resulting mutate info) and store it in options
+    // THEN pack the token and start the update process and local callback
+    // if we are the owner.
+    // OTHERWISE register the post callback as a trigger for pending response
+    // and request the mutation from the owner.
+
     if (tokenDoc.actor.isOwner) {
 
       if(!options.permanent) {
@@ -293,17 +300,29 @@ export class Mutator {
 
       return mutateInfo;
     } else {
+      // @TODO check that the owning user is online (firstOwner)
+      // @TODO register event triggers to listen for pending response
+
+      /* broadcast the request to mutate the token */
       Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, callbacks, options });
+
+
       return;
     }
   }
 
   static _mergeMutateDelta(actorDoc, delta, updates, options) {
 
+    /* Grab the current stack (or make a new one) */
     let mutateStack = actorDoc.getFlag(MODULE.data.name, 'mutate') ?? [];
+
+    /* create the information needed to revert this mutation and push
+     * it onto the stack
+     */
     const mutateInfo = {delta, user: game.user.id, comparisonKeys: options.comparisonKeys ?? {}, name: options.name ?? randomID()};
     mutateStack.push(mutateInfo);
 
+    /* Create a new mutation stack flag data and store it in the update object */
     const flags = {warpgate: {mutate: mutateStack}};
     updates.actor = mergeObject(updates.actor ?? {}, {flags});
     
