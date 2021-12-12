@@ -59,11 +59,12 @@ export class api {
         DELETE : 'delete',
       },
       EVENT : {
-          PLACEMENT: 'wg_placement',
-          SPAWN: 'wg_spawn',
-          DISMISS: 'wg_dismiss',
-          REVERT: 'wg_revert',
-          MUTATE: 'wg_mutate'
+        PLACEMENT: 'wg_placement',
+        SPAWN: 'wg_spawn',
+        DISMISS: 'wg_dismiss',
+        REVERT: 'wg_revert',
+        MUTATE: 'wg_mutate',
+        MUTATE_RESPONSE: 'wg_mutate_response'
       },
       event : {
         watch : Events.watch,

@@ -24,7 +24,13 @@
   "display" : {
     "dismiss" : "Dismiss",
     "revert" : "Revert",
-    "revertDialogTitle" : "Select mutation to revert"
+    "revertDialogTitle" : "Select mutation to revert",
+    "inspectLabel": "Inspect",
+    "descriptionLabel": "Description",
+    "mutationRequestTitle": "{userName} is mutating {tokenName}",
+    "acceptLabel": "Accept",
+    "rejectLabel": "Reject",
+    "findTargetLabel": "Find Target"
   },
   "error" : {
     "noGM" : "There is no GM available for dismiss request.",
@@ -35,7 +41,8 @@
     "sheetNoToken": "Could not find token associated with this sheet.",
     "findActorFail": "Could not find world actor named {name}",
     "findProtoFail": "Could not find proto-token data for {name}",
-    "noOpenLocation": "Could not locate open locations near chosen spawn point. Spawning at chosen point instead."
+    "noOpenLocation": "Could not locate open locations near chosen spawn point. Spawning at chosen point instead.",
+    "noOwningUserMutate": "No owning user online. Mutation request cannot be fullfilled"
   }
 
 }

@@ -18,6 +18,7 @@
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
 import {Comms} from './comms.js'
+import {RemoteMutator} from './remote-mutator.js'
 
 const NAME = "Mutator";
 
@@ -126,6 +127,7 @@ export class Mutator {
     return inverted;
   }
 
+
   /* run the provided updates for the given embedded collection name from the owner */
   static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name'){
     
@@ -186,6 +188,7 @@ export class Mutator {
     return;
   }
 
+  
 
   /* 
    * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
@@ -195,7 +198,10 @@ export class Mutator {
    * @param {Object = {}} updates. As `warpgate.spawn`.
    *
    * @param {Object = {}} callbacks. Two provided callback locations: delta and post. Both are awaited.
-   *   delta {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
+   *   delta {Function(delta, tokenDoc)} Called after the update delta has been generated, but before
+   *    it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP 
+   *    are increased by 10, but when reverted, you want to keep the extra Current HP applied. 
+   *    Update the delta object with the desired HP to return to after revert, or remove it entirely.
    *     @param {Object} delta. Computed change of the actor based on `updates`.
    *     @param {TokenDocument} tokenDoc. Token being modified.
    *   post {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
@@ -203,47 +209,90 @@ export class Mutator {
    *     @param {Object} updates. See parent `updates` parameter.
    *
    * @param {Object = {}} options
-   *   comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
-   *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
-   *   name: {String = randomId()}. User provided name, or identifier, for this particular mutation operation. Used for 'named revert'.
+   *   comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for 
+   *    comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
+   *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to 
+   *    the actor, which does not store the update delta information required to revert mutation.
+   *   name: {String = randomId()}. User provided name, or identifier, for this particular mutation
+   *    operation. Used for 'named revert'.
+   *   description: {String = options.name}. User provided description (message) that will be displayed 
+   *    to the owning user when/if the mutation is requested.
+   *   delta: {Object = {}}. The final change to be applied. Overrides 
    *
    * @return {Promise<Object>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent).
    */
   static async mutate(tokenDoc, updates = {}, callbacks = {}, options = {}) {
     
-    /* if this is not a permanent mutation, create the delta and store it */
-    let mutateInfo = {}
+    /* providing a delta means you are managing the
+     * entire data change (including mutation stack changes).
+     * Typically used by remote requests */
+
+    /* create a default mutation info assuming we were provided
+     * with the final delta already or the change is permanent
+     */
+    let mutateInfo = Mutator._createMutateInfo( options.delta ?? {}, options );
+
+    /* ensure the options parameter has a name field if not provided */
+    options.name = mutateInfo.name;
 
     /* expand the object to handle property paths correctly */
     updates = expandObject(updates);
 
+    /* permanent changes are not tracked */
     if(!options.permanent) {
-      let delta = Mutator._createDelta(tokenDoc, updates);
 
-      /* allow user to modify delta if needed */
+      /* if we have the delta provided, trust it */
+      let delta = options.delta ?? Mutator._createDelta(tokenDoc, updates);
+
+      /* allow user to modify delta if needed (remote updates will never have callbacks) */
       if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
-      
+
+      /* update the mutation info with the final updates including mutate stack info */
       mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
+
+      options.delta = delta;
+    } 
+
+    if (tokenDoc.actor.isOwner) {
+
+      /* prepare the event data *before* the token is modified */
+      const actorData = Comms.packToken(tokenDoc);
+
+      await Mutator._update(tokenDoc, updates, options);
+
+      await warpgate.event.notify(warpgate.EVENT.MUTATE, {actorData, updates});
+
+      if(callbacks.post) await callbacks.post(tokenDoc, updates);
+
+    } else {
+      /* this is a remote mutation request, hand it over to that system */
+      await RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
     }
-  
-    /* prepare the event data *before* the token is modified */
-    const actorData = Comms.packToken(tokenDoc);
-
-    await Mutator._update(tokenDoc, updates, options);
-
-    await warpgate.event.notify(warpgate.EVENT.MUTATE, {actorData, updates});
-
-    if(callbacks.post) await callbacks.post(tokenDoc, updates);
 
     return mutateInfo;
   }
 
+  static _createMutateInfo( delta, options ) {
+    return {
+      delta,
+      user: game.user.id,
+      comparisonKeys: options.comparisonKeys ?? {},
+      name: options.name ?? randomID()
+    };
+  }
+
   static _mergeMutateDelta(actorDoc, delta, updates, options) {
 
+    /* Grab the current stack (or make a new one) */
     let mutateStack = actorDoc.getFlag(MODULE.data.name, 'mutate') ?? [];
-    const mutateInfo = {delta, user: game.user.id, comparisonKeys: options.comparisonKeys ?? {}, name: options.name ?? randomID()};
+
+    /* create the information needed to revert this mutation and push
+     * it onto the stack
+     */
+    const mutateInfo = Mutator._createMutateInfo( delta, options );
     mutateStack.push(mutateInfo);
 
+    /* Create a new mutation stack flag data and store it in the update object */
     const flags = {warpgate: {mutate: mutateStack}};
     updates.actor = mergeObject(updates.actor ?? {}, {flags});
     

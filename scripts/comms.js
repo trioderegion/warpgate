@@ -19,11 +19,13 @@ import { logger } from './logger.js'
 import { MODULE } from './module.js'
 import { Gateway } from './gateway.js' 
 import { Events } from './events.js'
-import {queueUpdate, flush} from './update-queue.js'
+import { RemoteMutator } from './remote-mutator.js'
+import {queueUpdate} from './update-queue.js'
 
 const ops = {
   DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId
-  EVENT : "event" //name, ...payload
+  EVENT : "event", //name, ...payload
+  REQUEST_MUTATE: "req-mutate" // ...payload
 }
 
 export class Comms {
@@ -55,6 +57,10 @@ export class Comms {
         case ops.EVENT:
           /* all users should respond to events */
           await Events.run(socketData.eventName, socketData.payload);
+          break;
+        case ops.REQUEST_MUTATE:
+          /* First owner of this target token/actor should respond */
+          await RemoteMutator.handleMutationRequest(socketData.payload);
           break;
         default:
           logger.error("Unrecognized socket request", socketData);
@@ -91,6 +97,32 @@ export class Comms {
     const data = {
       op : ops.EVENT,
       eventName: name,
+      payload
+    }
+
+    return Comms._emit(data);
+  }
+
+  /*
+   * payload = {updates, callbacks, options}
+   * @TODO callbacks are unhandled at this time
+   * @param options
+   *   * description - message to display to receiving user
+   */
+  static requestMutate(tokenId, sceneId, { updates = {}, options = {} } = {}, onBehalf = game.user.id ) {
+    
+    /* insert common fields */
+    const payload = {
+      userId: onBehalf,
+      tokenId,
+      sceneId,
+      updates,
+      options
+    }
+
+    /* craft the socket data */
+    const data = {
+      op: ops.REQUEST_MUTATE,
       payload
     }
 
