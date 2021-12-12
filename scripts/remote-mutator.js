@@ -25,7 +25,18 @@ const NAME = "RemoteMutator";
 export class RemoteMutator {
 
   static register() {
+    RemoteMutator.settings();
+  }
 
+  static settings() {
+    const config = true;
+    const settingsData = {
+      alwaysAccept: {
+        scope: 'client', config, default: false, type: Boolean
+      }
+    };
+
+    MODULE.applySettings(settingsData);
   }
 
   //responseData:
@@ -56,8 +67,12 @@ export class RemoteMutator {
         /* if accepted, run our post callback */
         if (responseData.accepted) {
           const tokenDoc = game.scenes.get(responseData.sceneId).getEmbeddedDocument('Token', responseData.tokenId);
-
+          const info = MODULE.format('display.mutationAccepted', {mName: options.name, tName: tokenDoc.name});
+          ui.notifications.info(info);
           await post(tokenDoc, responseData.updates);
+        } else {
+          const warn = MODULE.format('display.mutationRejected', {mName: options.name, tName: tokenDoc.name});
+          ui.notifications.warn(warn);
         }
 
         return;
@@ -93,7 +108,8 @@ export class RemoteMutator {
 
     if (MODULE.isFirstOwner(tokenDoc.actor)) {
 
-      const accepted = await RemoteMutator._queryRequest(tokenDoc, payload);
+      const alwaysAccept = MODULE.setting('alwaysAccept');
+      const accepted = alwaysAccept ? alwaysAccept : await RemoteMutator._queryRequest(tokenDoc, payload);
 
       let responseData = {
         sceneId: payload.sceneId,
@@ -108,6 +124,10 @@ export class RemoteMutator {
         /* first owner accepts mutation -- apply it */
         /* requests will never have callbacks */
         await Mutator.mutate(tokenDoc, payload.updates, {}, payload.options);
+        if (alwaysAccept) {
+          const message = MODULE.format('display.mutationRequestTitle', {userName: game.users.get(payload.userId).name, tokenName: tokenDoc.name});
+          ui.notifications.info(message);
+        }
       }
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE_RESPONSE, responseData);

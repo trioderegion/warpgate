@@ -19,6 +19,10 @@
     "updateDelay" : {
       "name" : "Update delay (ms)",
       "hint" : "Temporary workaround. Increase this value if you are encountering errors with duplicate placement. Lower this value for faster placement."
+    },
+    "alwaysAccept": {
+      "name": "Always accept mutation requests",
+      "hint": "If checked, request dialog will not be shown and blindly accepted."
     }
   },
   "display" : {
@@ -28,6 +32,8 @@
     "inspectLabel": "Inspect",
     "descriptionLabel": "Description",
     "mutationRequestTitle": "{userName} is mutating {tokenName}",
+    "mutationAccepted": "Mutation \"{mName}\" for {tName} has been accepted.",
+    "mutationRejected": "Mutation \"{mName}\" for {tName} has been rejected.",
     "acceptLabel": "Accept",
     "rejectLabel": "Reject",
     "findTargetLabel": "Find Target"

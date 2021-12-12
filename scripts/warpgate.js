@@ -26,6 +26,7 @@ import { logger } from './logger.js';
 import { api } from './api.js';
 import { Gateway } from './gateway.js';
 import { Mutator } from './mutator.js';
+import { RemoteMutator } from './remote-mutator.js'
 import { UserInterface } from './user-interface.js';
 import { Comms } from './comms.js';
 
@@ -35,6 +36,7 @@ const SUB_MODULES = {
   api,
   Gateway,
   Mutator,
+  RemoteMutator,
   UserInterface,
   Comms
 }
