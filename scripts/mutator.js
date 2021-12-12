@@ -18,6 +18,7 @@
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
 import {Comms} from './comms.js'
+import {RemoteMutator} from './remote-mutator.js'
 
 const NAME = "Mutator";
 
@@ -126,10 +127,6 @@ export class Mutator {
     return inverted;
   }
 
-  static _convertObjToHTML(obj) {
-    const stringified = JSON.stringify(obj, undefined, '$SPACING');
-    return stringified.replaceAll('\n', '<br>').replaceAll('$SPACING', '&nbsp;&nbsp;&nbsp;&nbsp;');
-  }
 
   /* run the provided updates for the given embedded collection name from the owner */
   static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name'){
@@ -191,51 +188,7 @@ export class Mutator {
     return;
   }
 
-  static async handleMutationRequest(payload) {
-    
-    /* First, are we the first player owner? If not, stop, they will handle it */
-    const tokenDoc = game.scenes.get(payload.sceneId).getEmbeddedDocument('Token', payload.tokenId);
-    if (MODULE.isFirstOwner(tokenDoc.actor) && (await Mutator._queryRequest(tokenDoc, payload))) {
-      /* first owner accepts mutation -- apply it */
-      /* requests will never have callbacks */
-      await Mutator.mutate(tokenDoc, payload.updates, {}, payload.options);
-    }
-  }
-
-  static async _queryRequest(tokenDoc, requestPayload) {
-
-    let displayUpdate = duplicate(requestPayload.updates);
-    if (displayUpdate.actor?.flags?.warpgate?.mutate) delete displayUpdate.actor.flags.warpgate.mutate;
-
-    const modeSwitch = {
-      description: {label: 'Inspect', value: 'inspect', content: `<p>${requestPayload.options.description}</p>`},
-      inspect: {label: 'Description', value: 'description', content: Mutator._convertObjToHTML(displayUpdate)}
-    }
-
-    const title = `${game.users.get(requestPayload.userId).name} is Mutating ${tokenDoc.name}`;
-
-    let userResponse = false;
-    let modeButton = modeSwitch.description;
-
-    do {
-      userResponse = await warpgate.buttonDialog({buttons: [{label: 'Find Target', value: 'select'}, {label: 'Accept', value: true}, {label: 'Reject', value: false}, modeButton], content: modeButton.content, title, options: {top: 100}});
-
-      if (userResponse === 'select') {
-        if (tokenDoc.object) {
-          tokenDoc.object.control({releaseOthers: true});
-          await canvas.animatePan({x: tokenDoc.data.x, y: tokenDoc.data.y});
-        }
-      } else if (userResponse !== false && userResponse !== true) {
-        /* swap modes and re-render */
-        modeButton = modeSwitch[userResponse];
-      }
-
-    } while (userResponse !== false && userResponse !== true)
-
-    return userResponse;
-
-  }
-
+  
 
   /* 
    * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
@@ -279,15 +232,13 @@ export class Mutator {
      */
     let mutateInfo = Mutator._createMutateInfo( options.delta ?? {}, options );
 
+    /* ensure the options parameter has a name field if not provided */
+    options.name = mutateInfo.name;
+
     /* expand the object to handle property paths correctly */
     updates = expandObject(updates);
 
-    // If a delta was not provided in options.delta, generate it
-    // (and the resulting mutate info) and store it in options
-    // THEN pack the token and start the update process and local callback
-    // if we are the owner.
-    // OTHERWISE register the post callback as a trigger for pending response
-    // and request the mutation from the owner.
+    /* permanent changes are not tracked */
     if(!options.permanent) {
 
       /* if we have the delta provided, trust it */
@@ -314,12 +265,8 @@ export class Mutator {
       if(callbacks.post) await callbacks.post(tokenDoc, updates);
 
     } else {
-      // @TODO check that the owning user is online (firstOwner)
-      // @TODO register event triggers to listen for pending response
-
-      /* broadcast the request to mutate the token */
-      Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
-
+      /* this is a remote mutation request, hand it over to that system */
+      await RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
     }
 
     return mutateInfo;

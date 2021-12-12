@@ -19,8 +19,8 @@ import { logger } from './logger.js'
 import { MODULE } from './module.js'
 import { Gateway } from './gateway.js' 
 import { Events } from './events.js'
-import { Mutator } from './mutator.js'
-import {queueUpdate, flush} from './update-queue.js'
+import { RemoteMutator } from './remote-mutator.js'
+import {queueUpdate} from './update-queue.js'
 
 const ops = {
   DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId
@@ -60,7 +60,7 @@ export class Comms {
           break;
         case ops.REQUEST_MUTATE:
           /* First owner of this target token/actor should respond */
-          await Mutator.handleMutationRequest(socketData.payload);
+          await RemoteMutator.handleMutationRequest(socketData.payload);
           break;
         default:
           logger.error("Unrecognized socket request", socketData);

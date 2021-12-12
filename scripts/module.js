@@ -44,7 +44,7 @@ export class MODULE{
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
 
-    const playerOwners = Object.entries(doc.data.permission)
+    const playerOwners = Object.entries(doc.data.permission ?? {})
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
       .map(([id, level])=> id);
 
