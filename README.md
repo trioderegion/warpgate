@@ -221,6 +221,7 @@ This object controls how the crosshairs will be displayed and decorated. Each fi
 * `texture` {String = null} Asset path of the texture to draw inside the crosshairs border.
 * `tileTexture` {Boolean = false} Indicates if the texture is tileable and does not need specific offset/scaling to be drawn correctly. By default, the chosen texture will be position and scaled such that the center of the texture image resides at the center of the crosshairs template.
 * `lockSize` {Boolean = true} Controls the ability of the user to scale the size of the crosshairs using shift+scroll. When locked, shift+scroll acts as a "coarse rotation" step for rotating the center icon.
+* `lockPosition` {Boolean = false} Prevents updating the position of the crosshair based on mouse movement. Typically used in combination with the `show` callback to lock position conditionally.
 
 ## Crosshairs Callback Functions
 

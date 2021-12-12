@@ -39,7 +39,7 @@ export class Crosshairs extends MeasuredTemplate {
     /** @TODO all of these fields should be part of the source data schema for this class **/
 
     /* image path to display in the center (under mouse cursor) */
-    this.icon = config.icon;
+    this.icon = config.icon ?? Crosshairs.ERROR_TEXTURE;
 
     /* text to display below crosshairs' circle */
     this.label = config.label;
@@ -68,6 +68,9 @@ export class Crosshairs extends MeasuredTemplate {
 
     /* locks the size of crosshairs (shift+scroll) */
     this.lockSize = config.lockSize;
+
+    /* locks the position of crosshairs */
+    this.lockPosition = config.lockPosition;
 
     /* Number of quantization steps along
      * a square's edge (N+1 snap points 
@@ -98,6 +101,8 @@ export class Crosshairs extends MeasuredTemplate {
     /* current radius in pixels */
     this.radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
   }
+
+  static ERROR_TEXTURE = 'icons/svg/hazard.svg'
 
   static getTag(key) {
     return canvas.templates.preview.children.find( child => child.tag === key )
@@ -339,8 +344,16 @@ export class Crosshairs extends MeasuredTemplate {
 
   _mouseMoveHandler(event){
     event.stopPropagation();
-    let now = Date.now(); // Apply a 20ms throttle
+
+    // WARPGATE BEGIN
+    /* if our position is locked, do not update it */
+    if (this.lockPosition) return;
+    // WARPGATE END
+    
+    // Apply a 20ms throttle
+    let now = Date.now(); 
     if ( now - this.moveTime <= 20 ) return;
+
     const center = event.data.getLocalPosition(this.layer);
     const {x,y} = Crosshairs._getSnappedPosition(center, this.interval);
     this.data.update({x, y});
@@ -361,8 +374,10 @@ export class Crosshairs extends MeasuredTemplate {
 
   // Rotate the template by 3 degree increments (mouse-wheel)
   _mouseWheelHandler(event) {
+
     if ( event.ctrlKey ) event.preventDefault(); // Avoid zooming the browser window
     event.stopPropagation();
+
     let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
     let snap = event.shiftKey ? delta : 5;
     //BEGIN WARPGATE
