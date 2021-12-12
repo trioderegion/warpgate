@@ -63,6 +63,7 @@ export class Gateway {
           tileTexture: false,
           lockSize: true,
           lockPosition: false,
+          rememberControlled: false,
 
           //Measured template defaults
           texture: null,
@@ -92,6 +93,12 @@ export class Gateway {
    */ 
   static async showCrosshairs(config = {}, callbacks = {}) {
 
+    /* store currently controlled tokens */
+    let controlled = [];
+    if (config.rememberControlled) {
+      controlled = canvas.tokens.controlled; 
+    }
+
     let mergedConfig = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
 
     /* if a specific initial location is not provided, grab the current mouse location */
@@ -113,6 +120,13 @@ export class Gateway {
 
     /* mirror the input variables for the output as well */
     dataObj.size = dataObj.width
+
+    /* if we have stored any controlled tokens,
+     * restore that control now
+     */
+    for( const token of controlled ){
+      token.control({releaseOthers: false});
+    }
 
     return dataObj;
   }
