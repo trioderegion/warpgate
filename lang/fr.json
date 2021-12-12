@@ -18,11 +18,12 @@
     },
     "updateDelay" : {
        "name" : "Délai de mise à jour (ms)",
-       "hint" : « Solution temporaire. Augmentez cette valeur si vous rencontrez des erreurs avec le placement en double. Réduisez cette valeur pour un placement plus rapide. »     }
+       "hint" : "Solution temporaire. Augmentez cette valeur si vous rencontrez des erreurs avec le placement en double. Réduisez cette valeur pour un placement plus rapide."
+    }
   },
   "display" : {
     "dismiss" : "Rejeter",
-    "revert" : "Rétablir,
+    "revert" : "Rétablir",
     "revertDialogTitle" : "Sélectionnez la mutation à rétablir"
   },
   "error" : {
