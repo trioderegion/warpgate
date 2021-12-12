@@ -66,10 +66,10 @@ The primary function of Warp Gate. When executed, it will create a custom Measur
  * callbacks {Object} Callback functions (optional). See [Spawn Callback Functions](#spawn-callback-functions) and [Crosshairs Callback Functions](#crosshairs-callback-functions).
  * options {Object} Options (optional) 
  	- `controllingActor` {Actor} will minimize this actor's open sheet (if any) for a clearer view of the canvas during placement. Also flags the created token with this actor's id. Default `null`.
-  - `duplcates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
-  - `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
-  - `comparisonKeys` {Object}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
-  - `crosshairs` {Object}. A crosshairs configuration object to be used for this spawning process
+  	- `duplicates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
+  	- `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
+  	- `comparisonKeys` {Object}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
+  	- `crosshairs` {Object}. A crosshairs configuration object to be used for this spawning process
 
 `return value` {Array<Strings>} IDs of all created tokens
 
@@ -253,6 +253,7 @@ Signature: `async warpgate.buttonDialog(data, direction = 'row')`
 
 Helper function for quickly creating a simple dialog with labeled buttons and associated data. Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
 * `data` {Objects}: Standard dialog keys apart from the contents of `data.buttons`, which is an array of objects containing two keys `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `{buttons: [{label: 'First Choice', value: {token: {name: 'First'}}}, {label: 'Second Choice', value: {token: {name: 'Second'}}}]}`
+	- `data.options` will be forwarded to the Dialog constructor as part of its `options` argument.
 * `direction` {String} (optional): `'column'` or `'row'` accepted. Controls layout direction of dialog.
 
 ### dialog
@@ -358,6 +359,7 @@ The following table describes the stock events that occur within warpgate. All e
 | DISMISS | {actorData} | After any token is dismissed via `warpgate.dismiss` | see **actorData**, below |
 | MUTATE | {actorData, updates} | After a token has been mutated, but before the initiating client has run its post mutate callback | see **actorData**, below. |
 | REVERT | {actorData, updates} | After a token has been fully reverted to its previous state | updates are the changes that are applied to the provided actorData (see below) to produce the final reverted state. |
+| MUTATE_RESPONSE | {tokenId, mutationId, accepted, updates} | After a mutation has been accepted and applied or rejected by the owning user  | `mutationId` is the name provided in `options.name` OR a randomly assigned ID if not provided. Callback functions provided for remote mutations will be internally converted to triggers for this event and do not need to be registered manually by the user. `accepted` is a bool field that indicates if the remote user accepted the mutation. |
 
 #### actorData
 This object is a customized version of `Actor#toObject` with the following change:
