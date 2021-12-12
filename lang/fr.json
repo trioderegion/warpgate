@@ -24,7 +24,13 @@
   "display" : {
     "dismiss" : "Rejeter",
     "revert" : "Rétablir",
-    "revertDialogTitle" : "Sélectionnez la mutation à rétablir"
+    "revertDialogTitle" : "Sélectionnez la mutation à rétablir",
+    "inspectLabel": "Inspect",
+    "descriptionLabel": "Description",
+    "mutationRequestTitle": "{userName} is mutating {tokenName}",
+    "acceptLabel": "Accept",
+    "rejectLabel": "Reject",
+    "findTargetLabel": "Find Target"
   },
   "error" : {
     "noGM" : "Il n'y a pas de MJ disponible pour une demande de rejet.",
@@ -35,7 +41,8 @@
     "sheetNoToken": "Impossible de trouver le jeton associé à cette feuille.",
     "findActorFail": "Impossible de trouver l'acteur sur ce monde nommé {name}",
     "findProtoFail": "Impossible de trouver les données de proto-jeton pour {name}",
-    "noOpenLocation": "Impossible de localiser les emplacements ouverts à proximité du point d'apparition choisi. Reproduire au point choisi à la place." 
+    "noOpenLocation": "Impossible de localiser les emplacements ouverts à proximité du point d'apparition choisi. Reproduire au point choisi à la place.",
+    "noOwningUserMutate": "No owning user online. Mutation request cannot be fullfilled"
   }
 
 }

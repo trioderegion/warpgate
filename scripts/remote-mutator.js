@@ -73,7 +73,7 @@ export class RemoteMutator {
   static remoteMutate( tokenDoc, {updates, callbacks = {}, options} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {
-      logger.error("No owning user online. Mutation request cannot be fullfilled.");
+      logger.error(MODULE.localize('error.noOwningUserMutate'));
       return false;
     }
 
@@ -120,17 +120,17 @@ export class RemoteMutator {
     if (displayUpdate.actor?.flags?.warpgate?.mutate) delete displayUpdate.actor.flags.warpgate.mutate;
 
     const modeSwitch = {
-      description: {label: 'Inspect', value: 'inspect', content: `<p>${requestPayload.options.description}</p>`},
-      inspect: {label: 'Description', value: 'description', content: RemoteMutator._convertObjToHTML(displayUpdate)}
+      description: {label: MODULE.localize('display.inspectLabel'), value: 'inspect', content: `<p>${requestPayload.options.description}</p>`},
+      inspect: {label: MODULE.localize('display.descriptionLabel'), value: 'description', content: RemoteMutator._convertObjToHTML(displayUpdate)}
     }
 
-    const title = `${game.users.get(requestPayload.userId).name} is Mutating ${tokenDoc.name}`;
+    const title = MODULE.format('display.mutationRequestTitle', {userName: game.users.get(requestPayload.userId).name, tokenName: tokenDoc.name});
 
     let userResponse = false;
     let modeButton = modeSwitch.description;
 
     do {
-      userResponse = await warpgate.buttonDialog({buttons: [{label: 'Find Target', value: 'select'}, {label: 'Accept', value: true}, {label: 'Reject', value: false}, modeButton], content: modeButton.content, title, options: {top: 100}});
+      userResponse = await warpgate.buttonDialog({buttons: [{label: MODULE.localize('display.findTargetLabel'), value: 'select'}, {label: MODULE.localize('display.acceptLabel'), value: true}, {label: MODULE.localize('display.rejectLabel'), value: false}, modeButton], content: modeButton.content, title, options: {top: 100}});
 
       if (userResponse === 'select') {
         if (tokenDoc.object) {
