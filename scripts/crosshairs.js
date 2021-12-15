@@ -164,7 +164,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.refresh();
     //BEGIN WARPGATE
     this._setRulerText();
-    this.highlightGrid();
+    //this.highlightGrid();
     //END WARPGATE
 
     // Enable interactivity, only if the Tile has a true ID
