@@ -422,6 +422,9 @@ export class Crosshairs extends MeasuredTemplate {
     if ( this.actorSheet ) this.actorSheet.maximize();
     this.activeHandlers = false;
     this.inFlight = false;
+
+    /* mark this pixi element as destroyed */
+    this._destroyed = true;
     //END WARPGATE
   }
 
