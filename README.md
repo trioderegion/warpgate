@@ -80,7 +80,12 @@ Signature: `async warpgate.spawnAt(location, tokenData, updates, callbacks, opti
 An alternate, more module friendly spawning function. Will create a token from the provided token data and updates at the designated location. 
 * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
 * `tokenData` {TokenData} the base token data from which to spawn a new token and apply updates to it.
-* `updates`, `callsbacks`, `options`, and `return value`: See [`warpgate.spawn`](#spawn).
+* `updates`, `callbacks`, `options`, and `return value`: See [`warpgate.spawn`](#spawn).
+	
+Alternate Signature: `async warpgate.spawnAt(location, actorName, updates, callbacks, options)`
+
+As above, except taking an actor name. This will create the token data and apply the updates to it for spawning.
+* `actorName` {String}: Name of actor in the world to spawn at given location.
 
 ## Spawn Callback Functions
 
