@@ -102,9 +102,22 @@ export class api {
    */
   static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
 
-    let protoData = await MODULE.getTokenData(spawnName, updates.token ?? {});
+    /* create permissions for this user */
+    const actorData = {
+      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+    }
+
+    // TODO dont like this logic
+    if(updates.token) {
+      mergeObject(updates.token, {actorData})
+    } else {
+      updates.token = {actorData}
+    }
+
+    let protoData = await MODULE.getTokenData(spawnName, updates.token);
 
     if (!protoData) return;
+
     
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
@@ -194,10 +207,10 @@ export class api {
       updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags});
 
       /* ensure creator owns this token */
-      let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
-      permissions.permission[game.user.id] = 3;
+      //let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
+      //permissions.permission[game.user.id] = 3;
 
-      updates.actor = mergeObject(updates.actor ?? {}, permissions);
+      //updates.actor = mergeObject(updates.actor ?? {}, permissions);
 
       await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
       
