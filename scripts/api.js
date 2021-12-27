@@ -23,6 +23,7 @@ import { Comms } from './comms.js'
 import { Events } from './events.js'
 import { queueUpdate } from './update-queue.js'
 import { Crosshairs } from './crosshairs.js'
+import { MutationStack } from './mutation-stack.js'
 
 export class api {
 
@@ -41,6 +42,7 @@ export class api {
       dismiss : Gateway.dismissSpawn,
       mutate : Mutator.mutate,
       revert : Mutator.revertMutation,
+      mutationStack : (actorDoc) => new MutationStack(actorDoc),
       wait : MODULE.wait,
       dialog : MODULE.dialog,
       buttonDialog : MODULE.buttonDialog,
@@ -74,6 +76,7 @@ export class api {
       },
       abstract : {
         Crosshairs,
+        MutationStack
       }
     }
   }

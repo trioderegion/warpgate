@@ -41,6 +41,20 @@ export class UserInterface {
       },
       showRevertLabel : {
         scope: "client", config, default: true, type: Boolean,
+      },
+      dismissButtonScope : {
+        scope: "client", config, default: 'spawned', type: String, choices: {
+          disabled: MODULE.localize('setting.option.disabled'),
+          spawned: MODULE.localize('setting.option.spawnedOwnly'),
+          all: MODULE.localize('setting.option.all')
+        }
+      },
+      revertButtonBehavior : {
+        scope: 'client', config, default: 'last', type: String, choices: {
+          disabled: MODULE.localize('setting.option.disabled'),
+          pop: MODULE.localize('setting.option.popLatestMutation'),
+          menu: MODULE.localize('setting.option.showMutationList')
+        }
       }
     };
 
@@ -56,17 +70,31 @@ export class UserInterface {
     UserInterface.addRevertMutation(app, html, data);
   }
 
+  static _shouldAddDismiss(token) {
+
+    switch (MODULE.setting('dismissButtonScope')){
+      case 'disabled':
+        return false;
+      case 'spawned':
+        
+        const controlData = token?.actor.getFlag(MODULE.data.name, 'control');
+
+        /** do not add the button if we are not the controlling actor AND we arent the GM */
+        if ( !(controlData?.user === game.user.id) &&
+          !game.user.isGM) return false;
+
+        return !!controlData;
+      case 'all':
+        return true;
+    }
+
+  }
+
   static addDismissButton(app, html, data) {
     const token = data.options.token;
 
-    const controlData = token?.actor.getFlag(MODULE.data.name, 'control');
-
     /** this is not a warpgate spawned actor */
-    if (!controlData) return;
-
-    /** do not add the button if we are not the controlling actor AND we arent the GM */
-    if ( !(controlData.user === game.user.id) &&
-          !game.user.isGM) return;
+    if (!UserInterface._shouldAddDismiss(token)) return;
 
     /* do not add duplicate buttons! */
     if(html.closest('.app').find('.dismiss-warpgate').length !== 0) {
@@ -94,6 +122,23 @@ export class UserInterface {
 
   }
 
+  static _shouldAddRevert(token) {
+
+    const mutateStack = token?.actor?.getFlag(MODULE.data.name, 'mutate');
+
+    /* this is not a warpgate mutated actor,
+     * or there are no remaining stacks to peel */
+    if (!mutateStack || mutateStack.length == 0) return false;
+
+    /** do not add the button if we are not the user who mutated last AND we arent the GM */
+    const mutateData = mutateStack[mutateStack.length-1];
+    if ( !(mutateData.user === game.user.id) &&
+          !game.user.isGM) return false;
+
+    return MODULE.setting('revertButtonBehavior') !== 'disabled';
+
+  }
+
   static addRevertMutation(app, html, data) {
 
     /* do not add duplicate buttons! */
@@ -110,16 +155,9 @@ export class UserInterface {
 
     const token = data.options.token;
 
+    if(!UserInterface._shouldAddRevert(token)) return;
+
     const mutateStack = token?.actor?.getFlag(MODULE.data.name, 'mutate');
-
-    /* this is not a warpgate mutated actor,
-     * or there are no remaining stacks to peel */
-    if (!mutateStack || mutateStack.length == 0) return;
-
-    /** do not add the button if we are not the user who mutated last AND we arent the GM */
-    const mutateData = mutateStack[mutateStack.length-1];
-    if ( !(mutateData.user === game.user.id) &&
-          !game.user.isGM) return;
 
     /* construct the revert button */
     const label = MODULE.setting('showRevertLabel') ? MODULE.localize("display.revert") : ""
@@ -132,12 +170,19 @@ export class UserInterface {
         return;
       }
 
-      let name = undefined;
+      const shouldShow = (shiftKey) => {
+        const mode = MODULE.setting('revertButtonBehavior')
+        const show = mode == 'menu' ? !shiftKey : shiftKey;
+        return show;
+      }
 
-      if (event.shiftKey) {
+      let name = undefined;
+      const showMenu = shouldShow(event.shiftKey);
+
+      if (showMenu) {
         const buttons = mutateStack.map( mutation => {return {label: mutation.name, value: mutation.name}} )
         name = await warpgate.buttonDialog({buttons, title: MODULE.localize('display.revertDialogTitle')}, 'column');
-        if (name === true) return;
+        if (name === false) return;
       }
 
       /* need to queue this since 'click' could
