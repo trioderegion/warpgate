@@ -42,7 +42,7 @@ export class api {
       dismiss : Gateway.dismissSpawn,
       mutate : Mutator.mutate,
       revert : Mutator.revertMutation,
-      mutationStack : (actorDoc) => new MutationStack(actorDoc),
+      mutationStack : (tokenDoc) => new MutationStack(tokenDoc),
       wait : MODULE.wait,
       dialog : MODULE.dialog,
       buttonDialog : MODULE.buttonDialog,
