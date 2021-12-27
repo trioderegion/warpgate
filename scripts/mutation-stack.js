@@ -90,7 +90,7 @@ export class MutationStack {
   }
 
   async commit() {
-    this._token.actor.update({flags: {[MODULE.data.name] : {'mutate': this._stack } } } );
+    await this._token.actor.update({flags: {[MODULE.data.name] : {'mutate': this._stack } } } );
   } 
 
 }
