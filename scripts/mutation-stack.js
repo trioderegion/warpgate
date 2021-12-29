@@ -21,9 +21,6 @@ import {
 import {
   MODULE
 } from './module.js'
-import {
-  RemoteMutator
-} from './remote-mutator.js'
 
 /*** MUTATION DATA STRUCTURE ****/
 //  delta, (i.e. update object needed to revert this mutation)
@@ -89,16 +86,19 @@ export class MutationStack {
    * Updates the mutation matching the provided name with the provided mutation info.
    * The mutation info can be a subset of the full object iff overwrite is false.
    *
-   * @param {*} originalName
-   * @param {*} mutationInfo
-   * @param {*} {overwrite = false}
-   * @return {*} 
+   * @param {*} name name of mutation to update
+   * @param {*} mutationInfo new information, can include 'name'.
+   * @param {*} options {overwrite = false} default will merge the provided info
+   *            with the current values. True will replace the entire entry and requires
+   *            at least the 'name' field.
+   *  
+   * @return {MutationStack} self, unlocked for writing and updates staged.
    * @memberof MutationStack
    */
-  update(originalName, mutationInfo, {
+  update(name, mutationInfo, {
     overwrite = false
   }) {
-    const index = this._stack.findIndex((element) => element.name === originalName);
+    const index = this._stack.findIndex((element) => element.name === name);
 
     if (index < 0) {
       return false;
@@ -114,8 +114,13 @@ export class MutationStack {
         return this;
       }
 
+      /* if no user is provided, input current user. */
+      if (!mutationInfo.user) mutationInfo.user = game.user.id;
+
       this._stack[index] = mutationInfo;
+
     } else {
+
       /* incomplete mutations are fine with merging */
       mergeObject(this._stack[index], mutationInfo);
     }
@@ -123,6 +128,16 @@ export class MutationStack {
     return this;
   }
 
+  /**
+   * Applies a given change or tranform function to the current buffer,
+   * unlocking if needed.
+   *
+   * @param {Object|Function} transform Object to merge or function to generate an object to merge.
+   * @param {Function} filterFn [() => true] Optional function returning a boolean indicating if this
+   *                   element should be modified. By default, affects all elements of the mutation stack.
+   * @return {MutationStack} self, unlocked for writing and updates staged.
+   * @memberof MutationStack
+   */
   updateAll(transform, filterFn = () => true) {
 
     const innerUpdate = (transform) => {
@@ -146,6 +161,15 @@ export class MutationStack {
     return this;
   }
 
+  /**
+   * Deletes all mutations from this actor's stack, effectively making
+   * the current changes permanent.
+   *
+   * @param {Function} filterFn [() => true] Optional function returning a boolean indicating if this
+   *                   element should be delete. By default, deletes all elements of the mutation stack.
+   * @return {MutationStack} self, unlocked for writing and updates staged.
+   * @memberof MutationStack
+   */
   deleteAll(filterFn = () => true) {
     this._unlock();
 
@@ -154,8 +178,17 @@ export class MutationStack {
     return this;
   }
 
+  /**
+   * Updates the owning actor with the mutation stack changes made. Will not commit a locked buffer.
+   *
+   * @return {MutationStack} self, locked for writing
+   * @memberof MutationStack
+   */
   async commit() {
-    this._unlock();
+
+    if(this._locked) {
+      logger.error('Mutation stack has no changes or is locked for writing. Cannot commit changes to the stack.')
+    }
 
     await this._token.actor.update({
       flags: {
@@ -164,13 +197,23 @@ export class MutationStack {
         }
       }
     });
+
+    /* return to a locked read-only state */
     this._locked = true;
     this._stack = null;
+
+    return this;
   }
 
+  /**
+   * Unlocks the current buffer for writing by copying the mutation stack into this object.
+   *
+   * @return {Boolean} Indicates if the unlock occured. False indicates the buffer was already unlocked.
+   * @memberof MutationStack
+   */
   _unlock() {
 
-    if (this._stack) {
+    if (!this._locked) {
       return false;
     }
 
