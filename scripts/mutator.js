@@ -99,7 +99,7 @@ export class Mutator {
       /* this is a delete */
       if (updates[key] === warpgate.CONST.DELETE) {
         /* find this item currently and copy off its data */ 
-        const currentData = collection.find( element => getProperty(element, comparisonKey) === key );
+        const currentData = collection.find( element => getProperty(element.data, comparisonKey) === key );
         /* hopefully we found something */
         if(currentData)
           setProperty(inverted, key, currentData.toObject());
@@ -107,7 +107,7 @@ export class Mutator {
       }
 
       /* this is an update */
-      const foundItem = collection.find( element => getProperty(element, comparisonKey) === key)
+      const foundItem = collection.find( element => getProperty(element.data, comparisonKey) === key)
       if (foundItem){
         /* grab the current value of any updated fields and store */
         const expandedUpdate = expandObject(updates[key]);
@@ -242,7 +242,7 @@ export class Mutator {
     if(!options.permanent) {
 
       /* if we have the delta provided, trust it */
-      let delta = options.delta ?? Mutator._createDelta(tokenDoc, updates);
+      let delta = options.delta ?? Mutator._createDelta(tokenDoc, updates, options);
 
       /* allow user to modify delta if needed (remote updates will never have callbacks) */
       if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
@@ -392,7 +392,7 @@ export class Mutator {
    * parse the changes that need to be applied to *reverse*
    * the mutate operation
    */
-  static _createDelta(tokenDoc, updates) {
+  static _createDelta(tokenDoc, updates, options) {
 
     /* get token changes */
     let tokenData = tokenDoc.data.toObject()
@@ -410,7 +410,7 @@ export class Mutator {
       
       for( const embeddedName of Object.keys(updates.embedded) ) {
         const collection = tokenDoc.actor.getEmbeddedCollection(embeddedName);
-        const invertedShorthand = Mutator._invertShorthand(collection, updates.embedded[embeddedName], updates.embedded[embeddedName].comparisonKey ?? 'name');
+        const invertedShorthand = Mutator._invertShorthand(collection, updates.embedded[embeddedName], getProperty(options.comparisonKeys, embeddedName) ?? 'name');
         embeddedDelta[embeddedName] = invertedShorthand;
       }
     }
