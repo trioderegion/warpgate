@@ -204,13 +204,28 @@ export class MODULE{
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${label}" name="${options instanceof Array ? options[0] : options}"/></td></tr>`;
         } else {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/></td></tr>`;
-        }
-      }).join(``)}
-    </table>`;
+          }
+          }).join(``)
+          } <
+          /table>`;
 
-      new Dialog({
-        title, content,
-        buttons: {
+          let buttons = {},
+            dialog;
+
+          data.buttons.forEach((button) => {
+            buttons[button.label] = {
+              label: button.label,
+              callback: () => resolve(button.value)
+            }
+          });
+
+          if()
+
+          new Dialog({
+                title,
+                content,
+                close: () => resolve(false),
+                buttons: {
           Ok: {
             label: submitLabel, callback: (html) => {
               resolve(Array(data.length).fill().map((e, i) => {
