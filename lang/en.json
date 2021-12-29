@@ -23,6 +23,15 @@
     "alwaysAccept": {
       "name": "Always accept mutation requests",
       "hint": "If checked, request dialog will not be shown and blindly accepted."
+    },
+    "dismissButtonScope": {
+      "name": "Dismiss button scope",
+      "hint": "Determines when the dismiss button is added to actor sheets."
+    },
+    "option": {
+      "disabled": "Disabled",
+      "spawnedOnly": "Spawned tokens only",
+      "all": "All owned tokens"
     }
   },
   "display" : {
@@ -39,7 +48,7 @@
     "findTargetLabel": "Find Target"
   },
   "error" : {
-    "noGM" : "There is no GM available for dismiss request.",
+    "noGm" : "There is no GM available for dismiss request.",
     "unownedDelete" : "Cannot delete unowned token.",
     "createItem": "Creating Item",
     "updateItem": "Updating Item",
