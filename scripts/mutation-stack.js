@@ -110,7 +110,7 @@ export class MutationStack {
 
       /* we need at LEAST a name to identify by */
       if (!!mutationInfo.name) {
-        logger.error(MODULE.localize('IncompleteMutationInfo'));
+        logger.error(MODULE.localize('error.incompleteMutateInfo'));
         return this;
       }
 
@@ -187,7 +187,7 @@ export class MutationStack {
   async commit() {
 
     if(this._locked) {
-      logger.error('Mutation stack has no changes or is locked for writing. Cannot commit changes to the stack.')
+      logger.error(MODULE.localize('error.stackLockedOrEmpty'))
     }
 
     await this._token.actor.update({

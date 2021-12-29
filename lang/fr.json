@@ -23,7 +23,23 @@
     "alwaysAccept": {
       "name": "Always accept mutation requests",
       "hint": "If checked, request dialog will not be shown and blindly accepted."
+    },
+    "dismissButtonScope": {
+      "name": "Dismiss button scope",
+      "hint": "Determines when the dismiss button is added to actor sheets."
+    },
+    "option": {
+      "disabled": "Disabled",
+      "spawnedOnly": "Spawned tokens only",
+      "all": "All owned tokens"
     }
+  },
+  "debug": {
+    "dismissPresent": "Dismiss button already present. Not adding duplicate.",
+    "finalRevertUpdate": "Final revert update:",
+    "tokenDelta": "Token Delta",
+    "actorDelta": "Actor Delta",
+    "embeddedDelta": "Embedded Delta"
   },
   "display" : {
     "dismiss" : "Rejeter",
@@ -39,7 +55,7 @@
     "findTargetLabel": "Find Target"
   },
   "error" : {
-    "noGM" : "Il n'y a pas de MJ disponible pour une demande de rejet.",
+    "noGm" : "Il n'y a pas de MJ disponible pour une demande de rejet.",
     "unownedDelete": "Impossible de supprimer le jeton sans propriétaire.",
     "createItem": "Création d'un élément",
     "updateItem": "Mise à jour de l'élément",
@@ -48,7 +64,9 @@
     "findActorFail": "Impossible de trouver l'acteur sur ce monde nommé {name}",
     "findProtoFail": "Impossible de trouver les données de proto-jeton pour {name}",
     "noOpenLocation": "Impossible de localiser les emplacements ouverts à proximité du point d'apparition choisi. Reproduire au point choisi à la place.",
-    "noOwningUserMutate": "No owning user online. Mutation request cannot be fullfilled"
+    "noOwningUserMutate": "No owning user online. Mutation request cannot be fullfilled",
+    "incompleteMutateInfo": "Overwrite mode used for stack update, but no 'name' field provided.",
+    "stackLockedOrEmpty": "Mutation stack has no changes or is locked for writing. Cannot commit changes to the stack."
   }
 
 }

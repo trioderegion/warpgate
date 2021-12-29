@@ -98,7 +98,7 @@ export class UserInterface {
 
     /* do not add duplicate buttons! */
     if(html.closest('.app').find('.dismiss-warpgate').length !== 0) {
-      logger.debug('Dismiss button already present');  
+      logger.debug(MODULE.localize('debug.dismissPresent'));  
       return;
     }
 

@@ -384,7 +384,7 @@ export class Mutator {
     } else {
       await actor.setFlag(MODULE.data.name, 'mutate', mutateStack);
     }
-    logger.debug('Final revert update:', mutateData);
+    logger.debug(MODULE.localize('debug.finalRevertUpdate'), mutateData);
     return mutateData;
   }
 
@@ -415,7 +415,7 @@ export class Mutator {
       }
     }
 
-    logger.debug('Token Delta', tokenDelta, 'Actor Delta', actorDelta, 'Embedded Delta', embeddedDelta);
+    logger.debug(MODULE.localize('debug.tokenDelta'), tokenDelta, MODULE.localize('debug.actorDelta'), actorDelta, MODULE.localize('debug.embeddedDelta'), embeddedDelta);
 
     return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta}
   }
