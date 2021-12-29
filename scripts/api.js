@@ -43,9 +43,12 @@ export class api {
       mutate : Mutator.mutate,
       revert : Mutator.revertMutation,
       mutationStack : (tokenDoc) => new MutationStack(tokenDoc),
+      // TODO move these utilities to separate file
       wait : MODULE.wait,
       dialog : MODULE.dialog,
+      menu: MODULE.menu,
       buttonDialog : MODULE.buttonDialog,
+      // \MOVE
       crosshairs: {
         show: Gateway.showCrosshairs,
         getTag: Crosshairs.getTag,
