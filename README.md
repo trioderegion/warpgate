@@ -28,6 +28,8 @@ Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpga
 - [Mutation Callback Functions](#mutation-callback-functions)
   - [delta](#delta)
   - [post](#post)
+- [Mutation Stack Utility](#mutation-stack-utility)
+- [MutationStack Class Methods](#mutationstack-class-methods)
 - [Crosshairs Commands](#crosshairs-commands)
   - [show](#show)
   - [getTag](#gettag)
@@ -172,6 +174,61 @@ Called after the actor has been mutated and after the mutate event has triggered
 
  * `return value` {Promise}
 
+## Mutation Stack Utility
+
+The following set of utilities allow safer and more direct modification of the mutation stack, which is stored on a token's actor. This mutation stack stores the information needed to _revert_ the changes made by a mutation. This could be used, for example, to deal with rollover damage where the hit point value being reverted to is lower than when the mutation was first applied.
+
+Searching and querying a given mutation is a quick, read-only process. When the mutation stack is modified via one of its class methods, the actor's mutation data at that point in time will be copied for fast, local updates.
+
+No changes will be made to the actor's mutation stack until the changes have been commited. The MutationStack object will then be locked back into a read-only state.
+
+Signature: `warpgate.mutationStack(tokenDoc)`
+
+Generates a new MutationStack instance. See [Mutation Class Methods](#mutation-class-methods) for more information.
+* `tokenDoc` {TokenDocument} Reads the mutation stack information from this token
+
+`return value` {MutationStack} Locked instance of a token actor's mutation stack.
+
+### MutationStack Class Methods
+
+`find(predicate)`: Searches for an element of the mutation stack that satisfies the provided predicate.
+
+* `predicate` {Function(Object)} For a given element of the stack returns a boolean indicating a match
+
+- `return value` {Object} Element of the mutation stack that matches the predicate, or undefined if none.
+
+`getName(name)`: Retrieves an element of the mutation stack that matches the provided name
+   
+* `name` {String} Name of mutation (serves as a unique identifier)
+
+* `return value` {Object} Element of the mutation stack matching the provided name, or undefined if none
+
+`last()`: Retrieves that last mutation added to the mutation stack, or undefined if none present
+
+* `return value` {Object} Newest element of the mutation stack
+
+`update(name, mutationInfo, options)`: Updates the mutation matching the provided name with the provided mutation info. The mutation info can be a subset of the full object iff overwrite is false.
+
+- `name` {String} Name of mutation to update
+- `mutationInfo` {Object} New information, can include 'name'.
+- `options` {Object} 
+   * `{overwrite = false}` Overwrite will replace the entire entry with the provided mutationInfo and requires at least the `name` field. False will merge the provided info instead of replace.
+- `return value` {MutationStack} self, unlocked for writing and updates staged.
+
+`updateAll(transform, filterFn = () => true)`: Applies a given change or tranform function to the current buffer, unlocking if needed.
+   
+- `transform` {Object|Function} Object to merge or function to generate an object to merge.
+- `filterFn` {Function} Optional function returning a boolean indicating if this element should be modified. By default, affects all elements of the mutation stack.
+- `return value` {MutationStack} self, unlocked for writing and updates staged.
+
+`deleteAll(filterFn = () => true)`: Deletes all mutations from this actor's stack, effectively making the current changes permanent.
+   *
+- `filterFn` {Function} Optional function returning a boolean indicating if this element should be delete. By default, deletes all elements of the mutation stack.
+- `return value` {MutationStack} self, unlocked for writing and updates staged.
+
+`async commit()`: Updates the owning actor with the mutation stack changes made and returns this object to a read-only state. Will not commit a buffer without changes.
+- `return value` {MutationStack} self, locked for writing
+
 ## Crosshairs Commands
 
 ### show
@@ -287,6 +344,24 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | checkbox | none | {Boolean} `true`/`false` checked/unchecked | Can use options as `radio` type, which assigns the input's `name` property for external interfacing |
 | number | (as `text`) | {Number} final value of text field converted to a number |
 | select | array of option labels | {String} label of choice | | 
+
+### menu
+
+Signature: `static async menu({inputs = [], buttons = []} = {}, {title = 'Prompt', defaultButton = 'Ok', options={}} = {})`
+
+Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality of `buttonDialog` and `dialog`
+
+- `data` {Object} Information about the dialog to be shown.
+  - `inputs` {Array\<Object\>} Refer to the [dialog helper's](#dialog) `data` parameter.
+  - `buttons` {Array\<Object\>} Array of objects containing two keys: `label` and `value`. Label corresponds to the button's text. Value corresponds to the return value if this button is pressed. Ex. `{buttons: [{label: 'First Choice', value: {token: {name: 'First'}}}, {label: 'Second Choice', value: {token: {name: 'Second'}}}]}`
+- `options` {Object}
+  - `title` {String} Title of this menu.
+  - `defaultButton` {String} Label of the default button if no other buttons are provided.
+  - `options` {Object} Options object forwarded to the Application class constructor.
+
+`return value` {Object} `{inputs: Array, buttons: *}`: This object contains the results of the menu selections. 
+  - `inputs` Array of the same type as [dialog's](#dialog) return value.
+  - `buttons` A single value corresponding to the `value` of button pressed. If no buttons were provided the default button's return value is `true`. If the menu is closed, this value is `false`.
 
 ## Update Shorthand
 The `update` object can contain up to three keys: `token`, `actor`, and `embedded`. The `token` and `actor` key values are standard update objects as one would use in `Actor#update` and `Token#update`.  The `embedded` key uses a shorthand notation to make creating the updates for embedded documents (such as items) easier. Notably, it does not require the `_id` field to be part of the update object for a given embedded document type.  There are three operations that this object controls -- adding, updating, deleting (in that order).
