@@ -41,6 +41,7 @@ Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpga
   - [dismiss](#dismiss)
   - [buttonDialog](#buttondialog)
   - [dialog](#dialog)
+  - [menu](#menu)
 - [Update Shorthand](#update-shorthand)
   - [Add](#add)
   - [Update](#update)
