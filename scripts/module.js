@@ -192,70 +192,73 @@ export class MODULE {
     });
   }
 
-  /* See readme at github.com/trioderegion/warpgate */
-  static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
-    data = data instanceof Array ? data : [data];
-
-    return await new Promise((resolve) => {
-        let content = `
-    <table style="width:100%">
+  static dialogInputs = (data) => {
+    const content = `
+      <table style="width:100%">
       ${data.map(({type, label, options}, i) => {
         if (type.toLowerCase() === 'button') { return '' }
         if (type.toLowerCase() === 'header') {
-            return ` < tr > < td colspan = "2" > < h2 > $ {
-          label
-        } < /h2></td > < /tr>`;
-      } else if (type.toLowerCase() === 'info') {
-        return `<tr><td colspan="2">${label}</td></tr>`;
-      } else if (type.toLowerCase() === `select`) {
-        return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
-      } else if (type.toLowerCase() === `checkbox` || type.toLowerCase() == `radio`) {
-        return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${label}" name="${options instanceof Array ? options[0] : options}"/></td></tr>`;
-      } else {
-        return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/></td></tr>`;
-      }
-    }).join(``)
-} <
-/table>`;
-
-new Dialog({
-title,
-content,
-buttons: {
-  Ok: {
-    label: submitLabel,
-    callback: (html) => {
-      resolve(Array(data.length).fill().map((e, i) => {
-        let {
-          type
-        } = data[i];
-        if (type.toLowerCase() === `select`) {
-          return html.find(`select#${i}qd`).val();
+            return `<tr><td colspan = "2"><h2>${label}</h2></td></tr>`;
+        } else if (type.toLowerCase() === 'info') {
+          return `<tr><td colspan="2">${label}</td></tr>`;
+        } else if (type.toLowerCase() === `select`) {
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
+        } else if (type.toLowerCase() === `checkbox` || type.toLowerCase() == `radio`) {
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${label}" name="${options instanceof Array ? options[0] : options}"/></td></tr>`;
         } else {
-          switch (type.toLowerCase()) {
-            case `text`:
-            case `password`:
-              return html.find(`input#${i}qd`)[0].value;
-            case `radio`:
-              return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
-            case `checkbox`:
-              return html.find(`input#${i}qd`)[0].checked;
-            case `number`:
-              return html.find(`input#${i}qd`)[0].valueAsNumber;
-          }
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/></td></tr>`;
         }
-      }));
-    }
-  }
-}
-}).render(true);
-});
-}
+        }).join(``)
+      } </table>`;
 
-/**
- * Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality
- * of `buttonDialog` as well as `dialog`
- *
+        return content;
+  }
+
+
+    /* See readme at github.com/trioderegion/warpgate */
+    static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
+      data = data instanceof Array ? data : [data];
+
+      return await new Promise((resolve) => {
+        let content = MODULE.dialogInputs(data); 
+        new Dialog({
+          title,
+          content,
+          buttons: {
+            Ok: {
+              label: submitLabel,
+              callback: (html) => {
+                resolve(Array(data.length).fill().map((e, i) => {
+                  let {
+                    type
+                  } = data[i];
+                  if (type.toLowerCase() === `select`) {
+                    return html.find(`select#${i}qd`).val();
+                  } else {
+                    switch (type.toLowerCase()) {
+                      case `text`:
+                      case `password`:
+                        return html.find(`input#${i}qd`)[0].value;
+                      case `radio`:
+                        return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
+                      case `checkbox`:
+                        return html.find(`input#${i}qd`)[0].checked;
+                      case `number`:
+                        return html.find(`input#${i}qd`)[0].valueAsNumber;
+                    }
+                  }
+                }));
+              }
+            }
+          }
+        }).render(true);
+      });
+    }
+
+    /**
+     * Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality
+     * of `buttonDialog` as well as `dialog`
+     *
  * @static
  * @param {Object} [{inputs = [], buttons = []}={}] `inputs` follow the same structure as dialog, `buttons` follow the same structure
  *                 as buttonDialog
@@ -295,94 +298,77 @@ await warpgate.menu({
   }
 })
 ****************/
-static async menu({
-  inputs = [],
-  buttons = []
-} = {}, {
-  title = 'Prompt',
-  defaultButton = 'Ok',
-  options = {}
-} = {}) {
+    static async menu({
+      inputs = [],
+      buttons = []
+    } = {}, {
+      title = 'Prompt',
+      defaultButton = 'Ok',
+      options = {}
+    } = {}) {
 
-  return await new Promise((resolve) => {
-      let content = `
-        <table style="width:100%">
-        ${inputs.map(({type, label, options}, i) => {
-          if (type.toLowerCase() === 'button') { return '' }
-          if (type.toLowerCase() === 'header') {
-              return `<tr><td colspan = "2"><h2>${label}</h2></td></tr>`;
-          } else if (type.toLowerCase() === 'info') {
-            return `<tr><td colspan="2">${label}</td></tr>`;
-          } else if (type.toLowerCase() === `select`) {
-            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
-          } else if (type.toLowerCase() === `checkbox` || type.toLowerCase() == `radio`) {
-            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${label}" name="${options instanceof Array ? options[0] : options}"/></td></tr>`;
-          } else {
-            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/></td></tr>`;
+      return await new Promise((resolve) => {
+        let content = MODULE.dialogInputs(inputs);
+        let buttonData = {}
+
+        buttons.forEach((button) => {
+          buttonData[button.label] = {
+            label: button.label,
+            callback: (html) => {
+              const results = {
+                inputs: MODULE._innerValueParse(inputs, html),
+                buttons: button.value
+              }
+              resolve(results);
+            }
           }
-  }).join(``)
-} </table>`;
+        });
 
-let buttonData = {}
+        /* insert standard submit button if none provided */
+        if (buttons.length < 1) {
+          buttonData = {
+            Ok: {
+              label: defaultButton,
+              callback: (html) => resolve({inputs: MODULE._innerValueParse(inputs, html), buttons: true})
+            }
+          }
+        }
 
-buttons.forEach((button) => {
-  buttonData[button.label] = {
-    label: button.label,
-    callback: (html) => {
-      const results = {
-        inputs: MODULE._innerValueParse(inputs, html),
-        buttons: button.value
-      }
-      resolve(results);
+        new Dialog({
+          title,
+          content,
+          close: () => resolve({buttons: false}),
+          buttons: buttonData,
+        }, options).render(true);
+      });
     }
-  }
-});
 
-/* insert standard submit button if none provided */
-if (buttons.length < 1) {
-  buttonData = {
-    Ok: {
-      label: defaultButton,
-      callback: (html) => resolve({inputs: MODULE._innerValueParse(inputs, html), buttons: true})
-    }
-  }
-}
-
-new Dialog({
-title,
-content,
-close: () => resolve({buttons: false}),
-buttons: buttonData,
-}, options).render(true);
-});
-}
-
-static _defaultButton(data) {
-  return (html) => {
-    resolve(MODULE._innerValueParse(data, html));
-  }
-}
-
-static _innerValueParse(data, html) {
-  return Array(data.length).fill().map((e, i) => {
-    let {
-      type
-    } = data[i];
-    if (type.toLowerCase() === `select`) {
-      return html.find(`select#${i}qd`).val();
-    } else {
-      switch (type.toLowerCase()) {
-        case `text`:
-        case `password`:
-          return html.find(`input#${i}qd`)[0].value;
-        case `radio`:
-          return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
-        case `checkbox`:
-          return html.find(`input#${i}qd`)[0].checked;
-        case `number`:
-          return html.find(`input#${i}qd`)[0].valueAsNumber;
+    static _defaultButton(data) {
+      return (html) => {
+        resolve(MODULE._innerValueParse(data, html));
       }
     }
-  })
-}
-}
+
+    static _innerValueParse(data, html) {
+      return Array(data.length).fill().map((e, i) => {
+        let {
+          type
+        } = data[i];
+        if (type.toLowerCase() === `select`) {
+          return html.find(`select#${i}qd`).val();
+        } else {
+          switch (type.toLowerCase()) {
+            case `text`:
+            case `password`:
+              return html.find(`input#${i}qd`)[0].value;
+            case `radio`:
+              return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
+            case `checkbox`:
+              return html.find(`input#${i}qd`)[0].checked;
+            case `number`:
+              return html.find(`input#${i}qd`)[0].valueAsNumber;
+          }
+        }
+      })
+    }
+  }
