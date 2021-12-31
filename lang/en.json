@@ -28,10 +28,16 @@
       "name": "Dismiss button scope",
       "hint": "Determines when the dismiss button is added to actor sheets."
     },
+    "revertButtonBehavior": {
+      "name": "Revert button behavior",
+      "hint": "Default action when the button is clicked. Shift+Click will perform the other behavior."
+    },
     "option": {
       "disabled": "Disabled",
       "spawnedOnly": "Spawned tokens only",
-      "all": "All owned tokens"
+      "all": "All owned tokens",
+      "showMutationList": "Show mutation stack dialog",
+      "popLatestMutation": "Revert last mutation"
     }
   },
   "debug": {

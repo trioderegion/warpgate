@@ -45,12 +45,12 @@ export class UserInterface {
       dismissButtonScope : {
         scope: "client", config, default: 'spawned', type: String, choices: {
           disabled: MODULE.localize('setting.option.disabled'),
-          spawned: MODULE.localize('setting.option.spawnedOwnly'),
+          spawned: MODULE.localize('setting.option.spawnedOnly'),
           all: MODULE.localize('setting.option.all')
         }
       },
       revertButtonBehavior : {
-        scope: 'client', config, default: 'last', type: String, choices: {
+        scope: 'client', config, default: 'pop', type: String, choices: {
           disabled: MODULE.localize('setting.option.disabled'),
           pop: MODULE.localize('setting.option.popLatestMutation'),
           menu: MODULE.localize('setting.option.showMutationList')
