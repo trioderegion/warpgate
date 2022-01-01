@@ -189,7 +189,7 @@ export class Gateway {
     logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
 
     if (!MODULE.firstGM()){
-      logger.error('error.noGm');
+      logger.error(MODULE.localize('error.noGm'));
       return;
     }
 

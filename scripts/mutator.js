@@ -127,6 +127,21 @@ export class Mutator {
     return inverted;
   }
 
+  static _errorCheckEmbeddedUpdates( embeddedName, updates ) {
+
+    /* at the moment, the most pressing error is an Item creation without a 'type' field.
+     * This typically indicates a failed lookup for an update operation
+     */
+    if( embeddedName == 'Item'){
+      const badItemAdd = (updates.add ?? []).find( add => !add.type );
+      logger.info(badItemAdd);
+      const message = MODULE.format('error.badMutate.missing.type', {embeddedName});
+
+      return {error: true, message}
+    }
+
+    return {error:false};
+  }
 
   /* run the provided updates for the given embedded collection name from the owner */
   static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name'){
@@ -138,6 +153,12 @@ export class Mutator {
     const parsedDeletes = Mutator._parseDeleteShorthand(collection, updates, comparisonKey);
 
     logger.debug(`Modify embedded ${embeddedName} of ${owner.name} from`, {adds: parsedAdds, updates: parsedUpdates, deletes: parsedDeletes});
+
+    const {error, message} = Mutator._errorCheckEmbeddedUpdates( embeddedName, {add: parsedAdds, update: parsedUpdates, delete: parsedDeletes} );
+    if(error) {
+      logger.error(message);
+      return false;
+    }
 
     try {
       if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds);
@@ -157,7 +178,7 @@ export class Mutator {
       logger.error(e);
     }
 
-    return;
+    return true;
   }
 
   /* embeddedUpdates keyed by embedded name, contains shorthand */
