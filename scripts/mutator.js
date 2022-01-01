@@ -134,10 +134,13 @@ export class Mutator {
      */
     if( embeddedName == 'Item'){
       const badItemAdd = (updates.add ?? []).find( add => !add.type );
-      logger.info(badItemAdd);
-      const message = MODULE.format('error.badMutate.missing.type', {embeddedName});
 
-      return {error: true, message}
+      if (badItemAdd) {
+        logger.info(badItemAdd);
+        const message = MODULE.format('error.badMutate.missing.type', {embeddedName});
+
+        return {error: true, message}
+      }
     }
 
     return {error:false};
