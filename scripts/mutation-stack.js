@@ -41,6 +41,7 @@ export class MutationStack {
     /* indicates if the stack has been duplicated for modification */
     this._locked = true;
   }
+
   /**
    * Searches for an element of the mutation stack that satisfies the provided predicate
    *
@@ -53,6 +54,23 @@ export class MutationStack {
     if (this._locked) return (this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []).find(predicate);
 
     return this._stack.find(predicate);
+  }
+
+  /**
+   * Searches for an element of the mutation stack that satisfies the provided predicate and returns its
+   * stack index
+   *
+   * @param {Function} predicate Receives the argments of Array#findIndex and returns a Boolean indicating if the current
+   *                             element satisfies the predicate condition
+   * @return {Number} Index of the element of the mutation stack that matches the predicate, or undefined if none.
+   * @memberof MutationStack
+   * @private
+   */
+  _findIndex( predicate ) {
+
+    if (this._locked) return (this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []).findIndex(predicate);
+
+    return this._stack.findIndex(predicate);
   }
 
   /**
@@ -98,7 +116,7 @@ export class MutationStack {
   update(name, mutationInfo, {
     overwrite = false
   }) {
-    const index = this._stack.findIndex((element) => element.name === name);
+    const index = this._findIndex((element) => element.name === name);
 
     if (index < 0) {
       return false;
@@ -109,7 +127,7 @@ export class MutationStack {
     if (overwrite) {
 
       /* we need at LEAST a name to identify by */
-      if (!!mutationInfo.name) {
+      if (!mutationInfo.name) {
         logger.error(MODULE.localize('error.incompleteMutateInfo'));
         return this;
       }
