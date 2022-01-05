@@ -57,8 +57,8 @@ export class Mutator {
       if (updates[key] === warpgate.CONST.DELETE) return { _id: null };
       const _id = collection.find( element => getProperty(element.data,comparisonKey) === key )?.id ?? null;
       return {
+        ...updates[key],
         _id,
-        ...updates[key]
       }
     });
     parsedUpdates = parsedUpdates.filter( update => !!update._id);
