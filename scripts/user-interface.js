@@ -111,7 +111,7 @@ export class UserInterface {
         return;
       }
       const {id, parent} = token;
-      Gateway.dismissSpawn(id, parent?.id, app);
+      Gateway.dismissSpawn(id, parent?.id);
 
       /** close the actor sheet if provided */
       app?.close({submit: false});
