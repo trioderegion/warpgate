@@ -86,6 +86,9 @@ export class RemoteMutator {
       return responseData.tokenId === tokenDoc.id && (responseData.mutationId === mutationName || !mutationName);
     }
 
+    /* if no name provided, we are popping the last one */
+    const mName = mutationName ? mutationName : warpgate.mutationStack(tokenDoc).last.name;
+
     /* craft the response handler
      * execute the post callback */
     const handleResponse = async (responseData) => {
@@ -93,10 +96,10 @@ export class RemoteMutator {
       /* if accepted, run our post callback */
       if (responseData.accepted) {
         const tokenDoc = game.scenes.get(responseData.sceneId).getEmbeddedDocument('Token', responseData.tokenId);
-        const info = MODULE.format('display.revertAccepted', {mName: responseData.mutationId, tName: tokenDoc.name});
+        const info = MODULE.format('display.revertAccepted', {mName , tName: tokenDoc.name});
         ui.notifications.info(info);
       } else {
-        const warn = MODULE.format('display.revertRejected', {mName: responseData.mutationId, tName: tokenDoc.name});
+        const warn = MODULE.format('display.revertRejected', {mName , tName: tokenDoc.name});
         ui.notifications.warn(warn);
       }
 

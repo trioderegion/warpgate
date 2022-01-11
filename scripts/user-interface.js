@@ -124,19 +124,13 @@ export class UserInterface {
 
   static _shouldAddRevert(token) {
 
-    const mutateStack = token?.actor?.getFlag(MODULE.data.name, 'mutate');
+    const mutateStack = warpgate.mutationStack(token).stack;
 
     /* this is not a warpgate mutated actor,
      * or there are no remaining stacks to peel */
-    if (!mutateStack || mutateStack.length == 0) return false;
-
-    /** do not add the button if we are not the user who mutated last AND we arent the GM */
-    const mutateData = mutateStack[mutateStack.length-1];
-    if ( !(mutateData.user === game.user.id) &&
-          !game.user.isGM) return false;
+    if (mutateStack.length == 0) return false;
 
     return MODULE.setting('revertButtonBehavior') !== 'disabled';
-
   }
 
   static addRevertMutation(app, html, data) {
