@@ -104,7 +104,7 @@ export class Gateway {
     /* if a specific initial location is not provided, grab the current mouse location */
     if(!config.hasOwnProperty('x') && !config.hasOwnProperty('y')) {
       let mouseLoc = MODULE.getMouseStagePos();
-      mouseLoc = canvas.grid.getSnappedPosition(mouseLoc.x, mouseLoc.y, mergedConfig.interval);
+      mouseLoc = Crosshairs.getSnappedPosition(mouseLoc, mergedConfig.interval);
       mergedConfig.x = mouseLoc.x;
       mergedConfig.y = mouseLoc.y;
     }

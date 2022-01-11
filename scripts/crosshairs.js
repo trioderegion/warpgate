@@ -108,7 +108,7 @@ export class Crosshairs extends MeasuredTemplate {
     return canvas.templates.preview.children.find( child => child.tag === key )
   }
 
-  static _getSnappedPosition({x,y}, interval){
+  static getSnappedPosition({x,y}, interval){
     const offset = interval < 0 ? canvas.grid.size/2 : 0;
     const snapped = canvas.grid.getSnappedPosition(x - offset, y - offset, interval);
     return {x: snapped.x + offset, y: snapped.y + offset};
@@ -355,14 +355,14 @@ export class Crosshairs extends MeasuredTemplate {
     if ( now - this.moveTime <= 20 ) return;
 
     const center = event.data.getLocalPosition(this.layer);
-    const {x,y} = Crosshairs._getSnappedPosition(center, this.interval);
+    const {x,y} = Crosshairs.getSnappedPosition(center, this.interval);
     this.data.update({x, y});
     this.refresh();
     this.moveTime = now;
   }
 
   _leftClickHandler(event){
-    const destination = Crosshairs._getSnappedPosition(this.data, this.interval);
+    const destination = Crosshairs.getSnappedPosition(this.data, this.interval);
     const width = this.data.distance / (canvas.scene.data.gridDistance / 2);
     const radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
     this.radius = radius;
