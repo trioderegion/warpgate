@@ -25,7 +25,8 @@ import {queueUpdate} from './update-queue.js'
 const ops = {
   DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId
   EVENT : "event", //name, ...payload
-  REQUEST_MUTATE: "req-mutate" // ...payload
+  REQUEST_MUTATE: "req-mutate", // ...payload
+  REQUEST_REVERT: "req-revert" // ...payload
 }
 
 export class Comms {
@@ -49,6 +50,7 @@ export class Comms {
 
 
     queueUpdate( async () => {
+      logger.debug("Routing operation: ",socketData.op);
       switch (socketData.op){
         case ops.DISMISS_SPAWN:
           /* let the first GM handle all dismissals */
@@ -61,6 +63,10 @@ export class Comms {
         case ops.REQUEST_MUTATE:
           /* First owner of this target token/actor should respond */
           await RemoteMutator.handleMutationRequest(socketData.payload);
+          break;
+        case ops.REQUEST_REVERT:
+          /* First owner of this target token/actor should respond */
+          await RemoteMutator.handleRevertRequest(socketData.payload);
           break;
         default:
           logger.error("Unrecognized socket request", socketData);
@@ -104,8 +110,7 @@ export class Comms {
   }
 
   /*
-   * payload = {updates, callbacks, options}
-   * @TODO callbacks are unhandled at this time
+   * payload = {userId, tokenId, sceneId, updates, options}
    * @param options
    *   * description - message to display to receiving user
    */
@@ -123,6 +128,25 @@ export class Comms {
     /* craft the socket data */
     const data = {
       op: ops.REQUEST_MUTATE,
+      payload
+    }
+
+    return Comms._emit(data);
+  }
+
+  static requestRevert(tokenId, sceneId, {mutationId = undefined, onBehalf = game.user.id}) {
+
+    /* insert common fields */
+    const payload = {
+      userId: onBehalf,
+      tokenId,
+      sceneId,
+      mutationId
+    }
+
+    /* craft the socket data */
+    const data = {
+      op: ops.REQUEST_REVERT,
       payload
     }
 

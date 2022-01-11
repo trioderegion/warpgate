@@ -42,6 +42,10 @@ export class MutationStack {
     this._locked = true;
   }
 
+  get stack() {
+    return this._locked ? this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? [] : this._stack ;
+  }
+
   /**
    * Searches for an element of the mutation stack that satisfies the provided predicate
    *
@@ -90,14 +94,8 @@ export class MutationStack {
    * @return {Object} Newest element of the mutation stack
    * @memberof MutationStack
    */
-  last() {
-
-    if (this._locked) {
-      const lockedStack = this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []
-      return lockedStack[lockedStack.length - 1]
-    }
-
-    return this._stack[this._stack.length - 1]
+  get last() {
+    return this.stack[this.stack.length - 1];
   }
 
   /**

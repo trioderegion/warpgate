@@ -201,7 +201,7 @@ export class Mutator {
   /* @TODO support embedded documents within embedded documents */
   static async _updateActor(actor, updates = {}, comparisonKeys = {}) {
 
-    logger.debug('Perfoming update on (actor/updates)',actor, updates);
+    logger.debug('Performing update on (actor/updates)',actor, updates);
     await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
@@ -290,7 +290,7 @@ export class Mutator {
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
-      await RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
+      RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
     }
 
     return mutateInfo;
@@ -341,18 +341,23 @@ export class Mutator {
    */
   static async revertMutation(tokenDoc, mutationName = undefined) {
 
-    const mutateData = await Mutator._popMutation(tokenDoc?.actor, mutationName);
+    if (tokenDoc.actor.isOwner) {
 
-    if (!!mutateData) {
+      const mutateData = await Mutator._popMutation(tokenDoc?.actor, mutationName);
 
-      const actorData = Comms.packToken(tokenDoc);
+      if (!!mutateData) {
 
-      /* perform the revert with the stored delta */
-      await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
+        const actorData = Comms.packToken(tokenDoc);
 
-      /* notify clients */
-      await warpgate.event.notify(warpgate.EVENT.REVERT, {actorData, updates: mutateData});
-      return mutateData;
+        /* perform the revert with the stored delta */
+        await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
+
+        /* notify clients */
+        await warpgate.event.notify(warpgate.EVENT.REVERT, {actorData, updates: mutateData});
+        return mutateData;
+      }
+    } else {
+      RemoteMutator.remoteRevert(tokenDoc, mutationName);
     }
 
     return false;

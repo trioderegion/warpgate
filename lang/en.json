@@ -56,6 +56,9 @@
     "mutationRequestTitle": "{userName} is mutating {tokenName}",
     "mutationAccepted": "Mutation \"{mName}\" for {tName} has been accepted.",
     "mutationRejected": "Mutation \"{mName}\" for {tName} has been rejected.",
+    "revertAccepted": "Revert of mutation [{mName}] for {tName} has been accepted.",
+    "revertRejected": "Revert of mutation [{mName}] for {tName} has been rejected.",
+    "revertRequestDescription": "Reverting mutation [{mName}] from {tName}.",
     "acceptLabel": "Accept",
     "rejectLabel": "Reject",
     "findTargetLabel": "Find Target"
@@ -71,6 +74,7 @@
     "findProtoFail": "Could not find proto-token data for {name}",
     "noOpenLocation": "Could not locate open locations near chosen spawn point. Spawning at chosen point instead.",
     "noOwningUserMutate": "No owning user online. Mutation request cannot be fullfilled.",
+    "noOwningUserRevert": "No owning user online. Revert request cannot be fullfilled.",
     "incompleteMutateInfo": "Overwrite mode used for stack update, but no 'name' field provided.",
     "stackLockedOrEmpty": "Mutation stack has no changes or is locked for writing. Cannot commit changes to the stack.",
     "badMutate": {
