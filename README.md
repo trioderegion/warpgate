@@ -189,6 +189,12 @@ Generates a new MutationStack instance. See [Mutation Class Methods](#mutation-c
 * `tokenDoc` {TokenDocument} Reads the mutation stack information from this token
 
 `return value` {MutationStack} Locked instance of a token actor's mutation stack.
+	
+### MutationStack Class Fields
+
+`last`: The last mutation added to the mutation stack, or undefined if none present.
+
+`stack`: Mutation stack according to its lock state.
 
 ### MutationStack Class Methods
 
@@ -204,7 +210,7 @@ Generates a new MutationStack instance. See [Mutation Class Methods](#mutation-c
 
 * `return value` {Object} Element of the mutation stack matching the provided name, or undefined if none
 
-`last()`: Retrieves that last mutation added to the mutation stack, or undefined if none present
+
 
 * `return value` {Object} Newest element of the mutation stack
 
