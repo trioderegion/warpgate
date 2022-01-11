@@ -69,7 +69,8 @@ export class api {
         DISMISS: 'wg_dismiss',
         REVERT: 'wg_revert',
         MUTATE: 'wg_mutate',
-        MUTATE_RESPONSE: 'wg_mutate_response'
+        MUTATE_RESPONSE: 'wg_response_mutate',
+        REVERT_RESPONSE: 'wg_response_revert'
       },
       event : {
         watch : Events.watch,
