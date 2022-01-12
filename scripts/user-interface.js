@@ -72,6 +72,8 @@ export class UserInterface {
 
   static _shouldAddDismiss(token) {
 
+    if ( !(token instanceof TokenDocument) ) return false;
+
     switch (MODULE.setting('dismissButtonScope')){
       case 'disabled':
         return false;
@@ -123,6 +125,8 @@ export class UserInterface {
   }
 
   static _shouldAddRevert(token) {
+
+    if ( !(token instanceof TokenDocument) ) return false;
 
     const mutateStack = warpgate.mutationStack(token).stack;
 
