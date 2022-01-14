@@ -93,7 +93,7 @@ export class UserInterface {
   }
 
   static addDismissButton(app, html, data) {
-    const token = data.options.token;
+    const token = app.token;
 
     /** this is not a warpgate spawned actor */
     if (!UserInterface._shouldAddDismiss(token)) return;
@@ -151,7 +151,7 @@ export class UserInterface {
       foundButton.remove();
     }
 
-    const token = data.options.token;
+    const token = app.token;
 
     if(!UserInterface._shouldAddRevert(token)) return;
 
