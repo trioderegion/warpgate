@@ -175,10 +175,16 @@ export class Gateway {
       return;
     }
 
+    const tokenData = game.scenes.get(sceneId)?.getEmbeddedDocument("Token",tokenId);
+    if(!tokenData){
+      logger.debug(`Token [${tokenId}] no longer exists on scene [${sceneId}]`);
+      return;
+    }
+
+
     /* check for permission to delete freely */
     if (!MODULE.setting('openDelete')) {
       /* check permissions on token */
-      const tokenData = game.scenes.get(sceneId)?.getEmbeddedDocument("Token",tokenId);
       if (!tokenData.isOwner) {
         logger.error(MODULE.localize('error.unownedDelete'));
         return;
@@ -200,7 +206,7 @@ export class Gateway {
       await warpgate.event.notify(warpgate.EVENT.DISMISS, {actorData}, onBehalf);
     } else {
       /** otherwise, we need to send a request for deletion */
-      await Comms.requestDismissSpawn(tokenId, sceneId);
+      Comms.requestDismissSpawn(tokenId, sceneId);
     }
     
     return;
