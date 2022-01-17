@@ -2,3 +2,5 @@
 *.swo
 *.orig
 *.code-workspace
+*.lock
+*.sw*

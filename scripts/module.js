@@ -203,8 +203,10 @@ export class MODULE {
           return `<tr><td colspan="2">${label}</td></tr>`;
         } else if (type.toLowerCase() === `select`) {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
-        } else if (type.toLowerCase() === `checkbox` || type.toLowerCase() == `radio`) {
-          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${label}" name="${options instanceof Array ? options[0] : options}"/></td></tr>`;
+        } else if (type.toLowerCase() == `radio`) {
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/></td></tr>`;
+        } else if (type.toLowerCase() === `checkbox` ) {
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[0] : options ?? false) ? 'checked' : ''} name="${label}"/></td></tr>`;
         } else {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/></td></tr>`;
         }
