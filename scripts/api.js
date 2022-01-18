@@ -173,11 +173,6 @@ export class api {
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
 
-    /** pre creation callback */
-    if (callbacks.pre) await callbacks.pre(spawnLocation, updates);
-
-    const duplicates = options.duplicates > 0 ? options.duplicates : 1;
-
     /* Flag this token with its original actor to work around
      * updating the token properties of a token linked to
      * an unowned actor
@@ -188,7 +183,17 @@ export class api {
       }
     }
 
-    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags})
+    /* create permissions for this user */
+    const actorData = {
+      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+    }
+
+    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData})
+
+    /** pre creation callback */
+    if (callbacks.pre) await callbacks.pre(spawnLocation, updates);
+
+    const duplicates = options.duplicates > 0 ? options.duplicates : 1;
 
     /* merge in changes to the prototoken */
     protoData.update(updates.token);
