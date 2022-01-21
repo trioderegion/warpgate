@@ -356,7 +356,7 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 
 Signature: `async menu({inputs = [], buttons = []} = {}, {title = 'Prompt', defaultButton = 'Ok', options={}} = {})`
 
-Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality of `buttonDialog` and `dialog`. An example can be found [on the wiki]().
+Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality of `buttonDialog` and `dialog`. An example can be found [on the wiki](https://github.com/trioderegion/warpgate/wiki/Basic-Menu).
 
 - `data` {Object} Information about the dialog to be shown.
   - `inputs` {Array\<Object\>} Refer to the [dialog helper's](#dialog) `data` parameter.
