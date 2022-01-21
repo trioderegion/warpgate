@@ -92,7 +92,7 @@ export class UserInterface {
 
   }
 
-  static addDismissButton(app, html, data) {
+  static addDismissButton(app, html/*, data*/) {
     const token = app.token;
 
     /** this is not a warpgate spawned actor */
@@ -137,6 +137,24 @@ export class UserInterface {
     return MODULE.setting('revertButtonBehavior') !== 'disabled';
   }
 
+  static _getTokenFromApp(app) {
+    
+    const {token, actor} = app;
+    
+    const hasToken = token instanceof TokenDocument;
+
+    if( !hasToken ) {
+      /* check if linked and has an active token on scene */
+      const candidates = actor?.getActiveTokens() ?? [];
+      const linkedToken = candidates.find( t => t.data.actorLink )?.document ?? null;
+      
+      return linkedToken;
+      
+    }
+
+    return token;
+  }
+
   static addRevertMutation(app, html, data) {
 
     /* do not add duplicate buttons! */
@@ -151,7 +169,7 @@ export class UserInterface {
       foundButton.remove();
     }
 
-    const token = app.token;
+    const token = UserInterface._getTokenFromApp(app);
 
     if(!UserInterface._shouldAddRevert(token)) return;
 
@@ -163,11 +181,6 @@ export class UserInterface {
     let revertButton = $(`<a class="revert-warpgate" title="${MODULE.localize('display.revert')}${stackCount}"><i class="fas fa-undo-alt"></i>${label}</a>`);
 
     revertButton.click( async (event) => {
-      if (!token) {
-        logger.error(MODULE.localize('error.sheetNoToken'));
-        return;
-      }
-
       const shouldShow = (shiftKey) => {
         const mode = MODULE.setting('revertButtonBehavior')
         const show = mode == 'menu' ? !shiftKey : shiftKey;

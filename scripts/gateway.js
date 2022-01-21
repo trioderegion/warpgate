@@ -146,24 +146,31 @@ export class Gateway {
    * is within the crosshairs radius.
    *
    * @param crosshairsData {Object}. Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
-   * @param types {Array<String>} (['Token']). Collects the desired embedded placeable types.
+   * @param types {String|Array<String>} ('Token'). Collects the desired embedded placeable types.
    * @param containedFilter {Function} (`_containsCenter`). Optional function for determining if a placeable
    *   is contained by the crosshairs. Default function tests for centerpoint containment.
    *
    * @return {Object<embeddedName: collected>} List of collected placeables keyed by embeddedName
    */
-  static collectPlaceables( crosshairsData, types = ['Token'], containedFilter = Gateway._containsCenter ) {
+  static collectPlaceables( crosshairsData, types = 'Token', containedFilter = Gateway._containsCenter ) {
+
+    types = types instanceof Array ? types : [types];
 
     const result = types.reduce( (acc, embeddedName) => {
       const collection = crosshairsData.scene.getEmbeddedCollection(embeddedName);
 
-      const contained = collection.filter( (document) => {
+      let contained = collection.filter( (document) => {
         return containedFilter(document.object, crosshairsData);
       });
 
       acc[embeddedName] = contained;
       return acc;
     }, {});
+
+    /* if we are only collecting one kind of placeable, only return one kind of placeable */
+    if (types.length == 1) {
+      return result[types[0]]
+    }
 
     return result;
   }
