@@ -336,7 +336,7 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 `data` {Array of Objects}: Contains the dialog data. Each Object requires the following keys `{type, label, options}`.
 * `type` {String} : See table below.
 * `label` {String}: the displayed text for this input. Accepts HTML.
-* `options` {Array of Strings} or {String}: See table below.
+* `options`: See table below.
 
 `return value` {Array of *}: Length and order mirrors the input `data` array. The type of the elements is shown on the table below.
 
@@ -347,16 +347,16 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | info   | none | undefined | Inserts a line of text for display/informational purposes. |
 | text | default value | {String} final value of text field | |
 | password | (as `text`) | (as `text`) | Characters are obscured for security. |
-| radio | group name | selected: {String} `label`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
-| checkbox | none | {Boolean} `true`/`false` checked/unchecked | Can use options as `radio` type, which assigns the input's `name` property for external interfacing |
+| radio | [group name, default state (`false`)] {Array of String|Bool} | selected: {String} `label`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
+| checkbox | default state (`false`) {Boolean} | {Boolean} `true`/`false` checked/unchecked | `label` is used for the HTML element's `name` property |
 | number | (as `text`) | {Number} final value of text field converted to a number |
 | select | array of option labels | {String} label of choice | | 
 
 ### menu
 
-Signature: `static async menu({inputs = [], buttons = []} = {}, {title = 'Prompt', defaultButton = 'Ok', options={}} = {})`
+Signature: `async menu({inputs = [], buttons = []} = {}, {title = 'Prompt', defaultButton = 'Ok', options={}} = {})`
 
-Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality of `buttonDialog` and `dialog`
+Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality of `buttonDialog` and `dialog`. An example can be found [on the wiki]().
 
 - `data` {Object} Information about the dialog to be shown.
   - `inputs` {Array\<Object\>} Refer to the [dialog helper's](#dialog) `data` parameter.
