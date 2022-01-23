@@ -154,7 +154,9 @@ export class Gateway {
    */
   static collectPlaceables( crosshairsData, types = 'Token', containedFilter = Gateway._containsCenter ) {
 
-    types = types instanceof Array ? types : [types];
+    const isArray = types instanceof Array;
+
+    types = isArray ? types : [types];
 
     const result = types.reduce( (acc, embeddedName) => {
       const collection = crosshairsData.scene.getEmbeddedCollection(embeddedName);
@@ -168,11 +170,7 @@ export class Gateway {
     }, {});
 
     /* if we are only collecting one kind of placeable, only return one kind of placeable */
-    if (types.length == 1) {
-      return result[types[0]]
-    }
-
-    return result;
+    return isArray ? result : result[types[0]];
   }
 
   static async dismissSpawn(tokenId, sceneId = canvas.scene?.id, onBehalf = game.user.id) {
