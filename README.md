@@ -1,7 +1,8 @@
 
 # Warp Gate
 
-**Reinforcements have arrived**
+<h3 align="center"> <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/downloads/trioderegion/warpgate/latest/total?color=blue&label=latest%20downloads"> Reinforcements have arrived <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/trioderegion/warpgate/total?color=blue&label=total%20downloads"> </h3>
+
 
 Warp Gate, in its current form, is a system-agnostic library module for Foundry VTT that provides a growing number of API functions to make programmatically spawning tokens and modifying those tokens easier for players and GMs alike.
 
