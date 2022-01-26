@@ -348,7 +348,7 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | info   | none | undefined | Inserts a line of text for display/informational purposes. |
 | text | default value | {String} final value of text field | |
 | password | (as `text`) | (as `text`) | Characters are obscured for security. |
-| radio | [group name, default state (`false`)] {Array of String|Bool} | selected: {String} `label`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
+| radio | [group name, default state (`false`)] {Array of String/Bool} | selected: {String} `label`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
 | checkbox | default state (`false`) {Boolean} | {Boolean} `true`/`false` checked/unchecked | `label` is used for the HTML element's `name` property |
 | number | (as `text`) | {Number} final value of text field converted to a number |
 | select | array of option labels | {String} label of choice | | 
