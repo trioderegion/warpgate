@@ -195,7 +195,7 @@ export class MODULE {
   static dialogInputs = (data) => {
     const content = `
       <table style="width:100%">
-      ${data.map(({type, label, options}, i) => {
+      ${data.map(({type, label, value, options}, i) => {
         if (type.toLowerCase() === 'button') { return '' }
         if (type.toLowerCase() === 'header') {
             return `<tr><td colspan = "2"><h2>${label}</h2></td></tr>`;
@@ -204,7 +204,7 @@ export class MODULE {
         } else if (type.toLowerCase() === `select`) {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
         } else if (type.toLowerCase() == `radio`) {
-          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[1] : false ?? false) ? 'checked' : ''} value="${label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/></td></tr>`;
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[1] : false ?? false) ? 'checked' : ''} value="${value || label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/></td></tr>`;
         } else if (type.toLowerCase() === `checkbox` ) {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[0] : options ?? false) ? 'checked' : ''} name="${label}"/></td></tr>`;
         } else {
