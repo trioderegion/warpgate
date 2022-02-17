@@ -111,9 +111,9 @@ export class Mutator {
       if (foundItem){
         /* grab the current value of any updated fields and store */
         const expandedUpdate = expandObject(updates[key]);
-        const sourceData = foundItem.data.toObject();
+        const sourceData = foundItem.toObject();
         const updatedData = mergeObject(sourceData, expandedUpdate, {inplace: false});
-        const diff = Mutator._deepDiffMapper().map(sourceData, updatedData)
+        const diff = diffObject(updatedData, sourceData)
 
         setProperty(inverted, updatedData[comparisonKey], diff);
         return;
@@ -465,99 +465,5 @@ export class Mutator {
     //if (actorData.flags?.warpgate) delete actorData.flags.warpgate
 
     return actorData;
-  }
-
-  static _deepDiffMapper() {
-    return {
-      VALUE_CREATED: 'created',
-      VALUE_UPDATED: 'updated',
-      VALUE_DELETED: 'deleted',
-      VALUE_UNCHANGED: 'unchanged',
-      map: function (obj1, obj2) {
-
-        if (this.isFunction(obj1) || this.isFunction(obj2)) {
-          throw 'Invalid argument. Function given, object expected.';
-        }
-
-        if (this.isValue(obj1) || this.isValue(obj2)) {
-          const type = this.compareValues(obj1, obj2);
-          if (type !== this.VALUE_UNCHANGED){
-            //return {
-            //  type,
-            //  data: obj1 === undefined ? obj2 : obj1
-            //};
-            return (obj1 === undefined) ? obj2 : obj1;
-          } else {
-            return undefined;
-          }
-        }
-
-        let diff = {};
-
-        /* check for changes or deletions from obj1 to obj2 */
-        for (let key in obj1) {
-          if (this.isFunction(obj1[key])) {
-            continue;
-          }
-
-          let value2 = undefined;
-          if (obj2[key] !== undefined) {
-            value2 = obj2[key];
-          }
-          const result = this.map(obj1[key], value2);
-          if (!jQuery.isEmptyObject(result)) diff[key] = result;
-        }
-
-        /* now check for additions in obj2 */
-        for (let key in obj2) {
-
-          /* do not diff if a function OR if this key was present
-           * in obj1 (which means it was diffed for update/delete)
-           */
-          if (this.isFunction(obj2[key]) || obj1[key] !== undefined) {
-            continue;
-          }
-          const result = this.map(undefined, obj2[key]);
-          if (!jQuery.isEmptyObject(result)) diff[key] = result
-        }
-
-        return diff;
-
-      },
-      compareValues: function (value1, value2) {
-        if (value1 === value2) {
-          return this.VALUE_UNCHANGED;
-        }
-        if (this.isDate(value1) && this.isDate(value2) && value1.getTime() === value2.getTime()) {
-          return this.VALUE_UNCHANGED;
-        }
-        if (value1 === undefined) {
-          return this.VALUE_CREATED;
-        }
-        if (value2 === undefined) {
-          return this.VALUE_DELETED;
-        }
-        return this.VALUE_UPDATED;
-      },
-      isFunction: function (x) {
-        return Object.prototype.toString.call(x) === '[object Function]';
-      },
-      isArray: function (x) {
-        return Object.prototype.toString.call(x) === '[object Array]';
-      },
-      isDate: function (x) {
-        return Object.prototype.toString.call(x) === '[object Date]';
-      },
-      isObject: function (x) {
-        return Object.prototype.toString.call(x) === '[object Object]';
-      },
-      isValue: function (x) {
-        /* mmh: we are going to treat ANYTHING that is
-         * not an object as the 'final' value to use.
-         * We do not want to deep diff array values.
-         */
-        return !this.isObject(x) /*&& !this.isArray(x)*/;
-      }
-    }
   }
 }
