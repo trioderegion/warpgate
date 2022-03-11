@@ -72,7 +72,7 @@ The primary function of Warp Gate. When executed, it will create a custom Measur
  	- `controllingActor` {Actor} will minimize this actor's open sheet (if any) for a clearer view of the canvas during placement. Also flags the created token with this actor's id. Default `null`.
   	- `duplicates` {Number} will spawn multiple tokens from a single placement. See also `collision`. Default `1`.
   	- `collision` {Boolean} controls whether the placement of a token collides with any other token or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater than 1, default is `true`; otherwise `false`.
-  	- `comparisonKeys` {Object}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
+  	- `comparisonKeys` {Object}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
   	- `crosshairs` {Object}. A crosshairs configuration object to be used for this spawning process
 
 `return value` {Array<Strings>} IDs of all created tokens
