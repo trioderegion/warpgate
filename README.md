@@ -285,7 +285,7 @@ This object controls how the crosshairs will be displayed and decorated. Each fi
 * `tag` {\*}(`'crosshairs'`) Arbitrary value used to identify this crosshairs object
 * `drawIcon` {Boolean = `true`} Controls the display of the center icon of the crosshairs
 * `drawOutline` {Boolean = `true`} Controls the display of the outline circle of the crosshairs
-* `interval` {Number = `2`} Sub-grid granularity per square. Snap points will be created every 1/`interval` grid spaces. Positive values begin snapping at grid intersections. Negative values begin snapping at the center of the square. Ex. the default value of 2 produces two snap points -- one at the edge and one at the center; `interval` of 1 will snap to grid intersections; `interval` of -1 will snap to grid centers. Additionally, a value of `0` will turn of grid snapping completely for this instance of crosshairs.
+* `interval` {Number = `2`} Sub-grid granularity per square. Snap points will be created every 1/`interval` grid spaces. Positive values begin snapping at grid intersections. Negative values begin snapping at the center of the square. Ex. the default value of 2 produces two snap points -- one at the edge and one at the center; `interval` of 1 will snap to grid intersections; `interval` of -1 will snap to grid centers. Additionally, a value of `0` will turn off grid snapping completely for this instance of crosshairs.
 * `fillAlpha` {Number = `0`} Alpha (opacity) of the template's fill color (if any).
 * `fillColor` {String = `game.user.color`} Color of the template's fill when no texture is used.
 * `texture` {String = null} Asset path of the texture to draw inside the crosshairs border.
