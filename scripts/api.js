@@ -170,7 +170,8 @@ export class api {
 
     if (!protoData) return;
 
-    const sourceActor = game.actors.get(protoData.actorId);
+    // const sourceActor = game.actors.get(protoData.actorId);
+    const sourceActor = await MODULE.retrieveActorFromData(protoData.actorId,options.actorName,options.compendiumId);
     let createdIds = [];
 
     /* Flag this token with its original actor to work around

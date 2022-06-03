@@ -99,6 +99,29 @@ export class MODULE {
     });
   }
 
+  static async retrieveActorFromData(aId, aName, currentCompendium) {
+    let actorFounded = null;
+    if (currentCompendium) {
+        const pack = game.packs.get(currentCompendium);
+        if (pack) {
+            await pack.getIndex();
+            for (const entityComp of pack.index) {
+                const actorComp = await pack.getDocument(entityComp._id);
+                if (actorComp.id === aId || actorComp.name === aName) {
+                    actorFounded = actorComp;
+                    break;
+                }
+            }
+        }
+    }
+    if (!actorFounded) {
+        actorFounded = game.actors?.contents.find((a) => {
+            return a.id === aId || a.name === aName;
+        });
+    }
+    return actorFounded;
+  }
+
   static async getTokenData(actorName, tokenUpdates) {
 
     //get source actor
