@@ -22,28 +22,42 @@ import {
   MODULE
 } from './module.js'
 
+import * as fields from '../../../common/data/fields.mjs'
+
+class StackData extends foundry.abstract.DocumentData {
+  static defineSchema() {
+    return {
+      id: fields.REQUIRED_STRING,
+      name: fields.REQUIRED_STRING,
+      user: fields.field(fields.STRING_FIELD, {default: game.user.id}),
+      permission: mergeObject(fields.DOCUMENT_PERMISSIONS, {default: {'default': CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}},{inplace: false}),
+      delta: fields.field(fields.OBJECT_FIELD, {default: {}}),
+    }
+  }
+}
+
+globalThis.StackData = StackData;
+
 /*** MUTATION DATA STRUCTURE ****/
-//  delta, (i.e. update object needed to revert this mutation)
+//  delta, (i.e. update object needed to revert this mutation, shorthand)
 //  user: game.user.id,
 //  comparisonKeys: options.comparisonKeys ?? {},
-//  name: options.name ?? randomID()
-
-
+//  id: randomId();
+//  name: options.name ?? id
 export class MutationStack {
-  constructor(tokenDoc) {
+  constructor(doc) {
 
-    this._token = tokenDoc;
+    this._doc = doc;
 
     /* Grab the current stack (or make a new one) */
     this._stack = null;
-    //
 
     /* indicates if the stack has been duplicated for modification */
     this._locked = true;
   }
 
   get stack() {
-    return this._locked ? this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? [] : this._stack ;
+    return this._locked ? this._doc.getFlag(MODULE.data.name, 'mutate') ?? [] : this._stack ;
   }
 
   /**
@@ -55,7 +69,7 @@ export class MutationStack {
    * @memberof MutationStack
    */
   find(predicate) {
-    if (this._locked) return (this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []).find(predicate);
+    if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).find(predicate);
 
     return this._stack.find(predicate);
   }
@@ -72,7 +86,7 @@ export class MutationStack {
    */
   _findIndex( predicate ) {
 
-    if (this._locked) return (this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []).findIndex(predicate);
+    if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).findIndex(predicate);
 
     return this._stack.findIndex(predicate);
   }
@@ -97,6 +111,19 @@ export class MutationStack {
   get last() {
     return this.stack[this.stack.length - 1];
   }
+
+  create(metaData, revertData) {
+    this._unlock();
+
+    const entry = {
+      ...metaData,
+      delta: revertData
+    }
+
+    this.stack.push(new StackData(entry));
+
+    return this;
+  };
 
   /**
    * Updates the mutation matching the provided name with the provided mutation info.
@@ -124,21 +151,11 @@ export class MutationStack {
 
     if (overwrite) {
 
-      /* we need at LEAST a name to identify by */
-      if (!mutationInfo.name) {
-        logger.error(MODULE.localize('error.incompleteMutateInfo'));
-        return this;
-      }
-
-      /* if no user is provided, input current user. */
-      if (!mutationInfo.user) mutationInfo.user = game.user.id;
-
-      this._stack[index] = mutationInfo;
+      this._stack[index] = new StackData(mutationInfo);
 
     } else {
-
       /* incomplete mutations are fine with merging */
-      mergeObject(this._stack[index], mutationInfo);
+      this._stack[index].update(mutationInfo);
     }
 
     return this;
@@ -159,10 +176,10 @@ export class MutationStack {
     const innerUpdate = (transform) => {
       if (typeof transform === 'function') {
         /* if we are applying a transform function */
-        return (element) => mergeObject(element, transform(element));
+        return (element) => element.update(transform(element));
       } else {
         /* if we are applying a constant change */
-        return (element) => mergeObject(element, transform);
+        return (element) => element.update(transform);
       }
     }
 
@@ -206,7 +223,7 @@ export class MutationStack {
       logger.error(MODULE.localize('error.stackLockedOrEmpty'))
     }
 
-    await this._token.actor.update({
+    await this._doc.update({
       flags: {
         [MODULE.data.name]: {
           'mutate': this._stack
@@ -233,7 +250,7 @@ export class MutationStack {
       return false;
     }
 
-    this._stack = duplicate(this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []);
+    this._stack = duplicate(this._doc.getFlag(MODULE.data.name, 'mutate') ?? []);
     this._locked = false;
     return true;
   }

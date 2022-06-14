@@ -29,6 +29,7 @@ import { Mutator } from './mutator.js';
 import { RemoteMutator } from './remote-mutator.js'
 import { UserInterface } from './user-interface.js';
 import { Comms } from './comms.js';
+import { DocMutator } from './doc-mutator.js'
 
 const SUB_MODULES = {
   MODULE,
@@ -38,7 +39,8 @@ const SUB_MODULES = {
   Mutator,
   RemoteMutator,
   UserInterface,
-  Comms
+  Comms,
+  DocMutator
 }
 
 /*

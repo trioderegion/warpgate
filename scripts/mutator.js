@@ -19,6 +19,7 @@ import {logger} from './logger.js'
 import {MODULE} from './module.js'
 import {Comms} from './comms.js'
 import {RemoteMutator} from './remote-mutator.js'
+import {MutationStack} from './mutation-stack.js'
 
 const NAME = "Mutator";
 
@@ -50,81 +51,6 @@ export class Mutator {
         update.actorId = sourceActorId;
       }
     }
-  }
-
-  static _parseUpdateShorthand(collection, updates, comparisonKey) {
-    let parsedUpdates = Object.keys(updates).map((key) => {
-      if (updates[key] === warpgate.CONST.DELETE) return { _id: null };
-      const _id = collection.find( element => getProperty(element.data,comparisonKey) === key )?.id ?? null;
-      return {
-        ...updates[key],
-        _id,
-      }
-    });
-    parsedUpdates = parsedUpdates.filter( update => !!update._id);
-    return parsedUpdates;
-  }
-
-  static _parseDeleteShorthand(collection, updates, comparisonKey) {
-    let parsedUpdates = Object.keys(updates).map((key) => {
-      if (updates[key] !== warpgate.CONST.DELETE) return null;
-      return collection.find( element => getProperty(element.data, comparisonKey) === key )?.id ?? null;
-    });
-
-    parsedUpdates = parsedUpdates.filter( update => !!update);
-    return parsedUpdates;
-  }
-
-  static _parseAddShorthand(collection, updates, comparisonKey){
-    let parsedAdds = Object.keys(updates).map((key) => {
-
-      /* ignore deletes */
-      if (updates[key] === warpgate.CONST.DELETE) return false;
-
-      /* ignore item updates for items that exist */
-      if (collection.find( element => getProperty(element.data, comparisonKey) === key)) return false;
-      
-      let data = updates[key];
-      setProperty(data, comparisonKey, key);
-      return data;
-    });
-    parsedAdds = parsedAdds.filter( update => !!update);
-    return parsedAdds;
-
-  }
-
-  static _invertShorthand(collection, updates, comparisonKey){
-    let inverted = {};
-    Object.keys(updates).forEach( (key) => {
-      /* this is a delete */
-      if (updates[key] === warpgate.CONST.DELETE) {
-        /* find this item currently and copy off its data */ 
-        const currentData = collection.find( element => getProperty(element.data, comparisonKey) === key );
-        /* hopefully we found something */
-        if(currentData)
-          setProperty(inverted, key, currentData.toObject());
-        return;
-      }
-
-      /* this is an update */
-      const foundItem = collection.find( element => getProperty(element.data, comparisonKey) === key)
-      if (foundItem){
-        /* grab the current value of any updated fields and store */
-        const expandedUpdate = expandObject(updates[key]);
-        const sourceData = foundItem.toObject();
-        const updatedData = mergeObject(sourceData, expandedUpdate, {inplace: false});
-        const diff = diffObject(updatedData, sourceData)
-
-        setProperty(inverted, updatedData[comparisonKey], diff);
-        return;
-      }
-      
-      /* must be an add, so we delete */
-      setProperty(inverted, key, warpgate.CONST.DELETE);
-      
-    });
-
-    return inverted;
   }
 
   static _errorCheckEmbeddedUpdates( embeddedName, updates ) {
@@ -185,29 +111,33 @@ export class Mutator {
   }
 
   /* embeddedUpdates keyed by embedded name, contains shorthand */
-  static async _updateEmbedded(owner, embeddedUpdates, comparisonKeys){
+  static async _updateEmbedded(mutation){
 
-    /* @TODO check for any recursive embeds*/
-    if (embeddedUpdates?.embedded) delete embeddedUpdates.embedded;
+    const doc = mutation.document;
+    const embeddedUpdates = mutation.getEmbeddedShorthand();
 
     for(const embeddedName of Object.keys(embeddedUpdates ?? {})){
-      await Mutator._performEmbeddedUpdates(owner, embeddedName, embeddedUpdates[embeddedName],
-        comparisonKeys[embeddedName] ?? MODULE[NAME].comparisonKey)
+      await Mutator._performEmbeddedUpdates(
+        doc, 
+        embeddedName, 
+        embeddedUpdates[embeddedName],
+        mutation.getComparisonKey(embeddedName)
+      );
     }
 
   }
 
-  /* updates the actor and any embedded documents of this actor */
-  /* @TODO support embedded documents within embedded documents */
-  static async _updateActor(actor, updates = {}, comparisonKeys = {}) {
+  /* updates the document and any embedded documents of this document */
+  static async _updateDocument(mutation) {
 
-    logger.debug('Performing update on (actor/updates)',actor, updates);
+    const doc = mutation.document;
+    const updates = mutation.getUpdate();
+
+    logger.debug('Performing update:',doc, updates);
     await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
-    if (updates.actor) await actor.update(updates.actor);
-
-    await Mutator._updateEmbedded(actor, updates.embedded, comparisonKeys);
+    if (updates) await doc.update(updates);
 
     return;
   }
@@ -329,7 +259,7 @@ export class Mutator {
     await tokenDoc.update(updates.token ?? {});
 
     /* update the actor */
-    return Mutator._updateActor(tokenDoc.actor, updates, options.comparisonKeys ?? {});
+    return Mutator._updateDocument(tokenDoc.actor, updates, options.comparisonKeys ?? {});
   }
 
   /* Will peel off the last applied mutation change from the provided token document
@@ -430,7 +360,7 @@ export class Mutator {
     const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
 
     /* get the actor changes (no embeds) */
-    const actorData = Mutator._getRootActorData(tokenDoc.actor);
+    const actorData = Mutator._getRootDocumentData(tokenDoc.actor);
     const actorDelta = diffObject(updates.actor ?? {}, actorData, {inner:true});
 
     /* get the changes from the embeds */
@@ -450,8 +380,8 @@ export class Mutator {
   }
 
   /* returns the actor data sans ALL embedded collections */
-  static _getRootActorData(actorDoc) {
-    let actorData = actorDoc.data.toObject();
+  static _getRootDocumentData(doc) {
+    let actorData = doc.toObject();
 
     /* get the key NAME of the embedded document type.
      * ex. not 'ActiveEffect' (the class name), 'effect' the collection's field name

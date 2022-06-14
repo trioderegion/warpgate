@@ -224,7 +224,7 @@ export class api {
 
       //updates.actor = mergeObject(updates.actor ?? {}, permissions);
 
-      await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
+      await Mutator._updateDocument(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
       
       const actorData = Comms.packToken(spawnedTokenDoc);
       
