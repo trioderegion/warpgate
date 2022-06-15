@@ -73,7 +73,7 @@ export class Mutator {
   }
 
   /* run the provided updates for the given embedded collection name from the owner */
-  static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name'){
+  static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name', options = {}){
     
     const collection = owner.getEmbeddedCollection(embeddedName);
 
@@ -90,19 +90,19 @@ export class Mutator {
     }
 
     try {
-      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds);
+      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, options);
     } catch (e) {
       logger.error(e);
     } 
 
     try {
-      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates);
+      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates, options);
     } catch (e) {
       logger.error(e);
     }
 
     try {
-      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes);
+      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes, options);
     } catch (e) {
       logger.error(e);
     }
@@ -114,14 +114,14 @@ export class Mutator {
   static async _updateEmbedded(mutation){
 
     const doc = mutation.document;
-    const embeddedUpdates = mutation.getEmbeddedShorthand();
+    const embeddedUpdates = mutation.getEmbedded();
 
-    for(const embeddedName of Object.keys(embeddedUpdates ?? {})){
+    for(const embedded of Object.values(embeddedUpdates)){
       await Mutator._performEmbeddedUpdates(
         doc, 
-        embeddedName, 
-        embeddedUpdates[embeddedName],
-        mutation.getComparisonKey(embeddedName)
+        embedded.collectionName, 
+        embedded.shorthand,
+        embedded.comparisonKey
       );
     }
 
@@ -131,13 +131,13 @@ export class Mutator {
   static async _updateDocument(mutation) {
 
     const doc = mutation.document;
-    const updates = mutation.getUpdate();
+    const {update, options} = mutation.getUpdate();
 
     logger.debug('Performing update:',doc, updates);
     await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
-    if (updates) await doc.update(updates);
+    if (updates) await doc.update(update, options);
 
     return;
   }

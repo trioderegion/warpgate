@@ -23,15 +23,28 @@ import {
 } from './module.js'
 
 import * as fields from '../../../common/data/fields.mjs'
+import {Mutation} from './entities/mutation.mjs'
 
-class StackData extends foundry.abstract.DocumentData {
+export class StackData extends foundry.abstract.DocumentData {
   static defineSchema() {
     return {
+
+      /* serialization and identification */
+      class: fields.field(fields.STRING_FIELD, {default: Mutation.constructor.name}),
       id: fields.REQUIRED_STRING,
       name: fields.REQUIRED_STRING,
-      user: fields.field(fields.STRING_FIELD, {default: game.user.id}),
-      permission: mergeObject(fields.DOCUMENT_PERMISSIONS, {default: {'default': CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}},{inplace: false}),
-      delta: fields.field(fields.OBJECT_FIELD, {default: {}}),
+
+      /* data for handling this mutation stack entry */
+      data: fields.field(fields.OBJECT_FIELD, {default: {
+        user: fields.field(fields.STRING_FIELD, {default: game.user.id}),
+        permission: fields.field(fields.DOCUMENT_PERMISSIONS, {default: {'default': CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}}),
+
+        /* additional user-provided context data */
+        context: fields.OBJECT_FIELD,
+      }}),
+
+      /* actual mutation data */
+      delta: fields.OBJECT_FIELD,
     }
   }
 }
@@ -44,20 +57,26 @@ globalThis.StackData = StackData;
 //  comparisonKeys: options.comparisonKeys ?? {},
 //  id: randomId();
 //  name: options.name ?? id
-export class MutationStack {
-  constructor(doc) {
+export class MutationStack extends Collection {
+  constructor(doc, {moduleName = MODULE.data.name, stackName = 'mutation'}) {
 
     this._doc = doc;
+    this._type = {moduleName, stackName};
 
-    /* Grab the current stack (or make a new one) */
-    this._stack = null;
+    /* initialize our collection */
+    const rawData = doc.getFlag(MODULE.data.name, 'mutate') ?? [];
+    const initData = rawData.length > 0 ? rawData.map( data => [data.id, new StackData(data)] ) : null;
 
-    /* indicates if the stack has been duplicated for modification */
-    this._locked = true;
+    super(initData);
   }
 
+  /* @deprecated */
   get stack() {
-    return this._locked ? this._doc.getFlag(MODULE.data.name, 'mutate') ?? [] : this._stack ;
+    return this;
+  }
+
+  get type() {
+    return this._name;
   }
 
   /**
@@ -68,11 +87,11 @@ export class MutationStack {
    * @return {Object} Element of the mutation stack that matches the predicate, or undefined if none.
    * @memberof MutationStack
    */
-  find(predicate) {
-    if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).find(predicate);
+  //find(predicate) {
+  //  if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).find(predicate);
 
-    return this._stack.find(predicate);
-  }
+  //  return this._stack.find(predicate);
+  //}
 
   /**
    * Searches for an element of the mutation stack that satisfies the provided predicate and returns its
@@ -84,23 +103,34 @@ export class MutationStack {
    * @memberof MutationStack
    * @private
    */
-  _findIndex( predicate ) {
+  //_findIndex( predicate ) {
 
-    if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).findIndex(predicate);
+  //  if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).findIndex(predicate);
 
-    return this._stack.findIndex(predicate);
-  }
+  //  return this._stack.findIndex(predicate);
+  //}
 
   /**
    * Retrieves an element of the mutation stack that matches the provided name
    *
-   * @param {String} name Name of mutation (serves as a unique identifier)
+   * @param {String} name Name of mutation 
    * @return {Object} Element of the mutation stack matching the provided name, or undefined if none
    * @memberof MutationStack
    */
-  getName(name) {
-    return this.find((element) => element.name === name);
-  }
+  //getName(name) {
+  //  return this.find((element) => element.name === name);
+  //}
+
+  /**
+   * Retrieves an element of the mutation stack that matches the provided name
+   *
+   * @param {String} id ID of mutation (serves as a unique identifier)
+   * @return {Object} Element of the mutation stack matching the provided ID, or undefined if none
+   * @memberof MutationStack
+   */
+  //get(id) {
+  //  return this.find((element) => element.id === id);
+  //}
 
   /**
    * Retrieves that last mutation added to the mutation stack, or undefined if none present
@@ -108,19 +138,12 @@ export class MutationStack {
    * @return {Object} Newest element of the mutation stack
    * @memberof MutationStack
    */
-  get last() {
-    return this.stack[this.stack.length - 1];
-  }
+  //get last() {
+  //  return this.stack[this.stack.length - 1];
+  //}
 
-  create(metaData, revertData) {
-    this._unlock();
-
-    const entry = {
-      ...metaData,
-      delta: revertData
-    }
-
-    this.stack.push(new StackData(entry));
+  create(stackData) {
+    this.set(stackData.id, stackData);
 
     return this;
   };
@@ -138,28 +161,30 @@ export class MutationStack {
    * @return {MutationStack} self, unlocked for writing and updates staged.
    * @memberof MutationStack
    */
-  update(name, mutationInfo, {
-    overwrite = false
-  }) {
-    const index = this._findIndex((element) => element.name === name);
+  //update(name, mutationInfo, {
+  //  overwrite = false
+  //}) {
+  //  //const index = this._findIndex((element) => element.name === name);
 
-    if (index < 0) {
-      return false;
-    }
+  //  const element = this.getName(name);
 
-    this._unlock();
+  //  if (!element) {
+  //    return false;
+  //  }
 
-    if (overwrite) {
+  //  this._unlock();
 
-      this._stack[index] = new StackData(mutationInfo);
+  //  if (overwrite) {
 
-    } else {
-      /* incomplete mutations are fine with merging */
-      this._stack[index].update(mutationInfo);
-    }
+  //    this._stack[index] = new StackData(mutationInfo);
 
-    return this;
-  }
+  //  } else {
+  //    /* incomplete mutations are fine with merging */
+  //    this._stack[index].update(mutationInfo);
+  //  }
+
+  //  return this;
+  //}
 
   /**
    * Applies a given change or tranform function to the current buffer,
@@ -183,9 +208,7 @@ export class MutationStack {
       }
     }
 
-    this._unlock();
-
-    this._stack.forEach((element) => {
+    this.forEach((element) => {
       if (filterFn(element)) {
         innerUpdate(transform)(element);
       }
@@ -204,9 +227,10 @@ export class MutationStack {
    * @memberof MutationStack
    */
   deleteAll(filterFn = () => true) {
-    this._unlock();
 
-    this._stack = this._stack.filter((element) => !filterFn(element))
+    this.forEach( entry => {
+      if(filterFn(entry)) this.delete(entry.id); 
+    });
 
     return this;
   }
@@ -219,40 +243,23 @@ export class MutationStack {
    */
   async commit() {
 
-    if(this._locked) {
-      logger.error(MODULE.localize('error.stackLockedOrEmpty'))
-    }
-
-    await this._doc.update({
-      flags: {
-        [MODULE.data.name]: {
-          'mutate': this._stack
-        }
-      }
-    });
-
-    /* return to a locked read-only state */
-    this._locked = true;
-    this._stack = null;
+    await this._doc.update(this.toObject(true));
 
     return this;
   }
 
-  /**
-   * Unlocks the current buffer for writing by copying the mutation stack into this object.
-   *
-   * @return {Boolean} Indicates if the unlock occured. False indicates the buffer was already unlocked.
-   * @memberof MutationStack
-   */
-  _unlock() {
+  toObject(asFlag = false) {
+    
+    const rootData = {
+        [this.type.moduleName]: {
+          [this.type.stackName]: this.toJSON(),
+        }
+      }
 
-    if (!this._locked) {
-      return false;
-    }
+    if(asFlag) return {flags: rootData};
 
-    this._stack = duplicate(this._doc.getFlag(MODULE.data.name, 'mutate') ?? []);
-    this._locked = false;
-    return true;
+    return rootData;
+
   }
-
+  
 }

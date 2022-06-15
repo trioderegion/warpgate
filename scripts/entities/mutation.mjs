@@ -1,5 +1,5 @@
 import {MODULE} from '../module.js'
-import {MutationStack} from '../mutation-stack.js'
+import {MutationStack, StackData} from '../mutation-stack.js'
 
 export class Mutation {
 
@@ -112,14 +112,19 @@ export class Mutation {
     return this._id;
   }
 
+  /* @protected */
+  compKey(collectionName) {
+    return { ActiveEffect: 'label'}[collectionName] ?? 'name';
+  }
+
   /* @private */
   _update = {};
 
   /* @private */
-  _embeddedShorthand = {};
+  _updateOptions = {}; 
 
   /* @private */
-  _embeddedComparisonKey = { default: 'name', ActiveEffect: 'label'};
+  _embeddedShorthand = {};
 
   /* @private */
   _callbacks = {};
@@ -213,16 +218,16 @@ export class Mutation {
     const reverseDelta = diffObject(this.getUpdate(), docData, {inner: true});
 
     let embeddedInvert = {};
-    for (const [embeddedName, embeddedData] of Object.entries(this.getEmbeddedShorthand()) ){
+    for (const [embeddedName, embeddedData] of Object.entries(this.getEmbedded()) ){
 
       /* do not process null or empty embedded data */
-      if(isObjectEmpty(embeddedData.updateShorthand ?? {})) continue;
+      if(isObjectEmpty(embeddedData.shorthand ?? {})) continue;
 
       const collection = this._document.getEmbeddedCollection(embeddedName);
-      const invertedShorthand = this.constructor._invertShorthand(collection, embeddedData.updateShorthand , embeddedData.comparisonKey)
+      const invertedShorthand = this.constructor._invertShorthand(collection, embeddedData.shorthand, embeddedData.comparisonKey)
       embeddedInvert[embeddedName] = {
         ...embeddedData,
-        embeddedShorthand: invertedShorthand,
+        shorthand: invertedShorthand,
       }
     }
 
@@ -241,6 +246,26 @@ export class Mutation {
     embeddedFields.forEach( field => { delete docData[field] } )
 
     return docData;
+  }
+
+  getStackData() {
+    const metadata = this.metadata;
+    const revertData = this.revertData();
+
+    const data = {
+      class: metadata.class,
+      id: metadata.id,
+      name: metadata.name,
+      //user: default,
+      //permission: default,
+      //data: {}
+      delta: revertData,
+    }
+    
+    return new StackData(data);
+
+    //stack.create(this.metadata, this.revertData());
+
   }
 
   /************
@@ -271,17 +296,17 @@ export class Mutation {
     return this;
   }
 
-  addEmbedded(collectionName, updateShorthand, {comparisonKey = this._embeddedComparisonKey.default, updateOptions = null} = {}) {
+  addEmbedded(collectionName, shorthand, {comparisonKey = this._embeddedComparisonKey.default, options = {}} = {}) {
     
     /* valid embedded collection? */
-    if (_embeddedUpdate[collectionName]) {
+    if (this._embeddedUpdate[collectionName]) {
 
-      updateShorthand = expandObject(updateShorthand);
+      shorthand = expandObject(shorthand);
 
       let data = {
         collectionName,
-        updateShorthand,
-        updateOptions,
+        shorthand,
+        options,
         comparisonKey,
       }
 
@@ -313,26 +338,25 @@ export class Mutation {
   }
 
   getUpdate() {
-    return this._update;
+    return {
+      update: this._update,
+      options: this._updateOptions
+    }
   }
 
-  getEmbeddedShorthand(collectionName = null) {
+  getEmbedded(collectionName = null) {
     if(collectionName == undefined) return this._embeddedShorthand;
     return this._embeddedShorthand[collectionName];
-  }
-
-  getComparisonKey(collectionName) {
-    return this._embeddedComparisonKey[collectionName];
   }
 
   updateMutationStack() {
     const stack = new MutationStack(this._document);
 
-    stack.create(this.metadata, this.revertData());
+    const stackData = this.getStackData();
+    stack.create(stackData);
 
     /* Create a new mutation stack flag data and store it in the update object */
-    const flags = {[MODULE.data.name]: {mutate: stack.stack}};
-    this.add({flags});
+    this.add(stack.toObject(true));
 
     return this;
   }
@@ -352,13 +376,13 @@ export class EmbeddedMutation extends Mutation {
   getUpdate() {
     let update = super.getUpdate()
 
-    const collectionChanges = super.getEmbeddedShorthand();
+    const collectionChanges = super.getEmbedded();
     const directCollectionUpdate = EmbeddedMutation._collectionChangeToArray(collectionChanges);
     mergeUpdate(update, directCollectionUpdate);
     return update;
   }
 
-  getEmbeddedShorthand() {
+  getEmbedded() {
     return {};
   }
 }
