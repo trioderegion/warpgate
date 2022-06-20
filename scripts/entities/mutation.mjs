@@ -4,9 +4,11 @@ import {MutationStack, StackData} from '../mutation-stack.js'
 export class Mutation {
 
   static STAGE = {
-    PRE_MUTATE: 0,
-    POST_MUTATE: 1,
-    POST_REVERT: 2,
+    GEN_STACK_DATA: 0,
+    PRE_MUTATE: 1,
+    POST_MUTATE: 2,
+    PRE_REVERT: 3,
+    POST_REVERT: 4,
   }
 
   static _parseUpdateShorthand(collection, updates, comparisonKey) {
@@ -112,6 +114,13 @@ export class Mutation {
     return this._id;
   }
 
+  get muid() {
+    return {
+      uuid: this.document?.uuid,
+      mutation: this.id,
+    }
+  }
+
   /* @protected */
   compKey(collectionName) {
     return { ActiveEffect: 'label'}[collectionName] ?? 'name';
@@ -128,6 +137,18 @@ export class Mutation {
 
   /* @private */
   _callbacks = {};
+
+  /* @public */
+  callAll(stage, ...args) {
+
+    const list = this._callbacks[stage] ?? [];
+
+    const retlist = list.map( ({fn, context}) => {
+      return fn.apply(this, context, ...args);
+    });
+
+    return retlist;
+  }
 
   /* @private */
   _revertData = null; 
@@ -160,6 +181,10 @@ export class Mutation {
 
   /* @private */
   _links = [];
+
+  get links() {
+    return this._links.map( mut => mut.muid );
+  }
   
 
   /**************
@@ -258,13 +283,37 @@ export class Mutation {
       name: metadata.name,
       //user: default,
       //permission: default,
-      //data: {}
+      links: this.links,
+      //hidden: default,
+      callbacks: this.getStackCallbacks(),
       delta: revertData,
     }
-    
-    return new StackData(data);
 
-    //stack.create(this.metadata, this.revertData());
+    const stackData = new StackData(data);
+
+    const retList = this.callAll(Mutation.STAGE.GEN_STACK_DATA, stackData)
+    if(retList.some( ret => ret === false )) return false;
+    
+    return stackData;
+  }
+
+  getStackCallbacks() {
+
+    const stages = [Mutation.STAGE.PRE_REVERT, Mutation.STAGE.POST_REVERT];
+
+    const cb = stages.reduce( (acc, curr) => {
+      stage = this._callbacks[curr] ?? false;
+      if(!!stage) {
+        
+        /* create or add to running list */
+        if(!acc) acc = {[curr]: [stage]};
+        else acc[curr].push(stage);
+      }
+
+      return acc;
+    }, null);
+
+    return cb;
 
   }
 
@@ -291,7 +340,7 @@ export class Mutation {
     }
 
     /* store it */
-    this._callbacks[stage] = {fn, context};
+    this._callbacks[stage].push({fn, context});
 
     return this;
   }
@@ -353,9 +402,12 @@ export class Mutation {
     const stack = new MutationStack(this._document);
 
     const stackData = this.getStackData();
-    stack.create(stackData);
+
+    /* if we were cancelled or errored for any reason */
+    if (!stackData) return this;
 
     /* Create a new mutation stack flag data and store it in the update object */
+    stack.create(stackData);
     this.add(stack.toObject(true));
 
     return this;
@@ -363,6 +415,18 @@ export class Mutation {
 
   bin() {
     return [this, ...this._links]; 
+  }
+
+  cleanup(results) {
+    logger.debug('Mutation cleanup results', results);
+
+    const eventData = {
+      muid: this.muid,
+      docName: this.document.name,
+      mutName: this.config.name,
+    }
+
+    return warpgate.event.notify(warpgate.CONST.EVENT.MUTATE, eventData);
   }
 
 }

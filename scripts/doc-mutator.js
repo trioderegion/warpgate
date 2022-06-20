@@ -1,59 +1,66 @@
-
-import {logger} from './logger.js'
-import {MODULE} from './module.js'
-import {Mutator} from './mutator.js'
-import {Mutation} from './entities/mutation.mjs'
+import { logger } from "./logger.js";
+import { MODULE } from "./module.js";
+import { Mutator } from "./mutator.js";
+import { Mutation } from "./entities/mutation.mjs";
 
 const NAME = "DocMutator";
 
 export class DocMutator {
-
   static register() {
-
-    Hooks.once('ready', ()=>{
+    Hooks.once("ready", () => {
       globalThis.DocMutator = DocMutator;
       globalThis.Mutation = Mutation;
     });
   }
 
-
+  /**
+   * @parm {Mutation} mutation
+   */
   static async apply(mutation) {
+    logger.debug("Mutate Info", mutation);
 
+    /* premutate callback */
+    const preRet = await Promise.all(
+      mutation.callAll(Mutation.STAGE.PRE_MUTATE)
+    );
+    if (preRet.some((ret) => ret === false)) return false;
 
-    //logger.debug('Document Delta', MODULE.localize('debug.actorDelta'), docDelta, MODULE.localize('debug.embeddedDelta'), embeddedDelta);
+    const docRet = await Mutator._updateDocument(mutation);
+    const embedRet = await Mutator._updateEmbedded(mutation);
 
-    logger.debug('Mutate Info', mutation);
+    /* post mutate callback */
+    const postRet = await Promise.all(
+      mutation.callAll(Mutation.STAGE.POST_MUTATE)
+    );
 
-    await Mutator._updateDocument(mutation);
-
-    await Mutator._updateEmbedded(mutation);
+    return { pre: preRet, doc: docRet, embed: embedRet, post: postRet };
   }
 
   static async revertTest(document, mutationName = undefined) {
     const mutateData = await Mutator._popMutation(document, mutationName);
-    await Mutator._updateDocument(document, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
+    await Mutator._updateDocument(document, mutateData.delta, {
+      comparisonKeys: mutateData.comparisonKeys,
+    });
   }
 
   static async mutate(mutation) {
-    
     /* if not permanent, we need to create revert data */
-    if(!mutation.permanent()) {
-
-      // @TODO placeholder for callback execution -- should the mutation handle it directly? or the doc mutator (as shown)
-      //const continueExecution = await DocMutator._runCallbacks(Mutation.STAGE.PRE_MUTATE, mutation);
-      //if (!continueExecution) return mutation;
-
+    if (!mutation.permanent()) {
       mutation.updateMutationStack();
-
     }
 
-    const binnedMutations = mutation.bin(); 
+    const binnedMutations = mutation.bin();
 
-    const promises = binnedMutations.map( mut => DocMutator.apply(mut) );
+    const promises = binnedMutations.map((mut) => DocMutator.apply(mut));
 
-    await Promise.all(promises);
+    const results = await Promise.all(promises);
 
-    return mutation;
+    return mutation.cleanup(results);
   }
-
 }
+
+/**
+ * @type {{a: boolean, b: boolean, c: number}}
+ */
+var x = { a: true };
+x.b = false;

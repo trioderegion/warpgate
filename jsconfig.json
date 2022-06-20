@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "ES6",
+    "target": "ES6",
+    "checkJs": true,
+    "allowJs": true
+  },
+  "include": ["module/**/*", "../v9-latest/**/*"]
+}

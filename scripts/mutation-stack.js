@@ -25,23 +25,31 @@ import {
 import * as fields from '../../../common/data/fields.mjs'
 import {Mutation} from './entities/mutation.mjs'
 
+function fnToString(fn) {
+
+
+}
+
 export class StackData extends foundry.abstract.DocumentData {
   static defineSchema() {
     return {
 
       /* serialization and identification */
-      class: fields.field(fields.STRING_FIELD, {default: Mutation.constructor.name}),
+      class: fields.field(fields.STRING_FIELD, {default: Mutation.name}),
       id: fields.REQUIRED_STRING,
       name: fields.REQUIRED_STRING,
 
       /* data for handling this mutation stack entry */
-      data: fields.field(fields.OBJECT_FIELD, {default: {
-        user: fields.field(fields.STRING_FIELD, {default: game.user.id}),
-        permission: fields.field(fields.DOCUMENT_PERMISSIONS, {default: {'default': CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}}),
+      user: fields.field(fields.STRING_FIELD, {default: game.user.id}),
+      permission: fields.field(fields.DOCUMENT_PERMISSIONS, {default: {'default': CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}}),
+      links: {
+        type: [Object],
+        required: false,
+        default: [],
+      },
+      hidden: fields.BOOLEAN_FIELD,
 
-        /* additional user-provided context data */
-        context: fields.OBJECT_FIELD,
-      }}),
+      callbacks: fields.OBJECT_FIELD,
 
       /* actual mutation data */
       delta: fields.OBJECT_FIELD,
@@ -58,10 +66,10 @@ globalThis.StackData = StackData;
 //  id: randomId();
 //  name: options.name ?? id
 export class MutationStack extends Collection {
-  constructor(doc, {moduleName = MODULE.data.name, stackName = 'mutation'}) {
+  constructor(doc, {module = MODULE.data.name, stack = 'mutation'} = {}) {
 
     this._doc = doc;
-    this._type = {moduleName, stackName};
+    this._type = {module, stack};
 
     /* initialize our collection */
     const rawData = doc.getFlag(MODULE.data.name, 'mutate') ?? [];
@@ -76,7 +84,7 @@ export class MutationStack extends Collection {
   }
 
   get type() {
-    return this._name;
+    return this._type;
   }
 
   /**
