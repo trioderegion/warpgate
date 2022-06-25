@@ -25,12 +25,23 @@ import {
 import * as fields from '../../../common/data/fields.mjs'
 import {Mutation} from './entities/mutation.mjs'
 
-function fnToString(fn) {
-
-
-}
-
 export class StackData extends foundry.abstract.DocumentData {
+
+  static CALLBACK_FIELD = {
+    ...fields.OBJECT_FIELD,
+    clean: data => {
+      Object.values(data).forEach( stage => stage.forEach( cb => cb.fn = StackData.fnReviver(cb.fn) ) );
+      return data;
+    }
+  }
+
+  static fnReviver(data) {
+    return (data instanceof Array && data[0] == 'Function') ?
+      new (Function.bind.apply(Function, [Function].concat(data[1], [data[2]]))) :
+      data
+    ;
+  };
+
   static defineSchema() {
     return {
 
@@ -49,7 +60,7 @@ export class StackData extends foundry.abstract.DocumentData {
       },
       hidden: fields.BOOLEAN_FIELD,
 
-      callbacks: fields.OBJECT_FIELD,
+      callbacks: StackData.CALLBACK_FIELD,
 
       /* actual mutation data */
       delta: fields.OBJECT_FIELD,
@@ -67,15 +78,15 @@ globalThis.StackData = StackData;
 //  name: options.name ?? id
 export class MutationStack extends Collection {
   constructor(doc, {module = MODULE.data.name, stack = 'mutation'} = {}) {
+    /* initialize our collection */
+    const rawData = doc.getFlag(MODULE.data.name, stack) ?? [];
+    const initData = rawData.length > 0 ? rawData.map( data => [data.id, new StackData(data)] ) : null;
+
+    super(initData);
 
     this._doc = doc;
     this._type = {module, stack};
 
-    /* initialize our collection */
-    const rawData = doc.getFlag(MODULE.data.name, 'mutate') ?? [];
-    const initData = rawData.length > 0 ? rawData.map( data => [data.id, new StackData(data)] ) : null;
-
-    super(initData);
   }
 
   /* @deprecated */
@@ -155,6 +166,11 @@ export class MutationStack extends Collection {
 
     return this;
   };
+
+  set(id, data) {
+    data = typeof data === "StackData" ? data : new StackData(data);
+    return super.set(id,data);
+  }
 
   /**
    * Updates the mutation matching the provided name with the provided mutation info.
@@ -259,8 +275,8 @@ export class MutationStack extends Collection {
   toObject(asFlag = false) {
     
     const rootData = {
-        [this.type.moduleName]: {
-          [this.type.stackName]: this.toJSON(),
+        [this.type.module]: {
+          [this.type.stack]: this.toJSON(),
         }
       }
 
