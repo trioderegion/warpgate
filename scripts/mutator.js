@@ -127,23 +127,6 @@ export class Mutator {
 
   }
 
-  /* updates the document and any embedded documents of this document */
-  static async _updateDocument(mutation) {
-
-    const doc = mutation.document;
-    const {update, options} = mutation.getUpdate();
-
-    logger.debug('Performing update:',doc, updates);
-    await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
-
-    /** perform the updates */
-    if (updates) await doc.update(update, options);
-
-    return;
-  }
-
-  
-
   /* 
    * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
    *

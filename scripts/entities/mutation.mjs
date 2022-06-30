@@ -1,6 +1,16 @@
 import {MODULE} from '../module.js'
 import {MutationStack, StackData} from '../mutation-stack.js'
 
+function preloadImages(mutation) {
+  console.warn('Not yet implemented');
+  return false;
+}
+
+function sanityCheckMutation(mutation) {
+  console.warn('Not yet implemented');
+  return false;
+}
+
 export class Mutation {
 
   static STAGE = {
@@ -98,6 +108,11 @@ export class Mutation {
 
     /* merge in any provided configs */
     mergeObject(this._config, config);
+
+    /* add in the premutate callback to ensure images are preloaded
+     * and sanity checks concerning the update itself (size, stack length, etc )*/
+    this.callback(Mutation.STAGE.PRE_MUTATE, sanityCheckMutation);
+    this.callback(Mutation.STAGE.PRE_MUTATE, preloadImages);
   }
 
   /* @private */
@@ -151,7 +166,7 @@ export class Mutation {
   }
 
   /* @private */
-  _revertData = null; 
+  _stack = null; 
 
   /* @private */
   _config = {
@@ -160,6 +175,10 @@ export class Mutation {
     description: '',
     hidden: false,
   };
+
+  get revertData() {
+    return this._invertUpdate();
+  }
 
   get config() {
     return this._config;
@@ -219,24 +238,6 @@ export class Mutation {
     return this;
   }
 
-  /*
-   * @param {undefined|Boolean|Object} data
-   */
-  revertData(data) {
-
-    /* get request, generate data lazily */
-    if(data == undefined || data === true){
-
-      if(!this._revertData || data === true) {
-        this._revertData = this._invertUpdate();
-      }
-
-      return this._revertData;
-    }
-
-    this._revertData = data;
-    return this;
-  }
 
   _invertUpdate() {
     const docData = this._rootDocumentData();
@@ -273,9 +274,8 @@ export class Mutation {
     return docData;
   }
 
-  getStackData() {
+  generateStackEntry() {
     const metadata = this.metadata;
-    const revertData = this.revertData();
 
     const data = {
       class: metadata.class,
@@ -286,7 +286,7 @@ export class Mutation {
       links: this.links,
       //hidden: default,
       callbacks: this.getStackCallbacks(),
-      delta: revertData,
+      delta: this.revertData,
     }
 
     const stackData = new StackData(data);
@@ -399,16 +399,16 @@ export class Mutation {
   }
 
   updateMutationStack() {
-    const stack = new MutationStack(this._document);
 
-    const stackData = this.getStackData();
+    if(!this._stack) this._stack = new MutationStack(this._document);
+
+    const stackData = this.generateStackEntry();
 
     /* if we were cancelled or errored for any reason */
     if (!stackData) return this;
 
     /* Create a new mutation stack flag data and store it in the update object */
-    stack.create(stackData);
-    this.add(stack.toObject(true));
+    this._stack.create(stackData);
 
     return this;
   }

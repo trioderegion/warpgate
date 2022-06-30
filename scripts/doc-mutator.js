@@ -19,21 +19,42 @@ export class DocMutator {
   static async apply(mutation) {
     logger.debug("Mutate Info", mutation);
 
+    let callbackRet = {};
+
     /* premutate callback */
     const preRet = await Promise.all(
       mutation.callAll(Mutation.STAGE.PRE_MUTATE)
     );
-    if (preRet.some((ret) => ret === false)) return false;
 
-    const docRet = await Mutator._updateDocument(mutation);
+    /* can be cancelled, if so, bail */
+    if (preRet.some((ret) => ret === false)) return false;
+    callbackRet[Mutation.STAGE.PRE_MUTATE] = preRet;
+
+    const docRet = await DocMutator._updateDocument(mutation);
     const embedRet = await Mutator._updateEmbedded(mutation);
 
-    /* post mutate callback */
-    const postRet = await Promise.all(
+    /* post mutate callback (no cancel to be had) */
+    callbackRet[Mutation.STAGE.POST_MUTATE] = await Promise.all(
       mutation.callAll(Mutation.STAGE.POST_MUTATE)
     );
 
-    return { pre: preRet, doc: docRet, embed: embedRet, post: postRet };
+    return { doc: docRet, embed: embedRet, callbacks: callbackRet };
+  }
+
+  /* updates the document and any embedded documents of this document */
+  static async _updateDocument(mutation) {
+
+    const doc = mutation.document;
+    const {update, options} = mutation.getUpdate();
+    const stack = mutation.stack;
+
+    logger.debug('Performing update:',doc, update, stack);
+    await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
+
+    /** perform the updates */
+    if (update) await doc.update(update, options);
+
+    return;
   }
 
   static async revertTest(document, mutationName = undefined) {
@@ -58,9 +79,3 @@ export class DocMutator {
     return mutation.cleanup(results);
   }
 }
-
-/**
- * @type {{a: boolean, b: boolean, c: number}}
- */
-var x = { a: true };
-x.b = false;
