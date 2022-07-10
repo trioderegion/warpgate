@@ -6,6 +6,7 @@ function preloadImages(mutation) {
   return false;
 }
 
+/* sizes, if this mutation exists already on the actor, etc */
 function sanityCheckMutation(mutation) {
   console.warn('Not yet implemented');
   return false;
@@ -110,8 +111,8 @@ export class Mutation {
     mergeObject(this._config, config);
 
     /* add in the premutate callback to ensure images are preloaded
-     * and sanity checks concerning the update itself (size, stack length, etc )*/
-    this.callback(Mutation.STAGE.PRE_MUTATE, sanityCheckMutation);
+     * and stack gen sanity checks concerning the update itself (size, stack length, etc )*/
+    this.callback(Mutation.STAGE.GEN_STACK_DATA, sanityCheckMutation);
     this.callback(Mutation.STAGE.PRE_MUTATE, preloadImages);
   }
 
@@ -176,7 +177,7 @@ export class Mutation {
     hidden: false,
   };
 
-  get revertData() {
+  getRevertData() {
     return this._invertUpdate();
   }
 
@@ -286,7 +287,7 @@ export class Mutation {
       links: this.links,
       //hidden: default,
       callbacks: this.getStackCallbacks(),
-      delta: this.revertData,
+      delta: this.getRevertData(),
     }
 
     const stackData = new StackData(data);

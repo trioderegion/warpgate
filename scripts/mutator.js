@@ -89,6 +89,7 @@ export class Mutator {
       return false;
     }
 
+    //TODO compress into a single, raw array and update the owner.
     try {
       if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, options);
     } catch (e) {
@@ -110,22 +111,7 @@ export class Mutator {
     return true;
   }
 
-  /* embeddedUpdates keyed by embedded name, contains shorthand */
-  static async _updateEmbedded(mutation){
 
-    const doc = mutation.document;
-    const embeddedUpdates = mutation.getEmbedded();
-
-    for(const embedded of Object.values(embeddedUpdates)){
-      await Mutator._performEmbeddedUpdates(
-        doc, 
-        embedded.collectionName, 
-        embedded.shorthand,
-        embedded.comparisonKey
-      );
-    }
-
-  }
 
   /* 
    * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
@@ -276,59 +262,7 @@ export class Mutator {
     return false;
   }
 
-  static async _popMutation(actor, mutationName) {
-
-    let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate');
-
-    if (!mutateStack || !actor){
-      logger.debug(`Could not pop mutation named ${mutationName} from actor ${actor?.name}`);
-      return undefined;
-    }
-
-    let mutateData = undefined;
-
-    if (!!mutationName) {
-      /* find specific mutation */
-      const index = mutateStack.findIndex( mutation => mutation.name === mutationName );
-
-      /* check for no result and error */
-      if ( index < 0 ) {
-        logger.error(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
-        return undefined;
-      }
-
-      /* otherwise, retrieve and remove */
-      mutateData = mutateStack.splice(index, 1)[0];
-
-      for( let i = index; i < mutateStack.length; i++){
-
-        /* get the values stored in our delta and push any overlapping ones to
-         * the mutation next in the stack
-         */
-        const stackUpdate = filterObject(mutateData.delta, mutateStack[i].delta);
-        mergeObject(mutateStack[i].delta, stackUpdate);
-
-        /* remove any changes that exist higher in the stack, we have
-         * been overriden and should not restore these values
-         */
-        mutateData.delta = MODULE.unique(mutateData.delta, mutateStack[i].delta)
-      }
-
-    } else {
-      /* pop the most recent mutation */
-      mutateData = mutateStack?.pop();
-    }
-
-    /* if there are no mutations left on the stack, remove our flag data
-     * otherwise, store the remaining mutations */
-    if (mutateStack.length == 0) {
-      await actor.unsetFlag(MODULE.data.name, 'mutate');
-    } else {
-      await actor.setFlag(MODULE.data.name, 'mutate', mutateStack);
-    }
-    logger.debug(MODULE.localize('debug.finalRevertUpdate'), mutateData);
-    return mutateData;
-  }
+  
 
   /* given a token document and the standard update object,
    * parse the changes that need to be applied to *reverse*

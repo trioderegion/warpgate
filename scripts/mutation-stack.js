@@ -272,6 +272,10 @@ export class MutationStack extends Collection {
     return this;
   }
 
+  pop() {
+    return this.contents.pop();
+  }
+
   toObject(asFlag = false) {
     
     const rootData = {
