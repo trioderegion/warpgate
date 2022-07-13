@@ -3,6 +3,7 @@
 # Explicitly declare text files you want to always be normalized and converted
 # to native line endings on checkout.
 *.js text
+*.mjs text
 *.md text
 
 # Denote all files that are truly binary and should not be modified.
@@ -12,6 +13,7 @@
 *.gif binary
 
 .github/ export-ignore
+.node_modules/ export-ignore
 module.zip export-ignore
 README.md export-ignore
 .gitignore export-ignore

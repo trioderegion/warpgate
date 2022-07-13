@@ -13,5 +13,8 @@
   "bugs": {
     "url": "https://github.com/trioderegion/warpgate/issues"
   },
-  "homepage": "https://github.com/trioderegion/warpgate#readme"
+  "homepage": "https://github.com/trioderegion/warpgate#readme",
+  "devDependencies": {
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.269.0"
+  }
 }

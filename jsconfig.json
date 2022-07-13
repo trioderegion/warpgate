@@ -3,7 +3,11 @@
     "module": "ES6",
     "target": "ES6",
     "checkJs": true,
-    "allowJs": true
+    "allowJs": true,
+    "noEmit": true,
+    "types": ["@league-of-foundry-developers/foundry-vtt-types"],
+    "moduleResolution": "node",
+    "strictNullChecks": true  
   },
-  "include": ["module/**/*", "../v9-latest/**/*"]
+  "include": ["./scripts/**/*", "./global.d.ts"]
 }
