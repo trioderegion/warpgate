@@ -24,6 +24,8 @@ import { Events } from './events.js'
 import { queueUpdate } from './update-queue.js'
 import { Crosshairs } from './crosshairs.js'
 import { MutationStack } from './mutation-stack.js'
+import { Mutation } from './entities/mutation.mjs'
+
 
 export class api {
 
@@ -36,6 +38,8 @@ export class api {
   }
 
   static globals() {
+
+    /** @alias warpgate */
     window[MODULE.data.name] = {
       spawn : api._spawn,
       spawnAt : api._spawnAt,
@@ -80,7 +84,10 @@ export class api {
       },
       abstract : {
         Crosshairs,
-        MutationStack
+        MutationStack,
+      },
+      mutators : {
+        Mutation,
       }
     }
   }

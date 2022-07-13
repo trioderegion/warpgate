@@ -1,7 +1,8 @@
-import { logger } from "./logger.js";
-import { MODULE } from "./module.js";
-import { Mutator } from "./mutator.js";
-import { Mutation } from "./entities/mutation.mjs";
+import {Mutation} from "./entities/mutation.mjs";
+import {logger} from "./logger.js";
+import {MODULE} from "./module.js";
+import {Mutator} from "./mutator.js";
+import {MutationStack, StackData} from "./mutation-stack.js"
 
 const NAME = "DocMutator";
 
@@ -14,7 +15,7 @@ export class DocMutator {
   }
 
   /**
-   * @parm {Mutation} mutation
+   * @param {Mutation} mutation
    */
   static async apply(mutation) {
     logger.debug("Mutate Info", mutation);
@@ -41,22 +42,29 @@ export class DocMutator {
     return { doc: docRet, embed: embedRet, callbacks: callbackRet };
   }
 
-  /* updates the document from pre-prepared mutation */
+  /** 
+   * updates the document from pre-prepared mutation
+   * @param {Mutation} mutation
+   */
   static async _updateDocument(mutation) {
 
     const doc = mutation.document;
     const {update, options} = mutation.getUpdate();
 
-    logger.debug('Performing update:',doc, update, stack);
-    await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
+    logger.debug('Performing update:',doc, update);
+    
+    await MODULE.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
-    if (update) await doc.update(update, options);
+    if (update) await doc?.update(update, options);
 
     return;
   }
 
-  /* embeddedUpdates keyed by embedded name, contains shorthand */
+  /**
+   * embeddedUpdates keyed by embedded name, contains shorthand
+   * @param {Mutation} mutation
+   */
   static async _updateEmbedded(mutation){
 
     const doc = mutation.document;
@@ -73,6 +81,7 @@ export class DocMutator {
 
   }
 
+  /*
   static async revertTest(document, mutationName = undefined) {
 
     const mutateData = await Mutator._popMutation(document, mutationName);
@@ -82,24 +91,57 @@ export class DocMutator {
     });
 
   }
+  */
 
-  static async revert(document, {name, id} = {}) {
+  /**
+   * @param {ClientDocument} document
+   * @param {object} [options]
+   * @param {string} [options.name]
+   * @param {string} [options.id]
+   */
+  static async revert(document, {name = '', id = ''} = {}) {
 
-    const stack = warpgate.mutationStack(document);
+    const stack = new MutationStack(document);
 
+
+    /** @type StackData */
     let entry = id ? stack.get(id) : name ? stack.getName(name) : stack.pop();
 
+    //TODO check permissions, route to owner as remote mutate
+    const docUpdate = stack.unroll(entry.id);
+    
     //construct Mutation derived class from class field
-    //
-    //add delta from entry as updates.
-    //make permanent (so we dont add a new stack entry).
-    //remove this entry from this stack and set as mutation's stack OR tell mutation class to do it
-    //apply the changes
-    //
-    //run through the links array and call revert (ourself) from on each muid in that list
+    /** @type Mutation */
+    const revivedMut = globalThis.warpgate.mutators[entry.cls].fromStackData(document, docUpdate);
+    
+    let callbackRet = {}
+    //run pre-revert callbacks
+    const preRet = await Promise.all(
+      revivedMut.callAll(Mutation.STAGE.PRE_REVERT, stack)
+    );
 
+    /* can be cancelled, if so, bail */
+    if (preRet.some((ret) => ret === false)) return false;
+    callbackRet[Mutation.STAGE.PRE_MUTATE] = preRet;
+
+    /* Add stack (flags.warpgate.mutate) to the update */
+    revivedMut.add(stack.toObject(true)); 
+
+    //apply the changes
+    const result = await DocMutator.apply(revivedMut);
+    
+    //run through the links array and call revert (ourself) from on each muid in that list
+    //TODO
+
+    //Post revert callback
+    //TODO
+
+    return result;
   }
 
+  /**
+   * @param {Mutation} mutation
+   */
   static async mutate(mutation) {
 
     /* if not permanent, we need to create revert data */

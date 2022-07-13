@@ -18,14 +18,39 @@
 import {
   logger
 } from './logger.js';
-import {
-  MODULE
-} from './module.js'
+import {MODULE} from './module.js'
 
+//@ts-ignore
 import * as fields from '../../../common/data/fields.mjs'
+
 import {Mutation} from './entities/mutation.mjs'
 
+
+/**
+ * Typedefs for warpgate specific data
+ * @typedef {import('./entities/mutation.mjs').Shorthand} Shorthand
+ * @typedef {import('./entities/mutation.mjs').Delta} Delta
+ */
+
+/**
+ * @class
+ */
 export class StackData extends foundry.abstract.DocumentData {
+
+  /** @type string */
+  cls;
+
+  /** @type string */
+  id;
+
+  /** @type string */
+  name;
+
+  /** @type Object<string, Array<{fn: Function, context: object}>> */
+  callbacks;
+
+  /** @type Delta */
+  delta;
 
   static CALLBACK_FIELD = {
     ...fields.OBJECT_FIELD,
@@ -46,12 +71,12 @@ export class StackData extends foundry.abstract.DocumentData {
     return {
 
       /* serialization and identification */
-      class: fields.field(fields.STRING_FIELD, {default: Mutation.name}),
+      cls: fields.field(fields.STRING_FIELD, {default: Mutation.name}),
       id: fields.REQUIRED_STRING,
       name: fields.REQUIRED_STRING,
 
       /* data for handling this mutation stack entry */
-      user: fields.field(fields.STRING_FIELD, {default: game.user.id}),
+      user: fields.field(fields.STRING_FIELD, {default: game.userId}),
       permission: fields.field(fields.DOCUMENT_PERMISSIONS, {default: {'default': CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}}),
       links: {
         type: [Object],
@@ -76,6 +101,11 @@ globalThis.StackData = StackData;
 //  comparisonKeys: options.comparisonKeys ?? {},
 //  id: randomId();
 //  name: options.name ?? id
+
+/**
+ * @class
+ * @aguments Collection<StackData>
+ */
 export class MutationStack extends Collection {
   constructor(doc, {module = MODULE.data.name, stack = 'mutation'} = {}) {
     /* initialize our collection */
@@ -94,121 +124,27 @@ export class MutationStack extends Collection {
     return this;
   }
 
+  /** @private */
   get type() {
     return this._type;
   }
 
   /**
-   * Searches for an element of the mutation stack that satisfies the provided predicate
-   *
-   * @param {Function} predicate Receives the argments of Array#find and returns a Boolean indicating if the current
-   *                             element satisfies the predicate condition
-   * @return {Object} Element of the mutation stack that matches the predicate, or undefined if none.
-   * @memberof MutationStack
+   * @param {StackData} stackData
    */
-  //find(predicate) {
-  //  if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).find(predicate);
-
-  //  return this._stack.find(predicate);
-  //}
-
-  /**
-   * Searches for an element of the mutation stack that satisfies the provided predicate and returns its
-   * stack index
-   *
-   * @param {Function} predicate Receives the argments of Array#findIndex and returns a Boolean indicating if the current
-   *                             element satisfies the predicate condition
-   * @return {Number} Index of the element of the mutation stack that matches the predicate, or undefined if none.
-   * @memberof MutationStack
-   * @private
-   */
-  //_findIndex( predicate ) {
-
-  //  if (this._locked) return (this._doc.getFlag(MODULE.data.name, 'mutate') ?? []).findIndex(predicate);
-
-  //  return this._stack.findIndex(predicate);
-  //}
-
-  /**
-   * Retrieves an element of the mutation stack that matches the provided name
-   *
-   * @param {String} name Name of mutation 
-   * @return {Object} Element of the mutation stack matching the provided name, or undefined if none
-   * @memberof MutationStack
-   */
-  //getName(name) {
-  //  return this.find((element) => element.name === name);
-  //}
-
-  /**
-   * Retrieves an element of the mutation stack that matches the provided name
-   *
-   * @param {String} id ID of mutation (serves as a unique identifier)
-   * @return {Object} Element of the mutation stack matching the provided ID, or undefined if none
-   * @memberof MutationStack
-   */
-  //get(id) {
-  //  return this.find((element) => element.id === id);
-  //}
-
-  /**
-   * Retrieves that last mutation added to the mutation stack, or undefined if none present
-   *
-   * @return {Object} Newest element of the mutation stack
-   * @memberof MutationStack
-   */
-  //get last() {
-  //  return this.stack[this.stack.length - 1];
-  //}
-
   create(stackData) {
     this.set(stackData.id, stackData);
-
     return this;
   };
 
+  /**
+   * @param {string} id
+   * @param {object|StackData} data
+   */
   set(id, data) {
-    data = typeof data === "StackData" ? data : new StackData(data);
+    data = typeof data === "object" ? new StackData(data) : data;
     return super.set(id,data);
   }
-
-  /**
-   * Updates the mutation matching the provided name with the provided mutation info.
-   * The mutation info can be a subset of the full object iff overwrite is false.
-   *
-   * @param {*} name name of mutation to update
-   * @param {*} mutationInfo new information, can include 'name'.
-   * @param {*} options {overwrite = false} default will merge the provided info
-   *            with the current values. True will replace the entire entry and requires
-   *            at least the 'name' field.
-   *  
-   * @return {MutationStack} self, unlocked for writing and updates staged.
-   * @memberof MutationStack
-   */
-  //update(name, mutationInfo, {
-  //  overwrite = false
-  //}) {
-  //  //const index = this._findIndex((element) => element.name === name);
-
-  //  const element = this.getName(name);
-
-  //  if (!element) {
-  //    return false;
-  //  }
-
-  //  this._unlock();
-
-  //  if (overwrite) {
-
-  //    this._stack[index] = new StackData(mutationInfo);
-
-  //  } else {
-  //    /* incomplete mutations are fine with merging */
-  //    this._stack[index].update(mutationInfo);
-  //  }
-
-  //  return this;
-  //}
 
   /**
    * Applies a given change or tranform function to the current buffer,
@@ -222,6 +158,7 @@ export class MutationStack extends Collection {
    */
   updateAll(transform, filterFn = () => true) {
 
+    /** @param {object|Function} transform */
     const innerUpdate = (transform) => {
       if (typeof transform === 'function') {
         /* if we are applying a transform function */
@@ -262,7 +199,7 @@ export class MutationStack extends Collection {
   /**
    * Updates the owning actor with the mutation stack changes made. Will not commit a locked buffer.
    *
-   * @return {MutationStack} self, locked for writing
+   * @return {Promise<MutationStack>} self, locked for writing
    * @memberof MutationStack
    */
   async commit() {
@@ -288,6 +225,54 @@ export class MutationStack extends Collection {
 
     return rootData;
 
+  }
+
+  /**
+   * @param {string} id
+   * @return {StackData|undefined} resulting StackData
+   */
+  unroll(id){
+
+    /** @type StackData */
+    let target = this.get(id, {strict: false});
+    if (!target) {
+      logger.debug(`Could not find mutation [${id}] on actor ${this._doc?.name}`);
+      return;
+    }
+
+    /** @type IterableIterator<StackData> */
+    let iter = this[Symbol.iterator]();
+
+    /* place iterator at target entry */
+    let curr = iter.next();
+    while(!curr.done && (curr.value.id !== target.id)) {
+      curr = iter.next();
+    }
+
+    if(curr.done) {
+      logger.debug(`Could not iterate to previously found Mutation "${target.name}" [${target.id}].`)
+      return;
+    }
+
+    /* iter at target entry */
+    while( !(curr = iter.next()).done ){
+
+      /* get the values stored in our delta and push any overlapping ones to
+       * the mutation next in the stack
+       */
+      const stackUpdate = filterObject(target.delta, curr.value.delta);
+      curr.value.update({delta: stackUpdate});
+
+      /* remove any changes that exist higher in the stack, we have
+       * been overriden and should not restore these values
+       */
+      const targetUpdate = MODULE.unique(target.delta, curr.value.delta);
+      target.update({delta: targetUpdate});
+    }
+
+    this.delete(target.id);
+
+    return target;
   }
   
 }

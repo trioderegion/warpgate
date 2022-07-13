@@ -1,25 +1,41 @@
 import {MODULE} from '../module.js'
 import {MutationStack, StackData} from '../mutation-stack.js'
 
+/** 
+ * Typedefs for warpgate specific data
+ * @typedef {Object<string, object>} Shorthand
+ * @typedef {{collectionName: string, 
+ *            shorthand: Shorthand, 
+ *            options: object, 
+ *            comparisonKey: string}} EmbeddedUpdate
+ * @typedef {{document: {update: object, options: object}, embedded: EmbeddedUpdate}} Delta
+ */
+
+
 function preloadImages(mutation) {
   console.warn('Not yet implemented');
   return false;
 }
 
-/* sizes, if this mutation exists already on the actor, etc */
+/* sizes, if this mutation exists already on the actor, etc
+ * @param {Class<Mutation>} mutation
+ */
 function sanityCheckMutation(mutation) {
   console.warn('Not yet implemented');
   return false;
 }
 
+/*
+ * @class
+ */
 export class Mutation {
 
   static STAGE = {
-    GEN_STACK_DATA: 0,
-    PRE_MUTATE: 1,
-    POST_MUTATE: 2,
-    PRE_REVERT: 3,
-    POST_REVERT: 4,
+    GEN_STACK_DATA: "0",
+    PRE_MUTATE: "1",
+    POST_MUTATE: "2",
+    PRE_REVERT: "3",
+    POST_REVERT: "4",
   }
 
   static _parseUpdateShorthand(collection, updates, comparisonKey) {
@@ -97,6 +113,29 @@ export class Mutation {
     return inverted;
   }
 
+  /**
+   * @param {ClientDocument} document
+   * @param {StackData} data
+   */
+  static fromStackData(document, data) {
+
+    const revivedMut = new Mutation(document, {id: data.id});
+    
+    //add delta from entry as updates.
+    revivedMut.add(data.delta.document.update, data.delta.document.options);
+
+    //add in all embedded updates
+    //TODO
+
+    //add in all callbacks
+    Object.entries( data.callbacks ).forEach( ([stage, callbacks]) => 
+      callbacks.forEach( cbData => 
+        revivedMut.callback(stage, cbData.fn, cbData.context)
+      )
+    );
+
+  }
+
   constructor(document, {id = randomID(), config = {}} = {}){
     this._document = document;
     this._id = id;
@@ -116,20 +155,36 @@ export class Mutation {
     this.callback(Mutation.STAGE.PRE_MUTATE, preloadImages);
   }
 
-  /* @private */
-  _document = null;
+  /**
+   * 
+   */
 
+  /**
+   * @private
+   * @type {ClientDocument}
+   */
+  _document;
+
+  /**
+   * 
+   */
   get document() {
     return this._document;
   }
 
-  /* @private */
-  _id = null;
+  /**
+   * @private
+   * @type {string}
+   */
+  _id;
 
   get id() {
     return this._id;
   }
 
+  /**
+   * @type {{uuid: string, mutation: string}}
+   */
   get muid() {
     return {
       uuid: this.document?.uuid,
@@ -137,7 +192,10 @@ export class Mutation {
     }
   }
 
-  /* @protected */
+  /**
+   * @protected
+   * @param {string} collectionName
+   */
   compKey(collectionName) {
     return { ActiveEffect: 'label'}[collectionName] ?? 'name';
   }
@@ -148,13 +206,21 @@ export class Mutation {
   /* @private */
   _updateOptions = {}; 
 
-  /* @private */
+    /**
+   * @private
+   * @type Object<string, EmbeddedUpdate>
+   */
   _embeddedShorthand = {};
 
   /* @private */
   _callbacks = {};
 
-  /* @public */
+  /**
+   * @public
+   * @param {any} stage
+   * @param {any[]} args
+   * @return {Array<any, boolean>}
+   */
   callAll(stage, ...args) {
 
     const list = this._callbacks[stage] ?? [];
@@ -166,13 +232,16 @@ export class Mutation {
     return retlist;
   }
 
-  /* @private */
-  _stack = null; 
+  /**
+   * @private
+   * @type MutationStack 
+   */
+  _stack;
 
   /* @private */
   _config = {
     permanent: false,
-    name: null,
+    name: '',
     description: '',
     hidden: false,
   };
@@ -199,7 +268,10 @@ export class Mutation {
 
   }
 
-  /* @private */
+  /**
+   * @private
+   * @type {Mutation[]}
+   */
   _links = [];
 
   get links() {
@@ -207,10 +279,16 @@ export class Mutation {
   }
   
 
-  /**************
-   * Configuration
-   *************/
 
+  /**
+   * ************
+   * Configuration
+   * ***********
+   */
+
+  /**
+   * @param {boolean} [bool]
+   */
   permanent(bool) {
     if(bool == undefined) return this._config.permanent;
 
@@ -218,6 +296,9 @@ export class Mutation {
     return this;
   }
 
+  /**
+   * @param {string} [string]
+   */
   name(string) {
     if(string == undefined) return this._config.name;
 
@@ -225,6 +306,9 @@ export class Mutation {
     return this;
   }
 
+  /**
+   * @param {string} [string]
+   */
   description(string) {
     if(string == undefined) return this._config.description;
 
@@ -232,6 +316,9 @@ export class Mutation {
     return this;
   }
 
+  /**
+   * @param {boolean} [bool]
+   */
   hidden(bool) {
     if(bool == undefined) return this._config.hidden;
 
@@ -240,25 +327,33 @@ export class Mutation {
   }
 
 
+  /**
+   * @return {{document: {update: object, options: object}, embedded: Shorthand}}
+   */
   _invertUpdate() {
     const docData = this._rootDocumentData();
-    const reverseDelta = diffObject(this.getUpdate(), docData, {inner: true});
+
+    const update = this.getUpdate();
+
+    const reverseDelta = diffObject(update.update, docData, {inner: true});
 
     let embeddedInvert = {};
-    for (const [embeddedName, embeddedData] of Object.entries(this.getEmbedded()) ){
+    for (const [shorthandKey, embeddedData] of Object.entries(this.getEmbedded()) ){
+
+      const embeddedName = shorthandKey.split('.')[0];
 
       /* do not process null or empty embedded data */
       if(isObjectEmpty(embeddedData.shorthand ?? {})) continue;
 
-      const collection = this._document.getEmbeddedCollection(embeddedName);
-      const invertedShorthand = this.constructor._invertShorthand(collection, embeddedData.shorthand, embeddedData.comparisonKey)
-      embeddedInvert[embeddedName] = {
+      const collection = this.document.getEmbeddedCollection(embeddedName);
+      const invertedShorthand = Mutation._invertShorthand(collection, embeddedData.shorthand, embeddedData.comparisonKey)
+      embeddedInvert[shorthandKey] = {
         ...embeddedData,
         shorthand: invertedShorthand,
       }
     }
 
-    return {document: reverseDelta, embedded: embeddedInvert};
+    return {document: {update: reverseDelta, options: update.options}, embedded: embeddedInvert};
   }
 
   _rootDocumentData() {
@@ -267,6 +362,7 @@ export class Mutation {
     /* get the key NAME of the embedded document type.
      * ex. not 'ActiveEffect' (the class name), 'effect' the collection's field name
      */
+    
     const embeddedFields = Object.values(this._document.constructor.metadata.embedded).map( thisClass => thisClass.metadata.collection );
 
     /* delete any embedded fields from the actor data */
@@ -303,7 +399,7 @@ export class Mutation {
     const stages = [Mutation.STAGE.PRE_REVERT, Mutation.STAGE.POST_REVERT];
 
     const cb = stages.reduce( (acc, curr) => {
-      stage = this._callbacks[curr] ?? false;
+      const stage = this._callbacks[curr] ?? false;
       if(!!stage) {
         
         /* create or add to running list */
@@ -312,16 +408,22 @@ export class Mutation {
       }
 
       return acc;
-    }, null);
+    }, {});
 
     return cb;
 
   }
 
-  /************
-   * Mutation commands
-   * *********/
 
+  /**
+   * **********
+   * Mutation commands
+   * ********
+   */
+
+   /**
+   * @param {object} data
+   */
   add(data, updateOptions = null) {
     const expanded = expandObject(data); 
     mergeObject(this._update, expanded);
@@ -333,6 +435,11 @@ export class Mutation {
     return this;
   }
 
+  /**
+   * @param {string} stage
+   * @param {Function} fn
+   * @param {object} [context]
+   */
   callback(stage, fn, context) {
 
     /* allocate space for this callback */
@@ -346,13 +453,20 @@ export class Mutation {
     return this;
   }
 
-  addEmbedded(collectionName, shorthand, {comparisonKey = this._embeddedComparisonKey.default, options = {}} = {}) {
+  /**
+   * @param {string} collectionName
+   * @param {Shorthand} shorthand
+   */
+  addEmbedded(collectionName, shorthand, {comparisonKey = this.compKey(collectionName), options = {}} = {}) {
+
+    const key = `${collectionName}.${shorthand}`
     
     /* valid embedded collection? */
-    if (this._embeddedUpdate[collectionName]) {
+    if (this._embeddedShorthand[key]) {
 
       shorthand = expandObject(shorthand);
 
+      /** type EmbeddedUpdate */
       let data = {
         collectionName,
         shorthand,
@@ -361,18 +475,22 @@ export class Mutation {
       }
 
       /* merge into current embedded shorthand */
-      mergeObject(this._embeddedShorthand[collectionName], data);
+      mergeObject(this._embeddedShorthand[key], data);
 
       return this;
-    }
+    } 
 
     logger.error(MODULE.format('error.badCollection',
       {name: collectionName, docType: this._document.documentName}
     ));
 
-    return false;
+    return this;
   }
 
+  /**
+   * @param {Mutation} otherMutator
+   * @param {boolean} [biDirectional=false]
+   */
   link(otherMutator, biDirectional = false) {
 
     if(biDirectional) {
@@ -387,6 +505,9 @@ export class Mutation {
     return this;
   }
 
+  /**
+   * @return {{update: object, options: object}}
+   */
   getUpdate() {
     return {
       update: this._update,
@@ -394,9 +515,9 @@ export class Mutation {
     }
   }
 
-  getEmbedded(collectionName = null) {
-    if(collectionName == undefined) return this._embeddedShorthand;
-    return this._embeddedShorthand[collectionName];
+  getEmbedded(shorthandKey = null) {
+    if(shorthandKey == undefined) return this._embeddedShorthand;
+    return this._embeddedShorthand[shorthandKey];
   }
 
   updateMutationStack() {
@@ -427,7 +548,7 @@ export class Mutation {
       mutName: this.config.name,
     }
 
-    return warpgate.event.notify(warpgate.CONST.EVENT.MUTATE, eventData);
+    return globalThis.warpgate.event.notify(globalThis.warpgate.CONST.EVENT.MUTATE, eventData);
   }
 
 }
@@ -450,5 +571,9 @@ export class EmbeddedMutation extends Mutation {
   getEmbedded() {
     return {};
   }
+}
+
+function stage(stage) {
+  throw new Error('Function not implemented.');
 }
 

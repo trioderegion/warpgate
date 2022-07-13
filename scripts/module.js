@@ -1,5 +1,6 @@
 /** MIT (c) 2021 DnD5e Helpers */
 
+import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs.js';
 import {
   logger
 } from './logger.js';
@@ -7,11 +8,16 @@ import {
 const NAME = "warpgate";
 const PATH = `/modules/${NAME}`;
 
+/**
+ * @class
+ */
 export class MODULE {
   static async register() {
     logger.info("Initializing Module");
     MODULE.settings();
   }
+
+  static data = {};
 
   static async build() {
     MODULE.data = {
@@ -21,7 +27,15 @@ export class MODULE {
     };
     logger.info("Module Data Built");
 
-    Function.prototype.toJSON = function() {
+    //Object.assign(Function.prototype, {toJSON: function() {
+
+    /**
+     * @this Function
+     */
+    function toJSON() {
+    /*
+     * @this Function
+     */
       let whitespace = /\s/;
       let pair = /\(\)|\[\]|\{\}/;
 
@@ -37,7 +51,7 @@ export class MODULE {
 
       let state = 'start';
       let depth = new Array(); 
-      let tmp;
+      let tmp = 0;
 
       for (let index = 0; index < string.length; ++index) {
         let ch = string[index];
@@ -161,54 +175,84 @@ export class MODULE {
 
       return ['Function', args, string];
     };
+
+    Object.assign(Function.prototype, {toJSON});
   }
 
+  /**
+   * Helper for retrieving a setting under this module's scope
+   * @param {string} key 
+   * @returns {any}
+   */ 
   static setting(key) {
     return game.settings.get(MODULE.data.name, key);
   }
 
-  static localize(...args) {
-    return game.i18n.localize(...args);
+  /**
+   * @param {string} stringId
+   */
+  static localize(stringId) {
+    return game.i18n.localize(stringId);
   }
 
-  static format(...args) {
-    return game.i18n.format(...args);
+  /**
+   * @param {string} stringId
+   * @param {Object} [data={}]
+   */
+  static format(stringId, data = {}) {
+    return game.i18n.format(stringId, data);
   }
 
   static firstGM() {
-    return game.users.find(u => u.isGM && u.active);
+    return game.users?.find(u => u.isGM && u.active);
   }
 
   static isFirstGM() {
-    return game.user.id === MODULE.firstGM()?.id;
+    return game.userId === MODULE.firstGM()?.id;
   }
 
+  /** @param {Document} doc
+   * @returns {Document|undefined}
+   */
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
-    if (!doc) return false;
+    if (!doc) return;
 
     const playerOwners = Object.entries(doc.data.permission ?? {})
-      .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
-      .map(([id, level]) => id);
+      .filter(([id, level]) => (!game.users?.get(id)?.isGM && game.users?.get(id)?.active) && level === 3)
+      .map(([id, _]) => id);
 
     if (playerOwners.length > 0) {
-      return game.users.get(playerOwners[0]);
+      return game.users?.get(playerOwners[0]);
     }
 
     /* if no online player owns this actor, fall back to first GM */
     return MODULE.firstGM();
   }
 
-  /* Players first, then GM */
+  /** Players first, then GM
+   * @param {Document} doc
+   */
   static isFirstOwner(doc) {
-    return game.user.id === MODULE.firstOwner(doc).id;
+    return game.user?.id === MODULE.firstOwner(doc)?.id;
   }
 
+  /**
+   * @param {number} ms
+   */
   static async wait(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
+  /**
+   * @param {Function} fn
+   */
   static async waitFor(fn, maxIter = 600, iterWaitTime = 100, i = 0) {
+
+    /**
+     * @param {number} current
+     * @param {number} max
+     */
     const continueWait = (current, max) => {
 
       /* negative max iter means wait forever */
@@ -228,6 +272,9 @@ export class MODULE {
 
   }
 
+  /**
+   * @param {Object} settingsData
+   */
   static applySettings(settingsData) {
     Object.entries(settingsData).forEach(([key, data]) => {
       game.settings.register(
@@ -240,10 +287,16 @@ export class MODULE {
     });
   }
 
+  /**
+   *
+   * @param {string} actorName
+   * @param {Object} tokenUpdates
+   * @returns 
+   */
   static async getTokenData(actorName, tokenUpdates) {
 
     //get source actor
-    const sourceActor = game.actors.getName(actorName);
+    const sourceActor = game.actors?.getName(actorName);
     if (!sourceActor) {
       logger.error(`Could not find world actor named "${actorName}"`);
       return false;
@@ -260,19 +313,23 @@ export class MODULE {
   }
 
   static getMouseStagePos() {
-    const mouse = canvas.app.renderer.plugins.interaction.mouse;
-    return mouse.getLocalPosition(canvas.app.stage);
+    const mouse = canvas.app?.renderer.plugins.interaction.mouse;
+    return mouse.getLocalPosition(canvas.app?.stage);
   }
 
-
-
-  static unique(object, remove) {
+  /**
+   *
+   * @param {Object} obj 
+   * @param {Object} remove 
+   * @returns 
+   */
+  static unique(obj, remove) {
     // Validate input
-    const ts = getType(object);
+    const ts = getType(obj);
     const tt = getType(remove);
     if ((ts !== "Object") || (tt !== "Object")) throw new Error("One of source or template are not Objects!");
 
-    // Define recursive filtering function
+    // Define recursive filtering function 
     const _filter = function (s, t, filtered) {
       for (let [k, v] of Object.entries(s)) {
         let has = t.hasOwnProperty(k);
@@ -292,21 +349,25 @@ export class MODULE {
     };
 
     // Begin filtering at the outer-most layer
-    return _filter(object, remove, {});
+    return _filter(obj, remove, {});
   }
 
-  /*
+  /**
    * Helper function for quickly creating a simple dialog with labeled buttons and associated data. 
    * Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
    *
-   * @param `data` {Array of Objects}: Contains two keys `label` and `value`. Label corresponds to the 
-   *     button's text. Value corresponds to the return value if this button is pressed. Ex. 
-   *     `const data = [{label: 'First Choice, value: {token {name: 'First'}}}, {label: 'Second Choice',
-   *         value: {token: {name: 'Second}}}]`
-   * @param `direction` {String} (optional): `'column'` or `'row'` accepted. Controls layout direction of dialog.
+   * @param {Object} data 
+   * @param {Object[]} data.buttons
+   * @param {string} [data.title]
+   * @param {string} [data.content]
+   * @param {Object} [data.options]
+   *
+   * @param {string} [direction = 'row'] 'column' or 'row' accepted. Controls layout direction of dialog.
    */
   static async buttonDialog(data, direction = 'row') {
     return await new Promise(async (resolve) => {
+
+      /** @type {Dialog.Data['buttons']} */
       let buttons = {},
         dialog;
 
@@ -318,20 +379,21 @@ export class MODULE {
       });
 
       dialog = new Dialog({
-        title: data.title,
-        content: data.content,
-        buttons,
-        close: () => resolve(false)
+        title: data.title ?? 'Prompt',
+        content: data.content ?? '',
+        buttons: buttons,
+        close: () => resolve(false),
+        render: (html) => {
+          html[0].find('.dialog-buttons').css({'flex-direction': direction});
+        }
       }, {
         /*width: '100%',*/
         height: '100%',
         ...data.options
       });
 
-      await dialog._render(true);
-      dialog.element.find('.dialog-buttons').css({
-        'flex-direction': direction
-      });
+      dialog.render(true);
+      
     });
   }
 
@@ -373,23 +435,23 @@ export class MODULE {
             Ok: {
               label: submitLabel,
               callback: (html) => {
-                resolve(Array(data.length).fill().map((e, i) => {
+                resolve(Array(data.length).fill(0).map((_, i) => {
                   let {
                     type
                   } = data[i];
                   if (type.toLowerCase() === `select`) {
-                    return html.find(`select#${i}qd`).val();
+                    return html[0].find(`select#${i}qd`).val();
                   } else {
                     switch (type.toLowerCase()) {
                       case `text`:
                       case `password`:
-                        return html.find(`input#${i}qd`)[0].value;
+                        return html[0].find(`input#${i}qd`)[0].value;
                       case `radio`:
-                        return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
+                        return html[0].find(`input#${i}qd`)[0].checked ? html[0].find(`input#${i}qd`)[0].value : false;
                       case `checkbox`:
-                        return html.find(`input#${i}qd`)[0].checked;
+                        return html[0].find(`input#${i}qd`)[0].checked;
                       case `number`:
-                        return html.find(`input#${i}qd`)[0].valueAsNumber;
+                        return html[0].find(`input#${i}qd`)[0].valueAsNumber;
                     }
                   }
                 }));
@@ -409,7 +471,7 @@ export class MODULE {
  *                 as buttonDialog
  * @param {Object} [{title = 'Prompt', defaultButton = 'Ok', options={}}={}] Title of dialog, default button label if no buttons provided,
  *                 and options object passed directly to the Application constructor
- * @return {Array<*>} Same as `dialog` with the chosen button value append to the end IFF the default button was not used
+ * @return {Promise<any[]>} Same as `dialog` with the chosen button value append to the end IFF the default button was not used
  * @memberof MODULE
  */
 /* MENU EXAMPLE *
