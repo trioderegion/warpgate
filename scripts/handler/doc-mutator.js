@@ -62,6 +62,7 @@ export class DocMutator {
   }
 
   /**
+   * Updates the document's embedded collection from a pre-prepared mutation
    * embeddedUpdates keyed by embedded name, contains shorthand
    * @param {Mutation} mutation
    */

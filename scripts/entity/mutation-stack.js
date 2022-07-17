@@ -104,7 +104,7 @@ globalThis.StackData = StackData;
 
 /**
  * @class
- * @aguments Collection<StackData>
+ * @extends Collection
  */
 export class MutationStack extends Collection {
   constructor(doc, {module = MODULE.data.name, stack = 'mutation'} = {}) {

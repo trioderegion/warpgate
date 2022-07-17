@@ -3,11 +3,18 @@ import {MutationStack, StackData} from '../mutation-stack.js'
 
 /** 
  * Typedefs for warpgate specific data
+ */
+/*
  * @typedef {Object<string, object>} Shorthand
- * @typedef {{collectionName: string, 
+ *
+ * Embedded collection name to embedded update data
+ * @typedef {Object<string, Array<{
+ *            collectionName: string, 
  *            shorthand: Shorthand, 
  *            options: object, 
- *            comparisonKey: string}} EmbeddedUpdate
+ *            comparisonKey: string
+ *          }>>} EmbeddedUpdate
+ *
  * @typedef {{document: {update: object, options: object}, embedded: EmbeddedUpdate}} Delta
  */
 
@@ -18,7 +25,7 @@ function preloadImages(mutation) {
 }
 
 /* sizes, if this mutation exists already on the actor, etc
- * @param {Class<Mutation>} mutation
+ * @param {Mutation} mutation
  */
 function sanityCheckMutation(mutation) {
   console.warn('Not yet implemented');
@@ -125,7 +132,7 @@ export class Mutation {
     revivedMut.add(data.delta.document.update, data.delta.document.options);
 
     //add in all embedded updates
-    //TODO
+    revivedMut._embeddedShorthand = data.delta.embedded; 
 
     //add in all callbacks
     Object.entries( data.callbacks ).forEach( ([stage, callbacks]) => 
@@ -136,12 +143,20 @@ export class Mutation {
 
   }
 
+  /**
+   * @param {ClientDocument} document
+   * @param {Object} [metadata]
+   * @param {string} [metadata.id=randomID()]
+   * @param {Object} [metadata.config]
+   * @param {string} [metadata.config.name=metadata.id]
+   * @param {string} [metadata.config.description='']
+   * @param {boolean} [metadata.config.permanent=false]
+   * @param {boolean} [metadata.config.hidden=false]
+   * @param {Object} [metadata.config.permissions={default: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}]
+   */
   constructor(document, {id = randomID(), config = {}} = {}){
     this._document = document;
     this._id = id;
-
-    /* prefill valid embedded types */
-    Object.keys(document.constructor.implementation.metadata.embedded).forEach(embeddedKey => this._embeddedShorthand[embeddedKey] = {})
 
     /* prefill remaining default config options */
     this._config.name = id;
@@ -158,6 +173,7 @@ export class Mutation {
   /**
    * 
    */
+  #embeddedTypes =  Object.keys(this.document.constructor.implementation.metadata.embedded);
 
   /**
    * @private
@@ -208,7 +224,7 @@ export class Mutation {
 
     /**
    * @private
-   * @type Object<string, EmbeddedUpdate>
+   * @type Object<string, EmbeddedUpdate|{}>
    */
   _embeddedShorthand = {};
 
@@ -238,12 +254,16 @@ export class Mutation {
    */
   _stack;
 
-  /* @private */
+  /**
+   * @private
+   * @member {Object}
+   */
   _config = {
-    permanent: false,
     name: '',
     description: '',
+    permanent: false,
     hidden: false,
+    permissions: {default: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
   };
 
   getRevertData() {

@@ -1,6 +1,7 @@
-/** MIT (c) 2021 DnD5e Helpers */
-
-import Document from '@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/abstract/document.mjs.js';
+/** 
+ * MIT (c) 2021 DnD5e Helpers
+ * Modified and extended heavily
+ */
 import {
   logger
 } from './logger.js';
@@ -26,8 +27,6 @@ export class MODULE {
       title: "Warp Gate"
     };
     logger.info("Module Data Built");
-
-    //Object.assign(Function.prototype, {toJSON: function() {
 
     /**
      * @this Function

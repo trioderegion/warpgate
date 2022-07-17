@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { MODULE } from './module.js';
-import { logger } from './logger.js';
-import { api } from './api.js';
-import { Gateway } from './gateway.js';
-import { Mutator } from './mutator.js';
-import { RemoteMutator } from './remote-mutator.js'
-import { UserInterface } from './user-interface.js';
-import { Comms } from './comms.js';
-import { DocMutator } from './doc-mutator.js'
+import { api } from './utility/api.js';
+import { Comms } from './handler/comms.js';
+import { DocMutator } from './handler/doc-mutator.js';
+import { Gateway } from './handler/gateway.js';
+import { logger } from './utility/logger.js';
+import { MODULE } from './utility/module.js';
+import { Mutator } from './handler/mutator.js';
+import { RemoteMutator } from './handler/remote-mutator.js';
+import { UserInterface } from './handler/user-interface.js';
 
 const SUB_MODULES = {
   MODULE,
