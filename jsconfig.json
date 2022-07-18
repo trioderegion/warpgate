@@ -9,5 +9,5 @@
     "moduleResolution": "node",
     "strictNullChecks": true  
   },
-  "include": ["./scripts/**/*", "./global.d.ts"]
+  "include": ["./scripts/**/*", "./global.d.ts", "./types.d.ts"]
 }

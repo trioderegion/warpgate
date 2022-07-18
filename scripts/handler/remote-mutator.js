@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {logger} from './logger.js'
-import {MODULE} from './module.js'
-import {Comms} from './comms.js'
+import {logger} from '../utility/logger.js'
+import {MODULE} from '../utility/module.js'
+import {Comms} from '../handler/comms.js'
 import {Mutator} from './mutator.js'
 
 const NAME = "RemoteMutator";

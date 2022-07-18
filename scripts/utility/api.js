@@ -15,15 +15,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { logger } from './logger.js'
+import { logger } from '../utility/logger.js'
 import { Gateway } from './gateway.js'
-import { Mutator } from './mutator.js'
-import { MODULE } from './module.js'
-import { Comms } from './comms.js'
-import { Events } from './events.js'
-import { queueUpdate } from './update-queue.js'
+import { Mutator } from '../handler/mutator.js'
+import { MODULE } from '../utility/module.js'
+import { Comms } from '../handler/comms.js'
+import { Events } from '../handler/events.js'
+import { queueUpdate } from './../utility/update-queue.js'
 import { Crosshairs } from './crosshairs.js'
-import { MutationStack } from './mutation-stack.js'
+import { MutationStack } from '../entity/mutation-stack.js'
 import { Mutation } from './entities/mutation.mjs'
 
 

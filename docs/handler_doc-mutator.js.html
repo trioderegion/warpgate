@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+
+    <!-- Adding meta -->
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      handler/doc-mutator.js
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="9625456" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=6938434><div class="accordion-heading child"><a href="MODULE.html">MODULE</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="MODULE.html#.applySettings">applySettings</a></li><li data-type='method'><a href="MODULE.html#.buttonDialog">buttonDialog</a></li><li data-type='method'><a href="MODULE.html#.firstOwner">firstOwner</a></li><li data-type='method'><a href="MODULE.html#.format">format</a></li><li data-type='method'><a href="MODULE.html#.getTokenData">getTokenData</a></li><li data-type='method'><a href="MODULE.html#.isFirstOwner">isFirstOwner</a></li><li data-type='method'><a href="MODULE.html#.localize">localize</a></li><li data-type='method'><a href="MODULE.html#.menu">menu</a></li><li data-type='method'><a href="MODULE.html#.setting">setting</a></li><li data-type='method'><a href="MODULE.html#.unique">unique</a></li><li data-type='method'><a href="MODULE.html#.wait">wait</a></li><li data-type='method'><a href="MODULE.html#.waitFor">waitFor</a></li></ul></li><li class="accordion collapsed child" id=3572255><div class="accordion-heading child"><a href="Mutation.html">Mutation</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="Mutation.html#.fromStackData">fromStackData</a></li><li data-type='method'><a href="Mutation.html#_invertUpdate">_invertUpdate</a></li><li data-type='method'><a href="Mutation.html#_mergeEmbeddedUpdate">_mergeEmbeddedUpdate</a></li><li data-type='method'><a href="Mutation.html#add">add</a></li><li data-type='method'><a href="Mutation.html#addEmbedded">addEmbedded</a></li><li data-type='method'><a href="Mutation.html#callAll">callAll</a></li><li data-type='method'><a href="Mutation.html#callback">callback</a></li><li data-type='method'><a href="Mutation.html#description">description</a></li><li data-type='method'><a href="Mutation.html#getUpdate">getUpdate</a></li><li data-type='method'><a href="Mutation.html#hidden">hidden</a></li><li data-type='method'><a href="Mutation.html#link">link</a></li><li data-type='method'><a href="Mutation.html#name">name</a></li><li data-type='method'><a href="Mutation.html#permanent">permanent</a></li></ul></li><li class="accordion collapsed child" id=1488426><div class="accordion-heading child"><a href="MutationStack.html">MutationStack</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="MutationStack.html#commit">commit</a></li><li data-type='method'><a href="MutationStack.html#create">create</a></li><li data-type='method'><a href="MutationStack.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="MutationStack.html#set">set</a></li><li data-type='method'><a href="MutationStack.html#unroll">unroll</a></li><li data-type='method'><a href="MutationStack.html#updateAll">updateAll</a></li></ul></li><li class="accordion-list" id=""><a href="StackData.html">StackData</a></li><li class="accordion-list" id=""><a href="UpdateQueue.html">UpdateQueue</a></li></ul> </div><div class="accordion collapsed" id="689025" > <h3 class="accordion-heading">Externals<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="external-Collection.html">Collection</a></li><li class="accordion-list" id=""><a href="external-DocumentData.html">DocumentData</a></li></ul> </div><div class="accordion collapsed" id="1210870" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#queueUpdate">queueUpdate</a></li><li class="accordion-list" id=""><a href="global.html#warpgate">warpgate</a></li></ul> </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        handler/doc-mutator.js
+      </h1>
+      
+
+      
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import {Mutation} from "../entity/mutation.mjs";
+import {logger} from "../utility/logger.js";
+import {MODULE} from "../utility/module.js";
+import {Mutator} from "./mutator.js";
+import {MutationStack, StackData} from "../entity/mutation-stack.js"
+
+const NAME = "DocMutator";
+
+export class DocMutator {
+  static register() {
+    Hooks.once("ready", () => {
+      globalThis.DocMutator = DocMutator;
+      globalThis.Mutation = Mutation;
+    });
+  }
+
+  /**
+   * @param {Mutation} mutation
+   */
+  static async apply(mutation) {
+    logger.debug("Mutate Info", mutation);
+
+    let callbackRet = {};
+
+    /* premutate callback */
+    const preRet = await Promise.all(
+      mutation.callAll(Mutation.STAGE.PRE_MUTATE)
+    );
+
+    /* can be cancelled, if so, bail */
+    if (preRet.some((ret) => ret === false)) return false;
+    callbackRet[Mutation.STAGE.PRE_MUTATE] = preRet;
+
+    const docRet = await DocMutator._updateDocument(mutation);
+    const embedRet = await DocMutator._updateEmbedded(mutation);
+
+    /* post mutate callback (no cancel to be had) */
+    callbackRet[Mutation.STAGE.POST_MUTATE] = await Promise.all(
+      mutation.callAll(Mutation.STAGE.POST_MUTATE)
+    );
+
+    return { doc: docRet, embed: embedRet, callbacks: callbackRet };
+  }
+
+  /** 
+   * updates the document from pre-prepared mutation
+   * @param {Mutation} mutation
+   */
+  static async _updateDocument(mutation) {
+
+    const doc = mutation.document;
+    const {update, options} = mutation.getUpdate();
+
+    logger.debug('Performing update:',doc, update);
+    
+    await MODULE.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
+
+    /** perform the updates */
+    if (update) await doc?.update(update, options);
+
+    return;
+  }
+
+  /**
+   * Updates the document's embedded collection from a pre-prepared mutation
+   * embeddedUpdates keyed by embedded name, contains shorthand
+   * @param {Mutation} mutation
+   */
+  static async _updateEmbedded(mutation){
+
+    const doc = mutation.document;
+    const embeddedUpdates = mutation.getEmbedded();
+
+    for(const embedded of Object.values(embeddedUpdates)){
+      await Mutator._performEmbeddedUpdates(
+        doc, 
+        embedded.collectionName, 
+        embedded.shorthand,
+        embedded.comparisonKey
+      );
+    }
+
+  }
+
+  /*
+  static async revertTest(document, mutationName = undefined) {
+
+    const mutateData = await Mutator._popMutation(document, mutationName);
+
+    await Mutator._updateDocument(document, mutateData.delta, {
+      comparisonKeys: mutateData.comparisonKeys,
+    });
+
+  }
+  */
+
+  /**
+   * @param {ClientDocument} document
+   * @param {object} [options]
+   * @param {string} [options.name]
+   * @param {string} [options.id]
+   */
+  static async revert(document, {name = '', id = ''} = {}) {
+
+    const stack = new MutationStack(document);
+
+
+    /** @type StackData */
+    let entry = id ? stack.get(id) : name ? stack.getName(name) : stack.pop();
+
+    //TODO check permissions, route to owner as remote mutate
+    const docUpdate = stack.unroll(entry.id);
+    
+    //construct Mutation derived class from class field
+    /** @type Mutation */
+    const revivedMut = globalThis.warpgate.mutators[entry.cls].fromStackData(document, docUpdate);
+    
+    //run pre-revert callbacks
+    const preRet = await Promise.all(
+      revivedMut.callAll(Mutation.STAGE.PRE_REVERT, stack)
+    );
+
+    /* can be cancelled, if so, bail */
+    if (preRet.some((ret) => ret === false)) return false;
+
+    /* Add stack (flags.warpgate.mutate) to the update */
+    revivedMut.add(stack.toObject(true)); 
+
+    //apply the changes
+    const result = await DocMutator.apply(revivedMut);
+
+    /* we may have been cancelled internally before the "mutation" was applied */
+    if (!result) return false;
+
+    result.callbacks[Mutation.STAGE.POST_REVERT] = preRet;
+    
+    //run through the links array and call revert (ourself) from on each muid in that list
+    //TODO
+
+    //Post revert callback
+    /* post revert callback (no cancel to be had) */
+    result.callbacks[Mutation.STAGE.POST_REVERT] = await Promise.all(
+      revivedMut.callAll(Mutation.STAGE.POST_REVERT)
+    );
+
+    return result;
+  }
+
+  /**
+   * @param {Mutation} mutation
+   */
+  static async mutate(mutation) {
+
+    /* if not permanent, we need to create revert data */
+    if (!mutation.permanent()) {
+      mutation.updateMutationStack();
+    }
+
+    const binnedMutations = mutation.bin();
+
+    const promises = binnedMutations.map((mut) => DocMutator.apply(mut));
+
+    const results = await Promise.all(promises);
+
+    return mutation.cleanup(results);
+  }
+
+  static async _popMutation(doc, mutationName) {
+
+    let mutateStack = doc?.getFlag(MODULE.data.name, 'mutate');
+
+    if (!mutateStack || !doc){
+      logger.debug(`Could not pop mutation named ${mutationName} from actor ${doc?.name}`);
+      return undefined;
+    }
+
+    let mutateData = undefined;
+
+    if (!!mutationName) {
+      /* find specific mutation */
+      const index = mutateStack.findIndex( mutation => mutation.name === mutationName );
+
+      /* check for no result and error */
+      if ( index &lt; 0 ) {
+        logger.error(`Could not locate mutation named ${mutationName} in actor ${doc.name}`);
+        return undefined;
+      }
+
+      /* otherwise, retrieve and remove */
+      mutateData = mutateStack.splice(index, 1)[0];
+
+      for( let i = index; i &lt; mutateStack.length; i++){
+
+        /* get the values stored in our delta and push any overlapping ones to
+         * the mutation next in the stack
+         */
+        const stackUpdate = filterObject(mutateData.delta, mutateStack[i].delta);
+        mergeObject(mutateStack[i].delta, stackUpdate);
+
+        /* remove any changes that exist higher in the stack, we have
+         * been overriden and should not restore these values
+         */
+        mutateData.delta = MODULE.unique(mutateData.delta, mutateStack[i].delta)
+      }
+
+    } else {
+      /* pop the most recent mutation */
+      mutateData = mutateStack?.pop();
+    }
+
+    /* if there are no mutations left on the stack, remove our flag data
+     * otherwise, store the remaining mutations */
+    if (mutateStack.length == 0) {
+      await doc.unsetFlag(MODULE.data.name, 'mutate');
+    } else {
+      await doc.setFlag(MODULE.data.name, 'mutate', mutateStack);
+    }
+    logger.debug(MODULE.localize('debug.finalRevertUpdate'), mutateData);
+    return mutateData;
+  }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"MODULE","link":"<a href=\"MODULE.html\">MODULE</a>"},{"title":"MODULE.applySettings","link":"<a href=\"MODULE.html#.applySettings\">MODULE &rtrif; applySettings</a>"},{"title":"MODULE.buttonDialog","link":"<a href=\"MODULE.html#.buttonDialog\">MODULE &rtrif; buttonDialog</a>"},{"title":"MODULE.firstOwner","link":"<a href=\"MODULE.html#.firstOwner\">MODULE &rtrif; firstOwner</a>"},{"title":"MODULE.format","link":"<a href=\"MODULE.html#.format\">MODULE &rtrif; format</a>"},{"title":"MODULE.getTokenData","link":"<a href=\"MODULE.html#.getTokenData\">MODULE &rtrif; getTokenData</a>"},{"title":"MODULE.isFirstOwner","link":"<a href=\"MODULE.html#.isFirstOwner\">MODULE &rtrif; isFirstOwner</a>"},{"title":"MODULE.localize","link":"<a href=\"MODULE.html#.localize\">MODULE &rtrif; localize</a>"},{"title":"MODULE.menu","link":"<a href=\"MODULE.html#.menu\">MODULE &rtrif; menu</a>"},{"title":"MODULE.setting","link":"<a href=\"MODULE.html#.setting\">MODULE &rtrif; setting</a>"},{"title":"MODULE.unique","link":"<a href=\"MODULE.html#.unique\">MODULE &rtrif; unique</a>"},{"title":"MODULE.wait","link":"<a href=\"MODULE.html#.wait\">MODULE &rtrif; wait</a>"},{"title":"MODULE.waitFor","link":"<a href=\"MODULE.html#.waitFor\">MODULE &rtrif; waitFor</a>"},{"title":"Mutation","link":"<a href=\"Mutation.html\">Mutation</a>"},{"title":"Mutation.fromStackData","link":"<a href=\"Mutation.html#.fromStackData\">Mutation &rtrif; fromStackData</a>"},{"title":"Mutation#_invertUpdate","link":"<a href=\"Mutation.html#_invertUpdate\">Mutation &rtrif; _invertUpdate</a>"},{"title":"Mutation#_mergeEmbeddedUpdate","link":"<a href=\"Mutation.html#_mergeEmbeddedUpdate\">Mutation &rtrif; _mergeEmbeddedUpdate</a>"},{"title":"Mutation#add","link":"<a href=\"Mutation.html#add\">Mutation &rtrif; add</a>"},{"title":"Mutation#addEmbedded","link":"<a href=\"Mutation.html#addEmbedded\">Mutation &rtrif; addEmbedded</a>"},{"title":"Mutation#callAll","link":"<a href=\"Mutation.html#callAll\">Mutation &rtrif; callAll</a>"},{"title":"Mutation#callback","link":"<a href=\"Mutation.html#callback\">Mutation &rtrif; callback</a>"},{"title":"Mutation#description","link":"<a href=\"Mutation.html#description\">Mutation &rtrif; description</a>"},{"title":"Mutation#getUpdate","link":"<a href=\"Mutation.html#getUpdate\">Mutation &rtrif; getUpdate</a>"},{"title":"Mutation#hidden","link":"<a href=\"Mutation.html#hidden\">Mutation &rtrif; hidden</a>"},{"title":"Mutation#link","link":"<a href=\"Mutation.html#link\">Mutation &rtrif; link</a>"},{"title":"Mutation#name","link":"<a href=\"Mutation.html#name\">Mutation &rtrif; name</a>"},{"title":"Mutation#permanent","link":"<a href=\"Mutation.html#permanent\">Mutation &rtrif; permanent</a>"},{"title":"MutationStack","link":"<a href=\"MutationStack.html\">MutationStack</a>"},{"title":"MutationStack#commit","link":"<a href=\"MutationStack.html#commit\">MutationStack &rtrif; commit</a>"},{"title":"MutationStack#create","link":"<a href=\"MutationStack.html#create\">MutationStack &rtrif; create</a>"},{"title":"MutationStack#deleteAll","link":"<a href=\"MutationStack.html#deleteAll\">MutationStack &rtrif; deleteAll</a>"},{"title":"MutationStack#set","link":"<a href=\"MutationStack.html#set\">MutationStack &rtrif; set</a>"},{"title":"MutationStack#unroll","link":"<a href=\"MutationStack.html#unroll\">MutationStack &rtrif; unroll</a>"},{"title":"MutationStack#updateAll","link":"<a href=\"MutationStack.html#updateAll\">MutationStack &rtrif; updateAll</a>"},{"title":"StackData","link":"<a href=\"StackData.html\">StackData</a>"},{"title":"UpdateQueue","link":"<a href=\"UpdateQueue.html\">UpdateQueue</a>"},{"title":"Collection","link":"<a href=\"external-Collection.html\">Collection</a>"},{"title":"DocumentData","link":"<a href=\"external-DocumentData.html\">DocumentData</a>"},{"title":"queueUpdate","link":"<a href=\"global.html#queueUpdate\">queueUpdate</a>"},{"title":"warpgate","link":"<a href=\"global.html#warpgate\">warpgate</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+
+    
+
+
+  </body>
+
+</html>

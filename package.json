@@ -16,5 +16,11 @@
   "homepage": "https://github.com/trioderegion/warpgate#readme",
   "devDependencies": {
     "@league-of-foundry-developers/foundry-vtt-types": "^9.269.0"
+  },
+  "scripts": {
+    "doc": "jsdoc --configure jsdoc.conf"
+  },
+  "dependencies": {
+    "clean-jsdoc-theme": "^3.3.4"
   }
 }

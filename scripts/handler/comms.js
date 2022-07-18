@@ -15,12 +15,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { logger } from './logger.js'
-import { MODULE } from './module.js'
+import { logger } from '../utility/logger.js'
+import { MODULE } from '../utility/module.js'
 import { Gateway } from './gateway.js' 
-import { Events } from './events.js'
+import { Events } from '../handler/events.js'
 import { RemoteMutator } from './remote-mutator.js'
-import {queueUpdate} from './update-queue.js'
+import {queueUpdate} from './../utility/update-queue.js'
 
 const ops = {
   DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId

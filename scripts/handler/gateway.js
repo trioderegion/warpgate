@@ -15,11 +15,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {logger} from './logger.js'
-import {MODULE} from './module.js'
+import {logger} from '../utility/logger.js'
+import {MODULE} from '../utility/module.js'
 import {Crosshairs} from './crosshairs.js'
-import { Comms } from './comms.js'
-import {Propagator} from './propagator.js'
+import { Comms } from '../handler/comms.js'
+import {Propagator} from '../utility/propagator.js'
 
 const NAME = "Gateway";
 

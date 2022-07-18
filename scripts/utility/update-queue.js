@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import {MODULE} from './module.js'
+import {MODULE} from '../utility/module.js'
 
 let updateQueues = new Map();
 

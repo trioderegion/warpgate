@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+
+    <!-- Adding meta -->
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      utility/api.js
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="9625456" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=6938434><div class="accordion-heading child"><a href="MODULE.html">MODULE</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="MODULE.html#.applySettings">applySettings</a></li><li data-type='method'><a href="MODULE.html#.buttonDialog">buttonDialog</a></li><li data-type='method'><a href="MODULE.html#.firstOwner">firstOwner</a></li><li data-type='method'><a href="MODULE.html#.format">format</a></li><li data-type='method'><a href="MODULE.html#.getTokenData">getTokenData</a></li><li data-type='method'><a href="MODULE.html#.isFirstOwner">isFirstOwner</a></li><li data-type='method'><a href="MODULE.html#.localize">localize</a></li><li data-type='method'><a href="MODULE.html#.menu">menu</a></li><li data-type='method'><a href="MODULE.html#.setting">setting</a></li><li data-type='method'><a href="MODULE.html#.unique">unique</a></li><li data-type='method'><a href="MODULE.html#.wait">wait</a></li><li data-type='method'><a href="MODULE.html#.waitFor">waitFor</a></li></ul></li><li class="accordion collapsed child" id=3572255><div class="accordion-heading child"><a href="Mutation.html">Mutation</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="Mutation.html#.fromStackData">fromStackData</a></li><li data-type='method'><a href="Mutation.html#_invertUpdate">_invertUpdate</a></li><li data-type='method'><a href="Mutation.html#_mergeEmbeddedUpdate">_mergeEmbeddedUpdate</a></li><li data-type='method'><a href="Mutation.html#add">add</a></li><li data-type='method'><a href="Mutation.html#addEmbedded">addEmbedded</a></li><li data-type='method'><a href="Mutation.html#callAll">callAll</a></li><li data-type='method'><a href="Mutation.html#callback">callback</a></li><li data-type='method'><a href="Mutation.html#description">description</a></li><li data-type='method'><a href="Mutation.html#getUpdate">getUpdate</a></li><li data-type='method'><a href="Mutation.html#hidden">hidden</a></li><li data-type='method'><a href="Mutation.html#link">link</a></li><li data-type='method'><a href="Mutation.html#name">name</a></li><li data-type='method'><a href="Mutation.html#permanent">permanent</a></li></ul></li><li class="accordion collapsed child" id=1488426><div class="accordion-heading child"><a href="MutationStack.html">MutationStack</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="MutationStack.html#commit">commit</a></li><li data-type='method'><a href="MutationStack.html#create">create</a></li><li data-type='method'><a href="MutationStack.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="MutationStack.html#set">set</a></li><li data-type='method'><a href="MutationStack.html#unroll">unroll</a></li><li data-type='method'><a href="MutationStack.html#updateAll">updateAll</a></li></ul></li><li class="accordion-list" id=""><a href="StackData.html">StackData</a></li><li class="accordion-list" id=""><a href="UpdateQueue.html">UpdateQueue</a></li></ul> </div><div class="accordion collapsed" id="689025" > <h3 class="accordion-heading">Externals<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="external-Collection.html">Collection</a></li><li class="accordion-list" id=""><a href="external-DocumentData.html">DocumentData</a></li></ul> </div><div class="accordion collapsed" id="1210870" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#queueUpdate">queueUpdate</a></li><li class="accordion-list" id=""><a href="global.html#warpgate">warpgate</a></li></ul> </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        utility/api.js
+      </h1>
+      
+
+      
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/* 
+ * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
+ * Copyright (c) 2021 Matthew Haentschke.
+ * 
+ * This program is free software: you can redistribute it and/or modify  
+ * it under the terms of the GNU General Public License as published by  
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see &lt;http://www.gnu.org/licenses/>.
+ */
+
+import { logger } from '../utility/logger.js'
+import { Gateway } from './gateway.js'
+import { Mutator } from '../handler/mutator.js'
+import { MODULE } from '../utility/module.js'
+import { Comms } from '../handler/comms.js'
+import { Events } from '../handler/events.js'
+import { queueUpdate } from './../utility/update-queue.js'
+import { Crosshairs } from './crosshairs.js'
+import { MutationStack } from '../entity/mutation-stack.js'
+import { Mutation } from './entities/mutation.mjs'
+
+
+export class api {
+
+  static register() {
+    api.globals();
+  }
+
+  static settings() {
+
+  }
+
+  static globals() {
+
+    /** @alias warpgate */
+    window[MODULE.data.name] = {
+      spawn : api._spawn,
+      spawnAt : api._spawnAt,
+      dismiss : Gateway.dismissSpawn,
+      mutate : Mutator.mutate,
+      revert : Mutator.revertMutation,
+      mutationStack : (tokenDoc) => new MutationStack(tokenDoc),
+      // TODO move these utilities to separate file
+      wait : MODULE.wait,
+      dialog : MODULE.dialog,
+      menu: MODULE.menu,
+      buttonDialog : MODULE.buttonDialog,
+      // \MOVE
+      crosshairs: {
+        show: Gateway.showCrosshairs,
+        getTag: Crosshairs.getTag,
+        collect: Gateway.collectPlaceables,
+      },
+      plugin: {
+        queueUpdate
+      },
+      dnd5e : {
+        rollItem : Gateway._rollItemGetLevel
+      },
+      CONST : {
+        DELETE : 'delete',
+      },
+      EVENT : {
+        PLACEMENT: 'wg_placement',
+        SPAWN: 'wg_spawn',
+        DISMISS: 'wg_dismiss',
+        REVERT: 'wg_revert',
+        MUTATE: 'wg_mutate',
+        MUTATE_RESPONSE: 'wg_response_mutate',
+        REVERT_RESPONSE: 'wg_response_revert'
+      },
+      event : {
+        watch : Events.watch,
+        trigger : Events.trigger,
+        remove : Events.remove,
+        notify : Comms.notifyEvent,
+      },
+      abstract : {
+        Crosshairs,
+        MutationStack,
+      },
+      mutators : {
+        Mutation,
+      }
+    }
+  }
+
+  /** Main driver
+   * @param {String} spawnName
+   *
+   * @param {Object} updates - embedded document, actor, and token document updates. embedded updates use a "shorthand" notation.
+   *
+   * @param {Object} callbacks - functions to be executed at various stages of the spawning process
+   *   pre: async function(templateData, updates). Executed after placement has been decided, but before updates 
+   *       have been issued. Used for modifying the updates based on position of the placement
+   *   post: async function(templateData, spawnedTokenDoc, updates, iteration). Executed after token has be spawned and updated. 
+   *       Good for animation triggers or chat messages. Also used to change the update object for the next iteration 
+   *       in case of duplicates being spawned. Iteration is 0 indexed.
+   *
+   * @param {Object} options
+   *   controllingActor: Actor. currently only used to minimize the sheet while placing.
+   *   duplicates: Number. Default = 1. Will spawn multiple copies of the chosen actor nearby the spawn point
+   *   collision: Boolean. Default = true if using duplicates, false otherwise. Will move spawned token to a nearby square if the chosen point is occupied
+   *       by a token or wall.
+   *   comparisonKeys: Object. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
+   *
+   *
+   * @return Promise&lt;[{String}]> list of created token ids
+   */
+  static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
+
+    /* create permissions for this user */
+    const actorData = {
+      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+    }
+
+    // TODO dont like this logic
+    if(updates.token) {
+      mergeObject(updates.token, {actorData})
+    } else {
+      updates.token = {actorData}
+    }
+
+    let protoData = await MODULE.getTokenData(spawnName, updates.token);
+
+    if (!protoData) return;
+
+    
+    if(options.controllingActor) options.controllingActor.sheet.minimize();
+
+    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: protoData.img, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
+
+    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
+
+    if (templateData.cancelled) return;
+
+    let spawnLocation = {x: templateData.x, y:templateData.y}
+
+    /* calculate any scaling that may have happened */
+    const scale = templateData.width / protoData.width;
+
+    /* insert changes from the template into the updates data */
+    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.size, height: protoData.height*scale}});
+
+    return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
+  }
+
+  /* Places a token with provided default protodata at location
+   * When using duplicates, a default protodata will be obtained
+   * each iteration with all token updates applied.
+   *
+   * @param {Object} spawnLocation = {x:number, y:number}
+   * @param {TokenData} protoData
+   *
+   * @return Promise&lt;[{String}]> list of created token ids
+   *
+   * core spawning logic:
+   * 0) execute user's pre()
+   * 1) Spawn actor with updated prototoken data 
+   * 2) Update actor with actor and item changes
+   * 3) execute user's post()
+   * 4) if more duplicates, get fresh proto data and update it, goto 1
+   */
+  static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
+
+    /* Detect if the protoData is actually a name, and generate token data */
+    if (typeof protoData == 'string'){
+      protoData = await MODULE.getTokenData(protoData, updates.token ?? {});
+    }
+
+    if (!protoData) return;
+
+    const sourceActor = game.actors.get(protoData.actorId);
+    let createdIds = [];
+
+    /* Flag this token with its original actor to work around
+     * updating the token properties of a token linked to
+     * an unowned actor
+     */
+    const tokenFlags = { 
+      [MODULE.data.name]: {
+        sourceActorId: sourceActor.id
+      }
+    }
+
+    /* create permissions for this user */
+    const actorData = {
+      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+    }
+
+    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData})
+
+    /** pre creation callback */
+    if (callbacks.pre) await callbacks.pre(spawnLocation, updates);
+
+    const duplicates = options.duplicates > 0 ? options.duplicates : 1;
+
+    /* merge in changes to the prototoken */
+    protoData.update(updates.token);
+
+    for (let iteration = 0; iteration &lt; duplicates; iteration++) {
+
+      logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
+
+      const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
+        spawnLocation,
+        options.collision ?? (options.duplicates > 1)))[0];
+
+      createdIds.push(spawnedTokenDoc.id);
+
+      logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
+
+      /* flag this user as the actor's creator */
+      const actorFlags = {
+        [MODULE.data.name]: {
+          control: {user: game.user.id, actor: options.controllingActor?.id},
+        }
+      }
+      updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags});
+
+      /* ensure creator owns this token */
+      //let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
+      //permissions.permission[game.user.id] = 3;
+
+      //updates.actor = mergeObject(updates.actor ?? {}, permissions);
+
+      await Mutator._updateDocument(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
+      
+      const actorData = Comms.packToken(spawnedTokenDoc);
+      
+      await warpgate.event.notify(warpgate.EVENT.SPAWN, {actorData, iteration});
+
+      /** post creation callback -- use iter+1 because this update is referring to the NEXT iteration */
+      if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration + 1);
+      
+      /** if we are dealing with duplicates, get a fresh set of proto data for next iteration */
+      if (duplicates > 1) {
+
+        /* get a fresh copy */
+        protoData = (await sourceActor.getTokenData(updates.token));
+        logger.debug('protoData for next loop:',protoData);
+      }
+
+      if (options.controllingActor) options.controllingActor.sheet.maximize();
+    }
+
+    return createdIds;
+  }
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"MODULE","link":"<a href=\"MODULE.html\">MODULE</a>"},{"title":"MODULE.applySettings","link":"<a href=\"MODULE.html#.applySettings\">MODULE &rtrif; applySettings</a>"},{"title":"MODULE.buttonDialog","link":"<a href=\"MODULE.html#.buttonDialog\">MODULE &rtrif; buttonDialog</a>"},{"title":"MODULE.firstOwner","link":"<a href=\"MODULE.html#.firstOwner\">MODULE &rtrif; firstOwner</a>"},{"title":"MODULE.format","link":"<a href=\"MODULE.html#.format\">MODULE &rtrif; format</a>"},{"title":"MODULE.getTokenData","link":"<a href=\"MODULE.html#.getTokenData\">MODULE &rtrif; getTokenData</a>"},{"title":"MODULE.isFirstOwner","link":"<a href=\"MODULE.html#.isFirstOwner\">MODULE &rtrif; isFirstOwner</a>"},{"title":"MODULE.localize","link":"<a href=\"MODULE.html#.localize\">MODULE &rtrif; localize</a>"},{"title":"MODULE.menu","link":"<a href=\"MODULE.html#.menu\">MODULE &rtrif; menu</a>"},{"title":"MODULE.setting","link":"<a href=\"MODULE.html#.setting\">MODULE &rtrif; setting</a>"},{"title":"MODULE.unique","link":"<a href=\"MODULE.html#.unique\">MODULE &rtrif; unique</a>"},{"title":"MODULE.wait","link":"<a href=\"MODULE.html#.wait\">MODULE &rtrif; wait</a>"},{"title":"MODULE.waitFor","link":"<a href=\"MODULE.html#.waitFor\">MODULE &rtrif; waitFor</a>"},{"title":"Mutation","link":"<a href=\"Mutation.html\">Mutation</a>"},{"title":"Mutation.fromStackData","link":"<a href=\"Mutation.html#.fromStackData\">Mutation &rtrif; fromStackData</a>"},{"title":"Mutation#_invertUpdate","link":"<a href=\"Mutation.html#_invertUpdate\">Mutation &rtrif; _invertUpdate</a>"},{"title":"Mutation#_mergeEmbeddedUpdate","link":"<a href=\"Mutation.html#_mergeEmbeddedUpdate\">Mutation &rtrif; _mergeEmbeddedUpdate</a>"},{"title":"Mutation#add","link":"<a href=\"Mutation.html#add\">Mutation &rtrif; add</a>"},{"title":"Mutation#addEmbedded","link":"<a href=\"Mutation.html#addEmbedded\">Mutation &rtrif; addEmbedded</a>"},{"title":"Mutation#callAll","link":"<a href=\"Mutation.html#callAll\">Mutation &rtrif; callAll</a>"},{"title":"Mutation#callback","link":"<a href=\"Mutation.html#callback\">Mutation &rtrif; callback</a>"},{"title":"Mutation#description","link":"<a href=\"Mutation.html#description\">Mutation &rtrif; description</a>"},{"title":"Mutation#getUpdate","link":"<a href=\"Mutation.html#getUpdate\">Mutation &rtrif; getUpdate</a>"},{"title":"Mutation#hidden","link":"<a href=\"Mutation.html#hidden\">Mutation &rtrif; hidden</a>"},{"title":"Mutation#link","link":"<a href=\"Mutation.html#link\">Mutation &rtrif; link</a>"},{"title":"Mutation#name","link":"<a href=\"Mutation.html#name\">Mutation &rtrif; name</a>"},{"title":"Mutation#permanent","link":"<a href=\"Mutation.html#permanent\">Mutation &rtrif; permanent</a>"},{"title":"MutationStack","link":"<a href=\"MutationStack.html\">MutationStack</a>"},{"title":"MutationStack#commit","link":"<a href=\"MutationStack.html#commit\">MutationStack &rtrif; commit</a>"},{"title":"MutationStack#create","link":"<a href=\"MutationStack.html#create\">MutationStack &rtrif; create</a>"},{"title":"MutationStack#deleteAll","link":"<a href=\"MutationStack.html#deleteAll\">MutationStack &rtrif; deleteAll</a>"},{"title":"MutationStack#set","link":"<a href=\"MutationStack.html#set\">MutationStack &rtrif; set</a>"},{"title":"MutationStack#unroll","link":"<a href=\"MutationStack.html#unroll\">MutationStack &rtrif; unroll</a>"},{"title":"MutationStack#updateAll","link":"<a href=\"MutationStack.html#updateAll\">MutationStack &rtrif; updateAll</a>"},{"title":"StackData","link":"<a href=\"StackData.html\">StackData</a>"},{"title":"UpdateQueue","link":"<a href=\"UpdateQueue.html\">UpdateQueue</a>"},{"title":"Collection","link":"<a href=\"external-Collection.html\">Collection</a>"},{"title":"DocumentData","link":"<a href=\"external-DocumentData.html\">DocumentData</a>"},{"title":"queueUpdate","link":"<a href=\"global.html#queueUpdate\">queueUpdate</a>"},{"title":"warpgate","link":"<a href=\"global.html#warpgate\">warpgate</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+
+    
+
+
+  </body>
+
+</html>

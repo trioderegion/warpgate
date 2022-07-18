@@ -17,23 +17,24 @@
 
 import {
   logger
-} from './logger.js';
-import {MODULE} from './module.js'
+} from '../utility/logger.js';
+import {MODULE} from '../utility/module.js'
 
 //@ts-ignore
 import * as fields from '../../../common/data/fields.mjs'
 
-import {Mutation} from './entities/mutation.mjs'
-
+import {Mutation} from './mutation.mjs'
 
 /**
- * Typedefs for warpgate specific data
- * @typedef {import('./entities/mutation.mjs').Shorthand} Shorthand
- * @typedef {import('./entities/mutation.mjs').Delta} Delta
+ * Foundry abstract class representing base behavior for all DocumentData extensions
+ * @external DocumentData
+ * @see {@link https://foundryvtt.com/api/abstract.DocumentData.html|Interfaces/DocumentData}
  */
 
 /**
  * @class
+ * @extends {foundry.abstract.DocumentData}
+ * @see external:DocumentData
  */
 export class StackData extends foundry.abstract.DocumentData {
 
@@ -46,11 +47,14 @@ export class StackData extends foundry.abstract.DocumentData {
   /** @type string */
   name;
 
-  /** @type Object<string, Array<{fn: Function, context: object}>> */
+  /** @type StackCallbacks */
   callbacks;
 
   /** @type Delta */
   delta;
+
+  /** @type Shorthand */
+  links;
 
   static CALLBACK_FIELD = {
     ...fields.OBJECT_FIELD,
@@ -93,20 +97,22 @@ export class StackData extends foundry.abstract.DocumentData {
   }
 }
 
-globalThis.StackData = StackData;
-
-/*** MUTATION DATA STRUCTURE ****/
-//  delta, (i.e. update object needed to revert this mutation, shorthand)
-//  user: game.user.id,
-//  comparisonKeys: options.comparisonKeys ?? {},
-//  id: randomId();
-//  name: options.name ?? id
+/**
+ * The Foundry extension of {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map|Map}
+ * @external Collection
+ * @see {@link https://foundryvtt.com/api/Collection.html|Classes/Collection}
+ */
 
 /**
  * @class
  * @extends Collection
+ * @see external:Collection
  */
 export class MutationStack extends Collection {
+
+  /**
+   * @param {ClientDocument} doc
+   */
   constructor(doc, {module = MODULE.data.name, stack = 'mutation'} = {}) {
     /* initialize our collection */
     const rawData = doc.getFlag(MODULE.data.name, stack) ?? [];

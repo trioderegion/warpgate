@@ -16,10 +16,10 @@
  */
 
 
-import { logger } from './logger.js'
+import { logger } from '../utility/logger.js'
 import { Gateway } from './gateway.js'
-import { MODULE } from './module.js'
-import {queueUpdate} from './update-queue.js'
+import { MODULE } from '../utility/module.js'
+import {queueUpdate} from '../utility/update-queue.js'
 import { Mutator } from './mutator.js'
 
 export class UserInterface {
@@ -66,10 +66,13 @@ export class UserInterface {
     logger.debug("html |", html);
     logger.debug("data |", data);
     
-    UserInterface.addDismissButton(app, html, data);
+    UserInterface.addDismissButton(app, html/*, data*/);
     UserInterface.addRevertMutation(app, html, data);
   }
 
+  /**
+   * @param {ClientDocument} token
+   */
   static _shouldAddDismiss(token) {
 
     if ( !(token instanceof TokenDocument) ) return false;
@@ -79,11 +82,11 @@ export class UserInterface {
         return false;
       case 'spawned':
         
-        const controlData = token?.actor.getFlag(MODULE.data.name, 'control');
+        const controlData = token?.actor?.getFlag(MODULE.data.name, 'control');
 
         /** do not add the button if we are not the controlling actor AND we arent the GM */
-        if ( !(controlData?.user === game.user.id) &&
-          !game.user.isGM) return false;
+        if ( !(controlData?.user ?? 'error' === game.userId) &&
+          !game.user?.isGM) return false;
 
         return !!controlData;
       case 'all':
@@ -146,7 +149,7 @@ export class UserInterface {
     if( !hasToken ) {
       /* check if linked and has an active token on scene */
       const candidates = actor?.getActiveTokens() ?? [];
-      const linkedToken = candidates.find( t => t.data.actorLink )?.document ?? null;
+      const linkedToken = candidates.find( (/** @type {TokenDocument}; }} */ t) => t.data.actorLink )?.document ?? null;
       
       return linkedToken;
       

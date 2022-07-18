@@ -4,7 +4,7 @@
  */
 import {
   logger
-} from './logger.js';
+} from '../utility/logger.js';
 
 const NAME = "warpgate";
 const PATH = `/modules/${NAME}`;
@@ -210,8 +210,8 @@ export class MODULE {
     return game.userId === MODULE.firstGM()?.id;
   }
 
-  /** @param {Document} doc
-   * @returns {Document|undefined}
+  /** @param {ClientDocument} doc
+   * @returns {ClientDocument|undefined}
    */
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
@@ -230,7 +230,7 @@ export class MODULE {
   }
 
   /** Players first, then GM
-   * @param {Document} doc
+   * @param {ClientDocument} doc
    */
   static isFirstOwner(doc) {
     return game.user?.id === MODULE.firstOwner(doc)?.id;
@@ -289,8 +289,8 @@ export class MODULE {
   /**
    *
    * @param {string} actorName
-   * @param {Object} tokenUpdates
-   * @returns 
+   * @param {object} tokenUpdates
+   * @returns {Promise<object>}
    */
   static async getTokenData(actorName, tokenUpdates) {
 
@@ -318,9 +318,9 @@ export class MODULE {
 
   /**
    *
-   * @param {Object} obj 
-   * @param {Object} remove 
-   * @returns 
+   * @param {object} obj 
+   * @param {object} remove 
+   * @returns {object}
    */
   static unique(obj, remove) {
     // Validate input
@@ -366,7 +366,7 @@ export class MODULE {
   static async buttonDialog(data, direction = 'row') {
     return await new Promise(async (resolve) => {
 
-      /** @type {Dialog.Data['buttons']} */
+      /** @type Object<string, Dialog.Button> */
       let buttons = {},
         dialog;
 
@@ -465,45 +465,51 @@ export class MODULE {
      * Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality
      * of `buttonDialog` as well as `dialog`
      *
- * @static
- * @param {Object} [{inputs = [], buttons = []}={}] `inputs` follow the same structure as dialog, `buttons` follow the same structure
- *                 as buttonDialog
- * @param {Object} [{title = 'Prompt', defaultButton = 'Ok', options={}}={}] Title of dialog, default button label if no buttons provided,
- *                 and options object passed directly to the Application constructor
- * @return {Promise<any[]>} Same as `dialog` with the chosen button value append to the end IFF the default button was not used
- * @memberof MODULE
- */
-/* MENU EXAMPLE *
-await warpgate.menu({
-  inputs: [{
-    label: 'My Way',
-    type: 'radio',
-    options: 'group1'
-  }, {
-    label: 'The Highway',
-    type: 'radio',
-    options: 'group1'
-  }],
-  buttons: [{
-    label: 'Yes',
-    value: 1
-  }, {
-    label: 'No',
-    value: 2
-  }, {
-    label: 'Maybe',
-    value: 3
-  }, {
-    label: 'Eventually',
-    value: 4
-  }]
-}, {
-  options: {
-    width: '100px',
-    height: '100%'
-  }
-})
-****************/
+     * @static
+     * @param {object} [data]  follow the same structure as dialog, `buttons` follow the same structure
+     * @param {Array<object>} [data.inputs=[]]
+     * @param {Array<object>} [data.buttons=[]]
+     *                 as buttonDialog
+     * @param {object} [config] [{title = 'Prompt', defaultButton = 'Ok', options={}}={}] Title of dialog, default button label if no buttons provided,
+     * @param {string} [config.title='Prompt']
+     * @param {string} [config.defaultButton='Ok']
+     * @param {object} [config.options={}] Options passed to the Dialog constructor
+     *
+     * @example
+     *
+     * await warpgate.menu({
+     *  inputs: [{
+     *    label: 'My Way',
+     *    type: 'radio',
+     *    options: 'group1'
+     *  }, {
+     *    label: 'The Highway',
+     *    type: 'radio',
+     *    options: 'group1'
+     *  }],
+     *  buttons: [{
+     *    label: 'Yes',
+     *    value: 1
+     *  }, {
+     *    label: 'No',
+     *    value: 2
+     *  }, {
+     *    label: 'Maybe',
+     *    value: 3
+     *  }, {
+     *    label: 'Eventually',
+     *    value: 4
+     *  }]
+     * }, {
+     *  options: {
+     *    width: '100px',
+     *    height: '100%'
+     *  }
+     * })
+     *
+     *
+     * @return {Promise<{ inputs: Array<any>, buttons: any}>} Same as `dialog` with the chosen button value append to the end IFF the default button was not used
+     */
     static async menu({
       inputs = [],
       buttons = []
@@ -515,6 +521,8 @@ await warpgate.menu({
 
       return await new Promise((resolve) => {
         let content = MODULE.dialogInputs(inputs);
+
+        /** @type Object<string, Dialog.Button> */
         let buttonData = {}
 
         buttons.forEach((button) => {
@@ -535,7 +543,10 @@ await warpgate.menu({
           buttonData = {
             Ok: {
               label: defaultButton,
-              callback: (html) => resolve({inputs: MODULE._innerValueParse(inputs, html), buttons: true})
+              callback: (html) => {
+                const results = {inputs: MODULE._innerValueParse(inputs, html), buttons: true};
+                resolve(results);
+              }
             }
           }
         }
@@ -543,23 +554,15 @@ await warpgate.menu({
         new Dialog({
           title,
           content,
-          close: () => resolve({buttons: false}),
+          close: (html) => resolve({inputs: MODULE._innerValueParse(inputs,html), buttons: false}),
           buttons: buttonData,
         }, options).render(true);
       });
     }
 
-    static _defaultButton(data) {
-      return (html) => {
-        resolve(MODULE._innerValueParse(data, html));
-      }
-    }
-
     static _innerValueParse(data, html) {
-      return Array(data.length).fill().map((e, i) => {
-        let {
-          type
-        } = data[i];
+      return Array(data.length).fill(null).map((_, i) => {
+        const { type } = data[i];
         if (type.toLowerCase() === `select`) {
           return html.find(`select#${i}qd`).val();
         } else {

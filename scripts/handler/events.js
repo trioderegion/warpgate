@@ -1,9 +1,9 @@
 import {
   logger
-} from './logger.js'
+} from '../utility/logger.js'
 import {
   queueUpdate
-} from './update-queue.js'
+} from './../utility/update-queue.js'
 
 const NAME = 'Events';
 

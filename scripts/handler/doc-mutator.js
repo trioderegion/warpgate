@@ -1,8 +1,8 @@
-import {Mutation} from "./entities/mutation.mjs";
-import {logger} from "./logger.js";
-import {MODULE} from "./module.js";
+import {Mutation} from "../entity/mutation.mjs";
+import {logger} from "../utility/logger.js";
+import {MODULE} from "../utility/module.js";
 import {Mutator} from "./mutator.js";
-import {MutationStack, StackData} from "./mutation-stack.js"
+import {MutationStack, StackData} from "../entity/mutation-stack.js"
 
 const NAME = "DocMutator";
 
@@ -115,7 +115,6 @@ export class DocMutator {
     /** @type Mutation */
     const revivedMut = globalThis.warpgate.mutators[entry.cls].fromStackData(document, docUpdate);
     
-    let callbackRet = {}
     //run pre-revert callbacks
     const preRet = await Promise.all(
       revivedMut.callAll(Mutation.STAGE.PRE_REVERT, stack)
@@ -123,19 +122,26 @@ export class DocMutator {
 
     /* can be cancelled, if so, bail */
     if (preRet.some((ret) => ret === false)) return false;
-    callbackRet[Mutation.STAGE.PRE_MUTATE] = preRet;
 
     /* Add stack (flags.warpgate.mutate) to the update */
     revivedMut.add(stack.toObject(true)); 
 
     //apply the changes
     const result = await DocMutator.apply(revivedMut);
+
+    /* we may have been cancelled internally before the "mutation" was applied */
+    if (!result) return false;
+
+    result.callbacks[Mutation.STAGE.POST_REVERT] = preRet;
     
     //run through the links array and call revert (ourself) from on each muid in that list
     //TODO
 
     //Post revert callback
-    //TODO
+    /* post revert callback (no cancel to be had) */
+    result.callbacks[Mutation.STAGE.POST_REVERT] = await Promise.all(
+      revivedMut.callAll(Mutation.STAGE.POST_REVERT)
+    );
 
     return result;
   }
