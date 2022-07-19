@@ -15,16 +15,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { logger } from '../utility/logger.js'
-import { Gateway } from './gateway.js'
+import { logger } from './logger.js'
+import { Gateway } from '../handler/gateway.js'
 import { Mutator } from '../handler/mutator.js'
-import { MODULE } from '../utility/module.js'
+import { MODULE } from './module.js'
 import { Comms } from '../handler/comms.js'
 import { Events } from '../handler/events.js'
-import { queueUpdate } from './../utility/update-queue.js'
-import { Crosshairs } from './crosshairs.js'
+import { queueUpdate } from './update-queue.js'
+import { Crosshairs } from '../entity/crosshairs.js'
 import { MutationStack } from '../entity/mutation-stack.js'
-import { Mutation } from './entities/mutation.mjs'
+import { Mutation } from '../entity/mutation.mjs'
 
 
 export class api {
@@ -39,8 +39,11 @@ export class api {
 
   static globals() {
 
-    /** @alias warpgate */
+    /** 
+     * @alias warpgate
+     */
     window[MODULE.data.name] = {
+      // @ts-ignore
       spawn : api._spawn,
       spawnAt : api._spawnAt,
       dismiss : Gateway.dismissSpawn,
@@ -76,6 +79,7 @@ export class api {
         MUTATE_RESPONSE: 'wg_response_mutate',
         REVERT_RESPONSE: 'wg_response_revert'
       },
+      /** @type any */
       event : {
         watch : Events.watch,
         trigger : Events.trigger,

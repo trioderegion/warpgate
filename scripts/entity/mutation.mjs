@@ -2,16 +2,16 @@ import {MODULE} from '../utility/module.js'
 import {MutationStack, StackData} from '../entity/mutation-stack.js'
 
 function preloadImages(mutation) {
-  console.warn('Not yet implemented');
-  return false;
+  console.warn('Image preload helper not yet implemented');
+  return 'preload ret';
 }
 
 /* sizes, if this mutation exists already on the actor, etc
  * @param {Mutation} mutation
  */
 function sanityCheckMutation(mutation) {
-  console.warn('Not yet implemented');
-  return false;
+  console.warn('Mutation Sanity Check not yet implemented');
+  return 'sanity check ret';
 }
 
 /**
@@ -27,6 +27,7 @@ export class Mutation {
     POST_REVERT: "4",
   }
 
+  /** @protected */
   static _parseUpdateShorthand(collection, updates, comparisonKey) {
     let parsedUpdates = Object.keys(updates).map((key) => {
       if (updates[key] === warpgate.CONST.DELETE) return { _id: null };
@@ -40,6 +41,7 @@ export class Mutation {
     return parsedUpdates;
   }
 
+  /** @protected */
   static _parseDeleteShorthand(collection, updates, comparisonKey) {
     let parsedUpdates = Object.keys(updates).map((key) => {
       if (updates[key] !== warpgate.CONST.DELETE) return null;
@@ -50,6 +52,7 @@ export class Mutation {
     return parsedUpdates;
   }
 
+  /** @protected */
   static _parseAddShorthand(collection, updates, comparisonKey){
     let parsedAdds = Object.keys(updates).map((key) => {
 
@@ -68,6 +71,7 @@ export class Mutation {
 
   }
 
+  /** @protected */
   static _invertShorthand(collection, updates, comparisonKey){
     let inverted = {};
     Object.keys(updates).forEach( (key) => {
@@ -123,9 +127,7 @@ export class Mutation {
       )
     );
 
-    //construct all mutations referenced in links by muid
-    const muids = data;
-
+    return revivedMut;
   }
 
   /*** PUBLIC FIELDS ***/
@@ -171,6 +173,18 @@ export class Mutation {
 
     this.#document = document;
     this.#id = id;
+
+    /* Prepopulate valid embedded collection names */
+    this.#embeddedUpdates = Object.keys(this.#document.constructor.implementation.metadata.embedded).reduce( (acc, curr) => {
+      const defaultData = {
+        collectionName: curr,
+        shorthand: {},
+        options: {},
+        comparisonKey: this.defaultComparisonKeys[curr],
+      }
+      acc[curr] = defaultData;
+      return acc;
+    },{});
 
     /* prefill remaining default config options */
     this.#config.name = id;
@@ -218,18 +232,9 @@ export class Mutation {
   /**
    * @type EmbeddedUpdate
    */
-  #embeddedUpdates = Object.keys(this.document.constructor.implementation.metadata.embedded).reduce( (acc, curr) => {
-    const defaultData = {
-      collectionName: curr,
-      shorthand: {},
-      options: {},
-      comparisonKey: this.defaultComparisonKeys[curr],
-    }
-    acc[curr] = defaultData;
-    return acc;
-  },{});
+  #embeddedUpdates;
 
-  /* @private */
+  /** @protected */
   _callbacks = {};
 
   /**
@@ -274,9 +279,9 @@ export class Mutation {
   }
 
   get metadata() {
-
+    
     const data = { 
-      class: this.constructor.name,
+      cls: this.constructor.name,
       name: this.config.name,
       id: this.#id,
       description: this.config.description,
@@ -395,7 +400,7 @@ export class Mutation {
     const metadata = this.metadata;
 
     const data = {
-      class: metadata.class,
+      cls: metadata.class,
       id: metadata.id,
       name: metadata.name,
       //user: default,
@@ -423,7 +428,7 @@ export class Mutation {
       if(!!stage) {
         
         /* create or add to running list */
-        if(!acc) acc = {[curr]: [stage]};
+        if(!acc[curr]) acc[curr] = [stage];
         else acc[curr].push(stage);
       }
 
@@ -441,8 +446,12 @@ export class Mutation {
    * ********
    */
 
-   /**
+  /**
+   * Merge an update object for _this_ document into the
+   * running update.
+   *
    * @param {object} data
+   * @param {object} [updateOptions=null]
    */
   add(data, updateOptions = null) {
     const expanded = expandObject(data); 
@@ -553,15 +562,19 @@ export class Mutation {
 
   updateMutationStack() {
 
+    if (this.permanent()) return this;
+
     if(!this.#stack) this.#stack = new MutationStack(this.#document);
 
     const stackData = this.generateStackEntry();
 
     /* if we were cancelled or errored for any reason */
-    if (!stackData) return this;
+    if (!stackData) return false;
 
     /* Create a new mutation stack flag data and store it in the update object */
     this.#stack.create(stackData);
+    
+    this.add(this.#stack.toObject(true));
 
     return this;
   }
@@ -579,7 +592,7 @@ export class Mutation {
       mutName: this.config.name,
     }
 
-    return globalThis.warpgate.event.notify(globalThis.warpgate.CONST.EVENT.MUTATE, eventData);
+    return globalThis.warpgate.event.notify(globalThis.warpgate.EVENT.MUTATE, eventData);
   }
 
 }

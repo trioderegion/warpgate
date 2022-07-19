@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import { api } from './utility/api.js';
-import { Comms } from './handle../handler/comms.js';
+import { Comms } from './handler/comms.js';
 import { DocMutator } from './handler/doc-mutator.js';
 import { Gateway } from './handler/gateway.js';
 import { logger } from './utility/logger.js';

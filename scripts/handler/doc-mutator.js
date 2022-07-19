@@ -100,10 +100,8 @@ export class DocMutator {
    * @param {string} [options.name]
    * @param {string} [options.id]
    */
-  static async revert(document, {name = '', id = ''} = {}) {
-
+  static async revert(document, {name, id} = {}) {
     const stack = new MutationStack(document);
-
 
     /** @type StackData */
     let entry = id ? stack.get(id) : name ? stack.getName(name) : stack.pop();
@@ -127,15 +125,25 @@ export class DocMutator {
     revivedMut.add(stack.toObject(true)); 
 
     //apply the changes
-    const result = await DocMutator.apply(revivedMut);
+    let result = await DocMutator.apply(revivedMut);
 
     /* we may have been cancelled internally before the "mutation" was applied */
     if (!result) return false;
 
-    result.callbacks[Mutation.STAGE.POST_REVERT] = preRet;
+    //no cancel from the mutator, moving on and storing pre revert rv
+    result.callbacks[Mutation.STAGE.PRE_REVERT] = preRet;
     
     //run through the links array and call revert (ourself) from on each muid in that list
-    //TODO
+    const linkedReverts = entry.links.map( muid => {
+      return {
+        document: fromUuid(muid.uuid),
+        id: muid.mutation,
+      }
+    });
+
+    linkedReverts.map( async ({document, id}) => DocMutator.revert(await document, {id}) );
+
+    result.links = await Promise.all(linkedReverts);
 
     //Post revert callback
     /* post revert callback (no cancel to be had) */
@@ -151,14 +159,18 @@ export class DocMutator {
    */
   static async mutate(mutation) {
 
-    /* if not permanent, we need to create revert data */
-    if (!mutation.permanent()) {
-      mutation.updateMutationStack();
-    }
-
     const binnedMutations = mutation.bin();
+    const owner = binnedMutations.shift();
 
-    const promises = binnedMutations.map((mut) => DocMutator.apply(mut));
+    /* update mutation stack as needed (considers permanent and skips) */
+    let result = owner?.updateMutationStack() ?? false;
+    if(!result) return false;
+
+    result = await DocMutator.apply(owner);
+
+    const promises = binnedMutations.map((mut) => {
+      return DocMutator.mutate(mut);
+    });
 
     const results = await Promise.all(promises);
 

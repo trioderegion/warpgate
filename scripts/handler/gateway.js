@@ -17,7 +17,7 @@
 
 import {logger} from '../utility/logger.js'
 import {MODULE} from '../utility/module.js'
-import {Crosshairs} from './crosshairs.js'
+import {Crosshairs} from '../entity/crosshairs.js'
 import { Comms } from '../handler/comms.js'
 import {Propagator} from '../utility/propagator.js'
 

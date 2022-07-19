@@ -21,7 +21,7 @@ import {
 import {MODULE} from '../utility/module.js'
 
 //@ts-ignore
-import * as fields from '../../../common/data/fields.mjs'
+import * as fields from '../../../../common/data/fields.mjs'
 
 import {Mutation} from './mutation.mjs'
 
@@ -32,29 +32,17 @@ import {Mutation} from './mutation.mjs'
  */
 
 /**
- * @class
+ * @class StackData
  * @extends {foundry.abstract.DocumentData}
  * @see external:DocumentData
+ * @member {string} cls
+ * @member {string} id
+ * @member {string} name
+ * @member {StackCallbacks} callbacks
+ * @member {Delta} delta
+ * @member {Array<{uuid: string, mutation: string}>} links
  */
 export class StackData extends foundry.abstract.DocumentData {
-
-  /** @type string */
-  cls;
-
-  /** @type string */
-  id;
-
-  /** @type string */
-  name;
-
-  /** @type StackCallbacks */
-  callbacks;
-
-  /** @type Delta */
-  delta;
-
-  /** @type Shorthand */
-  links;
 
   static CALLBACK_FIELD = {
     ...fields.OBJECT_FIELD,
