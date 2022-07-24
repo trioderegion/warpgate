@@ -107,13 +107,15 @@ export class Mutation {
   }
 
   /**
-   * @param {ClientDocument} document
-   * @param {StackData} data
+   * @param {MutationStack} stack
+   * @param {string} entryId
    */
-  static fromStackData(document, data) {
+  static fromStack(stack, entryId) {
 
-    const revivedMut = new Mutation(document, {id: data.id});
-    
+    const data = stack.get(entryId);
+
+    const revivedMut = new Mutation(stack.document, {id: entryId});
+
     //add delta from entry as updates.
     revivedMut.add(data.delta.document.update, data.delta.document.options);
 
@@ -189,6 +191,9 @@ export class Mutation {
     /* prefill remaining default config options */
     this.#config.name = id;
 
+    /* construct mutation stack */
+    this.#stack = new MutationStack(document, {module: MODULE.data.name});
+
     /* merge in any provided configs */
     mergeObject(this.#config, config);
 
@@ -258,6 +263,10 @@ export class Mutation {
    * @type {MutationStack}
    */
   #stack;
+
+  get stack() {
+    return this.#stack;
+  }
 
   /**
    * @member {Object}
@@ -577,6 +586,10 @@ export class Mutation {
     this.add(this.#stack.toObject(true));
 
     return this;
+  }
+
+  unrollStackEntry(id) {
+    return this.#stack.unroll(id);
   }
 
   bin() {

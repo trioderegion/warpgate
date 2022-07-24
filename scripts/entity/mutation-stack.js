@@ -23,8 +23,6 @@ import {MODULE} from '../utility/module.js'
 //@ts-ignore
 import * as fields from '../../../../common/data/fields.mjs'
 
-import {Mutation} from './mutation.mjs'
-
 /**
  * Foundry abstract class representing base behavior for all DocumentData extensions
  * @external DocumentData
@@ -32,15 +30,19 @@ import {Mutation} from './mutation.mjs'
  */
 
 /**
- * @class StackData
+ * @class
  * @extends {foundry.abstract.DocumentData}
- * @see external:DocumentData
  * @member {string} cls
  * @member {string} id
  * @member {string} name
- * @member {StackCallbacks} callbacks
- * @member {Delta} delta
- * @member {Array<{uuid: string, mutation: string}>} links
+ * @member {string} user Creator of this mutation.
+ * @member {Object<string,number>} permission Document permission object describing who can modify or revert this entry
+ * @member {Array<{uuid: string, mutation: string}>} links "MUID" links (Mutation Unique IDentifier)
+ * @member {boolean} hidden is this mutation shown in the UI?
+ * @member {StackCallbacks} callbacks Serialized functions to be executed at varying stages of the mutation/revert process
+ * @member {Delta} delta Raw mutation data needed to revert its original mutation
+ *
+ * @see external:DocumentData
  */
 export class StackData extends foundry.abstract.DocumentData {
 
@@ -61,9 +63,8 @@ export class StackData extends foundry.abstract.DocumentData {
 
   static defineSchema() {
     return {
-
       /* serialization and identification */
-      cls: fields.field(fields.STRING_FIELD, {default: Mutation.name}),
+      cls: fields.field(fields.STRING_FIELD, {default: this.name}),
       id: fields.REQUIRED_STRING,
       name: fields.REQUIRED_STRING,
 
@@ -82,6 +83,11 @@ export class StackData extends foundry.abstract.DocumentData {
       /* actual mutation data */
       delta: fields.OBJECT_FIELD,
     }
+  }
+
+  get isOwner() {
+    if (game.user.isGM || this.user === game.user.id) return true;
+    return (this.permission[game.userId] ?? this.permission['default']) == CONST.DOCUMENT_PERMISSION_LEVELS.OWNER;
   }
 }
 
@@ -108,19 +114,28 @@ export class MutationStack extends Collection {
 
     super(initData);
 
-    this._doc = doc;
-    this._type = {module, stack};
+    /**
+     * @member {ClientDocument}
+     */
+    this.#doc = doc;
+    this.#type = {module, stack};
 
   }
+
+  #doc;
+  #type;
 
   /* @deprecated */
   get stack() {
     return this;
   }
+  
+  get document() {
+    return this.#doc;
+  }
 
-  /** @private */
   get type() {
-    return this._type;
+    return this.#type;
   }
 
   /**
@@ -198,7 +213,7 @@ export class MutationStack extends Collection {
    */
   async commit() {
 
-    await this._doc.update(this.toObject(true));
+    await this.#doc.update(this.toObject(true));
 
     return this;
   }
@@ -230,7 +245,7 @@ export class MutationStack extends Collection {
     /** @type StackData */
     let target = this.get(id, {strict: false});
     if (!target) {
-      logger.debug(`Could not find mutation [${id}] on actor ${this._doc?.name}`);
+      logger.debug(`Could not find mutation [${id}] on actor ${this.#doc?.name}`);
       return;
     }
 

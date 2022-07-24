@@ -82,18 +82,6 @@ export class DocMutator {
 
   }
 
-  /*
-  static async revertTest(document, mutationName = undefined) {
-
-    const mutateData = await Mutator._popMutation(document, mutationName);
-
-    await Mutator._updateDocument(document, mutateData.delta, {
-      comparisonKeys: mutateData.comparisonKeys,
-    });
-
-  }
-  */
-
   /**
    * @param {ClientDocument} document
    * @param {object} [options]
@@ -106,16 +94,28 @@ export class DocMutator {
     /** @type StackData */
     let entry = id ? stack.get(id) : name ? stack.getName(name) : stack.pop();
 
-    //TODO check permissions, route to owner as remote mutate
-    const docUpdate = stack.unroll(entry.id);
-    
-    //construct Mutation derived class from class field
-    /** @type Mutation */
-    const revivedMut = globalThis.warpgate.mutators[entry.cls].fromStackData(document, docUpdate);
+    if(!entry) {
+      return DocMutator.error();
+    }
+
+    /* need to have permissions to this stack entry in order to do anything */
+    if(!entry.isOwner) {
+      return DocMutator.error();
+    }
+
+    if(!document.isOwner) {
+      return DocMutator.requestRevert(document, {mutation: entry.id})
+    }
+
+    /** 
+     * construct Mutation derived class from class field
+     * @type Mutation
+     */
+    const revivedMut = globalThis.warpgate.mutators[entry.cls].fromStack(stack, entry.id);
     
     //run pre-revert callbacks
     const preRet = await Promise.all(
-      revivedMut.callAll(Mutation.STAGE.PRE_REVERT, stack)
+      revivedMut.callAll(Mutation.STAGE.PRE_REVERT, entry.id)
     );
 
     /* can be cancelled, if so, bail */
