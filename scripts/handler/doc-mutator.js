@@ -31,8 +31,8 @@ export class DocMutator {
     if (preRet.some((ret) => ret === false)) return false;
     callbackRet[Mutation.STAGE.PRE_MUTATE] = preRet;
 
-    const docRet = await DocMutator._updateDocument(mutation);
     const embedRet = await DocMutator._updateEmbedded(mutation);
+    const docRet = await DocMutator._updateDocument(mutation);
 
     /* post mutate callback (no cancel to be had) */
     callbackRet[Mutation.STAGE.POST_MUTATE] = await Promise.all(
@@ -50,13 +50,24 @@ export class DocMutator {
 
     const doc = mutation.document;
     const {update, options} = mutation.getUpdate();
+    
+    const flagStackUpdate = mutation._updateMutationStack();
+
+    if(!flagStackUpdate) return false;
+
+    /* merge in our current stack with the update data */
+    mergeObject(update, flagStackUpdate)
 
     logger.debug('Performing update:',doc, update);
     
     await MODULE.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
-    if (update) await doc?.update(update, options);
+    if (!isObjectEmpty(update)) {
+
+      /* wait until the last possible second to insert the mutation stack data */
+      await doc?.update(update, options);
+    }
 
     return;
   }
@@ -152,29 +163,6 @@ export class DocMutator {
     );
 
     return result;
-  }
-
-  /**
-   * @param {Mutation} mutation
-   */
-  static async mutate(mutation) {
-
-    const binnedMutations = mutation.bin();
-    const owner = binnedMutations.shift();
-
-    /* update mutation stack as needed (considers permanent and skips) */
-    let result = owner?.updateMutationStack() ?? false;
-    if(!result) return false;
-
-    result = await DocMutator.apply(owner);
-
-    const promises = binnedMutations.map((mut) => {
-      return DocMutator.mutate(mut);
-    });
-
-    const results = await Promise.all(promises);
-
-    return mutation.cleanup(results);
   }
 
   static async _popMutation(doc, mutationName) {

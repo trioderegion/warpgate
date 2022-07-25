@@ -1,5 +1,6 @@
 import {MODULE} from '../utility/module.js'
-import {MutationStack, StackData} from '../entity/mutation-stack.js'
+import {MutationStack, StackData} from './mutation-stack.js'
+import {DocMutator} from '../handler/doc-mutator.js'
 
 function preloadImages(mutation) {
   console.warn('Image preload helper not yet implemented');
@@ -302,12 +303,16 @@ export class Mutation {
   }
 
   /**
-   * @private
+   * @protected
    * @type {Mutation[]}
    */
   _links = [];
 
   get links() {
+    return this._links;
+  }
+
+  get linkMuids() {
     return this._links.map( mut => mut.muid );
   }
   
@@ -414,7 +419,7 @@ export class Mutation {
       name: metadata.name,
       //user: default,
       //permission: default,
-      links: this.links,
+      links: this.linkMuids,
       //hidden: default,
       callbacks: this.getStackCallbacks(),
       delta: this.getRevertData(),
@@ -555,7 +560,7 @@ export class Mutation {
   }
 
   /**
-   * @return {{update: object, options: object}}
+   * @return {{update: Object, options: Object}}
    */
   getUpdate() {
     return {
@@ -569,9 +574,9 @@ export class Mutation {
     return this.#embeddedUpdates[shorthandKey];
   }
 
-  updateMutationStack() {
+  _updateMutationStack() {
 
-    if (this.permanent()) return this;
+    if (this.permanent()) return {};
 
     if(!this.#stack) this.#stack = new MutationStack(this.#document);
 
@@ -580,20 +585,29 @@ export class Mutation {
     /* if we were cancelled or errored for any reason */
     if (!stackData) return false;
 
-    /* Create a new mutation stack flag data and store it in the update object */
+    /* Create a new mutation stack entry on the current stack */
     this.#stack.create(stackData);
-    
-    this.add(this.#stack.toObject(true));
 
-    return this;
+    return this.#stack.toObject(true);
   }
 
   unrollStackEntry(id) {
     return this.#stack.unroll(id);
   }
 
-  bin() {
-    return [this, ...this._links]; 
+  /**
+   * collates ALL mutations to apply
+   * @protected
+   */
+  _binLinks(ignoreSet = new Set()) {
+
+    const setId = `${this.muid.uuid}.${this.muid.mutation}`;
+    if(ignoreSet.has(setId)) return [];
+    ignoreSet.add(setId);
+
+    const allLinks = [...this.links, ...this.links.flatMap( mut => mut._binLinks(ignoreSet) )];
+
+    return [allLinks];
   }
 
   cleanup(results) {
@@ -606,6 +620,28 @@ export class Mutation {
     }
 
     return globalThis.warpgate.event.notify(globalThis.warpgate.EVENT.MUTATE, eventData);
+  }
+
+  async apply(includeLinks = true) {
+
+    /* update mutation stack as needed (considers permanent and skips) */
+    const stackResult = this?._updateMutationStack() ?? false;
+    if(!stackResult) return false;
+
+    let result = await DocMutator.apply(this);
+
+    if(!result) return false;
+
+    if (includeLinks) {
+      const binnedMutations = this._binLinks();
+      const promises = binnedMutations.flatMap((group) => {
+        return group.map( mut => mut.apply(false) );
+      });
+
+      result.push(...await Promise.all(promises));
+    }
+
+    return this.cleanup(result);
   }
 
 }
