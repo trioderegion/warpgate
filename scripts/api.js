@@ -110,8 +110,9 @@ export class api {
   static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
 
     /* create permissions for this user */
+    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
     // TODO dont like this logic
@@ -184,8 +185,9 @@ export class api {
     }
 
     /* create permissions for this user */
+    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
     updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData})
@@ -196,7 +198,8 @@ export class api {
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
 
     /* merge in changes to the prototoken */
-    protoData.update(updates.token);
+    if ( MODULE.isV10 ) protoData.updateSource(updates.token);
+    else protoData.update(updates.token);
 
     for (let iteration = 0; iteration < duplicates; iteration++) {
 
@@ -208,7 +211,7 @@ export class api {
 
       createdIds.push(spawnedTokenDoc.id);
 
-      logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
+      logger.debug('Spawned token with data: ', MODULE.isV10 ? spawnedTokenDoc : spawnedTokenDoc.data);
 
       /* flag this user as the actor's creator */
       const actorFlags = {
