@@ -426,7 +426,7 @@ export class Mutator {
   static _createDelta(tokenDoc, updates, options) {
 
     /* get token changes */
-    let tokenData = tokenDoc.data.toObject()
+    let tokenData = tokenDoc.toObject()
     delete tokenData.actorData;
     
     const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
@@ -453,7 +453,7 @@ export class Mutator {
 
   /* returns the actor data sans ALL embedded collections */
   static _getRootActorData(actorDoc) {
-    let actorData = actorDoc.data.toObject();
+    let actorData = actorDoc.toObject();
 
     /* get the key NAME of the embedded document type.
      * ex. not 'ActiveEffect' (the class name), 'effect' the collection's field name
@@ -465,9 +465,6 @@ export class Mutator {
 
     /* delete any embedded fields from the actor data */
     embeddedFields.forEach( field => { delete actorData[field] } )
-
-    /* do not delta our own delta flags */
-    //if (actorData.flags?.warpgate) delete actorData.flags.warpgate
 
     return actorData;
   }
