@@ -206,7 +206,7 @@ export class MODULE {
         } else if (type.toLowerCase() === 'info') {
           return `<tr><td colspan="2">${label}</td></tr>`;
         } else if (type.toLowerCase() === `select`) {
-          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
         } else if (type.toLowerCase() == `radio`) {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[1] : false ?? false) ? 'checked' : ''} value="${value ?? label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/></td></tr>`;
         } else if (type.toLowerCase() === `checkbox` ) {
@@ -227,46 +227,6 @@ export class MODULE {
       if(results.buttons === false) return false;
       return results.inputs;
     }
-
-   // /* See readme at github.com/trioderegion/warpgate */
-   // static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
-   //   data = data instanceof Array ? data : [data];
-
-   //   return await new Promise((resolve) => {
-   //     let content = MODULE.dialogInputs(data); 
-   //     new Dialog({
-   //       title,
-   //       content,
-   //       buttons: {
-   //         Ok: {
-   //           label: submitLabel,
-   //           callback: (html) => {
-   //             resolve(Array(data.length).fill().map((e, i) => {
-   //               let {
-   //                 type
-   //               } = data[i];
-   //               if (type.toLowerCase() === `select`) {
-   //                 return html.find(`select#${i}qd`).val();
-   //               } else {
-   //                 switch (type.toLowerCase()) {
-   //                   case `text`:
-   //                   case `password`:
-   //                     return html.find(`input#${i}qd`)[0].value;
-   //                   case `radio`:
-   //                     return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
-   //                   case `checkbox`:
-   //                     return html.find(`input#${i}qd`)[0].checked;
-   //                   case `number`:
-   //                     return html.find(`input#${i}qd`)[0].valueAsNumber;
-   //                 }
-   //               }
-   //             }));
-   //           }
-   //         }
-   //       }
-   //     }).render(true);
-   //   });
-   // }
 
     /**
      * Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality

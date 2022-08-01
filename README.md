@@ -65,7 +65,7 @@ Be sure to check out the [Warp Gate Wiki](https://github.com/trioderegion/warpga
 Signature: `async warpgate.spawn(actorName, updates = {}, callbacks = {}, options = {})`
 
 The primary function of Warp Gate. When executed, it will create a custom MeasuredTemplate that is used to place the spawned token and handle any customizations provided in the `updates` object. `warpgate#spawn` will return a Promise that can be awaited, which can be used in loops to spawn multiple tokens, one after another. The player spawning the token will also be given Owner permissions for that specific token actor. This means that players can spawn any creature available in the world.
- * actorName {String}: Name of actor to spawn
+ * actorName {String|TokenData|PrototypeTokenData}: Name of actor to spawn or the actual TokenData that should be used for spawning.
  * updates {Object} Updates to the spawned actor (optional). See [Update Shorthand](#update-shorthand).
  * callbacks {Object} Callback functions (optional). See [Spawn Callback Functions](#spawn-callback-functions) and [Crosshairs Callback Functions](#crosshairs-callback-functions).
  * options {Object} Options (optional) 
@@ -331,6 +331,8 @@ Helper function for quickly creating a simple dialog with labeled buttons and as
 
 ### dialog
 
+_Deprecated as of 1.14.0. To be removed in 2.2.0_
+
 Signature: `async warpgate.dialog(data, title = 'Prompt', submitLabel = 'Ok')`
 
 Helper function for creating a more advanced dialog prompt. Can contain many different types of inputs as well as headers and informational text.
@@ -338,6 +340,7 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 * `type` {String} : See table below.
 * `label` {String}: the displayed text for this input. Accepts HTML.
 * `options`: See table below.
+* `value`: Primitive to be returned as the value for `radio` and `checkbox` type inputs. Returns false if unselected/unchecked.
 
 `return value` {Array of *}: Length and order mirrors the input `data` array. The type of the elements is shown on the table below.
 
@@ -348,14 +351,14 @@ Helper function for creating a more advanced dialog prompt. Can contain many dif
 | info   | none | undefined | Inserts a line of text for display/informational purposes. |
 | text | default value | {String} final value of text field | |
 | password | (as `text`) | (as `text`) | Characters are obscured for security. |
-| radio | [group name, default state (`false`)] {Array of String/Bool} | selected: {String} `label`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
-| checkbox | default state (`false`) {Boolean} | {Boolean} `true`/`false` checked/unchecked | `label` is used for the HTML element's `name` property |
+| radio | [group name, default state (`false`)] {Array of String/Bool} | selected: {Class<Primitive>} `value`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
+| checkbox | default state (`false`) {Boolean} | {Boolean} `value`/`false` checked/unchecked | `label` is used for the HTML element's `name` property |
 | number | (as `text`) | {Number} final value of text field converted to a number |
 | select | array of option labels | {String} label of choice | | 
 
 ### menu
 
-Signature: `async menu({inputs = [], buttons = []} = {}, {title = 'Prompt', defaultButton = 'Ok', options={}} = {})`
+Signature: `async menu({inputs = [], buttons = []} = {}, {title = 'Prompt', defaultButton = 'Ok', options={}, render, close = (resolve, ...args) => resolve({buttons: false})} = {})`
 
 Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality of `buttonDialog` and `dialog`. An example can be found [on the wiki](https://github.com/trioderegion/warpgate/wiki/Basic-Menu).
 
@@ -365,6 +368,8 @@ Advanced dialog helper providing multiple input type options as well as user def
 - `options` {Object}
   - `title` {String} Title of this menu.
   - `defaultButton` {String} Label of the default button if no other buttons are provided.
+  - `render` {Function} render callback accepting `html`
+  - `close` {Function} close callback executed when dialog is closed, accepts `resolve` and `...args`, which contains all arguments provided by the call from Dialog.
   - `options` {Object} Options object forwarded to the Application class constructor.
 
 `return value` {Object} `{inputs: Array, buttons: *}`: This object contains the results of the menu selections. 
@@ -373,25 +378,25 @@ Advanced dialog helper providing multiple input type options as well as user def
 
 ### firstGM
 	
-Signature: `warpgate.firstGM()`
+Signature: `warpgate.util.firstGM()`
 	
 A helper functions that returns the first active GM level user.
 
 ### isFirstGM
 	
-Signature: `warpgate.isFirstGM()`
+Signature: `warpgate.util.isFirstGM()`
 
 Checks whether the user calling this function is the user returned by warpgate.firstGM(). Returns true if they are, false if they are not.
 	
 ### firstOwner
 
-Signature: `warpgate.firstOwner(document)`
+Signature: `warpgate.util.firstOwner(document)`
 
 Returns the first active user with owner permissions for the given document, falling back to the firstGM should there not be any. Returns false if the document is falsey. In the case of token documents it checks the permissions for the token's actor as tokens themselves do not have a permission object.
 	
 ### isFirstOwner
 
-Signature: `warpgate.isFirstOwner(document)`
+Signature: `warpgate.util.isFirstOwner(document)`
 
 Checks whether the user calling this function is the user returned by warpgate.firstOwner() when the function is passed the given document. Returns true if they are the same, false if they are not.
 	
