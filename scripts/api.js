@@ -48,6 +48,10 @@ export class api {
       dialog : MODULE.dialog,
       menu: MODULE.menu,
       buttonDialog : MODULE.buttonDialog,
+      firstGM:MODULE.firstGM,
+      isFirstGM:MODULE.isFirstGM,
+      firstOwner:MODULE.firstOwner,
+      isFirstOwner:MODULE.isFirstOwner,
       // \MOVE
       crosshairs: {
         show: Gateway.showCrosshairs,

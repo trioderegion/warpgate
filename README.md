@@ -371,6 +371,30 @@ Advanced dialog helper providing multiple input type options as well as user def
   - `inputs` Array of the same type as [dialog's](#dialog) return value.
   - `buttons` A single value corresponding to the `value` of button pressed. If no buttons were provided the default button's return value is `true`. If the menu is closed, this value is `false`.
 
+### firstGM
+	
+Signature: `warpgate.firstGM()`
+	
+A helper functions that returns the first active GM level user.
+
+### isFirstGM
+	
+Signature: `warpgate.isFirstGM()`
+
+Checks whether the user calling this function is the user returned by warpgate.firstGM(). Returns true if they are, false if they are not.
+	
+### firstOwner
+
+Signature: `warpgate.firstOwner(document)`
+
+Returns the first active user with owner permissions for the given document, falling back to the firstGM should there not be any. Returns false if the document is falsey. In the case of token documents it checks the permissions for the token's actor as tokens themselves do not have a permission object.
+	
+### isFirstOwner
+
+Signature: `warpgate.isFirstOwner(document)`
+
+Checks whether the user calling this function is the user returned by warpgate.firstOwner() when the function is passed the given document. Returns true if they are the same, false if they are not.
+	
 ## Update Shorthand
 The `update` object can contain up to three keys: `token`, `actor`, and `embedded`. The `token` and `actor` key values are standard update objects as one would use in `Actor#update` and `Token#update`.  The `embedded` key uses a shorthand notation to make creating the updates for embedded documents (such as items) easier. Notably, it does not require the `_id` field to be part of the update object for a given embedded document type.  There are three operations that this object controls -- adding, updating, deleting (in that order).
 
