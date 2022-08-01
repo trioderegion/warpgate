@@ -48,11 +48,13 @@ export class api {
       dialog : MODULE.dialog,
       menu: MODULE.menu,
       buttonDialog : MODULE.buttonDialog,
-      firstGM:MODULE.firstGM,
-      isFirstGM:MODULE.isFirstGM,
-      firstOwner:MODULE.firstOwner,
-      isFirstOwner:MODULE.isFirstOwner,
       // \MOVE
+      util: {
+        firstGM : MODULE.firstGM,
+        isFirstGM : MODULE.isFirstGM,
+        firstOwner : MODULE.firstOwner,
+        isFirstOwner : MODULE.isFirstOwner,
+      },
       crosshairs: {
         show: Gateway.showCrosshairs,
         getTag: Crosshairs.getTag,
@@ -126,7 +128,13 @@ export class api {
       updates.token = {actorData}
     }
 
-    let protoData = await MODULE.getTokenData(spawnName, updates.token);
+    /* Detect if the protoData is actually a name, and generate token data */
+    let protoData;
+    if (typeof spawnName == 'string'){
+      protoData = await MODULE.getTokenData(spawnName, updates.token ?? {});
+    } else {
+      protoData = spawnName;
+    }
 
     if (!protoData) return;
 
@@ -154,10 +162,10 @@ export class api {
    * When using duplicates, a default protodata will be obtained
    * each iteration with all token updates applied.
    *
-   * @param {Object} spawnLocation = {x:number, y:number}
-   * @param {TokenData} protoData
+   * @param {{x: number, y: number}} spawnLocation Centerpoint of spawned token
+   * @param {TokenData|String} protoData PrototypeTokenData or the same of the world actor
    *
-   * @return Promise<[{String}]> list of created token ids
+   * @return {Promise<String[]>} list of created token ids
    *
    * core spawning logic:
    * 0) execute user's pre()
