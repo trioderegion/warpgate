@@ -4,3 +4,4 @@
 *.code-workspace
 *.lock
 *.sw*
+node_modules/*

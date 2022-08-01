@@ -458,7 +458,10 @@ export class Mutator {
     /* get the key NAME of the embedded document type.
      * ex. not 'ActiveEffect' (the class name), 'effect' the collection's field name
      */
-    const embeddedFields = Object.values(Actor.implementation.metadata.embedded).map( thisClass => thisClass.metadata.collection );
+    let embeddedFields = Object.values(Actor.implementation.metadata.embedded);
+    if(!MODULE.isV10) {
+      embeddedFields = embeddedFields.map( thisClass => thisClass.metadata.collection );
+    }
 
     /* delete any embedded fields from the actor data */
     embeddedFields.forEach( field => { delete actorData[field] } )
