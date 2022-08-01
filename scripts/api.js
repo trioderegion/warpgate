@@ -153,7 +153,7 @@ export class api {
     const scale = templateData.width / protoData.width;
 
     /* insert changes from the template into the updates data */
-    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.size, height: protoData.height*scale}});
+    mergeObject(updates, {token: {rotation: templateData.direction + (updates.token.rotation ?? 0), width: templateData.size, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
