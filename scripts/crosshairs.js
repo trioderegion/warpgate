@@ -22,10 +22,12 @@ export class Crosshairs extends MeasuredTemplate {
 
   //constructor(gridSize = 1, data = {}){
   constructor(config, callbacks = {}){
+    const gridDistance = MODULE.isV10 ? canvas.scene.grid?.distance
+      : canvas.scene.data.gridDistance;
      const templateData = {
       t: "circle",
       user: game.user.id,
-      distance: (canvas.scene.data.gridDistance / 2) * config.size,
+      distance: (gridDistance / 2) * config.size,
       x: config.x,
       y: config.y,
       fillColor: config.fillColor,
@@ -99,7 +101,8 @@ export class Crosshairs extends MeasuredTemplate {
     this.cancelled = true;
 
     /* current radius in pixels */
-    this.radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
+    this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance) / gridDistance
+      * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid);
   }
 
   static ERROR_TEXTURE = 'icons/svg/hazard.svg'
@@ -139,10 +142,11 @@ export class Crosshairs extends MeasuredTemplate {
     this.clear();
 
     // Load the texture
-    if ( this.data.texture ) {
-      this.texture = await loadTexture(this.data.texture, {fallback: 'icons/svg/hazard.svg'});
+    const texture = MODULE.isV10 ? this.texture : this.data.texture;
+    if ( texture ) {
+      this._texture = await loadTexture(texture, {fallback: 'icons/svg/hazard.svg'});
     } else {
-      this.texture = null;
+      this._texture = null;
     }
 
     // Template shape
@@ -204,17 +208,18 @@ export class Crosshairs extends MeasuredTemplate {
     icon.pivot.set(size*0.5, size*0.5);
     //icon.x -= (size * 0.5);
     //icon.y -= (size * 0.5);
-    icon.angle = this.data.direction;
+    icon.angle = MODULE.isV10 ? this.document.direction : this.data.direction;
     return icon;
   }
 
   /** @override */
   refresh() {
     let d = canvas.dimensions;
-    this.position.set(this.data.x, this.data.y);
+    const document = MODULE.isV10 ? this.document : this.data;
+    this.position.set(document.x, document.y);
 
     // Extract and prepare data
-    let {direction, distance} = this.data;
+    let {direction, distance} = document;
     distance *= (d.size / d.distance);
     //BEGIN WARPGATE
     //width *= (d.size / d.distance);
@@ -222,10 +227,10 @@ export class Crosshairs extends MeasuredTemplate {
     direction = Math.toRadians(direction);
 
     // Create ray and bounding rectangle
-    this.ray = Ray.fromAngle(this.data.x, this.data.y, direction, distance);
+    this.ray = Ray.fromAngle(document.x, document.y, direction, distance);
 
     // Get the Template shape
-    switch ( this.data.t ) {
+    switch ( document.t ) {
       case "circle":
         this.shape = this._getCircleShape(distance);
         break;
@@ -242,16 +247,16 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Fill Color or Texture
 
-    if ( this.texture ) {
+    if ( this._texture ) {
       /* assume 0,0 is top left of texture
        * and scale/offset this texture (due to origin
        * at center of template). tileTexture indicates
        * that this texture is tilable and does not 
        * need to be scaled/offset */
-      const scale = this.tileTexture ? 1 : distance * 2 / this.texture.width;
+      const scale = this.tileTexture ? 1 : distance * 2 / this._texture.width;
       const offset = this.tileTexture ? 0 : distance;
       this.template.beginTextureFill({
-        texture: this.texture,
+        texture: this._texture,
         matrix: new PIXI.Matrix().scale(scale, scale).translate(-offset,-offset)
       });
     } else { 
@@ -273,7 +278,7 @@ export class Crosshairs extends MeasuredTemplate {
     if (this.drawIcon) {
       this.controlIcon.visible = true;
       this.controlIcon.border.visible = this._hover
-      this.controlIcon.angle = this.data.direction;
+      this.controlIcon.angle = document.direction;
     }
 
     // Draw ruler text
@@ -356,17 +361,23 @@ export class Crosshairs extends MeasuredTemplate {
 
     const center = event.data.getLocalPosition(this.layer);
     const {x,y} = Crosshairs.getSnappedPosition(center, this.interval);
-    this.data.update({x, y});
+    if ( MODULE.isV10 ) this.document.updateSource({x, y});
+    else this.data.update({x, y});
     this.refresh();
     this.moveTime = now;
   }
 
   _leftClickHandler(event){
-    const destination = Crosshairs.getSnappedPosition(this.data, this.interval);
-    const width = this.data.distance / (canvas.scene.data.gridDistance / 2);
-    const radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
+    const document = MODULE.isV10 ? this.document : this.data;
+    const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
+    const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
+    const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
+    const destination = Crosshairs.getSnappedPosition(MODULE.isV10 ? this.document : this.data, this.interval);
+    const width = document.distance / (canvasSceneDistance / 2);
+    const radius = document.distance / thisSceneDistance * thisSceneSize;
     this.radius = radius;
-    this.data.update({destination, width, cancelled: false});
+    if ( MODULE.isV10 ) this.document.updateSource({destination, width, cancelled: false});
+    else this.data.update({destination, width, cancelled: false});
     this.cancelled = false;
 
     this.clearHandlers(event);
@@ -381,14 +392,21 @@ export class Crosshairs extends MeasuredTemplate {
     let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
     let snap = event.shiftKey ? delta : 5;
     //BEGIN WARPGATE
+    const document = MODULE.isV10 ? this.document : this.data;
+    const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
+    const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
+    const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
     if (event.shiftKey && !this.lockSize) {
-      const distance = this.data.distance + canvas.scene.data.gridDistance / 2 * (Math.sign(event.deltaY));
-      this.data.update({distance : Math.max(distance,canvas.scene.data.gridDistance/2)});
-      const radius = this.data.distance / this.scene.data.gridDistance * this.scene.data.grid;
+      let distance = document.distance + canvasSceneDistance / 2 * (Math.sign(event.deltaY));
+      distance = Math.max(distance, canvasSceneDistance / 2);
+      if ( MODULE.isV10 ) this.document.updateSource({distance});
+      else this.data.update({distance});
+      const radius = document.distance / thisSceneDistance * thisSceneSize;
       this.radius = radius;
     } else {
-      const direction = this.data.direction + (snap * Math.sign(event.deltaY))
-      this.data.update({direction});
+      const direction = document.direction + (snap * Math.sign(event.deltaY));
+      if ( MODULE.isV10 ) this.document.updateSource({direction});
+      else this.data.update({direction});
       logger.debug(`New Rotation: ${direction}`);
     }
     //END WARPGATE

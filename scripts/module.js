@@ -8,6 +8,10 @@ const NAME = "warpgate";
 const PATH = `/modules/${NAME}`;
 
 export class MODULE {
+  static get isV10() {
+    return game.release?.generation >= 10;
+  }
+
   static async register() {
     logger.info("Initializing Module");
     MODULE.settings();

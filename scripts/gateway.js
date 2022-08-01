@@ -111,7 +111,7 @@ export class Gateway {
 
     const template = new Crosshairs(mergedConfig, callbacks);
     await template.drawPreview();
-    let dataObj = template.data.toObject();
+    let dataObj = game.release.generation < 10 ? template.data.toObject() : template.document.toObject();
 
     /** @todo temporary workaround */
     dataObj.cancelled = template.cancelled;
@@ -221,8 +221,9 @@ export class Gateway {
   static async _spawnTokenAtLocation(protoToken, spawnPoint, collision) {
 
     // Increase this offset for larger summons
-    let internalSpawnPoint = {x: spawnPoint.x - (canvas.scene.data.grid  * (protoToken.width/2)),
-        y:spawnPoint.y - (canvas.scene.data.grid  * (protoToken.height/2))}
+    const gridSize = MODULE.isV10 ? canvas.scene.grid.size : canvas.scene.data.grid;
+    let internalSpawnPoint = {x: spawnPoint.x - (gridSize  * (protoToken.width/2)),
+        y:spawnPoint.y - (gridSize  * (protoToken.height/2))}
     
     /* call ripper's placement algorithm for collision checks
      * which will try to avoid tokens and walls
@@ -236,7 +237,8 @@ export class Gateway {
       }
     }
 
-    protoToken.update(internalSpawnPoint);
+    if ( MODULE.isV10 ) protoToken.updateSource(internalSpawnPoint);
+    else protoToken.update(internalSpawnPoint);
 
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }

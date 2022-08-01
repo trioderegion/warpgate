@@ -55,7 +55,8 @@ export class Mutator {
   static _parseUpdateShorthand(collection, updates, comparisonKey) {
     let parsedUpdates = Object.keys(updates).map((key) => {
       if (updates[key] === warpgate.CONST.DELETE) return { _id: null };
-      const _id = collection.find( element => getProperty(element.data,comparisonKey) === key )?.id ?? null;
+      const _id = collection.find( element =>
+        getProperty(MODULE.isV10 ? element : element.data, comparisonKey) === key )?.id ?? null;
       return {
         ...updates[key],
         _id,
@@ -82,7 +83,8 @@ export class Mutator {
       if (updates[key] === warpgate.CONST.DELETE) return false;
 
       /* ignore item updates for items that exist */
-      if (collection.find( element => getProperty(element.data, comparisonKey) === key)) return false;
+      if (collection.find( element => 
+        getProperty(MODULE.isV10 ? element : element.data, comparisonKey) === key)) return false;
       
       let data = updates[key];
       setProperty(data, comparisonKey, key);

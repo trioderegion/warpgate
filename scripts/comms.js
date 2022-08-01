@@ -78,7 +78,7 @@ export class Comms {
   }
 
   static _emit(socketData) {
-    socket.emit(`module.${MODULE.data.name}`, socketData);
+    game.socket.emit(`module.${MODULE.data.name}`, socketData);
 
     /* always send events to self as well */
     return Comms._receiveSocket(socketData);
