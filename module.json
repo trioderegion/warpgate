@@ -1,13 +1,12 @@
 {
-    "name": "warpgate",
     "title": "Warp Gate",
     "description": "Utility module for spawning and modifying tokens.",
-    "version": "1.13.3",
-    "author": "honeybadger",
+    "version": "1.14.!0",
     "authors": [
         {
             "name": "honeybadger",
-            "url": "https://github.com/trioderegion"
+            "url": "https://github.com/trioderegion",
+            "flags": {}
         }
     ],
     "esmodules": [
@@ -17,18 +16,37 @@
         {
             "lang": "en",
             "name": "English",
-            "path": "lang/en.json"
+            "path": "lang/en.json",
+            "flags": {}
         },
         {
             "lang": "fr",
             "name": "French",
-            "path": "lang/fr.json"
+            "path": "lang/fr.json",
+            "flags": {}
+        },
+        {
+            "lang": "ja",
+            "name": "日本語",
+            "path": "lang/ja.json",
+            "flags": {}
+        },
+        {
+            "lang": "de",
+            "name": "German",
+            "path": "lang/de.json",
+            "flags": {}
         }
     ],
     "socket": true,
     "url": "https://github.com/trioderegion/warpgate",
     "manifest": "https://raw.githubusercontent.com/trioderegion/warpgate/warpgate-next/module.json",
-    "download": "https://github.com/trioderegion/warpgate/releases/download/1.13.3/module.zip",
-    "minimumCoreVersion": "9",
-    "compatibleCoreVersion": "9"
+    "download": "https://github.com/trioderegion/warpgate/releases/download/1.14.!0/module.zip",
+    "id": "warpgate",
+    "compatibility": {
+        "minimum": "9",
+        "verified": "10"
+    },
+    "name": "warpgate",
+    "minimumCoreVersion": "9"
 }
