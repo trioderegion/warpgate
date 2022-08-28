@@ -141,7 +141,8 @@ export class api {
     
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: protoData.img, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
+    const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
+    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: tokenImg, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
 
     await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
@@ -233,12 +234,6 @@ export class api {
       }
       updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags});
 
-      /* ensure creator owns this token */
-      //let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
-      //permissions.permission[game.user.id] = 3;
-
-      //updates.actor = mergeObject(updates.actor ?? {}, permissions);
-
       await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
       
       const actorData = Comms.packToken(spawnedTokenDoc);
@@ -252,7 +247,7 @@ export class api {
       if (duplicates > 1) {
 
         /* get a fresh copy */
-        protoData = (await sourceActor.getTokenData(updates.token));
+        protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(updates.token)) : (await sourceActor.getTokenData(updates.token));
         logger.debug('protoData for next loop:',protoData);
       }
 

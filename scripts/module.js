@@ -113,7 +113,7 @@ export class MODULE {
     }
 
     //get prototoken data -- need to prepare potential wild cards for the template preview
-    let protoData = (await sourceActor.getTokenData(tokenUpdates));
+    let protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(tokenUpdates)) : (await sourceActor.getTokenData(tokenUpdates));
     if (!protoData) {
       logger.error(`Could not find proto token data for ${actorName}`);
       return false;
