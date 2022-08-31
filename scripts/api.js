@@ -49,6 +49,12 @@ export class api {
       menu: MODULE.menu,
       buttonDialog : MODULE.buttonDialog,
       // \MOVE
+      util: {
+        firstGM : MODULE.firstGM,
+        isFirstGM : MODULE.isFirstGM,
+        firstOwner : MODULE.firstOwner,
+        isFirstOwner : MODULE.isFirstOwner,
+      },
       crosshairs: {
         show: Gateway.showCrosshairs,
         getTag: Crosshairs.getTag,
@@ -110,8 +116,9 @@ export class api {
   static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
 
     /* create permissions for this user */
+    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
     // TODO dont like this logic
@@ -121,14 +128,21 @@ export class api {
       updates.token = {actorData}
     }
 
-    let protoData = await MODULE.getTokenData(spawnName, updates.token);
+    /* Detect if the protoData is actually a name, and generate token data */
+    let protoData;
+    if (typeof spawnName == 'string'){
+      protoData = await MODULE.getTokenData(spawnName, updates.token ?? {});
+    } else {
+      protoData = spawnName;
+    }
 
     if (!protoData) return;
 
     
     if(options.controllingActor) options.controllingActor.sheet.minimize();
 
-    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: protoData.img, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
+    const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
+    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: tokenImg, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
 
     await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
 
@@ -140,7 +154,7 @@ export class api {
     const scale = templateData.width / protoData.width;
 
     /* insert changes from the template into the updates data */
-    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.size, height: protoData.height*scale}});
+    mergeObject(updates, {token: {rotation: templateData.direction + (updates.token.rotation ?? 0), width: templateData.size, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
@@ -149,10 +163,10 @@ export class api {
    * When using duplicates, a default protodata will be obtained
    * each iteration with all token updates applied.
    *
-   * @param {Object} spawnLocation = {x:number, y:number}
-   * @param {TokenData} protoData
+   * @param {{x: number, y: number}} spawnLocation Centerpoint of spawned token
+   * @param {TokenData|String} protoData PrototypeTokenData or the same of the world actor
    *
-   * @return Promise<[{String}]> list of created token ids
+   * @return {Promise<String[]>} list of created token ids
    *
    * core spawning logic:
    * 0) execute user's pre()
@@ -184,8 +198,9 @@ export class api {
     }
 
     /* create permissions for this user */
+    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      permission: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
     updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData})
@@ -196,7 +211,8 @@ export class api {
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
 
     /* merge in changes to the prototoken */
-    protoData.update(updates.token);
+    if ( MODULE.isV10 ) protoData.updateSource(updates.token);
+    else protoData.update(updates.token);
 
     for (let iteration = 0; iteration < duplicates; iteration++) {
 
@@ -208,7 +224,7 @@ export class api {
 
       createdIds.push(spawnedTokenDoc.id);
 
-      logger.debug('Spawned token with data: ', spawnedTokenDoc.data);
+      logger.debug('Spawned token with data: ', MODULE.isV10 ? spawnedTokenDoc : spawnedTokenDoc.data);
 
       /* flag this user as the actor's creator */
       const actorFlags = {
@@ -217,12 +233,6 @@ export class api {
         }
       }
       updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags});
-
-      /* ensure creator owns this token */
-      //let permissions = { permission: duplicate(spawnedTokenDoc.actor.data.permission) };
-      //permissions.permission[game.user.id] = 3;
-
-      //updates.actor = mergeObject(updates.actor ?? {}, permissions);
 
       await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
       
@@ -237,7 +247,7 @@ export class api {
       if (duplicates > 1) {
 
         /* get a fresh copy */
-        protoData = (await sourceActor.getTokenData(updates.token));
+        protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(updates.token)) : (await sourceActor.getTokenData(updates.token));
         logger.debug('protoData for next loop:',protoData);
       }
 

@@ -55,7 +55,8 @@ export class Mutator {
   static _parseUpdateShorthand(collection, updates, comparisonKey) {
     let parsedUpdates = Object.keys(updates).map((key) => {
       if (updates[key] === warpgate.CONST.DELETE) return { _id: null };
-      const _id = collection.find( element => getProperty(element.data,comparisonKey) === key )?.id ?? null;
+      const _id = collection.find( element =>
+        getProperty(MODULE.isV10 ? element : element.data, comparisonKey) === key )?.id ?? null;
       return {
         ...updates[key],
         _id,
@@ -82,7 +83,8 @@ export class Mutator {
       if (updates[key] === warpgate.CONST.DELETE) return false;
 
       /* ignore item updates for items that exist */
-      if (collection.find( element => getProperty(element.data, comparisonKey) === key)) return false;
+      if (collection.find( element => 
+        getProperty(MODULE.isV10 ? element : element.data, comparisonKey) === key)) return false;
       
       let data = updates[key];
       setProperty(data, comparisonKey, key);
@@ -424,7 +426,7 @@ export class Mutator {
   static _createDelta(tokenDoc, updates, options) {
 
     /* get token changes */
-    let tokenData = tokenDoc.data.toObject()
+    let tokenData = tokenDoc.toObject()
     delete tokenData.actorData;
     
     const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
@@ -451,18 +453,18 @@ export class Mutator {
 
   /* returns the actor data sans ALL embedded collections */
   static _getRootActorData(actorDoc) {
-    let actorData = actorDoc.data.toObject();
+    let actorData = actorDoc.toObject();
 
     /* get the key NAME of the embedded document type.
      * ex. not 'ActiveEffect' (the class name), 'effect' the collection's field name
      */
-    const embeddedFields = Object.values(Actor.implementation.metadata.embedded).map( thisClass => thisClass.metadata.collection );
+    let embeddedFields = Object.values(Actor.implementation.metadata.embedded);
+    if(!MODULE.isV10) {
+      embeddedFields = embeddedFields.map( thisClass => thisClass.metadata.collection );
+    }
 
     /* delete any embedded fields from the actor data */
     embeddedFields.forEach( field => { delete actorData[field] } )
-
-    /* do not delta our own delta flags */
-    //if (actorData.flags?.warpgate) delete actorData.flags.warpgate
 
     return actorData;
   }

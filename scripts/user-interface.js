@@ -146,7 +146,7 @@ export class UserInterface {
     if( !hasToken ) {
       /* check if linked and has an active token on scene */
       const candidates = actor?.getActiveTokens() ?? [];
-      const linkedToken = candidates.find( t => t.data.actorLink )?.document ?? null;
+      const linkedToken = candidates.find( t => (MODULE.isV10?t.document:t.data).actorLink )?.document ?? null;
       
       return linkedToken;
       

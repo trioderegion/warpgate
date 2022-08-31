@@ -8,6 +8,10 @@ const NAME = "warpgate";
 const PATH = `/modules/${NAME}`;
 
 export class MODULE {
+  static get isV10() {
+    return game.release?.generation >= 10;
+  }
+
   static async register() {
     logger.info("Initializing Module");
     MODULE.settings();
@@ -45,11 +49,11 @@ export class MODULE {
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
-
-    const playerOwners = Object.entries(doc.data.permission ?? {})
+    const permissionObject=(doc instanceof TokenDocument ? doc.actor.data.permission : doc.data.permission) ?? {}
+    const playerOwners = Object.entries(permissionObject)
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
       .map(([id, level]) => id);
-
+    
     if (playerOwners.length > 0) {
       return game.users.get(playerOwners[0]);
     }
@@ -109,7 +113,7 @@ export class MODULE {
     }
 
     //get prototoken data -- need to prepare potential wild cards for the template preview
-    let protoData = (await sourceActor.getTokenData(tokenUpdates));
+    let protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(tokenUpdates)) : (await sourceActor.getTokenData(tokenUpdates));
     if (!protoData) {
       logger.error(`Could not find proto token data for ${actorName}`);
       return false;
@@ -195,18 +199,18 @@ export class MODULE {
   static dialogInputs = (data) => {
     const content = `
       <table style="width:100%">
-      ${data.map(({type, label, options}, i) => {
+      ${data.map(({type, label, value, options}, i) => {
         if (type.toLowerCase() === 'button') { return '' }
         if (type.toLowerCase() === 'header') {
             return `<tr><td colspan = "2"><h2>${label}</h2></td></tr>`;
         } else if (type.toLowerCase() === 'info') {
           return `<tr><td colspan="2">${label}</td></tr>`;
         } else if (type.toLowerCase() === `select`) {
-          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e, i) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${options.map((e) => `<option value="${e}">${e}</option>`).join(``)}</td></tr>`;
         } else if (type.toLowerCase() == `radio`) {
-          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[1] : false ?? false) ? 'checked' : ''} value="${label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/></td></tr>`;
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[1] : false ?? false) ? 'checked' : ''} value="${value ?? label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/></td></tr>`;
         } else if (type.toLowerCase() === `checkbox` ) {
-          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[0] : options ?? false) ? 'checked' : ''} name="${label}"/></td></tr>`;
+          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[0] : options ?? false) ? 'checked' : ''} value="${value ?? label}"/></td></tr>`;
         } else {
           return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/></td></tr>`;
         }
@@ -215,46 +219,13 @@ export class MODULE {
 
         return content;
   }
-
-
-    /* See readme at github.com/trioderegion/warpgate */
     static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
+      logger.warn(`'warpgate.dialog' is deprecated and will be removed in version 2.2.0. See 'warpgate.menu' as a replacement.`);
       data = data instanceof Array ? data : [data];
 
-      return await new Promise((resolve) => {
-        let content = MODULE.dialogInputs(data); 
-        new Dialog({
-          title,
-          content,
-          buttons: {
-            Ok: {
-              label: submitLabel,
-              callback: (html) => {
-                resolve(Array(data.length).fill().map((e, i) => {
-                  let {
-                    type
-                  } = data[i];
-                  if (type.toLowerCase() === `select`) {
-                    return html.find(`select#${i}qd`).val();
-                  } else {
-                    switch (type.toLowerCase()) {
-                      case `text`:
-                      case `password`:
-                        return html.find(`input#${i}qd`)[0].value;
-                      case `radio`:
-                        return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
-                      case `checkbox`:
-                        return html.find(`input#${i}qd`)[0].checked;
-                      case `number`:
-                        return html.find(`input#${i}qd`)[0].valueAsNumber;
-                    }
-                  }
-                }));
-              }
-            }
-          }
-        }).render(true);
-      });
+      const results = await warpgate.menu({inputs: data}, {title, defaultButton: submitLabel});
+      if(results.buttons === false) return false;
+      return results.inputs;
     }
 
     /**
@@ -306,6 +277,8 @@ await warpgate.menu({
     } = {}, {
       title = 'Prompt',
       defaultButton = 'Ok',
+      render,
+      close = (resolve, ...args) => resolve({buttons: false}),
       options = {}
     } = {}) {
 
@@ -321,6 +294,7 @@ await warpgate.menu({
                 inputs: MODULE._innerValueParse(inputs, html),
                 buttons: button.value
               }
+              if(button.callback instanceof Function) button.callback(results, button, html); 
               resolve(results);
             }
           }
@@ -339,9 +313,10 @@ await warpgate.menu({
         new Dialog({
           title,
           content,
-          close: () => resolve({buttons: false}),
+          close: (...args) => close(resolve, ...args),
           buttons: buttonData,
-        }, options).render(true);
+          render: render ? (...args) => render(...args) : null,
+        }, {focus: true, ...options}).render(true);
       });
     }
 
@@ -364,9 +339,8 @@ await warpgate.menu({
             case `password`:
               return html.find(`input#${i}qd`)[0].value;
             case `radio`:
-              return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
             case `checkbox`:
-              return html.find(`input#${i}qd`)[0].checked;
+              return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
             case `number`:
               return html.find(`input#${i}qd`)[0].valueAsNumber;
           }

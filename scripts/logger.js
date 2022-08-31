@@ -31,6 +31,11 @@ export class logger {
     if (MODULE.setting('debug'))
       this.info("DEBUG | ", ...args);
   }
+
+  static warn(...args) {
+    console.warn(`${MODULE?.data?.title || "" } | WARNING | `, ...args);
+  }
+
   static error(...args) {
     console.error(`${MODULE?.data?.title || "" } | ERROR | `, ...args);
     ui.notifications.error(`${MODULE?.data?.title || "" } | ERROR | ${args[0]}`);
