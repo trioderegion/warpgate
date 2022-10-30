@@ -158,6 +158,8 @@ export class MODULE {
 
   static shimClassData(cls, change) {
 
+    if(!change) return change;
+
     if(MODULE.isV10 && !!change && !foundry.utils.isEmpty(change)) {
       /* shim data if needed */
       return cls.migrateData(foundry.utils.expandObject(change));
