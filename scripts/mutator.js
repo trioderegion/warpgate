@@ -52,11 +52,21 @@ export class Mutator {
     }
   }
 
+  static #idByQuery( list, key, comparisonPath ) {
+    const id = this.#findByQuery(list, key, comparisonPath)?.id ?? null;
+
+    return id;
+  }
+
+  static #findByQuery( list, key, comparisonPath ) {
+    return list.find( element => getProperty(MODULE.isV10 ? element : element.data, comparisonPath) === key )
+  }
+
+  //TODO change to reduce
   static _parseUpdateShorthand(collection, updates, comparisonKey) {
     let parsedUpdates = Object.keys(updates).map((key) => {
       if (updates[key] === warpgate.CONST.DELETE) return { _id: null };
-      const _id = collection.find( element =>
-        getProperty(MODULE.isV10 ? element : element.data, comparisonKey) === key )?.id ?? null;
+      const _id = this.#idByQuery(collection, key, comparisonKey )
       return {
         ...updates[key],
         _id,
@@ -66,10 +76,11 @@ export class Mutator {
     return parsedUpdates;
   }
 
+  //TODO change to reduce
   static _parseDeleteShorthand(collection, updates, comparisonKey) {
     let parsedUpdates = Object.keys(updates).map((key) => {
       if (updates[key] !== warpgate.CONST.DELETE) return null;
-      return collection.find( element => getProperty(element.data, comparisonKey) === key )?.id ?? null;
+      return this.#idByQuery(collection, key, comparisonKey);
     });
 
     parsedUpdates = parsedUpdates.filter( update => !!update);
@@ -77,20 +88,21 @@ export class Mutator {
   }
 
   static _parseAddShorthand(collection, updates, comparisonKey){
-    let parsedAdds = Object.keys(updates).map((key) => {
+
+    let parsedAdds = Object.keys(updates).reduce((acc, key) => {
 
       /* ignore deletes */
-      if (updates[key] === warpgate.CONST.DELETE) return false;
+      if (updates[key] === warpgate.CONST.DELETE) return acc;
 
       /* ignore item updates for items that exist */
-      if (collection.find( element => 
-        getProperty(MODULE.isV10 ? element : element.data, comparisonKey) === key)) return false;
+      if (this.#idByQuery(collection, key, comparisonKey)) return acc;
       
       let data = updates[key];
       setProperty(data, comparisonKey, key);
-      return data;
-    });
-    parsedAdds = parsedAdds.filter( update => !!update);
+      acc.push(data);
+      return acc;
+    },[]);
+
     return parsedAdds;
 
   }
@@ -98,25 +110,29 @@ export class Mutator {
   static _invertShorthand(collection, updates, comparisonKey){
     let inverted = {};
     Object.keys(updates).forEach( (key) => {
+
+      /* find this item currently and copy off its data */ 
+      const currentData = this.#findByQuery(collection, key, comparisonKey);
+
       /* this is a delete */
       if (updates[key] === warpgate.CONST.DELETE) {
-        /* find this item currently and copy off its data */ 
-        const currentData = collection.find( element => getProperty(element.data, comparisonKey) === key );
+
         /* hopefully we found something */
-        if(currentData)
-          setProperty(inverted, key, currentData.toObject());
+        if(currentData) setProperty(inverted, key, currentData.toObject());
+        else logger.debug('Delta Creation: Could not locate shorthand identified document for deletion.', collection, key, updates[key]);
+
         return;
       }
 
       /* this is an update */
-      const foundItem = collection.find( element => getProperty(element.data, comparisonKey) === key)
-      if (foundItem){
+      if (currentData){
         /* grab the current value of any updated fields and store */
         const expandedUpdate = expandObject(updates[key]);
-        const sourceData = foundItem.toObject();
+        const sourceData = currentData.toObject();
         const updatedData = mergeObject(sourceData, expandedUpdate, {inplace: false});
-        const diff = diffObject(updatedData, sourceData)
 
+        const diff = MODULE.strictUpdateDiff(updatedData, sourceData);
+        
         setProperty(inverted, updatedData[comparisonKey], diff);
         return;
       }
@@ -128,6 +144,8 @@ export class Mutator {
 
     return inverted;
   }
+
+  
 
   static _errorCheckEmbeddedUpdates( embeddedName, updates ) {
 
@@ -262,7 +280,7 @@ export class Mutator {
     options.name = mutateInfo.name;
 
     /* expand the object to handle property paths correctly */
-    updates = expandObject(updates);
+    updates = MODULE.shimUpdate(updates);
 
     /* permanent changes are not tracked */
     if(!options.permanent) {
@@ -349,13 +367,12 @@ export class Mutator {
 
       if (!!mutateData) {
 
-        const actorData = Comms.packToken(tokenDoc);
-
         /* perform the revert with the stored delta */
+        mutateData.delta = MODULE.shimUpdate(mutateData.delta);
         await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
 
         /* notify clients */
-        await warpgate.event.notify(warpgate.EVENT.REVERT, {actorData, updates: mutateData});
+        await warpgate.event.notify(warpgate.EVENT.REVERT, {uuid: tokenDoc.uuid, updates: mutateData});
         return mutateData;
       }
     } else {
@@ -370,7 +387,7 @@ export class Mutator {
     let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate');
 
     if (!mutateStack || !actor){
-      logger.debug(`Could not pop mutation named ${mutationName} from actor ${actor?.name}`);
+      logger.debug(`Provided actor is undefined or has no mutation stack. Cannot pop.`);
       return undefined;
     }
 
@@ -380,9 +397,9 @@ export class Mutator {
       /* find specific mutation */
       const index = mutateStack.findIndex( mutation => mutation.name === mutationName );
 
-      /* check for no result and error */
+      /* check for no result and log */
       if ( index < 0 ) {
-        logger.error(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
+        logger.debug(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
         return undefined;
       }
 
@@ -405,17 +422,16 @@ export class Mutator {
 
     } else {
       /* pop the most recent mutation */
-      mutateData = mutateStack?.pop();
+      mutateData = mutateStack.pop();
     }
 
-    /* if there are no mutations left on the stack, remove our flag data
-     * otherwise, store the remaining mutations */
-    if (mutateStack.length == 0) {
-      await actor.unsetFlag(MODULE.data.name, 'mutate');
-    } else {
-      await actor.setFlag(MODULE.data.name, 'mutate', mutateStack);
-    }
+    const newFlags = {[`${MODULE.data.name}.mutate`]: mutateStack};
+
+    /* set the current mutation stack in the mutation data */
+    foundry.utils.mergeObject(mutateData.delta, {actor: {flags: newFlags}});
+
     logger.debug(MODULE.localize('debug.finalRevertUpdate'), mutateData);
+
     return mutateData;
   }
 
@@ -429,11 +445,11 @@ export class Mutator {
     let tokenData = tokenDoc.toObject()
     delete tokenData.actorData;
     
-    const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
+    const tokenDelta = MODULE.strictUpdateDiff(updates.token ?? {}, tokenData);
 
     /* get the actor changes (no embeds) */
     const actorData = Mutator._getRootActorData(tokenDoc.actor);
-    const actorDelta = diffObject(updates.actor ?? {}, actorData, {inner:true});
+    const actorDelta = MODULE.strictUpdateDiff(updates.actor ?? {}, actorData);
 
     /* get the changes from the embeds */
     let embeddedDelta = {};

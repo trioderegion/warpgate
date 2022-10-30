@@ -92,7 +92,7 @@ export class api {
   }
 
   /** Main driver
-   * @param {String} spawnName
+   * @param {String|PrototypeTokenDocument|PrototypeTokenData} spawnName
    *
    * @param {Object} updates - embedded document, actor, and token document updates. embedded updates use a "shorthand" notation.
    *
@@ -121,25 +121,23 @@ export class api {
       [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
-    // TODO dont like this logic
-    if(updates.token) {
-      mergeObject(updates.token, {actorData})
-    } else {
-      updates.token = {actorData}
-    }
+    /* insert token updates to modify token actor permission */
+    updates = MODULE.shimUpdate(updates);
+    foundry.utils.mergeObject(updates, {token: mergeObject(updates.token ?? {}, {actorData}, {overwrite:false})});
 
     /* Detect if the protoData is actually a name, and generate token data */
     let protoData;
     if (typeof spawnName == 'string'){
-      protoData = await MODULE.getTokenData(spawnName, updates.token ?? {});
+      protoData = await MODULE.getTokenData(spawnName, updates.token);
     } else {
       protoData = spawnName;
+      const updateFn = MODULE.isV10 ? protoData.updateSource : protoData.update;
+      if(updateFn) updateFn(updates.token);
     }
 
     if (!protoData) return;
-
     
-    if(options.controllingActor) options.controllingActor.sheet.minimize();
+    if(options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.minimize();
 
     const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
     const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: tokenImg, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
@@ -177,6 +175,8 @@ export class api {
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
 
+    updates = MODULE.shimUpdate(updates);
+
     /* Detect if the protoData is actually a name, and generate token data */
     if (typeof protoData == 'string'){
       protoData = await MODULE.getTokenData(protoData, updates.token ?? {});
@@ -186,6 +186,14 @@ export class api {
 
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
+
+    /* flag this user as the actor's creator */
+    const actorFlags = {
+      [MODULE.data.name]: {
+        control: {user: game.user.id, actor: options.controllingActor?.id},
+      }
+    }
+    updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags}, {overwrite: false});
 
     /* Flag this token with its original actor to work around
      * updating the token properties of a token linked to
@@ -203,18 +211,24 @@ export class api {
       [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
-    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData})
-
-    /** pre creation callback */
-    if (callbacks.pre) await callbacks.pre(spawnLocation, updates);
+    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData}, {overwrite: false})
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
 
-    /* merge in changes to the prototoken */
-    if ( MODULE.isV10 ) protoData.updateSource(updates.token);
-    else protoData.update(updates.token);
-
     for (let iteration = 0; iteration < duplicates; iteration++) {
+
+      /** pre creation callback */
+      if (callbacks.pre) await callbacks.pre(spawnLocation, updates, iteration);
+
+      /* merge in changes to the prototoken */
+      if(iteration == 0){
+        /* first iteration, potentially from a spawn with a determined image,
+         * apply our changes to this version */
+        MODULE.updateProtoToken(protoData, updates.token);
+      } else {
+        /* get a fresh copy */
+        protoData = await MODULE.getTokenData(game.actors.get(protoData.actorId), updates.token)
+      }
 
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
 
@@ -226,34 +240,16 @@ export class api {
 
       logger.debug('Spawned token with data: ', MODULE.isV10 ? spawnedTokenDoc : spawnedTokenDoc.data);
 
-      /* flag this user as the actor's creator */
-      const actorFlags = {
-        [MODULE.data.name]: {
-          control: {user: game.user.id, actor: options.controllingActor?.id},
-        }
-      }
-      updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags});
-
       await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
       
-      const actorData = Comms.packToken(spawnedTokenDoc);
+      await warpgate.event.notify(warpgate.EVENT.SPAWN, {uuid: spawnedTokenDoc.uuid, updates, iteration});
+
+      /* post creation callback */
+      if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration);
       
-      await warpgate.event.notify(warpgate.EVENT.SPAWN, {actorData, iteration});
-
-      /** post creation callback -- use iter+1 because this update is referring to the NEXT iteration */
-      if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration + 1);
-      
-      /** if we are dealing with duplicates, get a fresh set of proto data for next iteration */
-      if (duplicates > 1) {
-
-        /* get a fresh copy */
-        protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(updates.token)) : (await sourceActor.getTokenData(updates.token));
-        logger.debug('protoData for next loop:',protoData);
-      }
-
-      if (options.controllingActor) options.controllingActor.sheet.maximize();
     }
 
+    if (options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.maximize();
     return createdIds;
   }
 
