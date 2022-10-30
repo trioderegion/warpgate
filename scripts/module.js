@@ -112,6 +112,8 @@ export class MODULE {
       return false;
     }
 
+
+
     //get prototoken data -- need to prepare potential wild cards for the template preview
     let protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(tokenUpdates)) : (await sourceActor.getTokenData(tokenUpdates));
     if (!protoData) {
@@ -125,6 +127,58 @@ export class MODULE {
   static getMouseStagePos() {
     const mouse = canvas.app.renderer.plugins.interaction.mouse;
     return mouse.getLocalPosition(canvas.app.stage);
+  }
+
+  static shimUpdate(updates) {
+    if(MODULE.isV10) {
+
+      updates.token = MODULE.shimClassData(TokenDocument.implementation, updates.token);
+      updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
+
+      Object.keys(updates.embedded ?? {}).forEach( (embeddedName) => {
+        const cls = CONFIG[embeddedName].documentClass;
+
+        Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
+          updates.embedded[embeddedName][shortId] = MODULE.shimClassData(cls, data)
+        });
+      });
+
+    }
+
+    return updates;
+  }
+
+  static shimClassData(cls, change) {
+
+    if(MODULE.isV10 && !!change && !foundry.utils.isEmpty(change)) {
+      /* shim data if needed */
+      return cls.migrateData(foundry.utils.expandObject(change));
+    }
+
+    return foundry.utils.expandObject(change);
+  }
+
+  /**
+   * Collects the changes in 'other' compared to 'base'.
+   * Also includes "delete update" keys for elements in 'base' that do NOT
+   * exist in 'other'.
+   */
+  static strictUpdateDiff(base, other) {
+    /* get the changed fields */
+    const diff = foundry.utils.diffObject(base, other)
+
+    /* get any newly added fields */
+    const additions = MODULE.unique(base, other);
+    const flatAdditions = foundry.utils.flattenObject(additions);
+
+    /* add in delete paths to the diff */
+    Object.keys(flatAdditions).forEach( (addPath) => {
+      const lastDot = addPath.lastIndexOf('.');
+      const deletePath = addPath.substring(0, lastDot) + '-=' + addPath.substring(lastDot);
+      foundry.utils.mergeObject(diff, foundry.utils.expandObject({[deletePath]: null}));
+    });
+
+    return diff;
   }
 
   static unique(object, remove) {

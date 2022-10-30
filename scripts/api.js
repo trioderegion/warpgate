@@ -92,7 +92,7 @@ export class api {
   }
 
   /** Main driver
-   * @param {String} spawnName
+   * @param {String|PrototypeTokenDocument|PrototypeTokenData} spawnName
    *
    * @param {Object} updates - embedded document, actor, and token document updates. embedded updates use a "shorthand" notation.
    *
@@ -121,25 +121,23 @@ export class api {
       [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
-    // TODO dont like this logic
-    if(updates.token) {
-      mergeObject(updates.token, {actorData})
-    } else {
-      updates.token = {actorData}
-    }
+    /* insert token updates to modify token actor permission */
+    updates = MODULE.shimUpdate(updates);
+    foundry.utils.mergeObject(updates, {token: mergeObject(updates.token ?? {}, {actorData}, {overwrite:false})});
 
     /* Detect if the protoData is actually a name, and generate token data */
     let protoData;
     if (typeof spawnName == 'string'){
-      protoData = await MODULE.getTokenData(spawnName, updates.token ?? {});
+      protoData = await MODULE.getTokenData(spawnName, updates.token);
     } else {
       protoData = spawnName;
+      const updateFn = MODULE.isV10 ? protoData.updateSource : protoData.update;
+      if(updateFn) updateFn(updates.token);
     }
 
     if (!protoData) return;
-
     
-    if(options.controllingActor) options.controllingActor.sheet.minimize();
+    options.controllingActor?.sheet.minimize();
 
     const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
     const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: tokenImg, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
@@ -176,6 +174,8 @@ export class api {
    * 4) if more duplicates, get fresh proto data and update it, goto 1
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
+
+    updates = MODULE.shimUpdate(updates);
 
     /* Detect if the protoData is actually a name, and generate token data */
     if (typeof protoData == 'string'){
