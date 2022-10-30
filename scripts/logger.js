@@ -25,20 +25,20 @@ import { MODULE } from './module.js'
 
 export class logger {
   static info(...args) {
-    console.log(`${MODULE?.data?.title || "" }  | `, ...args);
+    console.log(`${MODULE?.data?.title ?? "" }  | `, ...args);
   }
   static debug(...args) {
     if (MODULE.setting('debug'))
-      this.info("DEBUG | ", ...args);
+      console.debug(`${MODULE?.data?.title ?? "" }  | `, ...args);
   }
 
   static warn(...args) {
-    console.warn(`${MODULE?.data?.title || "" } | WARNING | `, ...args);
+    console.warn(`${MODULE?.data?.title ?? "" } | WARNING | `, ...args);
   }
 
   static error(...args) {
-    console.error(`${MODULE?.data?.title || "" } | ERROR | `, ...args);
-    ui.notifications.error(`${MODULE?.data?.title || "" } | ERROR | ${args[0]}`);
+    console.error(`${MODULE?.data?.title ?? "" } | ERROR | `, ...args);
+    ui.notifications.error(`${MODULE?.data?.title ?? "" } | ERROR | ${args[0]}`);
   }
 
   static register(){

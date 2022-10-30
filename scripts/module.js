@@ -103,25 +103,33 @@ export class MODULE {
     });
   }
 
-  static async getTokenData(actorName, tokenUpdates) {
+  static async getTokenData(actorNameDoc, tokenUpdates) {
 
-    //get source actor
-    const sourceActor = game.actors.getName(actorName);
-    if (!sourceActor) {
-      logger.error(`Could not find world actor named "${actorName}"`);
-      return false;
+    let sourceActor = actorNameDoc;
+    if(typeof actorNameDoc == 'string') {
+      /* lookup by actor name */
+      sourceActor = game.actors.getName(actorNameDoc);
     }
 
-
+    //get source actor
+    if (!sourceActor) {
+      logger.error(`Could not find world actor named "${actorNameDoc}" or no souce actor document provided.`);
+      return false;
+    }
 
     //get prototoken data -- need to prepare potential wild cards for the template preview
     let protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(tokenUpdates)) : (await sourceActor.getTokenData(tokenUpdates));
     if (!protoData) {
-      logger.error(`Could not find proto token data for ${actorName}`);
+      logger.error(`Could not find proto token data for ${sourceActor.name}`);
       return false;
     }
 
     return protoData;
+  }
+
+  static updateProtoToken(protoToken, changes) {
+      if ( MODULE.isV10 ) protoToken.updateSource(changes);
+      else protoToken.update(changes);
   }
 
   static getMouseStagePos() {
@@ -139,7 +147,7 @@ export class MODULE {
         const cls = CONFIG[embeddedName].documentClass;
 
         Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
-          updates.embedded[embeddedName][shortId] = MODULE.shimClassData(cls, data)
+          updates.embedded[embeddedName][shortId] = (typeof data == 'string') ? data : MODULE.shimClassData(cls, data);
         });
       });
 
@@ -165,20 +173,15 @@ export class MODULE {
    */
   static strictUpdateDiff(base, other) {
     /* get the changed fields */
-    const diff = foundry.utils.diffObject(base, other)
+    const diff = foundry.utils.flattenObject(foundry.utils.diffObject(base, other, {inner: true}));
 
     /* get any newly added fields */
-    const additions = MODULE.unique(base, other);
-    const flatAdditions = foundry.utils.flattenObject(additions);
+    const additions = MODULE.unique(flattenObject(base), flattenObject(other))
 
-    /* add in delete paths to the diff */
-    Object.keys(flatAdditions).forEach( (addPath) => {
-      const lastDot = addPath.lastIndexOf('.');
-      const deletePath = addPath.substring(0, lastDot) + '-=' + addPath.substring(lastDot);
-      foundry.utils.mergeObject(diff, foundry.utils.expandObject({[deletePath]: null}));
-    });
+    /* set their data to null */
+    Object.keys(additions).forEach( key => diff[key] = null );
 
-    return diff;
+    return foundry.utils.expandObject(diff);
   }
 
   static unique(object, remove) {

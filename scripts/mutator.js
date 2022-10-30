@@ -367,14 +367,12 @@ export class Mutator {
 
       if (!!mutateData) {
 
-        const actorData = Comms.packToken(tokenDoc);
-
         /* perform the revert with the stored delta */
         mutateData.delta = MODULE.shimUpdate(mutateData.delta);
         await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
 
         /* notify clients */
-        await warpgate.event.notify(warpgate.EVENT.REVERT, {actorData, updates: mutateData});
+        await warpgate.event.notify(warpgate.EVENT.REVERT, {uuid: tokenDoc.uuid, updates: mutateData});
         return mutateData;
       }
     } else {
@@ -389,7 +387,7 @@ export class Mutator {
     let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate');
 
     if (!mutateStack || !actor){
-      logger.debug(`Could not pop mutation named ${mutationName} from actor ${actor?.name}`);
+      logger.debug(`Provided actor is undefined or has no mutation stack. Cannot pop.`);
       return undefined;
     }
 
@@ -399,9 +397,9 @@ export class Mutator {
       /* find specific mutation */
       const index = mutateStack.findIndex( mutation => mutation.name === mutationName );
 
-      /* check for no result and error */
+      /* check for no result and log */
       if ( index < 0 ) {
-        logger.error(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
+        logger.debug(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
         return undefined;
       }
 
@@ -424,17 +422,16 @@ export class Mutator {
 
     } else {
       /* pop the most recent mutation */
-      mutateData = mutateStack?.pop();
+      mutateData = mutateStack.pop();
     }
 
-    /* if there are no mutations left on the stack, remove our flag data
-     * otherwise, store the remaining mutations */
-    if (mutateStack.length == 0) {
-      await actor.unsetFlag(MODULE.data.name, 'mutate');
-    } else {
-      await actor.setFlag(MODULE.data.name, 'mutate', mutateStack);
-    }
+    const newFlags = {[`${MODULE.data.name}.mutate`]: mutateStack};
+
+    /* set the current mutation stack in the mutation data */
+    foundry.utils.mergeObject(mutateData.delta, {actor: {flags: newFlags}});
+
     logger.debug(MODULE.localize('debug.finalRevertUpdate'), mutateData);
+
     return mutateData;
   }
 
@@ -448,11 +445,11 @@ export class Mutator {
     let tokenData = tokenDoc.toObject()
     delete tokenData.actorData;
     
-    const tokenDelta = diffObject(updates.token ?? {}, tokenData, {inner:true});
+    const tokenDelta = MODULE.strictUpdateDiff(updates.token ?? {}, tokenData);
 
     /* get the actor changes (no embeds) */
     const actorData = Mutator._getRootActorData(tokenDoc.actor);
-    const actorDelta = MODULE.strictUpdateDiff(updates.actor ?? {}, actorData, {inner:true});
+    const actorDelta = MODULE.strictUpdateDiff(updates.actor ?? {}, actorData);
 
     /* get the changes from the embeds */
     let embeddedDelta = {};
