@@ -149,7 +149,7 @@ export class api {
     let spawnLocation = {x: templateData.x, y:templateData.y}
 
     /* calculate any scaling that may have happened */
-    const scale = templateData.width / protoData.width;
+    const scale = templateData.size / protoData.width;
 
     /* insert changes from the template into the updates data */
     mergeObject(updates, {token: {rotation: templateData.direction + (updates.token.rotation ?? 0), width: templateData.size, height: protoData.height*scale}});

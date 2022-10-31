@@ -27,11 +27,11 @@ export class Crosshairs extends MeasuredTemplate {
      const templateData = {
       t: "circle",
       user: game.user.id,
-      distance: (gridDistance / 2) * config.size,
+      distance: config.size,
       x: config.x,
       y: config.y,
       fillColor: config.fillColor,
-      width: config.size,
+      width: 1,
       texture: config.texture,
     }   
 
@@ -39,7 +39,6 @@ export class Crosshairs extends MeasuredTemplate {
     super(template);
 
     /** @TODO all of these fields should be part of the source data schema for this class **/
-
     /* image path to display in the center (under mouse cursor) */
     this.icon = config.icon ?? Crosshairs.ERROR_TEXTURE;
 
@@ -101,8 +100,18 @@ export class Crosshairs extends MeasuredTemplate {
     this.cancelled = true;
 
     /* current radius in pixels */
-    this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance) / gridDistance
+    this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance)
       * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid);
+  }
+
+  toObject() {
+    const data = this.document.toObject();
+    data.cancelled = this.cancelled;
+    data.scene = this.scene;
+    data.radius = this.radius;
+    data.size = data.distance;
+
+    return data;
   }
 
   static ERROR_TEXTURE = 'icons/svg/hazard.svg'
@@ -220,7 +229,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Extract and prepare data
     let {direction, distance} = document;
-    distance *= (d.size / d.distance);
+    distance *= (d.size/2);
     //BEGIN WARPGATE
     //width *= (d.size / d.distance);
     //END WARPGATE
@@ -369,16 +378,16 @@ export class Crosshairs extends MeasuredTemplate {
 
   _leftClickHandler(event){
     const document = MODULE.isV10 ? this.document : this.data;
-    const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
-    const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
+    //const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
+    //const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
     const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
+
     const destination = Crosshairs.getSnappedPosition(MODULE.isV10 ? this.document : this.data, this.interval);
-    const width = document.distance / (canvasSceneDistance / 2);
-    const radius = document.distance / thisSceneDistance * thisSceneSize;
-    this.radius = radius;
-    if ( MODULE.isV10 ) this.document.updateSource({destination, width, cancelled: false});
-    else this.data.update({destination, width, cancelled: false});
+    this.radius = document.distance * thisSceneSize;
     this.cancelled = false;
+
+    if ( MODULE.isV10 ) this.document.updateSource({...destination});
+    else this.data.update({destination});
 
     this.clearHandlers(event);
   }
@@ -393,16 +402,15 @@ export class Crosshairs extends MeasuredTemplate {
     let snap = event.shiftKey ? delta : 5;
     //BEGIN WARPGATE
     const document = MODULE.isV10 ? this.document : this.data;
-    const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
-    const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
+    //const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
+    //const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
     const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
     if (event.shiftKey && !this.lockSize) {
-      let distance = document.distance + canvasSceneDistance / 2 * (Math.sign(event.deltaY));
-      distance = Math.max(distance, canvasSceneDistance / 2);
+      let distance = document.distance + 0.25 * (Math.sign(event.deltaY));
+      distance = Math.max(distance, 0.25);
       if ( MODULE.isV10 ) this.document.updateSource({distance});
       else this.data.update({distance});
-      const radius = document.distance / thisSceneDistance * thisSceneSize;
-      this.radius = radius;
+      this.radius = document.distance * thisSceneSize;
     } else {
       const direction = document.direction + (snap * Math.sign(event.deltaY));
       if ( MODULE.isV10 ) this.document.updateSource({direction});
