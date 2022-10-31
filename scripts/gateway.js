@@ -67,8 +67,8 @@ export class Gateway {
 
           //Measured template defaults
           texture: null,
-          x: 0,
-          y: 0,
+          //x: 0,
+          //y: 0,
           fillColor: game.user.color,
         }
       }
@@ -93,33 +93,27 @@ export class Gateway {
    */ 
   static async showCrosshairs(config = {}, callbacks = {}) {
 
+    /* add in defaults */
+    mergeObject(config, MODULE[NAME].crosshairsConfig, {overwrite: false})
+
     /* store currently controlled tokens */
     let controlled = [];
     if (config.rememberControlled) {
       controlled = canvas.tokens.controlled; 
     }
 
-    let mergedConfig = mergeObject(MODULE[NAME].crosshairsConfig, config, {inplace:false}); 
-
     /* if a specific initial location is not provided, grab the current mouse location */
     if(!config.hasOwnProperty('x') && !config.hasOwnProperty('y')) {
       let mouseLoc = MODULE.getMouseStagePos();
-      mouseLoc = Crosshairs.getSnappedPosition(mouseLoc, mergedConfig.interval);
-      mergedConfig.x = mouseLoc.x;
-      mergedConfig.y = mouseLoc.y;
+      mouseLoc = Crosshairs.getSnappedPosition(mouseLoc, config.interval);
+      config.x = mouseLoc.x;
+      config.y = mouseLoc.y;
     }
 
-    const template = new Crosshairs(mergedConfig, callbacks);
+    const template = new Crosshairs(config, callbacks);
     await template.drawPreview();
-    let dataObj = game.release.generation < 10 ? template.data.toObject() : template.document.toObject();
 
-    /** @todo temporary workaround */
-    dataObj.cancelled = template.cancelled;
-    dataObj.scene = template.scene;
-    dataObj.radius = template.radius;
-
-    /* mirror the input variables for the output as well */
-    dataObj.size = dataObj.width
+    const dataObj = template.toObject();
 
     /* if we have stored any controlled tokens,
      * restore that control now
