@@ -97,13 +97,14 @@ The `callbacks` object as used by `spawn` and `spawnAt` has two expected keys: `
 
 ### pre
 
-Expected signature: `async pre(location, updates)`
+Expected signature: `async pre(location, updates, iteration)`
 
 Executed after placement has been decided, but before updates have been issued or tokens spawned. Used for modifying the updates based on position of the placement.
  * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
  * `updates` {Object} The update object passed into `warpgate#spawn`.
+ * `iteration` {number} Current spawning iteration, primarily used when spawning duplicates. 0-indexed.
 
- * `return value` {Promise}
+ * `return value` {Promise\<boolean|undefined\>} On `false`, skips this iteration of spawning. 
 
 ### post
 
@@ -113,9 +114,9 @@ Executed after the token has been spawned and any updates applied. Good for anim
  * `location` {Object} of the form {x: Number, y: Number} designating the token's _center point_
  * `spawnedTokenDoc` {TokenDocument} The token spawned by this iteration.
  * `updates` {Object} The update object from the just spawned token. Will be applied to default prototoken data for next iteration
- * `iteration` {Number} The iteration index of the _next_ iteration. 0-indexed.
+ * `iteration` {Number} Current spawning iteration for this now-spawned token. 0-indexed.
  
- * `return value` {Promise}
+ * `return value` {Promise\<boolean|undefined\>} On `false`, halts the entire spawning process, including any remaining duplicate iterations.
 	
 ## Mutation Commands
 

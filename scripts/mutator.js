@@ -293,7 +293,7 @@ export class Mutator {
     options.name = mutateInfo.name;
 
     /* ensure that we are working with clean data */
-    Mutator.clean(updates);
+    await Mutator.clean(updates);
 
     /* expand the object to handle property paths correctly */
     updates = MODULE.shimUpdate(updates);
@@ -358,7 +358,7 @@ export class Mutator {
   /**
    * Cleans and validates mutation data
    */
-  static clean(updates) {
+  static async clean(updates) {
 
     /* ensure we are working with raw objects */
     Mutator._cleanInner(updates);
@@ -366,6 +366,21 @@ export class Mutator {
     /* perform cleaning on shorthand embedded updates */
     Object.values(updates.embedded ?? {}).forEach( type => Mutator._cleanInner(type));
 
+    /* if the token is getting an image update, preload it */
+    let source;
+    if(MODULE.isV10 && 'src' in (updates.token?.texture ?? {})) {
+      source = updates.token.texture.src; 
+    }
+    else if( !MODULE.isV10 && 'img' in (updates.token ?? {})){
+      source = updates.token.img;
+    }
+
+    /* load texture if provided */
+    try {
+      !!source ? await loadTexture(source) : null;
+    } catch (err) {
+      logger.debug(err);
+    }
   }
 
   static _mergeMutateDelta(actorDoc, delta, updates, options) {
@@ -388,6 +403,9 @@ export class Mutator {
 
   /* @return {Promise} */
   static async _update(tokenDoc, updates, options = {}) {
+
+    
+
     /* update the token */
     await tokenDoc.update(updates.token ?? {});
 
