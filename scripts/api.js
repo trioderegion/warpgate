@@ -249,7 +249,7 @@ export class api {
       
     }
 
-    if (options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.maximize();
+    if (options.controllingActor?.sheet?.rendered) options.controllingActor?.sheet?.maximize();
     return createdIds;
   }
 
