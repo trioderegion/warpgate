@@ -282,8 +282,18 @@ export class Mutator {
      */
     let mutateInfo = Mutator._createMutateInfo( options.delta ?? {}, options );
 
+    /* check that this mutation name is unique */
+    const present = warpgate.mutationStack(tokenDoc).getName(mutateInfo.name);
+    if(!!present) {
+      logger.warn(MODULE.format('error.badMutate.duplicate', {name: mutateInfo.name}));
+      return false;
+    }
+
     /* ensure the options parameter has a name field if not provided */
     options.name = mutateInfo.name;
+
+    /* ensure that we are working with clean data */
+    await Mutator.clean(updates);
 
     /* expand the object to handle property paths correctly */
     updates = MODULE.shimUpdate(updates);
@@ -328,6 +338,51 @@ export class Mutator {
     };
   }
 
+  static _cleanInner(single) {
+    Object.keys(single).forEach( key => {
+      /* dont process embedded */
+      if(key == 'embedded') return;
+
+      /* dont process delete identifiers */
+      if(typeof single[key] == 'string') return;
+
+      /* convert value to plain object if possible */
+      if(single[key].toObject) single[key] = single[key].toObject();
+
+      /* delete unupdatable values */
+      delete single[key]._id;
+      delete single[key].id;
+    });
+  }
+
+  /**
+   * Cleans and validates mutation data
+   */
+  static async clean(updates) {
+
+    /* ensure we are working with raw objects */
+    Mutator._cleanInner(updates);
+
+    /* perform cleaning on shorthand embedded updates */
+    Object.values(updates.embedded ?? {}).forEach( type => Mutator._cleanInner(type));
+
+    /* if the token is getting an image update, preload it */
+    let source;
+    if(MODULE.isV10 && 'src' in (updates.token?.texture ?? {})) {
+      source = updates.token.texture.src; 
+    }
+    else if( !MODULE.isV10 && 'img' in (updates.token ?? {})){
+      source = updates.token.img;
+    }
+
+    /* load texture if provided */
+    try {
+      !!source ? await loadTexture(source) : null;
+    } catch (err) {
+      logger.debug(err);
+    }
+  }
+
   static _mergeMutateDelta(actorDoc, delta, updates, options) {
 
     /* Grab the current stack (or make a new one) */
@@ -348,6 +403,9 @@ export class Mutator {
 
   /* @return {Promise} */
   static async _update(tokenDoc, updates, options = {}) {
+
+    
+
     /* update the token */
     await tokenDoc.update(updates.token ?? {});
 
@@ -446,7 +504,7 @@ export class Mutator {
 
     /* get token changes */
     let tokenData = tokenDoc.toObject()
-    delete tokenData.actorData;
+    tokenData.actorData = {};
     
     const tokenDelta = MODULE.strictUpdateDiff(updates.token ?? {}, tokenData);
 

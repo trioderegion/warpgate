@@ -232,7 +232,13 @@ export class api {
     for (let iteration = 0; iteration < duplicates; iteration++) {
 
       /** pre creation callback */
-      if (callbacks.pre) await callbacks.pre(spawnLocation, updates, iteration);
+      if (callbacks.pre) {
+        const response = await callbacks.pre(spawnLocation, updates, iteration);
+
+        /* pre create callbacks can skip this spawning iteration */
+        if(response === false) continue;
+      }
+      await Mutator.clean(updates);
 
       /* merge in changes to the prototoken */
       if(iteration == 0){
@@ -259,7 +265,10 @@ export class api {
       await warpgate.event.notify(warpgate.EVENT.SPAWN, {uuid: spawnedTokenDoc.uuid, updates, iteration});
 
       /* post creation callback */
-      if (callbacks.post) await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration);
+      if (callbacks.post) {
+        const response = await callbacks.post(spawnLocation, spawnedTokenDoc, updates, iteration);
+        if(response === false) break;
+      }
       
     }
 

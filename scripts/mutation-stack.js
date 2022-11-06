@@ -32,18 +32,28 @@ import {
 export class MutationStack {
   constructor(tokenDoc) {
 
-    this._token = tokenDoc;
+    this.actor = tokenDoc instanceof TokenDocument ? tokenDoc.actor :
+                    tokenDoc instanceof Token ? tokenDoc.document.actor :
+                    tokenDoc instanceof Actor ? tokenDoc :
+                    null;
+
+    if(!this.actor) {
+      throw new Error(MODULE.localize('error.stack.noActor'));
+    }
 
     /* Grab the current stack (or make a new one) */
     this._stack = null;
-    //
 
     /* indicates if the stack has been duplicated for modification */
     this._locked = true;
   }
 
+  get _lockedStack() {
+    return this.actor?.getFlag(MODULE.data.name, 'mutate') ?? [] 
+  }
+
   get stack() {
-    return this._locked ? this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? [] : this._stack ;
+    return this._locked ? this._lockedStack : this._stack ;
   }
 
   /**
@@ -55,7 +65,7 @@ export class MutationStack {
    * @memberof MutationStack
    */
   find(predicate) {
-    if (this._locked) return (this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []).find(predicate);
+    if (this._locked) return this._lockedStack.find(predicate);
 
     return this._stack.find(predicate);
   }
@@ -72,7 +82,7 @@ export class MutationStack {
    */
   _findIndex( predicate ) {
 
-    if (this._locked) return (this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []).findIndex(predicate);
+    if (this._locked) return this._lockedStack.findIndex(predicate);
 
     return this._stack.findIndex(predicate);
   }
@@ -81,7 +91,7 @@ export class MutationStack {
    * Retrieves an element of the mutation stack that matches the provided name
    *
    * @param {String} name Name of mutation (serves as a unique identifier)
-   * @return {Object} Element of the mutation stack matching the provided name, or undefined if none
+   * @return {Object|undefined} Element of the mutation stack matching the provided name, or undefined if none
    * @memberof MutationStack
    */
   getName(name) {
@@ -206,7 +216,7 @@ export class MutationStack {
       logger.error(MODULE.localize('error.stackLockedOrEmpty'))
     }
 
-    await this._token.actor.update({
+    await this.actor.update({
       flags: {
         [MODULE.data.name]: {
           'mutate': this._stack
@@ -233,7 +243,7 @@ export class MutationStack {
       return false;
     }
 
-    this._stack = duplicate(this._token.actor.getFlag(MODULE.data.name, 'mutate') ?? []);
+    this._stack = duplicate(this.actor.getFlag(MODULE.data.name, 'mutate') ?? []);
     this._locked = false;
     return true;
   }
