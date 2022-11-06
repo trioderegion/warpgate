@@ -209,7 +209,9 @@ export class MODULE {
     const additions = MODULE.unique(flattenObject(base), flattenObject(other))
 
     /* set their data to null */
-    Object.keys(additions).forEach( key => diff[key] = null );
+    Object.keys(additions).forEach( key => {
+      if( typeof additions[key] != 'object' ) diff[key] = null
+    });
 
     return foundry.utils.expandObject(diff);
   }
