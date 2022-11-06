@@ -267,6 +267,12 @@ export class Mutator {
    */
   static async mutate(tokenDoc, updates = {}, callbacks = {}, options = {}) {
     
+    const neededPerms = MODULE.canMutate(game.user)
+    if(neededPerms.length > 0) {
+      logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
+      return false;
+    }
+
     /* providing a delta means you are managing the
      * entire data change (including mutation stack changes).
      * Typically used by remote requests */
@@ -299,12 +305,9 @@ export class Mutator {
 
     if (tokenDoc.actor.isOwner) {
 
-      /* prepare the event data *before* the token is modified */
-      const actorData = Comms.packToken(tokenDoc);
-
       await Mutator._update(tokenDoc, updates, options);
 
-      await warpgate.event.notify(warpgate.EVENT.MUTATE, {actorData, updates});
+      await warpgate.event.notify(warpgate.EVENT.MUTATE, {uuid: tokenDoc.uuid, updates});
 
       if(callbacks.post) await callbacks.post(tokenDoc, updates);
 

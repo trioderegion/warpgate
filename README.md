@@ -475,11 +475,11 @@ The following table describes the stock events that occur within warpgate. All e
 | -- | -- | -- | -- |
 | <common> | {sceneId, userId} | | userId is the initiator |
 | PLACEMENT | {templateData, tokenData} | After placement has been decided | The MeasuredTemplate data used to spawn the token, and the final token data that will be spawned. There is no actor data provided.  |
-| SPAWN | {actorData, iteration} | After each token has been created | Iteration this actor was spawned on. See **actorData**, below. |
+| SPAWN | {uuid, updates, options, iteration} | After each token has been created | UUID of created token, updates applied to the token, options used for spawning, and iteration this token was spawned on.|
 | DISMISS | {actorData} | After any token is dismissed via `warpgate.dismiss` | see **actorData**, below |
-| MUTATE | {actorData, updates} | After a token has been mutated, but before the initiating client has run its post mutate callback | see **actorData**, below. |
-| REVERT | {actorData, updates} | After a token has been fully reverted to its previous state | updates are the changes that are applied to the provided actorData (see below) to produce the final reverted state. |
-| MUTATE_RESPONSE | {tokenId, mutationId, accepted, updates} | After a mutation has been accepted and applied or rejected by the owning user  | `mutationId` is the name provided in `options.name` OR a randomly assigned ID if not provided. Callback functions provided for remote mutations will be internally converted to triggers for this event and do not need to be registered manually by the user. `accepted` is a bool field that indicates if the remote user accepted the mutation. |
+| MUTATE | {uuid, updates, options} | After a token has been mutated, but before the initiating client has run its post mutate callback | UUID of modified token, updates applied to the token, options used for mutation.|
+| REVERT | {uuid, updates} | After a token has been fully reverted to its previous state | UUID of reverted token, updates applied to produce the final reverted state. |
+| MUTATE\_RESPONSE | {tokenId, mutationId, accepted, updates} | After a mutation has been accepted and applied or rejected by the owning user  | `mutationId` is the name provided in `options.name` OR a randomly assigned ID if not provided. Callback functions provided for remote mutations will be internally converted to triggers for this event and do not need to be registered manually by the user. `accepted` is a bool field that indicates if the remote user accepted the mutation. |
 
 #### actorData
 This object is a customized version of `Actor#toObject` with the following change:
@@ -488,4 +488,6 @@ This object is a customized version of `Actor#toObject` with the following chang
 ## Special Thanks
 * siliconsaint for the inspiration to turn a set of absurd macros into something usable and constantly pushing the envelope.
 * LorduFreeman for the pre and post callbacks and immediately using it for beautiful things.
-* Wasp for pushing me to make Crosshairs more full featured
+* Wasp for pushing me to make Crosshairs more full featured.
+* Arbron for the initial v9+v10 conversion updates.
+* Mr. Vaux for stretching warpgate's malleability to its limit.

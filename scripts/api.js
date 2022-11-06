@@ -114,6 +114,13 @@ export class api {
    * @return Promise<[{String}]> list of created token ids
    */
   static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
+    
+    /* check for needed spawning permissions */
+    const neededPerms = MODULE.canSpawn(game.user);
+    if(neededPerms.length > 0) {
+      logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
+      return [];
+    }
 
     /* create permissions for this user */
     const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
@@ -174,6 +181,13 @@ export class api {
    * 4) if more duplicates, get fresh proto data and update it, goto 1
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
+
+    /* check for needed spawning permissions */
+    const neededPerms = MODULE.canSpawn(game.user);
+    if(neededPerms.length > 0) {
+      logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
+      return [];
+    }
 
     updates = MODULE.shimUpdate(updates);
 
