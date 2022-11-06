@@ -34,6 +34,7 @@ export class logger {
 
   static warn(...args) {
     console.warn(`${MODULE?.data?.title ?? "" } | WARNING | `, ...args);
+    ui.notifications.warn(`${MODULE?.data?.title ?? "" } | WARNING | ${args[0]}`);
   }
 
   static error(...args) {

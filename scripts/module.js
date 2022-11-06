@@ -30,12 +30,40 @@ export class MODULE {
     return game.settings.get(MODULE.data.name, key);
   }
 
-  static localize(...args) {
-    return game.i18n.localize(...args);
+  static localize(key) {
+    return game.i18n.localize(`warpgate.${key}`);
   }
 
-  static format(...args) {
-    return game.i18n.format(...args);
+  static format(key, data) {
+    return game.i18n.format(`warpgate.${key}`, data);
+  }
+
+  static canSpawn(user) {
+    const reqs = [
+      'TOKEN_CREATE',
+      'TOKEN_CONFIGURE',
+      'FILES_BROWSE',
+    ]
+
+    return MODULE.canUser(user, reqs);
+  }
+
+  static canMutate(user) {
+    const reqs = [
+      'TOKEN_CONFIGURE',
+      'FILES_BROWSE',
+    ]
+
+    return MODULE.canUser(user, reqs);
+  }
+
+  /**
+   * @return {Array<String>} missing permissions for this operation
+   */
+  static canUser(user, requiredPermissions) {
+    const {role} = user;
+    const permissions = game.settings.get('core','permissions');
+    return requiredPermissions.filter( req => !permissions[req].includes(role) ).map(missing => game.i18n.localize(CONST.USER_PERMISSIONS[missing].label));
   }
 
   static firstGM() {
