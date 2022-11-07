@@ -25,6 +25,10 @@
         "name": "Always accept mutation requests",
         "hint": "If checked, request dialog will not be shown and blindly accepted."
       },
+      "alwaysAcceptLocal": {
+        "name": "Always accept mutation requests",
+        "hint": "If checked, request dialog will not be shown and blindly accepted."
+      },
       "dismissButtonScope": {
         "name": "Dismiss button scope",
         "hint": "Determines when the dismiss button is added to actor sheets."
@@ -38,7 +42,10 @@
         "spawnedOnly": "Spawned tokens only",
         "all": "All owned tokens",
         "showMutationList": "Show mutation stack dialog",
-        "popLatestMutation": "Revert last mutation"
+        "popLatestMutation": "Revert last mutation",
+        "useWorld": "(use world setting)",
+        "overrideTrue": "Override: True",
+        "overrideFalse": "Override: False"
       }
     },
     "debug": {
@@ -54,6 +61,7 @@
       "revertDialogTitle" : "Select mutation to revert",
       "inspectLabel": "Inspect",
       "descriptionLabel": "Description",
+      "emptyDescription": "(no description provided)",
       "mutationRequestTitle": "{userName} is mutating {tokenName}",
       "mutationAccepted": "Mutation \"{mName}\" for {tName} has been accepted.",
       "mutationRejected": "Mutation \"{mName}\" for {tName} has been rejected.",

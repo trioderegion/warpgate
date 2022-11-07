@@ -32,8 +32,27 @@ export class RemoteMutator {
     const config = true;
     const settingsData = {
       alwaysAccept: {
-        scope: 'client', config, default: false, type: Boolean
-      }
+        scope: 'world', config, default: false, type: Boolean
+      },
+      suppressToast: {
+        scope: 'world', config, default: false, type: Boolean
+      },
+      alwaysAcceptLocal: {
+        scope: 'client', config, default: 0, type: Number,
+        choices: {
+          0: MODULE.localize('setting.option.useWorld'),
+          1: MODULE.localize('setting.option.overrideTrue'),
+          2: MODULE.localize('setting.option.overrideFalse'),
+        }
+      },
+      suppressToastLocal: {
+        scope: 'client', config, default: 0, type: Number,
+        choices: {
+          0: MODULE.localize('setting.option.useWorld'),
+          1: MODULE.localize('setting.option.overrideTrue'),
+          2: MODULE.localize('setting.option.overrideFalse'),
+        }
+      },
     };
 
     MODULE.applySettings(settingsData);
@@ -67,12 +86,13 @@ export class RemoteMutator {
         const info = MODULE.format('display.mutationAccepted', {mName: options.name, tName: tokenDoc.name});
         ui.notifications.info(info);
 
-        /* only need to do this if we have a post callback */
-        if (post) await post(tokenDoc, responseData.updates);
       } else {
         const warn = MODULE.format('display.mutationRejected', {mName: options.name, tName: tokenDoc.name});
         ui.notifications.warn(warn);
       }
+
+      /* only need to do this if we have a post callback */
+      if (post) await post(tokenDoc, responseData.updates, responseData.accepted);
 
       return;
     }
@@ -110,7 +130,7 @@ export class RemoteMutator {
 
   }
 
-  static remoteMutate( tokenDoc, {updates, callbacks = {}, options} ) {
+  static remoteMutate( tokenDoc, {updates, callbacks = {}, options = {}} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {
       logger.error(MODULE.localize('error.noOwningUserMutate'));
@@ -126,7 +146,7 @@ export class RemoteMutator {
     return Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
   }
 
-  static remoteRevert( tokenDoc, mutationId = undefined ) {
+  static remoteRevert( tokenDoc, {mutationId = undefined, options = {}} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {
       logger.error(MODULE.format('error.noOwningUserRevert'));
@@ -139,7 +159,7 @@ export class RemoteMutator {
     RemoteMutator._createRevertTriggers( tokenDoc, mutationId );
 
     /* broadcast the request to mutate the token */
-    return Comms.requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId});
+    return Comms.requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId, options});
   }
 
   static async handleMutationRequest(payload) {
@@ -149,8 +169,14 @@ export class RemoteMutator {
 
     if (MODULE.isFirstOwner(tokenDoc.actor)) {
 
-      const alwaysAccept = MODULE.setting('alwaysAccept');
-      const accepted = alwaysAccept ? alwaysAccept : await RemoteMutator._queryRequest(tokenDoc, payload.userId, payload.options.description, payload.updates);
+      let {alwaysAccept: accepted, suppressToast} = MODULE.getFeedbackSettings(payload.options.overrides);
+      
+      if(!accepted) {
+        accepted = await RemoteMutator._queryRequest(tokenDoc, payload.userId, payload.options.description, payload.updates)
+
+        /* if a dialog is shown, the user knows the outcome */
+        suppressToast = true;
+      }
 
       let responseData = {
         sceneId: payload.sceneId,
@@ -161,15 +187,16 @@ export class RemoteMutator {
         updates: payload.updates
       }
 
+      await warpgate.event.notify(warpgate.EVENT.MUTATE_RESPONSE, responseData);
+
       if (accepted) {
         /* first owner accepts mutation -- apply it */
         /* requests will never have callbacks */
         await Mutator.mutate(tokenDoc, payload.updates, {}, payload.options);
         const message = MODULE.format('display.mutationRequestTitle', {userName: game.users.get(payload.userId).name, tokenName: tokenDoc.name});
-        ui.notifications.info(message);
+        
+        if(!suppressToast) ui.notifications.info(message);
       }
-
-      await warpgate.event.notify(warpgate.EVENT.MUTATE_RESPONSE, responseData);
     }
   }
 
@@ -183,10 +210,12 @@ export class RemoteMutator {
 
     if (MODULE.isFirstOwner(tokenDoc.actor)) {
 
-      const alwaysAccept = MODULE.setting('alwaysAccept');
-      const accepted = alwaysAccept ? 
-        alwaysAccept : 
-        await RemoteMutator._queryRequest(tokenDoc, payload.userId, description, details );
+      let {alwaysAccept: accepted, suppressToast} = MODULE.getFeedbackSettings(payload.options.overrides);
+
+      if(!accepted) {
+        accepted = await RemoteMutator._queryRequest(tokenDoc, payload.userId, description, details );
+        suppressToast = true;
+      }
 
       let responseData = {
         sceneId: payload.sceneId,
@@ -196,30 +225,34 @@ export class RemoteMutator {
         mutationId: payload.mutationId
       }
 
+      await warpgate.event.notify(warpgate.EVENT.REVERT_RESPONSE, responseData);
+
       /* if the request is accepted, do the revert */
       if (accepted) {
         await Mutator.revertMutation(tokenDoc, payload.mutationId);
-        if (alwaysAccept) { 
+
+        if (!suppressToast) { 
           ui.notifications.info(description);
         }
       }
 
-      await warpgate.event.notify(warpgate.EVENT.REVERT_RESPONSE, responseData);
     }
   }
 
-  static async _queryRequest(tokenDoc, requestingUserId, description, detailsObject) {
+  static async _queryRequest(tokenDoc, requestingUserId, description = 'warpgate.display.emptyDescription', detailsObject) {
 
     /* if this is update data, dont include the mutate data please, its huge */
-    const displayObject = duplicate(detailsObject);
+    let displayObject = duplicate(detailsObject);
     if (displayObject.actor?.flags?.warpgate) {
-      delete displayObject.actor.flags.warpgate;
-      if (isObjectEmpty(displayObject.actor.flags)) delete displayObject.actor.flags;
+      displayObject.actor.flags.warpgate = {};
     }
+
+    displayObject = MODULE.removeEmptyObjects(displayObject);
+
     const details = RemoteMutator._convertObjToHTML(displayObject)
 
     const modeSwitch = {
-      description: {label: MODULE.localize('display.inspectLabel'), value: 'inspect', content: `<p>${description}</p>`},
+      description: {label: MODULE.localize('display.inspectLabel'), value: 'inspect', content: `<p>${game.i18n.localize(description)}</p>`},
       inspect: {label: MODULE.localize('display.descriptionLabel'), value: 'description', content: details }
     }
 
@@ -234,7 +267,7 @@ export class RemoteMutator {
       if (userResponse === 'select') {
         if (tokenDoc.object) {
           tokenDoc.object.control({releaseOthers: true});
-          await canvas.animatePan({x: tokenDoc.data.x, y: tokenDoc.data.y});
+          await canvas.animatePan({x: tokenDoc.object.x, y: tokenDoc.object.y});
         }
       } else if (userResponse !== false && userResponse !== true) {
         /* swap modes and re-render */

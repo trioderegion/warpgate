@@ -74,6 +74,21 @@ export class MODULE {
     return game.user.id === MODULE.firstGM()?.id;
   }
 
+  static emptyObject(obj){
+    return MODULE.isV10 ? foundry.utils.isEmpty(obj) : isObjectEmpty(obj);
+  }
+
+  static removeEmptyObjects(obj) {
+    let result = foundry.utils.flattenObject(obj);
+    Object.keys(result).forEach( key => {
+      if(typeof result[key] == 'object' && MODULE.emptyObject(result[key])) {
+        delete result[key];
+      } 
+    });
+
+    return foundry.utils.expandObject(result);
+  }
+
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
@@ -194,6 +209,23 @@ export class MODULE {
     }
 
     return foundry.utils.expandObject(change);
+  }
+
+  static getFeedbackSettings({alwaysAccept = false, suppressToast = false} = {}) {
+    const acceptSetting = MODULE.setting('alwaysAcceptLocal') == 0 ? 
+      MODULE.setting('alwaysAccept') :
+      {1: true, 2: false}[MODULE.setting('alwaysAcceptLocal')];
+
+    const accepted = !!alwaysAccept ? true : acceptSetting;
+
+    const suppressSetting = MODULE.setting('suppressToastLocal') == 0 ? 
+      MODULE.setting('suppressToast') :
+      {1: true, 2: false}[MODULE.setting('suppressToastLocal')];
+
+    const suppress = !!suppressToast ? true : suppressSetting;
+
+    return {alwaysAccept: accepted, suppressToast: suppress};
+
   }
 
   /**
