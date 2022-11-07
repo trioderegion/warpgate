@@ -119,10 +119,11 @@ export class RemoteMutator {
       if (responseData.accepted) {
         const tokenDoc = game.scenes.get(responseData.sceneId).getEmbeddedDocument('Token', responseData.tokenId);
         const info = MODULE.format('display.revertAccepted', {mName , tName: tokenDoc.name});
-        ui.notifications.info(info);
+        const {suppressToast} = MODULE.getFeedbackSettings(options.overrides);
+        if(!suppressToast) ui.notifications.info(info);
       } else {
         const warn = MODULE.format('display.revertRejected', {mName , tName: tokenDoc.name});
-        ui.notifications.warn(warn);
+        if(!options.overrides?.suppressReject) ui.notifications.warn(warn);
       }
 
       return;
