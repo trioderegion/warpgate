@@ -21,6 +21,34 @@ import {RemoteMutator} from './remote-mutator.js'
 
 const NAME = "Mutator";
 
+
+/**
+ * @namespace CallbackPrototypes
+ * @global
+ */
+
+/**
+ * The post delta creation, pre mutate callback
+ * @name CallbackPrototypes~DeltaCallback
+ * @function
+ * @param {Object} delta Computed change of the actor based on `updates`.
+ * @param {TokenDocument} tokenDoc Token being modified.
+ *
+ * @returns Promise
+ */
+
+/**
+ * The post mutate callback prototype
+ * @name CallbackPrototypes~PostMutate
+ * @function
+ * @param {TokenDocument} tokenDoc Token that has been modified.
+ * @param {Object} updates See parent `updates` parameter.
+ *
+ * @returns Promise
+ */
+
+
+
 export class Mutator {
   static register() {
     Mutator.defaults();
@@ -233,26 +261,19 @@ export class Mutator {
   }
 
   
-
-  /* 
+   /**
    * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
    *
    * @param {TokenDocument} tokenDoc
+   * @param {Object} [updates]. As `warpgate.spawn`.
+   * @param {Object} [callbacks]. Two provided callback locations: delta and post. Both are awaited.
+   * @param {Delta} [callbacks.delta] Called after the update delta has been generated, but before 
+   *  it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP 
+   *  are increased by 10, but when reverted, you want to keep the extra Current HP applied. 
+   *  Update the delta object with the desired HP to return to after revert, or remove it entirely.
+   * @param {PostMutate} [callbacks.post] Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
    *
-   * @param {Object = {}} updates. As `warpgate.spawn`.
-   *
-   * @param {Object = {}} callbacks. Two provided callback locations: delta and post. Both are awaited.
-   *   delta {Function(delta, tokenDoc)} Called after the update delta has been generated, but before
-   *    it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP 
-   *    are increased by 10, but when reverted, you want to keep the extra Current HP applied. 
-   *    Update the delta object with the desired HP to return to after revert, or remove it entirely.
-   *     @param {Object} delta. Computed change of the actor based on `updates`.
-   *     @param {TokenDocument} tokenDoc. Token being modified.
-   *   post {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
-   *     @param {TokenDocument} tokenDoc. Token that has been modified.
-   *     @param {Object} updates. See parent `updates` parameter.
-   *
-   * @param {Object = {}} options
+   * @param {Object} [options]
    *   comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for 
    *    comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
    *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to 
@@ -411,10 +432,11 @@ export class Mutator {
     return Mutator._updateActor(tokenDoc.actor, updates, options.comparisonKeys ?? {}, options.updateOpts ?? {});
   }
 
-  /* Will peel off the last applied mutation change from the provided token document
+  /**
+   * Will peel off the last applied mutation change from the provided token document
    * 
-   * @param {TokenDocument} tokenDoc. Token document to revert the last applied mutation.
-   * @param {String = undefined} mutationName. Specific mutation name to revert. optional.
+   * @param {TokenDocument} tokenDoc Token document to revert the last applied mutation.
+   * @param {String} [mutationName]. Specific mutation name to revert. optional.
    * @param {Object} [options = {}]
    * @param {Object} [options.updateOpts]
    * @param {Object} [options.updateOpts.actor = {}]

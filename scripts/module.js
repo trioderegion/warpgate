@@ -8,6 +8,12 @@ const NAME = "warpgate";
 const PATH = `/modules/${NAME}`;
 
 export class MODULE {
+  static data = {
+      name: NAME,
+      path: PATH,
+      title: "Warp Gate"
+    };
+
   static get isV10() {
     return game.release?.generation >= 10;
   }
@@ -18,11 +24,7 @@ export class MODULE {
   }
 
   static async build() {
-    MODULE.data = {
-      name: NAME,
-      path: PATH,
-      title: "Warp Gate"
-    };
+    
     logger.info("Module Data Built");
   }
 
@@ -120,6 +122,10 @@ export class MODULE {
     return game.user.id === MODULE.firstOwner(doc).id;
   }
 
+  /**
+   * @param {Number} ms Time to delay, in milliseconds
+   * @returns Promise
+   */
   static async wait(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }

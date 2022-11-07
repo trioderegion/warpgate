@@ -75,7 +75,8 @@ export class Gateway {
     }
   }
 
-  /** dnd5e helper function
+  /** 
+   * dnd5e helper function
    * @param { Item5e } item
    * @todo abstract further out of core code
    */
@@ -88,7 +89,8 @@ export class Gateway {
     return parseInt(level);
   }
 
-  /* Displays a circular template attached to the mouse cursor that snaps to grid centers
+  /**
+   * Displays a circular template attached to the mouse cursor that snaps to grid centers
    * and grid intersections
    */ 
   static async showCrosshairs(config = {}, callbacks = {}) {
@@ -167,6 +169,9 @@ export class Gateway {
     return isArray ? result : result[types[0]];
   }
 
+  /**
+   *
+   */
   static async dismissSpawn(tokenId, sceneId = canvas.scene?.id, onBehalf = game.user.id) {
 
     if (!tokenId || !sceneId){

@@ -116,6 +116,10 @@ export class Crosshairs extends MeasuredTemplate {
 
   static ERROR_TEXTURE = 'icons/svg/hazard.svg'
 
+  /**
+   * @param {string} key Crosshairs identifier
+   * @returns {DisplayObject|undefined}
+   */
   static getTag(key) {
     return canvas.templates.preview.children.find( child => child.tag === key )
   }

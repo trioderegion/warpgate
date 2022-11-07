@@ -1,0 +1,26 @@
+{
+  "name": "warpgate",
+  "version": "1.0.0",
+  "description": "<h3 align=\"center\"> <img alt=\"GitHub release (latest by date)\" src=\"https://img.shields.io/github/downloads/trioderegion/warpgate/latest/total?color=blue&label=latest%20downloads\"> Reinforcements have arrived <img alt=\"GitHub all releases\" src=\"https://img.shields.io/github/downloads/trioderegion/warpgate/total?color=blue&label=total%20downloads\"> </h3>",
+  "main": "scripts/warpgate.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trioderegion/warpgate.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "GPL3",
+  "bugs": {
+    "url": "https://github.com/trioderegion/warpgate/issues"
+  },
+  "homepage": "https://github.com/trioderegion/warpgate#readme",
+  "devDependencies": {
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.269.0"
+  },
+  "scripts": {
+    "doc": "jsdoc --configure jsdoc.conf"
+  },
+  "dependencies": {
+    "clean-jsdoc-theme": "^3.3.4"
+  }
+}

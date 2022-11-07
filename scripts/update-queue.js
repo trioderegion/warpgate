@@ -27,7 +27,6 @@ let updateQueues = new Map();
 
 /** 
  * Safely manages concurrent updates to the provided entity type
- * @param {String} entity       the name of the entity type, ex. 'Combat' or 'Scene'
  * @param {Function} updateFn   the function that handles the actual update (can be async)
  */
 

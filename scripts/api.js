@@ -16,6 +16,10 @@
  */
 
 import { logger } from './logger.js'
+
+/**
+ * @namespace
+ */
 import { Gateway } from './gateway.js'
 import { Mutator } from './mutator.js'
 import { MODULE } from './module.js'
@@ -36,6 +40,22 @@ export class api {
   }
 
   static globals() {
+    /**
+     * @namespace warpgate
+     * @global
+     * @borrows api._spawn as spawn
+     * @borrows api._spawnAt as spawnAt
+     * @borrows Gateway.dismissSpawn as dismiss
+     * @borrows Mutator.mutate as mutate
+     * @borrows Mutator.revertMutation as revert
+     * @property {Function} mutationStack
+     * @borrows MODULE.wait as wait
+     * @borrows MODULE.dialog as dialog
+     * @borrows MODULE.buttonDialog as buttonDialog
+     * @borrows Gateway.showCrosshairs as crosshairs.show
+     * @borrows Crosshairs.getTag as crosshairs.getTag
+     * @borrows Gateway.collectPlaceables as crosshairs.collect
+     */
     window[MODULE.data.name] = {
       spawn : api._spawn,
       spawnAt : api._spawnAt,
@@ -164,14 +184,10 @@ export class api {
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
 
-  /* Places a token with provided default protodata at location
+  /**
+   * Places a token with provided default protodata at location
    * When using duplicates, a default protodata will be obtained
    * each iteration with all token updates applied.
-   *
-   * @param {{x: number, y: number}} spawnLocation Centerpoint of spawned token
-   * @param {TokenData|String} protoData PrototypeTokenData or the same of the world actor
-   *
-   * @return {Promise<String[]>} list of created token ids
    *
    * core spawning logic:
    * 0) execute user's pre()
@@ -179,6 +195,12 @@ export class api {
    * 2) Update actor with actor and item changes
    * 3) execute user's post()
    * 4) if more duplicates, get fresh proto data and update it, goto 1
+   *
+   * @param {{x: number, y: number}} spawnLocation Centerpoint of spawned token
+   * @param {TokenData|String} protoData PrototypeTokenData or the same of the world actor
+   *
+   * @return {Promise<String[]>} list of created token ids
+   *
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
 
