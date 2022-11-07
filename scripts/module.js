@@ -92,10 +92,20 @@ export class MODULE {
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
-    const permissionObject=(doc instanceof TokenDocument ? doc.actor.data.permission : doc.data.permission) ?? {}
+
+    /* while conceptually correct, tokens derive permissions from their
+     * (synthetic) actor data.
+     */
+    const corrected = doc instanceof TokenDocument ? doc.actor :
+                      doc instanceof Token ? doc.document.actor : doc;
+    
+    const ownershipPath = MODULE.isV10 ? 'ownership' : 'data.permission';
+
+    const permissionObject = getProperty(corrected, ownershipPath) ?? {};
+
     const playerOwners = Object.entries(permissionObject)
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
-      .map(([id, level]) => id);
+      .map(([id, ]) => id);
     
     if (playerOwners.length > 0) {
       return game.users.get(playerOwners[0]);

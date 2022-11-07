@@ -17,7 +17,6 @@
 
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
-import {Comms} from './comms.js'
 import {RemoteMutator} from './remote-mutator.js'
 
 const NAME = "Mutator";
@@ -444,7 +443,7 @@ export class Mutator {
         return mutateData;
       }
     } else {
-      RemoteMutator.remoteRevert(tokenDoc, mutationName);
+      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutationName, options});
     }
 
     return false;
