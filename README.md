@@ -132,9 +132,10 @@ Given an update argument identical to `warpgate.spawn` and a token document, wil
    - `delta` {Function(delta, tokenDoc)} Called after the update delta has been generated, but before it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object with the desired HP to return to after revert, or remove it entirely.
      - `delta` {Object}: Computed change of the actor based on `updates`.
      - `tokenDoc` {TokenDocument}: Token being modified.
-   - `post` {Function(tokenDoc, updates)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
+   - `post` {Function(tokenDoc, updates, accepted)} Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
      - `tokenDoc` {TokenDocument}: Token that has been modified.
      - `updates` {Object}: See parent `updates` parameter.
+     - `accpeted` {boolean}: During remote mutations, indicates if the mutation request was accepted. For local mutations, always `true`.
  * `options` {Object = {}}
    - `comparisonKeys`: {Object = {}}. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: `{'ActiveEffect' : 'label'}` will tell warpgate that its key, "Rage", should be checked against the `ActiveEffect#data.label` field rather than the default `Document#name` field.
    - `permanent`: {Boolean = false}. Indicates if this should be treated as a permanent change to the actor, which does not store the update delta information required to revert mutation.
@@ -480,7 +481,8 @@ The following table describes the stock events that occur within warpgate. All e
 | DISMISS | {actorData} | After any token is dismissed via `warpgate.dismiss` | see **actorData**, below |
 | MUTATE | {uuid, updates, options} | After a token has been mutated, but before the initiating client has run its post mutate callback | UUID of modified token, updates applied to the token, options used for mutation.|
 | REVERT | {uuid, updates} | After a token has been fully reverted to its previous state | UUID of reverted token, updates applied to produce the final reverted state. |
-| MUTATE\_RESPONSE | {tokenId, mutationId, accepted, updates} | After a mutation has been accepted and applied or rejected by the owning user  | `mutationId` is the name provided in `options.name` OR a randomly assigned ID if not provided. Callback functions provided for remote mutations will be internally converted to triggers for this event and do not need to be registered manually by the user. `accepted` is a bool field that indicates if the remote user accepted the mutation. |
+| REVERT\_RESPONSE | {accepted, tokenId, mutationId} | After a revert request has been accepted or rejected, but no changes have been made | Accecpted state, token id, mutation id reverted. 
+| MUTATE\_RESPONSE | {tokenId, mutationId, accepted, updates} | After a mutation has been accepted or rejected by the owner, but no changes have been applied.  | `mutationId` is the name provided in `options.name` OR a randomly assigned ID if not provided. Callback functions provided for remote mutations will be internally converted to triggers for this event and do not need to be registered manually by the user. `accepted` is a bool field that indicates if the remote user accepted the mutation. |
 
 #### actorData
 This object is a customized version of `Actor#toObject` with the following change:

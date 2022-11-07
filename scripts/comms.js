@@ -122,7 +122,7 @@ export class Comms {
       tokenId,
       sceneId,
       updates,
-      options
+      options,
     }
 
     /* craft the socket data */
@@ -134,14 +134,15 @@ export class Comms {
     return Comms._emit(data);
   }
 
-  static requestRevert(tokenId, sceneId, {mutationId = undefined, onBehalf = game.user.id}) {
+  static requestRevert(tokenId, sceneId, {mutationId = undefined, onBehalf = game.user.id, options = {}}) {
 
     /* insert common fields */
     const payload = {
       userId: onBehalf,
       tokenId,
       sceneId,
-      mutationId
+      mutationId,
+      options,
     }
 
     /* craft the socket data */

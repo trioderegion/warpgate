@@ -74,13 +74,38 @@ export class MODULE {
     return game.user.id === MODULE.firstGM()?.id;
   }
 
+  static emptyObject(obj){
+    return MODULE.isV10 ? foundry.utils.isEmpty(obj) : isObjectEmpty(obj);
+  }
+
+  static removeEmptyObjects(obj) {
+    let result = foundry.utils.flattenObject(obj);
+    Object.keys(result).forEach( key => {
+      if(typeof result[key] == 'object' && MODULE.emptyObject(result[key])) {
+        delete result[key];
+      } 
+    });
+
+    return foundry.utils.expandObject(result);
+  }
+
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
-    const permissionObject=(doc instanceof TokenDocument ? doc.actor.data.permission : doc.data.permission) ?? {}
+
+    /* while conceptually correct, tokens derive permissions from their
+     * (synthetic) actor data.
+     */
+    const corrected = doc instanceof TokenDocument ? doc.actor :
+                      doc instanceof Token ? doc.document.actor : doc;
+    
+    const ownershipPath = MODULE.isV10 ? 'ownership' : 'data.permission';
+
+    const permissionObject = getProperty(corrected, ownershipPath) ?? {};
+
     const playerOwners = Object.entries(permissionObject)
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
-      .map(([id, level]) => id);
+      .map(([id, ]) => id);
     
     if (playerOwners.length > 0) {
       return game.users.get(playerOwners[0]);
@@ -194,6 +219,23 @@ export class MODULE {
     }
 
     return foundry.utils.expandObject(change);
+  }
+
+  static getFeedbackSettings({alwaysAccept = false, suppressToast = false} = {}) {
+    const acceptSetting = MODULE.setting('alwaysAcceptLocal') == 0 ? 
+      MODULE.setting('alwaysAccept') :
+      {1: true, 2: false}[MODULE.setting('alwaysAcceptLocal')];
+
+    const accepted = !!alwaysAccept ? true : acceptSetting;
+
+    const suppressSetting = MODULE.setting('suppressToastLocal') == 0 ? 
+      MODULE.setting('suppressToast') :
+      {1: true, 2: false}[MODULE.setting('suppressToastLocal')];
+
+    const suppress = !!suppressToast ? true : suppressSetting;
+
+    return {alwaysAccept: accepted, suppressToast: suppress};
+
   }
 
   /**

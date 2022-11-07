@@ -17,7 +17,6 @@
 
 import {logger} from './logger.js'
 import {MODULE} from './module.js'
-import {Comms} from './comms.js'
 import {RemoteMutator} from './remote-mutator.js'
 
 const NAME = "Mutator";
@@ -167,7 +166,7 @@ export class Mutator {
   }
 
   /* run the provided updates for the given embedded collection name from the owner */
-  static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name'){
+  static async _performEmbeddedUpdates(owner, embeddedName, updates, comparisonKey = 'name', updateOpts = {}){
     
     const collection = owner.getEmbeddedCollection(embeddedName);
 
@@ -184,19 +183,19 @@ export class Mutator {
     }
 
     try {
-      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds);
+      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, updateOpts[embeddedName] ?? {});
     } catch (e) {
       logger.error(e);
     } 
 
     try {
-      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates);
+      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates, updateOpts[embeddedName] ?? {});
     } catch (e) {
       logger.error(e);
     }
 
     try {
-      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes);
+      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes, updateOpts[embeddedName] ?? {});
     } catch (e) {
       logger.error(e);
     }
@@ -205,29 +204,30 @@ export class Mutator {
   }
 
   /* embeddedUpdates keyed by embedded name, contains shorthand */
-  static async _updateEmbedded(owner, embeddedUpdates, comparisonKeys){
+  static async _updateEmbedded(owner, embeddedUpdates, comparisonKeys, updateOpts = {}){
 
     /* @TODO check for any recursive embeds*/
     if (embeddedUpdates?.embedded) delete embeddedUpdates.embedded;
 
     for(const embeddedName of Object.keys(embeddedUpdates ?? {})){
       await Mutator._performEmbeddedUpdates(owner, embeddedName, embeddedUpdates[embeddedName],
-        comparisonKeys[embeddedName] ?? MODULE[NAME].comparisonKey)
+        comparisonKeys[embeddedName] ?? MODULE[NAME].comparisonKey,
+        updateOpts[embeddedName] ?? {})
     }
 
   }
 
   /* updates the actor and any embedded documents of this actor */
   /* @TODO support embedded documents within embedded documents */
-  static async _updateActor(actor, updates = {}, comparisonKeys = {}) {
+  static async _updateActor(actor, updates = {}, comparisonKeys = {}, updateOpts = {}) {
 
     logger.debug('Performing update on (actor/updates)',actor, updates);
     await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
-    if (updates.actor) await actor.update(updates.actor);
+    if (updates.actor) await actor.update(updates.actor, updateOpts.actor ?? {});
 
-    await Mutator._updateEmbedded(actor, updates.embedded, comparisonKeys);
+    await Mutator._updateEmbedded(actor, updates.embedded, comparisonKeys, updateOpts.embedded = {});
 
     return;
   }
@@ -319,7 +319,7 @@ export class Mutator {
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE, {uuid: tokenDoc.uuid, updates});
 
-      if(callbacks.post) await callbacks.post(tokenDoc, updates);
+      if(callbacks.post) await callbacks.post(tokenDoc, updates, true);
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
@@ -404,23 +404,29 @@ export class Mutator {
   /* @return {Promise} */
   static async _update(tokenDoc, updates, options = {}) {
 
-    
-
     /* update the token */
-    await tokenDoc.update(updates.token ?? {});
+    await tokenDoc.update(updates.token ?? {}, options.token ?? {});
 
     /* update the actor */
-    return Mutator._updateActor(tokenDoc.actor, updates, options.comparisonKeys ?? {});
+    return Mutator._updateActor(tokenDoc.actor, updates, options.comparisonKeys ?? {}, options.updateOpts ?? {});
   }
 
   /* Will peel off the last applied mutation change from the provided token document
    * 
    * @param {TokenDocument} tokenDoc. Token document to revert the last applied mutation.
    * @param {String = undefined} mutationName. Specific mutation name to revert. optional.
+   * @param {Object} [options = {}]
+   * @param {Object} [options.updateOpts]
+   * @param {Object} [options.updateOpts.actor = {}]
+   * @param {Object} [options.updateOpts.token = {}]
+   * @param {Object} [options.updateOpts.embedded] Options for the creation/deletion/updating of embedded documents. Expects a EmbeddedName:Object key:value pair
+   * @param {Object} [options.overrides]
+   * @param {boolean} [options.overrides.alwaysAccept = false]
+   * @param {boolean} [options.overrides.suppressToast = false]
    *
    * @return {Promise<Object>} The mutation data (updates) used for this revert operation
    */
-  static async revertMutation(tokenDoc, mutationName = undefined) {
+  static async revertMutation(tokenDoc, mutationName = undefined, options = {}) {
 
     if (tokenDoc.actor.isOwner) {
 
@@ -437,7 +443,7 @@ export class Mutator {
         return mutateData;
       }
     } else {
-      RemoteMutator.remoteRevert(tokenDoc, mutationName);
+      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutationName, options});
     }
 
     return false;
