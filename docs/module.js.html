@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Adding favicon -->
+    
+
+    <!-- Adding meta -->
+    
+
+    <!-- Adding external script-->
+    
+
+    <!-- Adding external style-->
+    
+
+    <!-- Adding scripts-->
+    
+
+    <!-- Adding style-->
+    
+
+    <!-- Adding overlay script-->
+    
+
+    <!-- Adding overlay style-->
+    
+
+
+    <title>
+      module.js
+    </title>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/reset.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
+    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
+    
+    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    style="display:none">
+    <defs>
+        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
+            <g>
+                <path
+                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
+                <path
+                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
+            </g>
+        </symbol>
+        <symbol id='search-icon' viewBox="0 0 512 512">
+            <g>
+                <g>
+                    <path
+                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
+                </g>
+            </g>
+            <g>
+                <g>
+                    <path
+                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
+                </g>
+            </g>
+        </symbol>
+        <symbol id="down-icon" viewBox="0 0 16 16">
+            <path 
+                fill-rule="evenodd" 
+                clip-rule="evenodd" 
+                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
+            >
+            </path>
+        </symbol>
+    </defs>
+</svg>
+  </head>
+
+  <body>
+
+    <nav class="navbar" id="navbar">
+      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="1947364" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=9774986><div class="accordion-heading child"><a href="Crosshairs.html">Crosshairs</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="Crosshairs.html#.getTag">getTag</a></li><li data-type='method'><a href="Crosshairs.html#_drawControlIcon">_drawControlIcon</a></li><li data-type='method'><a href="Crosshairs.html#_drawRulerText">_drawRulerText</a></li><li data-type='method'><a href="Crosshairs.html#activatePreviewListeners">activatePreviewListeners</a></li><li data-type='method'><a href="Crosshairs.html#draw">draw</a></li><li data-type='method'><a href="Crosshairs.html#drawPreview">drawPreview</a></li><li data-type='method'><a href="Crosshairs.html#refresh">refresh</a></li></ul></li><li class="accordion collapsed child" id=6783232><div class="accordion-heading child"><a href="MutationStack.html">MutationStack</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="MutationStack.html#commit">commit</a></li><li data-type='method'><a href="MutationStack.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="MutationStack.html#find">find</a></li><li data-type='method'><a href="MutationStack.html#getName">getName</a></li><li data-type='method'><a href="MutationStack.html#update">update</a></li><li data-type='method'><a href="MutationStack.html#updateAll">updateAll</a></li></ul></li></ul> </div><div class="accordion collapsed" id="6698318" > <h3 class="accordion-heading">Namespaces<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=3927038><div class="accordion-heading child"><a href="warpgate.html">warpgate</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.html#.buttonDialog">buttonDialog</a></li><li data-type='method'><a href="warpgate.html#.dismiss">dismiss</a></li><li data-type='method'><a href="warpgate.html#.menu">menu</a></li><li data-type='method'><a href="warpgate.html#.mutate">mutate</a></li><li data-type='method'><a href="warpgate.html#.mutationStack">mutationStack</a></li><li data-type='method'><a href="warpgate.html#.revert">revert</a></li><li data-type='method'><a href="warpgate.html#.spawn">spawn</a></li><li data-type='method'><a href="warpgate.html#.spawnAt">spawnAt</a></li><li data-type='method'><a href="warpgate.html#.wait">wait</a></li></ul></li><li class="accordion-list" id=""><a href="warpgate.abstract.html">abstract</a></li><li class="accordion-list" id=""><a href="warpgate.CONST.html">CONST</a></li><li class="accordion collapsed child" id=7107248><div class="accordion-heading child"><a href="warpgate.crosshairs.html">crosshairs</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.crosshairs.html#.collectPlaceables">collectPlaceables</a></li><li data-type='method'><a href="warpgate.crosshairs.html#.getTag">getTag</a></li><li data-type='method'><a href="warpgate.crosshairs.html#.show">show</a></li></ul></li><li class="accordion collapsed child" id=7108048><div class="accordion-heading child"><a href="warpgate.dnd5e.html">dnd5e</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.dnd5e.html#.rollItem">rollItem</a></li></ul></li><li class="accordion-list" id=""><a href="warpgate.EVENT.html">EVENT</a></li><li class="accordion-list" id=""><a href="warpgate.event_.html">event</a></li><li class="accordion collapsed child" id=6144496><div class="accordion-heading child"><a href="warpgate.plugin.html">plugin</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.plugin.html#.queueUpdate">queueUpdate</a></li></ul></li><li class="accordion collapsed child" id=7587165><div class="accordion-heading child"><a href="warpgate.util.html">util</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.util.html#.firstGM">firstGM</a></li><li data-type='method'><a href="warpgate.util.html#.firstOwner">firstOwner</a></li><li data-type='method'><a href="warpgate.util.html#.isFirstGM">isFirstGM</a></li><li data-type='method'><a href="warpgate.util.html#.isFirstOwner">isFirstOwner</a></li></ul></li></ul> </div><div class="accordion collapsed" id="1786241" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#Delta">Delta</a></li><li class="accordion-list" id=""><a href="global.html#MutationData">MutationData</a></li><li class="accordion-list" id=""><a href="global.html#PostMutate">PostMutate</a></li></ul> </div>
+      
+
+    </nav>
+    <div class="navbar-ham" id="navbar-ham">
+      <div>
+        <div class="first"></div>
+        <div class="second"></div>
+        <div class="third"></div>
+      </div>
+    </div>
+
+    <div id="main" class="main-content">
+      
+      <h1 id='page-title' class="page-title">
+        module.js
+      </h1>
+      
+
+      
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** MIT (c) 2021 DnD5e Helpers */
+
+import {
+  logger
+} from './logger.js';
+
+const NAME = "warpgate";
+const PATH = `/modules/${NAME}`;
+
+export class MODULE {
+  static data = {
+      name: NAME,
+      path: PATH,
+      title: "Warp Gate"
+    };
+
+  static get isV10() {
+    // @ts-ignore
+    return game.release?.generation >= 10;
+  }
+
+  static async register() {
+    logger.info("Initializing Module");
+    MODULE.settings();
+  }
+
+  static async build() {
+    
+    logger.info("Module Data Built");
+  }
+
+  static setting(key) {
+    return game.settings.get(MODULE.data.name, key);
+  }
+
+  static localize(key) {
+    return game.i18n.localize(`warpgate.${key}`);
+  }
+
+  static format(key, data) {
+    return game.i18n.format(`warpgate.${key}`, data);
+  }
+
+  static canSpawn(user) {
+    const reqs = [
+      'TOKEN_CREATE',
+      'TOKEN_CONFIGURE',
+      'FILES_BROWSE',
+    ]
+
+    return MODULE.canUser(user, reqs);
+  }
+
+  static canMutate(user) {
+    const reqs = [
+      'TOKEN_CONFIGURE',
+      'FILES_BROWSE',
+    ]
+
+    return MODULE.canUser(user, reqs);
+  }
+
+  /**
+   * @return {Array&lt;String>} missing permissions for this operation
+   */
+  static canUser(user, requiredPermissions) {
+    const {role} = user;
+    const permissions = game.settings.get('core','permissions');
+    return requiredPermissions.filter( req => !permissions[req].includes(role) ).map(missing => game.i18n.localize(CONST.USER_PERMISSIONS[missing].label));
+  }
+
+  /**
+   * @returns {User|undefined} First active GM User
+   */
+  static firstGM() {
+    return game.users?.find(u => u.isGM &amp;&amp; u.active);
+  }
+
+  /**
+   * @returns {boolean} Is the current user the first active GM user?
+   */
+  static isFirstGM() {
+    return game.user?.id === MODULE.firstGM()?.id;
+  }
+
+  static emptyObject(obj){
+    // @ts-ignore
+    return MODULE.isV10 ? foundry.utils.isEmpty(obj) : isObjectEmpty(obj);
+  }
+
+  static removeEmptyObjects(obj) {
+    let result = foundry.utils.flattenObject(obj);
+    Object.keys(result).forEach( key => {
+      if(typeof result[key] == 'object' &amp;&amp; MODULE.emptyObject(result[key])) {
+        delete result[key];
+      } 
+    });
+
+    return foundry.utils.expandObject(result);
+  }
+
+  
+  /**
+   * @param {{ actor: Actor } | { document: { actor: Actor } } | Actor} doc
+   */
+  static firstOwner(doc) {
+    /* null docs could mean an empty lookup, null docs are not owned by anyone */
+    if (!doc) return false;
+
+    /* while conceptually correct, tokens derive permissions from their
+     * (synthetic) actor data.
+     */
+    const corrected = doc instanceof TokenDocument ? doc.actor :
+                      // @ts-ignore 2589
+                      doc instanceof Token ? doc.document.actor : doc;
+    
+    const ownershipPath = MODULE.isV10 ? 'ownership' : 'data.permission';
+
+    const permissionObject = getProperty(corrected ?? {}, ownershipPath) ?? {};
+
+    const playerOwners = Object.entries(permissionObject)
+      .filter(([id, level]) => (!game.users.get(id)?.isGM &amp;&amp; game.users.get(id)?.active) &amp;&amp; level === 3)
+      .map(([id, ]) => id);
+    
+    if (playerOwners.length > 0) {
+      return game.users.get(playerOwners[0]);
+    }
+
+    /* if no online player owns this actor, fall back to first GM */
+    return MODULE.firstGM();
+  }
+
+  /**
+   * Players first, then GM
+   * @returns {boolean} the current user is the first player owner. If no owning player, first GM.
+   */
+  static isFirstOwner(doc) {
+    return game.user.id === MODULE.firstOwner(doc).id;
+  }
+
+  /**
+   * @param {Number} ms Time to delay, in milliseconds
+   * @returns Promise
+   */
+  static async wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  static async waitFor(fn, maxIter = 600, iterWaitTime = 100, i = 0) {
+    const continueWait = (current, max) => {
+
+      /* negative max iter means wait forever */
+      if (maxIter &lt; 0) return true;
+
+      return current &lt; max;
+    }
+
+    while (!fn(i, ((i * iterWaitTime) / 100)) &amp;&amp; continueWait(i, maxIter)) {
+      i++;
+      await MODULE.wait(iterWaitTime);
+    }
+    return i === maxIter ? false : true;
+  }
+
+  static settings() {
+
+  }
+
+  static applySettings(settingsData) {
+    Object.entries(settingsData).forEach(([key, data]) => {
+      game.settings.register(
+        MODULE.data.name, key, {
+          name: MODULE.localize(`setting.${key}.name`),
+          hint: MODULE.localize(`setting.${key}.hint`),
+          ...data
+        }
+      );
+    });
+  }
+
+  static async getTokenData(actorNameDoc, tokenUpdates) {
+
+    let sourceActor = actorNameDoc;
+    if(typeof actorNameDoc == 'string') {
+      /* lookup by actor name */
+      sourceActor = game.actors.getName(actorNameDoc);
+    }
+
+    //get source actor
+    if (!sourceActor) {
+      logger.error(`Could not find world actor named "${actorNameDoc}" or no souce actor document provided.`);
+      return false;
+    }
+
+    //get prototoken data -- need to prepare potential wild cards for the template preview
+    let protoData = MODULE.isV10 ? (await sourceActor.getTokenDocument(tokenUpdates)) : (await sourceActor.getTokenData(tokenUpdates));
+    if (!protoData) {
+      logger.error(`Could not find proto token data for ${sourceActor.name}`);
+      return false;
+    }
+
+    return protoData;
+  }
+
+  static updateProtoToken(protoToken, changes) {
+      if ( MODULE.isV10 ) protoToken.updateSource(changes);
+      else protoToken.update(changes);
+  }
+
+  static getMouseStagePos() {
+    const mouse = canvas.app.renderer.plugins.interaction.mouse;
+    return mouse.getLocalPosition(canvas.app.stage);
+  }
+
+  static shimUpdate(updates) {
+    if(MODULE.isV10) {
+
+      updates.token = MODULE.shimClassData(TokenDocument.implementation, updates.token);
+      updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
+
+      Object.keys(updates.embedded ?? {}).forEach( (embeddedName) => {
+        const cls = CONFIG[embeddedName].documentClass;
+
+        Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
+          updates.embedded[embeddedName][shortId] = (typeof data == 'string') ? data : MODULE.shimClassData(cls, data);
+        });
+      });
+
+    }
+
+    return updates;
+  }
+
+  static shimClassData(cls, change) {
+
+    if(!change) return change;
+
+    if(MODULE.isV10 &amp;&amp; !!change &amp;&amp; !foundry.utils.isEmpty(change)) {
+      /* shim data if needed */
+      return cls.migrateData(foundry.utils.expandObject(change));
+    }
+
+    return foundry.utils.expandObject(change);
+  }
+
+  static getFeedbackSettings({alwaysAccept = false, suppressToast = false} = {}) {
+    const acceptSetting = MODULE.setting('alwaysAcceptLocal') == 0 ? 
+      MODULE.setting('alwaysAccept') :
+      {1: true, 2: false}[MODULE.setting('alwaysAcceptLocal')];
+
+    const accepted = !!alwaysAccept ? true : acceptSetting;
+
+    const suppressSetting = MODULE.setting('suppressToastLocal') == 0 ? 
+      MODULE.setting('suppressToast') :
+      {1: true, 2: false}[MODULE.setting('suppressToastLocal')];
+
+    const suppress = !!suppressToast ? true : suppressSetting;
+
+    return {alwaysAccept: accepted, suppressToast: suppress};
+
+  }
+
+  /**
+   * Collects the changes in 'other' compared to 'base'.
+   * Also includes "delete update" keys for elements in 'base' that do NOT
+   * exist in 'other'.
+   */
+  static strictUpdateDiff(base, other) {
+    /* get the changed fields */
+    const diff = foundry.utils.flattenObject(foundry.utils.diffObject(base, other, {inner: true}));
+
+    /* get any newly added fields */
+    const additions = MODULE.unique(flattenObject(base), flattenObject(other))
+
+    /* set their data to null */
+    Object.keys(additions).forEach( key => {
+      if( typeof additions[key] != 'object' ) diff[key] = null
+    });
+
+    return foundry.utils.expandObject(diff);
+  }
+
+  static unique(object, remove) {
+    // Validate input
+    const ts = getType(object);
+    const tt = getType(remove);
+    if ((ts !== "Object") || (tt !== "Object")) throw new Error("One of source or template are not Objects!");
+
+    // Define recursive filtering function
+    const _filter = function (s, t, filtered) {
+      for (let [k, v] of Object.entries(s)) {
+        let has = t.hasOwnProperty(k);
+        let x = t[k];
+
+        // Case 1 - inner object
+        if (has &amp;&amp; (getType(v) === "Object") &amp;&amp; (getType(x) === "Object")) {
+          filtered[k] = _filter(v, x, {});
+        }
+
+        // Case 2 - inner key
+        else if (!has) {
+          filtered[k] = v;
+        }
+      }
+      return filtered;
+    };
+
+    // Begin filtering at the outer-most layer
+    return _filter(object, remove, {});
+  }
+
+  /**
+   * Helper function for quickly creating a simple dialog with labeled buttons and associated data. 
+   * Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
+   *
+   * @param {Object} data 
+   * @param {Array&lt;{label: string, value:*}>} data.buttons
+   * @param {string} [data.title]
+   * @param {string} [data.content]
+   * @param {Object} [data.options]
+   *
+   * @param {string} [direction = 'row'] 'column' or 'row' accepted. Controls layout direction of dialog.
+   */
+  static async buttonDialog(data, direction = 'row') {
+    return await new Promise(async (resolve) => {
+      /** @type Object&lt;string, object> */
+      let buttons = {},
+        dialog;
+
+      data.buttons.forEach((button) => {
+        buttons[button.label] = {
+          label: button.label,
+          callback: () => resolve(button.value)
+        }
+      });
+
+      dialog = new Dialog({
+        title: data.title ?? '',
+        content: data.content ?? '',
+        buttons,
+        close: () => resolve(false)
+      }, {
+        /*width: '100%',*/
+        height: '100%',
+        ...data.options
+      });
+
+      await dialog._render(true);
+      dialog.element.find('.dialog-buttons').css({
+        'flex-direction': direction
+      });
+    });
+  }
+
+  static dialogInputs = (data) => {
+    const content = `
+      &lt;table style="width:100%">
+      ${data.map(({type, label, value, options}, i) => {
+        if (type.toLowerCase() === 'button') { return '' }
+        if (type.toLowerCase() === 'header') {
+            return `&lt;tr>&lt;td colspan = "2">&lt;h2>${label}&lt;/h2>&lt;/td>&lt;/tr>`;
+        } else if (type.toLowerCase() === 'info') {
+          return `&lt;tr>&lt;td colspan="2">${label}&lt;/td>&lt;/tr>`;
+        } else if (type.toLowerCase() === `select`) {
+          return `&lt;tr>&lt;th style="width:50%">&lt;label>${label}&lt;/label>&lt;/th>&lt;td style="width:50%">&lt;select id="${i}qd">${options.map((e) => `&lt;option value="${e}">${e}&lt;/option>`).join(``)}&lt;/td>&lt;/tr>`;
+        } else if (type.toLowerCase() == `radio`) {
+          return `&lt;tr>&lt;th style="width:50%">&lt;label>${label}&lt;/label>&lt;/th>&lt;td style="width:50%">&lt;input type="${type}" id="${i}qd" ${(options instanceof Array ? options[1] : false ?? false) ? 'checked' : ''} value="${value ?? label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/>&lt;/td>&lt;/tr>`;
+        } else if (type.toLowerCase() === `checkbox` ) {
+          return `&lt;tr>&lt;th style="width:50%">&lt;label>${label}&lt;/label>&lt;/th>&lt;td style="width:50%">&lt;input type="${type}" id="${i}qd" ${(options instanceof Array ? options[0] : options ?? false) ? 'checked' : ''} value="${value ?? label}"/>&lt;/td>&lt;/tr>`;
+        } else {
+          return `&lt;tr>&lt;th style="width:50%">&lt;label>${label}&lt;/label>&lt;/th>&lt;td style="width:50%">&lt;input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/>&lt;/td>&lt;/tr>`;
+        }
+        }).join(``)
+      } &lt;/table>`;
+
+        return content;
+  }
+    static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
+      logger.warn(`'warpgate.dialog' is deprecated and will be removed in version 2.2.0. See 'warpgate.menu' as a replacement.`);
+      data = data instanceof Array ? data : [data];
+
+      const results = await warpgate.menu({inputs: data}, {title, defaultButton: submitLabel});
+      if(results.buttons === false) return false;
+      return results.inputs;
+    }
+
+    /**
+     * Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality
+     * of `buttonDialog` as well as `dialog`
+     *
+     * @static
+     * @param {object} [data]  
+     * @param {Array&lt;{label: string, type: string, options: any|Array&lt;any>} >} [data.inputs=[]] follow the same structure as dialog
+     * @param {Array&lt;{label: string, value: any}>} [data.buttons=[]] as buttonDialog
+     * @param {object} [config] 
+     * @param {string} [config.title='Prompt'] Title of dialog
+     * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
+     * @param {function(HTMLElement) : void} [config.render=undefined]
+     * @param {Function} [config.close = (resolve) => resolve({buttons: false})]
+     * @param {object} [config.options = {}] Options passed to the Dialog constructor
+     *
+     * @return {Promise&lt;{ inputs: Array&lt;any>, buttons: any}>} Object with `inputs` containing the chosen values for each provided input,
+     *   in order, and the provided `value` of the pressed button, or `false` if closed.
+     *
+     * @example
+     * await warpgate.menu({
+     *  inputs: [{
+     *    label: 'My Way',
+     *    type: 'radio',
+     *    options: 'group1'
+     *  }, {
+     *    label: 'The Highway',
+     *    type: 'radio',
+     *    options: 'group1'
+     *  }],
+     *  buttons: [{
+     *    label: 'Yes',
+     *    value: 1
+     *  }, {
+     *    label: 'No',
+     *    value: 2
+     *  }, {
+     *    label: 'Maybe',
+     *    value: 3
+     *  }, {
+     *    label: 'Eventually',
+     *    value: 4
+     *  }]
+     * }, {
+     *  options: {
+     *    width: '100px',
+     *    height: '100%'
+     *  }
+     * })
+     *
+     */
+    static async menu({
+      inputs = [],
+      buttons = []
+    } = {}, {
+      title = 'Prompt',
+      defaultButton = 'Ok',
+      render,
+      close = (resolve) => resolve({buttons: false}),
+      options = {}
+    } = {}) {
+
+      return await new Promise((resolve) => {
+        let content = MODULE.dialogInputs(inputs);
+        /** @type Object&lt;string, object> */
+        let buttonData = {}
+
+        buttons.forEach((button) => {
+          buttonData[button.label] = {
+            label: button.label,
+            callback: (html) => {
+              const results = {
+                inputs: MODULE._innerValueParse(inputs, html),
+                buttons: button.value
+              }
+              if(button.callback instanceof Function) button.callback(results, button, html); 
+              resolve(results);
+            }
+          }
+        });
+
+        /* insert standard submit button if none provided */
+        if (buttons.length &lt; 1) {
+          buttonData = {
+            Ok: {
+              label: defaultButton,
+              callback: (html) => resolve({inputs: MODULE._innerValueParse(inputs, html), buttons: true})
+            }
+          }
+        }
+
+        new Dialog({
+          title,
+          content,
+          close: (...args) => close(resolve, ...args),
+          buttons: buttonData,
+          render,
+        }, {focus: true, ...options}).render(true);
+      });
+    }
+
+    static _innerValueParse(data, html) {
+      return Array(data.length).fill().map((e, i) => {
+        let {
+          type
+        } = data[i];
+        if (type.toLowerCase() === `select`) {
+          return html.find(`select#${i}qd`).val();
+        } else {
+          switch (type.toLowerCase()) {
+            case `text`:
+            case `password`:
+              return html.find(`input#${i}qd`)[0].value;
+            case `radio`:
+            case `checkbox`:
+              return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
+            case `number`:
+              return html.find(`input#${i}qd`)[0].valueAsNumber;
+          }
+        }
+      })
+    }
+  }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+    </div>
+
+    <footer class="footer" id="footer">
+      
+    </footer>
+
+    <script src="scripts/third-party/prettify.js"></script>
+    <script src="scripts/third-party/lang-css.js"></script>
+    <script type="text/javascript" src="scripts/misc.js"></script>
+
+    <script>prettyPrint();</script>
+    <script src="scripts/linenumber.js"></script>
+    <script src="scripts/fix-code-block.js"></script>
+    <script src="scripts/fix-navbar.js"></script>
+    
+      <script src="scripts/search.js"></script>
+      <script src="scripts/third-party/fuse.js"></script>
+      <script>
+        var list = [{"title":"Crosshairs","link":"<a href=\"Crosshairs.html\">Crosshairs</a>"},{"title":"Crosshairs.getTag","link":"<a href=\"Crosshairs.html#.getTag\">Crosshairs &rtrif; getTag</a>"},{"title":"Crosshairs#_drawControlIcon","link":"<a href=\"Crosshairs.html#_drawControlIcon\">Crosshairs &rtrif; _drawControlIcon</a>"},{"title":"Crosshairs#_drawRulerText","link":"<a href=\"Crosshairs.html#_drawRulerText\">Crosshairs &rtrif; _drawRulerText</a>"},{"title":"Crosshairs#activatePreviewListeners","link":"<a href=\"Crosshairs.html#activatePreviewListeners\">Crosshairs &rtrif; activatePreviewListeners</a>"},{"title":"Crosshairs#draw","link":"<a href=\"Crosshairs.html#draw\">Crosshairs &rtrif; draw</a>"},{"title":"Crosshairs#drawPreview","link":"<a href=\"Crosshairs.html#drawPreview\">Crosshairs &rtrif; drawPreview</a>"},{"title":"Crosshairs#refresh","link":"<a href=\"Crosshairs.html#refresh\">Crosshairs &rtrif; refresh</a>"},{"title":"MutationStack","link":"<a href=\"MutationStack.html\">MutationStack</a>"},{"title":"MutationStack#commit","link":"<a href=\"MutationStack.html#commit\">MutationStack &rtrif; commit</a>"},{"title":"MutationStack#deleteAll","link":"<a href=\"MutationStack.html#deleteAll\">MutationStack &rtrif; deleteAll</a>"},{"title":"MutationStack#find","link":"<a href=\"MutationStack.html#find\">MutationStack &rtrif; find</a>"},{"title":"MutationStack#getName","link":"<a href=\"MutationStack.html#getName\">MutationStack &rtrif; getName</a>"},{"title":"MutationStack#update","link":"<a href=\"MutationStack.html#update\">MutationStack &rtrif; update</a>"},{"title":"MutationStack#updateAll","link":"<a href=\"MutationStack.html#updateAll\">MutationStack &rtrif; updateAll</a>"},{"title":"warpgate","link":"<a href=\"warpgate.html\">warpgate</a>"},{"title":"warpgate.buttonDialog","link":"<a href=\"warpgate.html#.buttonDialog\">warpgate &rtrif; buttonDialog</a>"},{"title":"warpgate.dismiss","link":"<a href=\"warpgate.html#.dismiss\">warpgate &rtrif; dismiss</a>"},{"title":"warpgate.menu","link":"<a href=\"warpgate.html#.menu\">warpgate &rtrif; menu</a>"},{"title":"warpgate.mutate","link":"<a href=\"warpgate.html#.mutate\">warpgate &rtrif; mutate</a>"},{"title":"warpgate.mutationStack","link":"<a href=\"warpgate.html#.mutationStack\">warpgate &rtrif; mutationStack</a>"},{"title":"warpgate.revert","link":"<a href=\"warpgate.html#.revert\">warpgate &rtrif; revert</a>"},{"title":"warpgate.spawn","link":"<a href=\"warpgate.html#.spawn\">warpgate &rtrif; spawn</a>"},{"title":"warpgate.spawnAt","link":"<a href=\"warpgate.html#.spawnAt\">warpgate &rtrif; spawnAt</a>"},{"title":"warpgate.wait","link":"<a href=\"warpgate.html#.wait\">warpgate &rtrif; wait</a>"},{"title":"abstract","link":"<a href=\"warpgate.abstract.html\">abstract</a>"},{"title":"CONST","link":"<a href=\"warpgate.CONST.html\">CONST</a>"},{"title":"crosshairs","link":"<a href=\"warpgate.crosshairs.html\">crosshairs</a>"},{"title":"warpgate.crosshairs.collectPlaceables","link":"<a href=\"warpgate.crosshairs.html#.collectPlaceables\">warpgate &rtrif; crosshairs</a>"},{"title":"warpgate.crosshairs.getTag","link":"<a href=\"warpgate.crosshairs.html#.getTag\">warpgate &rtrif; crosshairs</a>"},{"title":"warpgate.crosshairs.show","link":"<a href=\"warpgate.crosshairs.html#.show\">warpgate &rtrif; crosshairs</a>"},{"title":"dnd5e","link":"<a href=\"warpgate.dnd5e.html\">dnd5e</a>"},{"title":"warpgate.dnd5e.rollItem","link":"<a href=\"warpgate.dnd5e.html#.rollItem\">warpgate &rtrif; dnd5e</a>"},{"title":"EVENT","link":"<a href=\"warpgate.EVENT.html\">EVENT</a>"},{"title":"event","link":"<a href=\"warpgate.event_.html\">event</a>"},{"title":"plugin","link":"<a href=\"warpgate.plugin.html\">plugin</a>"},{"title":"warpgate.plugin.queueUpdate","link":"<a href=\"warpgate.plugin.html#.queueUpdate\">warpgate &rtrif; plugin</a>"},{"title":"util","link":"<a href=\"warpgate.util.html\">util</a>"},{"title":"warpgate.util.firstGM","link":"<a href=\"warpgate.util.html#.firstGM\">warpgate &rtrif; util</a>"},{"title":"warpgate.util.firstOwner","link":"<a href=\"warpgate.util.html#.firstOwner\">warpgate &rtrif; util</a>"},{"title":"warpgate.util.isFirstGM","link":"<a href=\"warpgate.util.html#.isFirstGM\">warpgate &rtrif; util</a>"},{"title":"warpgate.util.isFirstOwner","link":"<a href=\"warpgate.util.html#.isFirstOwner\">warpgate &rtrif; util</a>"},{"title":"Delta","link":"<a href=\"global.html#Delta\">Delta</a>"},{"title":"MutationData","link":"<a href=\"global.html#MutationData\">MutationData</a>"},{"title":"PostMutate","link":"<a href=\"global.html#PostMutate\">PostMutate</a>"}];
+        var options = 
+          setupSearch(list, options)
+      </script>
+    
+
+    
+
+    
+
+    
+
+
+  </body>
+
+</html>

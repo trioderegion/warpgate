@@ -149,7 +149,7 @@ export class RemoteMutator {
     return Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
   }
 
-  static remoteRevert( tokenDoc, {mutationId = undefined, options = {}} ) {
+  static remoteRevert( tokenDoc, {mutationId, options = {}} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {
       logger.error(MODULE.format('error.noOwningUserRevert'));
