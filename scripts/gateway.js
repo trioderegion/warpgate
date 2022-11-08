@@ -92,6 +92,7 @@ export class Gateway {
   /**
    * Displays a circular template attached to the mouse cursor that snaps to grid centers
    * and grid intersections
+   * @function
    */ 
   static async showCrosshairs(config = {}, callbacks = {}) {
 
@@ -137,16 +138,17 @@ export class Gateway {
     return distance <= crosshairsData.radius;
   }
 
-  /*
+  /**
    * Returns desired types of placeables whose center point
    * is within the crosshairs radius.
+   * @function
    *
-   * @param crosshairsData {Object}. Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
-   * @param types {String|Array<String>} ('Token'). Collects the desired embedded placeable types.
-   * @param containedFilter {Function} (`_containsCenter`). Optional function for determining if a placeable
-   *   is contained by the crosshairs. Default function tests for centerpoint containment.
+   * @param {Object} crosshairsData Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
+   * @param {String|Array<String>} [types='Token'] Collects the desired embedded placeable types.
+   * @param {Function} [containedFilter=Gateway._containsCenter]. Optional function for determining if a placeable
+   *   is contained by the crosshairs. Default function tests for centerpoint containment. {@link Gateway._containsCenter}
    *
-   * @return {Object<embeddedName: collected>} List of collected placeables keyed by embeddedName
+   * @return {Object<String,PlaceableObject>} List of collected placeables keyed by embeddedName
    */
   static collectPlaceables( crosshairsData, types = 'Token', containedFilter = Gateway._containsCenter ) {
 

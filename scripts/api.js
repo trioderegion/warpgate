@@ -41,20 +41,17 @@ export class api {
 
   static globals() {
     /**
-     * @namespace warpgate
      * @global
+     * @namespace warpgate
      * @borrows api._spawn as spawn
      * @borrows api._spawnAt as spawnAt
      * @borrows Gateway.dismissSpawn as dismiss
      * @borrows Mutator.mutate as mutate
      * @borrows Mutator.revertMutation as revert
-     * @property {Function} mutationStack
      * @borrows MODULE.wait as wait
      * @borrows MODULE.dialog as dialog
      * @borrows MODULE.buttonDialog as buttonDialog
-     * @borrows Gateway.showCrosshairs as crosshairs.show
-     * @borrows Crosshairs.getTag as crosshairs.getTag
-     * @borrows Gateway.collectPlaceables as crosshairs.collect
+     * @borrows MODULE.menu as menu
      */
     window[MODULE.data.name] = {
       spawn : api._spawn,
@@ -62,33 +59,88 @@ export class api {
       dismiss : Gateway.dismissSpawn,
       mutate : Mutator.mutate,
       revert : Mutator.revertMutation,
+      /**
+       * Factory method for creating a new mutation stack class from
+       * the provided token document
+       *
+       * @memberof warpgate
+       * @static
+       * @param {TokenDocument} tokenDoc
+       * @returns {MutationStack}
+       */
       mutationStack : (tokenDoc) => new MutationStack(tokenDoc),
-      // TODO move these utilities to separate file
       wait : MODULE.wait,
       dialog : MODULE.dialog,
       menu: MODULE.menu,
       buttonDialog : MODULE.buttonDialog,
-      // \MOVE
+      /**
+       * Utility functions
+       * @namespace 
+       * @alias warpgate.util
+       * @borrows MODULE.firstGM as firstGM
+       * @borrows MODULE.isFirstGM as isFirstGM
+       * @borrows MODULE.firstOwner as firstOwner
+       * @borrows MODULE.isFirstOwner as isFirstOwner
+       */
       util: {
         firstGM : MODULE.firstGM,
         isFirstGM : MODULE.isFirstGM,
         firstOwner : MODULE.firstOwner,
         isFirstOwner : MODULE.isFirstOwner,
       },
+
+      /**
+       * Crosshairs API Functions
+       * @namespace 
+       * @alias warpgate.crosshairs
+       * @borrows Gateway.showCrosshairs as show
+       * @borrows Crosshairs.getTag as getTag
+       * @borrows Gateway.collectPlaceables as collectPlaceables
+       */
       crosshairs: {
         show: Gateway.showCrosshairs,
         getTag: Crosshairs.getTag,
         collect: Gateway.collectPlaceables,
       },
+      /**
+       * APIs intended for warp gate "pylons" (e.g.
+       * warp gate dependent modules)
+       * @namespace 
+       * @alias warpgate.plugin
+       */
       plugin: {
         queueUpdate
       },
+      /**
+       * System specific helpers
+       * @namespace 
+       * @alias warpgate.dnd5e
+       * @borrows Gateway._rollItemGetLevel as rollItem
+       */
       dnd5e : {
         rollItem : Gateway._rollItemGetLevel
       },
+      /**
+       * Constants and enums
+       * @namespace 
+       * @alias warpgate.CONST
+       * @property {string} DELETE
+       */
       CONST : {
         DELETE : 'delete',
       },
+      /**
+       * Event name constants
+       * @namespace
+       * @alias warpgate.EVENT
+       * @property {String} PLACEMENT
+       * @property {String} SPAWN
+       * @property {String} DISMISS
+       * @property {String} REVERT
+       * @property {String} MUTATE
+       * @property {String} MUTATE_RESPONSE
+       * @property {String} REVERT_RESPONSE
+       */
       EVENT : {
         PLACEMENT: 'wg_placement',
         SPAWN: 'wg_spawn',
@@ -98,12 +150,29 @@ export class api {
         MUTATE_RESPONSE: 'wg_response_mutate',
         REVERT_RESPONSE: 'wg_response_revert'
       },
+      /**
+       * Event system API functions
+       * @namespace 
+       * @alias warpgate.event
+       * @borrows Events.watch as watch
+       * @borrows Events.trigger as trigger
+       * @borrows Events.remove as remove
+       * @borrows Events.notifyEvent as notify
+       *
+       */
       event : {
         watch : Events.watch,
         trigger : Events.trigger,
         remove : Events.remove,
         notify : Comms.notifyEvent,
       },
+      /**
+       * Warp Gate classes suitable for extension
+       * @namespace 
+       * @alias warpgate.abstract
+       * @property {Crosshairs} Crosshairs
+       * @property {MutationStack} MutationStack
+       */
       abstract : {
         Crosshairs,
         MutationStack

@@ -15,6 +15,7 @@ export class MODULE {
     };
 
   static get isV10() {
+    // @ts-ignore
     return game.release?.generation >= 10;
   }
 
@@ -68,15 +69,22 @@ export class MODULE {
     return requiredPermissions.filter( req => !permissions[req].includes(role) ).map(missing => game.i18n.localize(CONST.USER_PERMISSIONS[missing].label));
   }
 
+  /**
+   * @returns {User|undefined} First active GM User
+   */
   static firstGM() {
-    return game.users.find(u => u.isGM && u.active);
+    return game.users?.find(u => u.isGM && u.active);
   }
 
+  /**
+   * @returns {boolean} Is the current user the first active GM user?
+   */
   static isFirstGM() {
-    return game.user.id === MODULE.firstGM()?.id;
+    return game.user?.id === MODULE.firstGM()?.id;
   }
 
   static emptyObject(obj){
+    // @ts-ignore
     return MODULE.isV10 ? foundry.utils.isEmpty(obj) : isObjectEmpty(obj);
   }
 
@@ -91,6 +99,10 @@ export class MODULE {
     return foundry.utils.expandObject(result);
   }
 
+  
+  /**
+   * @param {{ actor: Actor } | { document: { actor: Actor } } | Actor} doc
+   */
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return false;
@@ -99,11 +111,12 @@ export class MODULE {
      * (synthetic) actor data.
      */
     const corrected = doc instanceof TokenDocument ? doc.actor :
+                      // @ts-ignore 2589
                       doc instanceof Token ? doc.document.actor : doc;
     
     const ownershipPath = MODULE.isV10 ? 'ownership' : 'data.permission';
 
-    const permissionObject = getProperty(corrected, ownershipPath) ?? {};
+    const permissionObject = getProperty(corrected ?? {}, ownershipPath) ?? {};
 
     const playerOwners = Object.entries(permissionObject)
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
@@ -117,7 +130,10 @@ export class MODULE {
     return MODULE.firstGM();
   }
 
-  /* Players first, then GM */
+  /**
+   * Players first, then GM
+   * @returns {boolean} the current user is the first player owner. If no owning player, first GM.
+   */
   static isFirstOwner(doc) {
     return game.user.id === MODULE.firstOwner(doc).id;
   }
@@ -293,18 +309,21 @@ export class MODULE {
     return _filter(object, remove, {});
   }
 
-  /*
+  /**
    * Helper function for quickly creating a simple dialog with labeled buttons and associated data. 
    * Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
    *
-   * @param `data` {Array of Objects}: Contains two keys `label` and `value`. Label corresponds to the 
-   *     button's text. Value corresponds to the return value if this button is pressed. Ex. 
-   *     `const data = [{label: 'First Choice, value: {token {name: 'First'}}}, {label: 'Second Choice',
-   *         value: {token: {name: 'Second}}}]`
-   * @param `direction` {String} (optional): `'column'` or `'row'` accepted. Controls layout direction of dialog.
+   * @param {Object} data 
+   * @param {Array<{label: string, value:*}>} data.buttons
+   * @param {string} [data.title]
+   * @param {string} [data.content]
+   * @param {Object} [data.options]
+   *
+   * @param {string} [direction = 'row'] 'column' or 'row' accepted. Controls layout direction of dialog.
    */
   static async buttonDialog(data, direction = 'row') {
     return await new Promise(async (resolve) => {
+      /** @type Object<string, object> */
       let buttons = {},
         dialog;
 
@@ -316,8 +335,8 @@ export class MODULE {
       });
 
       dialog = new Dialog({
-        title: data.title,
-        content: data.content,
+        title: data.title ?? '',
+        content: data.content ?? '',
         buttons,
         close: () => resolve(false)
       }, {
@@ -369,45 +388,52 @@ export class MODULE {
      * Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality
      * of `buttonDialog` as well as `dialog`
      *
- * @static
- * @param {Object} [{inputs = [], buttons = []}={}] `inputs` follow the same structure as dialog, `buttons` follow the same structure
- *                 as buttonDialog
- * @param {Object} [{title = 'Prompt', defaultButton = 'Ok', options={}}={}] Title of dialog, default button label if no buttons provided,
- *                 and options object passed directly to the Application constructor
- * @return {Array<*>} Same as `dialog` with the chosen button value append to the end IFF the default button was not used
- * @memberof MODULE
- */
-/* MENU EXAMPLE *
-await warpgate.menu({
-  inputs: [{
-    label: 'My Way',
-    type: 'radio',
-    options: 'group1'
-  }, {
-    label: 'The Highway',
-    type: 'radio',
-    options: 'group1'
-  }],
-  buttons: [{
-    label: 'Yes',
-    value: 1
-  }, {
-    label: 'No',
-    value: 2
-  }, {
-    label: 'Maybe',
-    value: 3
-  }, {
-    label: 'Eventually',
-    value: 4
-  }]
-}, {
-  options: {
-    width: '100px',
-    height: '100%'
-  }
-})
-****************/
+     * @static
+     * @param {object} [data]  
+     * @param {Array<{label: string, type: string, options: any|Array<any>} >} [data.inputs=[]] follow the same structure as dialog
+     * @param {Array<{label: string, value: any}>} [data.buttons=[]] as buttonDialog
+     * @param {object} [config] 
+     * @param {string} [config.title='Prompt'] Title of dialog
+     * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
+     * @param {function(HTMLElement) : void} [config.render=undefined]
+     * @param {Function} [config.close = (resolve) => resolve({buttons: false})]
+     * @param {object} [config.options = {}] Options passed to the Dialog constructor
+     *
+     * @return {Promise<{ inputs: Array<any>, buttons: any}>} Object with `inputs` containing the chosen values for each provided input,
+     *   in order, and the provided `value` of the pressed button, or `false` if closed.
+     *
+     * @example
+     * await warpgate.menu({
+     *  inputs: [{
+     *    label: 'My Way',
+     *    type: 'radio',
+     *    options: 'group1'
+     *  }, {
+     *    label: 'The Highway',
+     *    type: 'radio',
+     *    options: 'group1'
+     *  }],
+     *  buttons: [{
+     *    label: 'Yes',
+     *    value: 1
+     *  }, {
+     *    label: 'No',
+     *    value: 2
+     *  }, {
+     *    label: 'Maybe',
+     *    value: 3
+     *  }, {
+     *    label: 'Eventually',
+     *    value: 4
+     *  }]
+     * }, {
+     *  options: {
+     *    width: '100px',
+     *    height: '100%'
+     *  }
+     * })
+     *
+     */
     static async menu({
       inputs = [],
       buttons = []
@@ -415,12 +441,13 @@ await warpgate.menu({
       title = 'Prompt',
       defaultButton = 'Ok',
       render,
-      close = (resolve, ...args) => resolve({buttons: false}),
+      close = (resolve) => resolve({buttons: false}),
       options = {}
     } = {}) {
 
       return await new Promise((resolve) => {
         let content = MODULE.dialogInputs(inputs);
+        /** @type Object<string, object> */
         let buttonData = {}
 
         buttons.forEach((button) => {
@@ -452,15 +479,9 @@ await warpgate.menu({
           content,
           close: (...args) => close(resolve, ...args),
           buttons: buttonData,
-          render: render ? (...args) => render(...args) : null,
+          render,
         }, {focus: true, ...options}).render(true);
       });
-    }
-
-    static _defaultButton(data) {
-      return (html) => {
-        resolve(MODULE._innerValueParse(data, html));
-      }
     }
 
     static _innerValueParse(data, html) {

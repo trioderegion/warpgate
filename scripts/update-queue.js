@@ -27,9 +27,9 @@ let updateQueues = new Map();
 
 /** 
  * Safely manages concurrent updates to the provided entity type
+ * @function warpgate.plugin.queueUpdate
  * @param {Function} updateFn   the function that handles the actual update (can be async)
  */
-
 export function queueUpdate(updateFn) {
 
   /** queue the update for this entity */
@@ -49,9 +49,11 @@ function getQueue(entity = "default"){
   /** queue the update for this entity */
   return updateQueues.get(entity);
 }
+
 /** 
  * Helper class to manage database updates that occur from
  * hooks that may fire back to back.
+ * @ignore
  */
 class UpdateQueue {
   constructor(entityType) {

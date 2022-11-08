@@ -18,12 +18,13 @@
 import { logger } from './logger.js'
 import { MODULE } from './module.js'
 
+/**
+ * @class
+ */
 export class Crosshairs extends MeasuredTemplate {
 
   //constructor(gridSize = 1, data = {}){
   constructor(config, callbacks = {}){
-    const gridDistance = MODULE.isV10 ? canvas.scene.grid?.distance
-      : canvas.scene.data.gridDistance;
      const templateData = {
       t: "circle",
       user: game.user.id,
@@ -192,7 +193,7 @@ export class Crosshairs extends MeasuredTemplate {
   /**
    * Draw the Text label used for the MeasuredTemplate
    * @return {PreciseText}
-   * @private
+   * @protected
    */
   _drawRulerText() {
     const style = CONFIG.canvasTextStyle.clone();
@@ -208,7 +209,7 @@ export class Crosshairs extends MeasuredTemplate {
   /**
    * Draw the ControlIcon for the MeasuredTemplate
    * @return {ControlIcon}
-   * @private
+   * @protected
    */
   _drawControlIcon() {
     const size = Math.max(Math.round((canvas.dimensions.size * 0.5) / 20) * 20, 40);
