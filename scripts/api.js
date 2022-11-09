@@ -17,9 +17,6 @@
 
 import { logger } from './logger.js'
 
-/**
- * @namespace
- */
 import { Gateway } from './gateway.js'
 import { Mutator } from './mutator.js'
 import { MODULE } from './module.js'
@@ -29,6 +26,81 @@ import { queueUpdate } from './update-queue.js'
 import { Crosshairs } from './crosshairs.js'
 import { MutationStack } from './mutation-stack.js'
 
+/**
+ * Pre spawn callback. After a location is chosen or provided, but before any
+ * spawning for _this iteration_ occurs. Used for modifying the spawning data prior to
+ * each spawning iteration and for potentially skipping certain iterations.
+ *
+ * @typedef {function(Object,Object,number):Promise<boolean>|boolean} PreSpawn
+ * @async
+ * @param {{x: number, y: number}} location Desired centerpoint of spawned token.
+ * @param {Object} updates Current working "updates" object, which is modified for every iteration
+ * @param {number} iteration Current iteration number (0-indexed) in the case of 'duplicates'
+ *
+ * @returns {Promise<boolean>|boolean} Indicating if the _current_ spawning iteration should continue. 
+ */
+
+/**
+ * Post spawn callback. After a the spawning and updating for _this iteration_ occurs. 
+ * Used for modifying the spawning for the next iteration, operations on the TokenDocument directly
+ * (such as animations or chat messages), and potentially aborting the spawning process entirely.
+ *
+ * @typedef {function(Object,TokenDocument,Object,number):Promise|void} PostSpawn
+ * @async
+ * @param {{x: number, y: number}} location Actual centerpoint of spawned token (affected by collision options).
+ * @param {TokenDocument} spawnedToken Resulting token created for this spawning iteration
+ * @param {Object} updates Current working "updates" object, which is modified for every iteration
+ * @param {number} iteration Current iteration number (0-indexed) in the case of 'duplicates'
+ *
+ * @returns {Promise<boolean>|boolean} Indicating if this entire spawning process should be aborted (including any remaining duplicates)
+ */
+
+/**
+ * Asynchronous callback started just prior to the crosshairs template being drawn. Is not awaited. Used for modifying
+ * how the crosshairs is displayed and for responding to its displayed position
+ *
+ * @typedef {function(Crosshairs):*} ParallelShow
+ * @async
+ * @param {Crosshairs} crosshairs The live Crosshairs instance associated with this callback
+ */
+
+/**
+ * @typedef {Object} CrosshairsConfig
+ * @property {number} [size=1]
+ * @property {string} [icon = 'icons/svg/dice-target.svg']
+ * @property {string} [label = '']
+ * @property {{x:number, y:number}} [labelOffset={x:0,y:0}]
+ * @property {*} [tag='crosshairs']
+ * @property {boolean} [drawIcon=true]
+ * @property {boolean} [drawOutline=true]
+ * @property {number} [interval=2]
+ * @property {number} [fillAlpha=0]
+ * @property {boolean} [tileTexture=false]
+ * @property {boolean} [lockSize=true]
+ * @property {boolean} [lockPosition=false]
+ * @property {boolean} [rememberControlled=false]
+ * @property {string} [texture]
+ * @property {string} [fillColor=game.user.color]
+ */
+
+/**
+ * @typedef {Object} SpawnOptions
+ * @property {ComparisonKeys} [comparisonKeys]
+ * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this spawning 
+ * @property {Actor} [controllingActor]
+ * @property {number} [duplicates=1]
+ * @property {boolean} [collision=duplicates>1]
+ */
+
+/**
+ * @typedef {SpawnOptions} PlaceSpawnOptions
+ * @property {CrosshairsConfig} [crosshairs]
+ */
+
+/**
+ * @class
+ * @private
+ */
 export class api {
 
   static register() {
@@ -43,6 +115,8 @@ export class api {
     /**
      * @global
      * @namespace warpgate
+     * @property {warpgate.CONST} CONST
+     * @property {warpgate.EVENT} EVENT
      * @borrows api._spawn as spawn
      * @borrows api._spawnAt as spawnAt
      * @borrows Gateway.dismissSpawn as dismiss
@@ -75,7 +149,7 @@ export class api {
       buttonDialog : MODULE.buttonDialog,
       /**
        * Utility functions
-       * @namespace 
+       * @namespace
        * @alias warpgate.util
        * @borrows MODULE.firstGM as firstGM
        * @borrows MODULE.isFirstGM as isFirstGM
@@ -122,26 +196,19 @@ export class api {
       },
       /**
        * Constants and enums
-       * @namespace 
        * @alias warpgate.CONST
-       * @property {string} DELETE
+       * @enum {string}
        */
       CONST : {
         DELETE : 'delete',
       },
       /**
        * Event name constants
-       * @namespace
        * @alias warpgate.EVENT
-       * @property {String} PLACEMENT
-       * @property {String} SPAWN
-       * @property {String} DISMISS
-       * @property {String} REVERT
-       * @property {String} MUTATE
-       * @property {String} MUTATE_RESPONSE
-       * @property {String} REVERT_RESPONSE
+       * @enum {string}
        */
       EVENT : {
+        /** After placement is chosen */
         PLACEMENT: 'wg_placement',
         SPAWN: 'wg_spawn',
         DISMISS: 'wg_dismiss',
@@ -181,26 +248,17 @@ export class api {
   }
 
   /** Main driver
-   * @param {String|PrototypeTokenDocument|PrototypeTokenData} spawnName
+   * @param {String|PrototypeTokenDocument} spawnName
    *
-   * @param {Object} updates - embedded document, actor, and token document updates. embedded updates use a "shorthand" notation.
+   * @param {Object} [updates] - embedded document, actor, and token document updates. embedded updates use a "shorthand" notation.
    *
-   * @param {Object} callbacks - functions to be executed at various stages of the spawning process
-   *   pre: async function(templateData, updates). Executed after placement has been decided, but before updates 
-   *       have been issued. Used for modifying the updates based on position of the placement
-   *   post: async function(templateData, spawnedTokenDoc, updates, iteration). Executed after token has be spawned and updated. 
-   *       Good for animation triggers or chat messages. Also used to change the update object for the next iteration 
-   *       in case of duplicates being spawned. Iteration is 0 indexed.
+   * @param {Object} [callbacks] The callbacks object as used by spawn and spawnAt provide a way to execute custom code during the spawning process. If the callback function modifies updates or location, it is often best to do this via `mergeObject` due to pass by reference restrictions.
+   * @param {PreSpawn} [callbacks.pre] 
+   * @param {PostSpawn} [callbacks.post] 
+   * @param {ParallelShow} [callbacks.show]
+   * @param {PlaceSpawnOptions} [options]
    *
-   * @param {Object} options
-   *   controllingActor: Actor. currently only used to minimize the sheet while placing.
-   *   duplicates: Number. Default = 1. Will spawn multiple copies of the chosen actor nearby the spawn point
-   *   collision: Boolean. Default = true if using duplicates, false otherwise. Will move spawned token to a nearby square if the chosen point is occupied
-   *       by a token or wall.
-   *   comparisonKeys: Object. string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'data.label'}
-   *
-   *
-   * @return Promise<[{String}]> list of created token ids
+   * @return {Promise<Array<String>>} list of created token ids
    */
   static async _spawn(spawnName, updates = {}, callbacks = {}, options = {}) {
     
@@ -267,6 +325,11 @@ export class api {
    *
    * @param {{x: number, y: number}} spawnLocation Centerpoint of spawned token
    * @param {TokenData|String} protoData PrototypeTokenData or the same of the world actor
+   * @param {Shorthand} [updates]
+   * @param {Object} [callbacks] see {@link warpgate.spawn}
+   * @param {PreSpawn} [callbacks.pre] 
+   * @param {PostSpawn} [callbacks.post] 
+   * @param {SpawnOptions} [options]
    *
    * @return {Promise<String[]>} list of created token ids
    *
@@ -287,7 +350,7 @@ export class api {
       protoData = await MODULE.getTokenData(protoData, updates.token ?? {});
     }
 
-    if (!protoData) return;
+    if (!protoData) return [];
 
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
@@ -319,7 +382,7 @@ export class api {
     updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData}, {overwrite: false})
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
-
+    Mutator.clean(null, options);
     for (let iteration = 0; iteration < duplicates; iteration++) {
 
       /** pre creation callback */

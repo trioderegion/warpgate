@@ -1,10 +1,13 @@
+export {}
+
+
+
 //class ClientDocument extends ClientDocumentMixin(Document<>) {
 //  get constructor(): any; 
 //}
 
 /*
 type ClientDocument = ClientDocumentMixin<foundry.abstract.Document<ConcreteDocumentData, Document<any,any>, ConcreteMetadata>>
-type Shorthand = Object<string, object>;
 
 type EmbeddedUpdateEntry = {
   collectionName: string,

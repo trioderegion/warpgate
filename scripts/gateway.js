@@ -23,6 +23,10 @@ import {Propagator} from './propagator.js'
 
 const NAME = "Gateway";
 
+/**
+ * @class
+ * @private
+ */
 export class Gateway {
 
   static register() {

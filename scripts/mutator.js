@@ -22,8 +22,25 @@ import {RemoteMutator} from './remote-mutator.js'
 const NAME = "Mutator";
 
 /**
+ * @typedef {Object} RevertOptions
+ * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
+ * @property {Object} [overrides]
+ * @property {boolean} [overrides.alwaysAccept = false]
+ * @property {boolean} [overrides.suppressToast = false]
+ */
+
+/**
+ * @typedef {RevertOptions} MutateOptions
+ * @property {boolean} [permanent=false]
+ * @property {string} [name=randomId()]
+ * @property {string} [description]
+ * @property {Object} [delta]
+ * @property {ComparisonKeys} [comparisonKeys]
+ */
+
+/**
  * The post delta creation, pre mutate callback
- * @typedef {function(Object,TokenDocument):Promise|void} Delta
+ * @typedef {function(Object,TokenDocument):Promise|void} PostDelta
  * @async
  * @param {Object} delta Computed change of the actor based on `updates`.
  * @param {TokenDocument} tokenDoc Token being modified.
@@ -259,24 +276,15 @@ export class Mutator {
    * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
    *
    * @param {TokenDocument} tokenDoc
-   * @param {Object} [updates] As `warpgate.spawn`.
+   * @param {Shorthand} [updates] As {@link warpgate.spawn}
    * @param {Object} [callbacks] Two provided callback locations: delta and post. Both are awaited.
-   * @param {Delta} [callbacks.delta] Called after the update delta has been generated, but before 
+   * @param {PostDelta} [callbacks.delta] Called after the update delta has been generated, but before 
    *  it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP 
    *  are increased by 10, but when reverted, you want to keep the extra Current HP applied. 
    *  Update the delta object with the desired HP to return to after revert, or remove it entirely.
    * @param {PostMutate} [callbacks.post] Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
    *
-   * @param {Object} [options]
-   *   comparisonKeys: {Object = {}}. string-string key-value pairs indicating which field to use for 
-   *    comparisons for each needed embeddedDocument type. Ex. From dnd5e: {'ActiveEffect' : 'label'}
-   *   permanent: {Boolean = false}. Indicates if this should be treated as a permanent change to 
-   *    the actor, which does not store the update delta information required to revert mutation.
-   *   name: {String = randomId()}. User provided name, or identifier, for this particular mutation
-   *    operation. Used for 'named revert'.
-   *   description: {String = options.name}. User provided description (message) that will be displayed 
-   *    to the owning user when/if the mutation is requested.
-   *   delta: {Object = {}}. The final change to be applied. Overrides 
+   * @param {MutateOptions} [options]
    *
    * @return {Promise<Object>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent).
    */
@@ -287,6 +295,9 @@ export class Mutator {
       logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
       return false;
     }
+
+    /* ensure that we are working with clean data */
+    await Mutator.clean(updates, options);
 
     /* providing a delta means you are managing the
      * entire data change (including mutation stack changes).
@@ -307,8 +318,6 @@ export class Mutator {
     /* ensure the options parameter has a name field if not provided */
     options.name = mutateInfo.name;
 
-    /* ensure that we are working with clean data */
-    await Mutator.clean(updates);
 
     /* expand the object to handle property paths correctly */
     updates = MODULE.shimUpdate(updates);
@@ -373,29 +382,42 @@ export class Mutator {
   /**
    * Cleans and validates mutation data
    */
-  static async clean(updates) {
+  static async clean(updates, options) {
 
-    /* ensure we are working with raw objects */
-    Mutator._cleanInner(updates);
+    if(!!updates) {
+      /* ensure we are working with raw objects */
+      Mutator._cleanInner(updates);
 
-    /* perform cleaning on shorthand embedded updates */
-    Object.values(updates.embedded ?? {}).forEach( type => Mutator._cleanInner(type));
+      /* perform cleaning on shorthand embedded updates */
+      Object.values(updates.embedded ?? {}).forEach( type => Mutator._cleanInner(type));
 
-    /* if the token is getting an image update, preload it */
-    let source;
-    if(MODULE.isV10 && 'src' in (updates.token?.texture ?? {})) {
-      source = updates.token.texture.src; 
+      /* if the token is getting an image update, preload it */
+      let source;
+      if(MODULE.isV10 && 'src' in (updates.token?.texture ?? {})) {
+        source = updates.token.texture.src; 
+      }
+      else if( !MODULE.isV10 && 'img' in (updates.token ?? {})){
+        source = updates.token.img;
+      }
+
+      /* load texture if provided */
+      try {
+        !!source ? await loadTexture(source) : null;
+      } catch (err) {
+        logger.debug(err);
+      }
     }
-    else if( !MODULE.isV10 && 'img' in (updates.token ?? {})){
-      source = updates.token.img;
+
+    if(!!options) {
+      /* insert the better ActiveEffect default ONLY IF
+       * one wasn't provided in the options object initially
+       */
+      options.comparisonKeys = foundry.utils.mergeObject(
+        options.comparisonKeys ?? {},
+        {ActiveEffect: 'label'},
+        {overwrite:false, inplace:false});
     }
 
-    /* load texture if provided */
-    try {
-      !!source ? await loadTexture(source) : null;
-    } catch (err) {
-      logger.debug(err);
-    }
   }
 
   static _mergeMutateDelta(actorDoc, delta, updates, options) {
@@ -431,14 +453,7 @@ export class Mutator {
    * 
    * @param {TokenDocument} tokenDoc Token document to revert the last applied mutation.
    * @param {String} [mutationName]. Specific mutation name to revert. optional.
-   * @param {Object} [options]
-   * @param {Object} [options.updateOpts] 
-   * @param {Object} [options.updateOpts.actor]
-   * @param {Object} [options.updateOpts.token]
-   * @param {Object<string, object>} [options.updateOpts.embedded] Options for the creation/deletion/updating of embedded documents. Keyed by embedded name 
-   * @param {Object} [options.overrides]
-   * @param {boolean} [options.overrides.alwaysAccept = false]
-   * @param {boolean} [options.overrides.suppressToast = false]
+   * @param {RevertOptions} options
    *
    * @return {Promise<MutationData>} The mutation data (updates) used for this revert operation
    */
