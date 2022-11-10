@@ -7,7 +7,7 @@
     "noEmit": true,
     "types": ["@league-of-foundry-developers/foundry-vtt-types"],
     "moduleResolution": "node",
-    "strictNullChecks": true  
+    "strictNullChecks": false
   },
   "include": ["./scripts/*", "./global.d.ts", "./types.d.ts"]
 }

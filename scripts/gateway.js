@@ -23,6 +23,19 @@ import {Propagator} from './propagator.js'
 
 const NAME = "Gateway";
 
+/** @typedef {import('./api.js').CrosshairsConfig} CrosshairsConfig */
+/** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
+
+/**
+ * Asynchronous callback started just prior to the crosshairs template being drawn. Is not awaited. Used for modifying
+ * how the crosshairs is displayed and for responding to its displayed position
+ *
+ * @typedef {function(Crosshairs):void} ParallelShow
+ * @async
+ * @param {Crosshairs} crosshairs The live Crosshairs instance associated with this callback
+ */
+
+
 /**
  * @class
  * @private
@@ -50,6 +63,10 @@ export class Gateway {
 
   static defaults() {
     MODULE[NAME] = {
+      /** 
+       * type {CrosshairsConfig}
+       * @const
+       */
       get crosshairsConfig() {
         return {
           size: 1,
@@ -95,8 +112,20 @@ export class Gateway {
 
   /**
    * Displays a circular template attached to the mouse cursor that snaps to grid centers
-   * and grid intersections
-   * @function
+   * and grid intersections.
+   *
+   * Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll.
+   * Resulting data indicates the final position and size of the template. Note: Shift+Scroll
+   * will increase/decrease the size of the crosshairs outline, which increases or decreases
+   * the size of the token spawned, independent of other modifications.
+   * 
+   * @param {CrosshairsConfig} [config] Configuration settings for how the crosshairs template should be displayed. 
+   * @param {Object} [callbacks] Functions executed at certain stages of the crosshair display process.
+   * @param {ParallelShow} [callbacks.show]
+   *
+   * @returns {Promise<CrosshairsData>} All fields contained by `MeasuredTemplateDocument#toObject`. Notably `x`, `y`, 
+   * `width` (in pixels), and the addition of `size` (final size, in grid units, e.g. "2" for a final diameter of 2 squares).
+   *
    */ 
   static async showCrosshairs(config = {}, callbacks = {}) {
 
@@ -222,7 +251,12 @@ export class Gateway {
     return;
   }
 
-  /* returns promise of token creation */
+  /**
+   * returns promise of token creation
+   * @param {PrototypeTokenDocument} protoToken
+   * @param {{ x: number, y: number }} spawnPoint
+   * @param {boolean} collision
+   */
   static async _spawnTokenAtLocation(protoToken, spawnPoint, collision) {
 
     // Increase this offset for larger summons

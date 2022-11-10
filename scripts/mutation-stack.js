@@ -34,11 +34,21 @@ import {
  * @property {{actor:?object,token:?object,embedded:?object}} delta
  * @property {string} user
  * @property {Object<string, string>} comparisonKeys
+ * @property {Shorthand} updateOpts
  * @property {string} name
  */
 
 /**
- * @class
+ * The following class and its utility methods allows safer and more direct modification of the mutation stack,
+ * which is stored on a token's actor. This mutation stack stores the information needed to _revert_ the changes
+ * made by a mutation. This could be used, for example, to deal with rollover damage where the hit point value
+ * being reverted to is lower than when the mutation was first applied.
+ * 
+ * Searching and querying a given mutation is a quick, read-only process. When the mutation stack is modified 
+ * via one of its class methods, the actor's mutation data at that point in time will be copied for fast, local updates.
+ *
+ * No changes will be made to the actor's serialized data until the changes have been commited ({@link MutationStack#commit}).
+ * The MutationStack object will then be locked back into a read-only state sourced with this newly updated data.
  */
 export class MutationStack {
   constructor(tokenDoc) {
@@ -55,8 +65,8 @@ export class MutationStack {
   }
 
   /**
-   * private copy of the working stack
-   * @type Array<MutationData>
+   * Private copy of the working stack (mutable)
+   * @type {Array<MutationData>}
    */
   #stack = [];
 
@@ -64,13 +74,19 @@ export class MutationStack {
   #locked = true;
 
   /**
-   * @returns {Array}
+   * Current stack, according to the remote server (immutable)
+   * @const
+   * @type {Array<MutationData>}
    */
   get #liveStack() {
     // @ts-ignore
     return this.actor?.getFlag(MODULE.data.name, 'mutate') ?? [] 
   }
 
+  /** 
+   * Mutation stack according to its lock state.
+   * @type {Array<MutationData>} 
+   */
   get stack() {
     return this.#locked ? this.#liveStack : this.#stack ;
   }
@@ -78,11 +94,9 @@ export class MutationStack {
   /**
    * Searches for an element of the mutation stack that satisfies the provided predicate
    *
-   * @param {function(any):boolean} predicate Receives the argments of {@link Array.find} and returns a Boolean indicating if the current
-   *                             element satisfies the predicate condition
+   * @param {function(MutationData, ...any):boolean} predicate Receives the argments of `Array.prototype.find` 
+   *  and should return a boolean indicating if the current element satisfies the predicate condition
    * @return {MutationData|undefined} Element of the mutation stack that matches the predicate, or undefined if none.
-   * @memberof MutationStack
-   * @see Array.find
    */
   find(predicate) {
     if (this.#locked) return this.#liveStack.find(predicate);
@@ -97,7 +111,6 @@ export class MutationStack {
    * @param {function(any):boolean} predicate Receives the argments of {@link Array.findIndex} and returns a Boolean indicating if the current
    *                             element satisfies the predicate condition
    * @return {Number} Index of the element of the mutation stack that matches the predicate, or undefined if none.
-   * @memberof MutationStack
    */
   #findIndex( predicate ) {
 
@@ -111,17 +124,15 @@ export class MutationStack {
    *
    * @param {String} name Name of mutation (serves as a unique identifier)
    * @return {MutationData|undefined} Element of the mutation stack matching the provided name, or undefined if none
-   * @memberof MutationStack
    */
   getName(name) {
     return this.find((element) => element.name === name);
   }
 
   /**
-   * Retrieves that last mutation added to the mutation stack, or undefined if none present
-   *
-   * @return {MutationData} Newest element of the mutation stack
-   * @memberof MutationStack
+   * Retrieves that last mutation added to the mutation stack (i.e. the "newest"), 
+   * or undefined if none present
+   * @type {MutationData}
    */
   get last() {
     return this.stack[this.stack.length - 1];
@@ -129,19 +140,18 @@ export class MutationStack {
 
   /**
    * Updates the mutation matching the provided name with the provided mutation info.
-   * The mutation info can be a subset of the full object iff overwrite is false.
+   * The mutation info can be a subset of the full object if (and only if) overwrite is false.
    *
    * @param {string} name name of mutation to update
-   * @param {MutationData} mutationInfo new information, can include 'name'.
-   * @param {object} [options]
+   * @param {MutationData} data New information, can include 'name'.
+   * @param {object} options
    * @param {boolean} [options.overwrite = false] default will merge the provided info
    *            with the current values. True will replace the entire entry and requires
    *            at least the 'name' field.
    *  
    * @return {MutationStack} self, unlocked for writing and updates staged if update successful
-   * @memberof MutationStack
    */
-  update(name, mutationInfo, {
+  update(name, data, {
     overwrite = false
   }) {
     const index = this.#findIndex((element) => element.name === name);
@@ -155,19 +165,19 @@ export class MutationStack {
     if (overwrite) {
 
       /* we need at LEAST a name to identify by */
-      if (!mutationInfo.name) {
+      if (!data.name) {
         logger.error(MODULE.localize('error.incompleteMutateInfo'));
         this.#locked=true; 
         return this;
       }
 
       /* if no user is provided, input current user. */
-      if (!mutationInfo.user) mutationInfo.user = game.user.id;
-      this.#stack[index] = mutationInfo;
+      if (!data.user) data.user = game.user.id;
+      this.#stack[index] = data;
 
     } else {
       /* incomplete mutations are fine with merging */
-      mergeObject(this.#stack[index], mutationInfo);
+      mergeObject(this.#stack[index], data);
     }
 
     return this;
@@ -178,10 +188,9 @@ export class MutationStack {
    * unlocking if needed.
    *
    * @param {MutationData|function(MutationData) : MutationData} transform Object to merge or function to generate an object to merge.
-   * @param {function(MutationData):boolean} filterFn [() => true] Optional function returning a boolean indicating if this
+   * @param {function(MutationData):boolean} [filterFn = () => true] Optional function returning a boolean indicating if this
    *                   element should be modified. By default, affects all elements of the mutation stack.
    * @return {MutationStack} self, unlocked for writing and updates staged.
-   * @memberof MutationStack
    */
   updateAll(transform, filterFn = () => true) {
 
@@ -210,10 +219,9 @@ export class MutationStack {
    * Deletes all mutations from this actor's stack, effectively making
    * the current changes permanent.
    *
-   * @param {function(MutationData):boolean} filterFn [() => true] Optional function returning a boolean indicating if this
+   * @param {function(MutationData):boolean} [filterFn = () => true] Optional function returning a boolean indicating if this
    *                   element should be delete. By default, deletes all elements of the mutation stack.
    * @return {MutationStack} self, unlocked for writing and updates staged.
-   * @memberof MutationStack
    */
   deleteAll(filterFn = () => true) {
     this.#unlock();
@@ -227,7 +235,6 @@ export class MutationStack {
    * Updates the owning actor with the mutation stack changes made. Will not commit a locked buffer.
    *
    * @return {Promise<MutationStack>} self, locked for writing
-   * @memberof MutationStack
    */
   async commit() {
 
@@ -254,7 +261,6 @@ export class MutationStack {
    * Unlocks the current buffer for writing by copying the mutation stack into this object.
    *
    * @return {boolean} Indicates if the unlock occured. False indicates the buffer was already unlocked.
-   * @memberof MutationStack
    */
   #unlock() {
 

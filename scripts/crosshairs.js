@@ -19,6 +19,14 @@ import { logger } from './logger.js'
 import { MODULE } from './module.js'
 
 /**
+ * @typedef {ParentData} CrosshairsData
+ * @prop {boolean} cancelled Workflow cancelled via right click (true)
+ * @prop {Scene} scene Scene on this crosshairs was last active
+ * @prop {number} radius Final radius of template, in pixels
+ * @prop {number} size Final diameter of template, in grid units
+ */
+
+/**
  * @class
  */
 export class Crosshairs extends MeasuredTemplate {
@@ -40,52 +48,53 @@ export class Crosshairs extends MeasuredTemplate {
     super(template);
 
     /** @TODO all of these fields should be part of the source data schema for this class **/
-    /* image path to display in the center (under mouse cursor) */
+    /**  image path to display in the center (under mouse cursor) */
     this.icon = config.icon ?? Crosshairs.ERROR_TEXTURE;
 
-    /* text to display below crosshairs' circle */
+    /** text to display below crosshairs' circle */
     this.label = config.label;
 
-    /* Offsets the default position of the label (in pixels) */
+    /** Offsets the default position of the label (in pixels) */
     this.labelOffset = config.labelOffset;
 
-    /* Arbitrary field used to identify this instance
+    /**
+     * Arbitrary field used to identify this instance
      * of a Crosshairs in the canvas.templates.preview
      * list
      */
     this.tag = config.tag;
 
-    /* Should the center icon be shown? */
+    /** Should the center icon be shown? */
     this.drawIcon = config.drawIcon;
 
-    /* Should the outer circle be shown? */
+    /** Should the outer circle be shown? */
     this.drawOutline = config.drawOutline;
 
-    /* Opacity of the fill color */
+    /** Opacity of the fill color */
     this.fillAlpha = config.fillAlpha;
 
-    /* Should the texture (if any) be tiled
+    /** Should the texture (if any) be tiled
      * or scaled and offset? */
     this.tileTexture = config.tileTexture;
 
-    /* locks the size of crosshairs (shift+scroll) */
+    /** locks the size of crosshairs (shift+scroll) */
     this.lockSize = config.lockSize;
 
-    /* locks the position of crosshairs */
+    /** locks the position of crosshairs */
     this.lockPosition = config.lockPosition;
 
-    /* Number of quantization steps along
+    /** Number of quantization steps along
      * a square's edge (N+1 snap points 
      * along each edge, conting endpoints)
      */
     this.interval = config.interval;
 
-    /* Callback functions to execute
+    /** Callback functions to execute
      * at particular times
      */
     this.callbacks = callbacks;
 
-    /* Indicates if the user is actively 
+    /** Indicates if the user is actively 
      * placing the crosshairs.
      * Setting this to true in the show
      * callback will stop execution
@@ -94,23 +103,29 @@ export class Crosshairs extends MeasuredTemplate {
      */
     this.inFlight = false;
 
-    /* indicates if the placement of
+    /** indicates if the placement of
      * crosshairs was canceled (with
      * a right click)
      */
     this.cancelled = true;
 
-    /* current radius in pixels */
+    /** @type {number} current radius in pixels */
     this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance)
       * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid);
   }
 
+  /**
+   * @returns {CrosshairsData} Current Crosshairs class data
+   */
   toObject() {
-    const data = this.document.toObject();
-    data.cancelled = this.cancelled;
-    data.scene = this.scene;
-    data.radius = this.radius;
-    data.size = data.distance;
+
+    /** @type {CrosshairsData} */
+    const data = foundry.utils.mergeObject(this.document.toObject(), {
+      cancelled: this.cancelled,
+      scene: this.scene,
+      radius: this.radius,
+      size: this.data.distance,
+    });
 
     return data;
   }
@@ -119,7 +134,7 @@ export class Crosshairs extends MeasuredTemplate {
 
   /**
    * @param {string} key Crosshairs identifier
-   * @returns {DisplayObject|undefined}
+   * @returns {PIXI.DisplayObject|undefined}
    */
   static getTag(key) {
     return canvas.templates.preview.children.find( child => child.tag === key )

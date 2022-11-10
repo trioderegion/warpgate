@@ -1,3 +1,4 @@
+
 /* 
  * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
  * Copyright (c) 2021 Matthew Haentschke.
@@ -25,6 +26,24 @@ import { Events } from './events.js'
 import { queueUpdate } from './update-queue.js'
 import { Crosshairs } from './crosshairs.js'
 import { MutationStack } from './mutation-stack.js'
+
+/**
+ * string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. 
+ * @typedef {Object<string,string>} ComparisonKeys 
+ * @example
+ * const comparisonKeys = {
+ *  ActiveEffect: 'label',
+ *  Item: 'name'
+ * }
+ */
+
+/**
+ * Common 'shorthand' notation describing arbitrary data related to a spawn/mutate/revert process.
+ * @typedef {Object} Shorthand
+ * @prop {object} [token] Data related to the workflow TokenDocument.
+ * @prop {object} [actor] Data related to the workflow Actor.
+ * @prop {Object<string, object|string>} [embedded] Keyed by embedded document class name (e.g. `"Item"` or `"ActiveEffect"`)
+ */
 
 /**
  * Pre spawn callback. After a location is chosen or provided, but before any
@@ -55,14 +74,6 @@ import { MutationStack } from './mutation-stack.js'
  * @returns {Promise<boolean>|boolean} Indicating if this entire spawning process should be aborted (including any remaining duplicates)
  */
 
-/**
- * Asynchronous callback started just prior to the crosshairs template being drawn. Is not awaited. Used for modifying
- * how the crosshairs is displayed and for responding to its displayed position
- *
- * @typedef {function(Crosshairs):*} ParallelShow
- * @async
- * @param {Crosshairs} crosshairs The live Crosshairs instance associated with this callback
- */
 
 /**
  * @typedef {Object} CrosshairsConfig
@@ -84,18 +95,22 @@ import { MutationStack } from './mutation-stack.js'
  */
 
 /**
- * @typedef {Object} SpawnOptions
- * @property {ComparisonKeys} [comparisonKeys]
+ * @typedef {Object} SpawningOptions
+ * @property {ComparisonKeys} [comparisonKeys] Data paths relative to root document data used for comparisons of embedded
+ *  shorthand identifiers
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this spawning 
- * @property {Actor} [controllingActor]
- * @property {number} [duplicates=1]
- * @property {boolean} [collision=duplicates>1]
+ * @property {Actor} [controllingActor] will minimize this actor's open sheet (if any) for a clearer view of the canvas 
+ *  during placement. Also flags the created token with this actor's id. Default `null`
+ * @property {number} [duplicates=1] will spawn multiple tokens from a single placement. See also {@link SpawningOptions.collision}
+ * @property {boolean} [collision=duplicates>1] controls whether the placement of a token collides with any other token 
+ *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
+ *  than 1, default is `true`; otherwise `false`.
  */
 
-/**
- * @typedef {SpawnOptions} PlaceSpawnOptions
- * @property {CrosshairsConfig} [crosshairs]
- */
+ /**
+  * @typedef {SpawningOptions} WarpOptions
+  * @prop {CrosshairsConfig} [crosshairs] A crosshairs configuration object to be used for this spawning process
+  */
 
 /**
  * @class
@@ -140,7 +155,9 @@ export class api {
        * @memberof warpgate
        * @static
        * @param {TokenDocument} tokenDoc
-       * @returns {MutationStack}
+       * @return {MutationStack} Locked instance of a token actor's mutation stack.
+       *
+       * @see {@link MutationStack}
        */
       mutationStack : (tokenDoc) => new MutationStack(tokenDoc),
       wait : MODULE.wait,
@@ -247,16 +264,26 @@ export class api {
     }
   }
 
-  /** Main driver
-   * @param {String|PrototypeTokenDocument} spawnName
+  /** 
    *
-   * @param {Object} [updates] - embedded document, actor, and token document updates. embedded updates use a "shorthand" notation.
+   * The primary function of Warp Gate. When executed, it will create a custom MeasuredTemplate
+   * that is used to place the spawned token and handle any customizations provided in the `updates` 
+   * object. `warpgate#spawn` will return a Promise that can be awaited, which can be used in loops 
+   * to spawn multiple tokens, one after another (or use the `duplicates` options). The player spawning
+   * the token will also be given Owner permissions for that specific token actor. 
+   * This means that players can spawn any creature available in the world.
    *
-   * @param {Object} [callbacks] The callbacks object as used by spawn and spawnAt provide a way to execute custom code during the spawning process. If the callback function modifies updates or location, it is often best to do this via `mergeObject` due to pass by reference restrictions.
+   * @param {String|PrototypeTokenDocument} spawnName Name of actor to spawn or the actual TokenData 
+   *  that should be used for spawning.
+   * @param {Shorthand} [updates] - embedded document, actor, and token document updates. embedded updates use 
+   *  a "shorthand" notation.
+   * @param {Object} [callbacks] The callbacks object as used by spawn and spawnAt provide a way to execute custom 
+   *  code during the spawning process. If the callback function modifies updates or location, it is often best 
+   *  to do this via `mergeObject` due to pass by reference restrictions.
    * @param {PreSpawn} [callbacks.pre] 
    * @param {PostSpawn} [callbacks.post] 
    * @param {ParallelShow} [callbacks.show]
-   * @param {PlaceSpawnOptions} [options]
+   * @param {WarpOptions | SpawningOptions} [options]
    *
    * @return {Promise<Array<String>>} list of created token ids
    */
@@ -312,26 +339,17 @@ export class api {
   }
 
   /**
-   * Places a token with provided default protodata at location
-   * When using duplicates, a default protodata will be obtained
-   * each iteration with all token updates applied.
-   *
-   * core spawning logic:
-   * 0) execute user's pre()
-   * 1) Spawn actor with updated prototoken data 
-   * 2) Update actor with actor and item changes
-   * 3) execute user's post()
-   * 4) if more duplicates, get fresh proto data and update it, goto 1
+   * An alternate, more module friendly spawning function. Will create a token from the provided token data and updates at the designated location. 
    *
    * @param {{x: number, y: number}} spawnLocation Centerpoint of spawned token
-   * @param {TokenData|String} protoData PrototypeTokenData or the same of the world actor
-   * @param {Shorthand} [updates]
+   * @param {String|PrototypeTokenData|TokenData|PrototypeTokenDocument} protoData Any token data or the name of a world-actor. Serves as the base data for all operations.
+   * @param {Shorthand} [updates] As {@link warpgate.spawn}
    * @param {Object} [callbacks] see {@link warpgate.spawn}
    * @param {PreSpawn} [callbacks.pre] 
    * @param {PostSpawn} [callbacks.post] 
-   * @param {SpawnOptions} [options]
+   * @param {SpawningOptions} [options] Modifies behavior of the spawning process.
    *
-   * @return {Promise<String[]>} list of created token ids
+   * @return {Promise<Array<string>>} list of created token ids
    *
    */
   static async _spawnAt(spawnLocation, protoData, updates = {}, callbacks = {}, options = {}) {
@@ -406,6 +424,7 @@ export class api {
 
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
 
+      /** @type TokenDocument */
       const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];

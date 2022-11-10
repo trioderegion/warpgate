@@ -21,39 +21,53 @@ import {RemoteMutator} from './remote-mutator.js'
 
 const NAME = "Mutator";
 
+/** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
+/** @typedef {import('./mutation-stack.js').MutationData} MutationData */
+
 /**
- * @typedef {Object} RevertOptions
+ * @typedef {Object} WorkflowOptions
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
+ * @property {string} [description] Description of this mutation for potential display to the remote owning user.
  * @property {Object} [overrides]
  * @property {boolean} [overrides.alwaysAccept = false]
  * @property {boolean} [overrides.suppressToast = false]
+ *
  */
 
 /**
- * @typedef {RevertOptions} MutateOptions
- * @property {boolean} [permanent=false]
- * @property {string} [name=randomId()]
- * @property {string} [description]
+ * @typedef {WorkflowOptions} MutationOptions
+ * @property {boolean} [permanent=false] Indicates if this should be treated as a permanent change
+ *  to the actor, which does not store the update delta information required to revert mutation.
+ * @property {string} [name=randomId()] User provided name, or identifier, for this particular
+ *  mutation operation. Used for reverting mutations by name, as opposed to popping last applied.
+ * 
  * @property {Object} [delta]
  * @property {ComparisonKeys} [comparisonKeys]
  */
 
 /**
- * The post delta creation, pre mutate callback
- * @typedef {function(Object,TokenDocument):Promise|void} PostDelta
+ * The post delta creation, pre mutate callback. Called after the update delta has been generated, but before 
+ * it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP are
+ * increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object
+ * with the desired HP to return to after revert, or remove it entirely.
+ *
+ * @typedef {function(Shorthand,TokenDocument):Promise|void} PostDelta
  * @async
- * @param {Object} delta Computed change of the actor based on `updates`.
+ * @param {Shorthand} delta Computed change of the actor based on `updates`. Used to "unroll" this mutation when reverted.
  * @param {TokenDocument} tokenDoc Token being modified.
  *
  * @returns Promise
  */
 
 /**
- * The post mutate callback prototype
+ * The post mutate callback prototype. Called after the actor has been mutated and after the mutate event
+ * has triggered. Useful for animations or changes that should not be tracked by the mutation system.
+ *
  * @typedef {function(TokenDocument, Object):Promise|void} PostMutate
  * @async
  * @param {TokenDocument} tokenDoc Token that has been modified.
- * @param {Object} updates See parent `updates` parameter.
+ * @param {Shorthand} updates Current permuatation of the original shorthand updates object provided, as
+ *  applied for this mutation
  *
  * @returns Promise
  */
@@ -273,20 +287,19 @@ export class Mutator {
 
   
    /**
-   * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating the same token multiple times will "stack" the delta changes, allowing the user to remove them one-by-one in opposite order of application (last in, first out).
+   * Given an update argument identical to `warpgate.spawn` and a token document, will apply the changes listed
+   * in the updates and (by default) store the change delta, which allows these updates to be reverted.  Mutating 
+   * the same token multiple times will "stack" the delta changes, allowing the user to remove them as desired,
+   * while preserving changes made "higher" in the stack.
    *
-   * @param {TokenDocument} tokenDoc
+   * @param {TokenDocument} tokenDoc Token document to update, does not accept Token Placeable.
    * @param {Shorthand} [updates] As {@link warpgate.spawn}
    * @param {Object} [callbacks] Two provided callback locations: delta and post. Both are awaited.
-   * @param {PostDelta} [callbacks.delta] Called after the update delta has been generated, but before 
-   *  it is stored on the actor. Can be used to modify this delta for storage (ex. Current and Max HP 
-   *  are increased by 10, but when reverted, you want to keep the extra Current HP applied. 
-   *  Update the delta object with the desired HP to return to after revert, or remove it entirely.
-   * @param {PostMutate} [callbacks.post] Called after the actor has been mutated and after the mutate event has triggered. Useful for animations or changes that should not be tracked by the mutation system.
+   * @param {PostDelta} [callbacks.delta] 
+   * @param {PostMutate} [callbacks.post] 
+   * @param {WorkflowOptions & MutationOptions} [options]
    *
-   * @param {MutateOptions} [options]
-   *
-   * @return {Promise<Object>} The mutation information produced by the provided updates, if they are tracked (i.e. not permanent).
+   * @return {Promise<MutationData|false>} The mutation stack entry produced by this mutation, if they are tracked (i.e. not permanent).
    */
   static async mutate(tokenDoc, updates = {}, callbacks = {}, options = {}) {
     
@@ -453,7 +466,7 @@ export class Mutator {
    * 
    * @param {TokenDocument} tokenDoc Token document to revert the last applied mutation.
    * @param {String} [mutationName]. Specific mutation name to revert. optional.
-   * @param {RevertOptions} options
+   * @param {WorkflowOptions} [options]
    *
    * @return {Promise<MutationData>} The mutation data (updates) used for this revert operation
    */

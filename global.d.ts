@@ -19,10 +19,8 @@ declare global {
   }
 
 
-  /**
-   *
-   */
-  type ComparisonKeys = Record<string,string>;
+  type ParentData = ReturnType<MeasuredTemplateDocument['toObject']>
+  
 
 }
 
