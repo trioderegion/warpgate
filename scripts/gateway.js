@@ -60,7 +60,7 @@ export class Gateway {
         scope: "world", config, default: false, type: Boolean,
       },
       updateDelay : {
-        scope: "client", config, default: 20, type: Number
+        scope: "client", config, default: 0, type: Number
       }
     };
 
