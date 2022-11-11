@@ -13,6 +13,7 @@ Warp Gate is a system-agnostic library module for Foundry VTT that provides a gr
 - [API Documentation](https://trioderegion.github.io/warpgate/warpgate.html)
 - [Common Types and Arguments](https://trioderegion.github.io/warpgate/global.html)
 - [MutationStack Utility Class](https://trioderegion.github.io/warpgate/MutationStack.html)
+- [Releases and Changelogs](https://github.com/trioderegion/warpgate/releases)
 
 ## Special Thanks
 * siliconsaint for the inspiration to turn a set of absurd macros into something usable and constantly pushing the envelope.
