@@ -187,7 +187,7 @@ export class RemoteMutator {
         accepted,
         tokenId: payload.tokenId,
         mutationId: payload.options.name,
-        updates: payload.updates
+        options: payload.options,
       }
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE_RESPONSE, responseData);

@@ -1,9 +1,6 @@
 import {
   logger
 } from './logger.js'
-import {
-  queueUpdate
-} from './update-queue.js'
 
 const NAME = 'Events';
 
@@ -25,6 +22,19 @@ Array.prototype.removeIf = function (callback) {
 
 export class Events {
 
+  /**
+   * Similar in operation to `Hooks.on`, with two exceptions. First, the provided function 
+   * can be asynchronous and will be awaited. Second, an optional `conditionFn` parameter 
+   * is added to help comparmentalize logic between detecting the desired event and responding to said event.
+   *
+   * @param {String} name Event name to watch for; It is recommended to use the enums found in {@link warpgate.EVENT}
+   * @param {function(object):Promise|void} fn Function to execute when this event has passed the condition function. Will be awaited
+   * @param {function(object):boolean} [condition = ()=>true] Optional. Function to determine if the event function should 
+   *  be executed. While not strictly required, as the `fn` function could simply return as a NOOP, providing this 
+   *  parameter may help comparmentalize "detection" vs "action" processing.
+   *
+   * @returns {number} Function id assigned to this event, for use with {@link warpgate.event.remove}
+   */
   static watch(name, fn, condition = () => {
     return true;
   }) {
@@ -38,6 +48,11 @@ export class Events {
     return id;
   }
 
+  /**
+   * Identical to {@link warpgate.event.watch}, except that this function will only be called once, after the condition is met.
+   *
+   * @see {@link warpgate.event.watch}
+   */
   static trigger(name, fn, condition = () => {
     return true;
   }) {
@@ -50,6 +65,7 @@ export class Events {
     });
     return id;
   }
+
 
   static async run(name, data) {
     for (const {
@@ -83,7 +99,7 @@ export class Events {
           acum.keep.push(elem);
         }
       } catch (e) {
-        logger.error(`${NAME} | error`, e, `\n \nIn trigger condition function (${name})\n`, fn);
+        logger.error(`${NAME} | error`, e, `\n \nIn trigger condition function (${name})\n`, elem.condition);
         return acum;
       } finally {
         return acum;
@@ -108,6 +124,14 @@ export class Events {
     triggers[name] = keep;
   }
 
+  /**
+   * Removes a `watch` or `trigger` by its provided id -- obtained by the return value of `watch` and `trigger`.
+   *
+   * @param {number} id Numerical ID of the event function to remove.
+   *
+   * @see warpgate.event.watch
+   * @see warpgate.event.trigger
+   */
   static remove(id) {
     const searchFn = (elem) => {
       return elem.id === id

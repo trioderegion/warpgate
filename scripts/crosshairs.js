@@ -18,8 +18,12 @@
 import { logger } from './logger.js'
 import { MODULE } from './module.js'
 
+/** @typedef {import('@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/measuredTemplateData.js').MeasuredTemplateDataProperties} MeasuredTemplateProperties */
+
 /**
- * @typedef {ParentData} CrosshairsData
+ * Contains all fields from `MeasuredTemplate#toObject`, plus the following.
+ * 
+ * @typedef {MeasuredTemplateProperties} CrosshairsData
  * @prop {boolean} cancelled Workflow cancelled via right click (true)
  * @prop {Scene} scene Scene on this crosshairs was last active
  * @prop {number} radius Final radius of template, in pixels
@@ -109,7 +113,7 @@ export class Crosshairs extends MeasuredTemplate {
      */
     this.cancelled = true;
 
-    /** @type {number} current radius in pixels */
+    /** @type {number} */
     this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance)
       * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid);
   }
@@ -133,7 +137,8 @@ export class Crosshairs extends MeasuredTemplate {
   static ERROR_TEXTURE = 'icons/svg/hazard.svg'
 
   /**
-   * @param {string} key Crosshairs identifier
+   * Will retrieve the active crosshairs instance with the defined tag identifier.
+   * @param {string} key Crosshairs identifier. Will be compared against the Crosshairs `tag` field for strict equality.
    * @returns {PIXI.DisplayObject|undefined}
    */
   static getTag(key) {

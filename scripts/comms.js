@@ -22,6 +22,8 @@ import { Events } from './events.js'
 import { RemoteMutator } from './remote-mutator.js'
 import {queueUpdate} from './update-queue.js'
 
+
+
 const ops = {
   DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId
   EVENT : "event", //name, ...payload
@@ -74,7 +76,7 @@ export class Comms {
       }
     });
 
-    return;
+    return socketData;
   }
 
   static _emit(socketData) {
@@ -91,21 +93,6 @@ export class Comms {
       payload : { tokenId, sceneId, userId: game.user.id }
     }
     
-    return Comms._emit(data);
-  }
-
-  static notifyEvent(name, payload, onBehalf = game.user.id) {
-    /** insert common fields */
-    payload.sceneId = canvas.scene.id;
-    payload.userId = onBehalf;
-
-    /* craft the socket data */
-    const data = {
-      op : ops.EVENT,
-      eventName: name,
-      payload
-    }
-
     return Comms._emit(data);
   }
 
@@ -163,7 +150,23 @@ export class Comms {
     return actorData;
   }
 
-  static notifyEvent(name, payload, onBehalf = game.user.id) {
+  /**
+   * Allow custom events to be fired using the Warp Gate event system. Is broadcast to all users, including the initiator. 
+   * Like Hooks, these functions cannot be awaited for a response, but all event functions executing on a given client
+   * will be evaluated in order of initial registration and the processing of the event functions will respect 
+   * (and await) returned Promises.
+   * 
+   * @param {string} name Name of this event. Watches and triggers use this name to register themselves. 
+   *  Like Hooks, any string can be used and it is dependent upon the watch or trigger registration to monitor the correct event name.
+   * @param {object} [payload={sceneId: canvas.scene.id, userId: game.user.id}] eventData {Object} The data that will be 
+   *  provided to watches and triggers and their condition functions.
+   * @param {string} [onBehalf=game.user.id] User ID that will be used in place of the current user in the
+   *  cases of a relayed request to the GM (e.g. dismissal).
+   * 
+   * @returns {Object} Data object containing the event's payload (execution details), and identifying metadata about
+   *  this event, sent to all watching and triggering clients.
+   */
+  static notifyEvent(name, payload = {}, onBehalf = game.user.id) {
     /** insert common fields */
     payload.sceneId = canvas.scene.id;
     payload.userId = onBehalf;
@@ -176,15 +179,6 @@ export class Comms {
     }
 
     return Comms._emit(data);
-  }
-
-  static packToken(tokenDoc) {
-    const tokenData = tokenDoc.toObject();
-    delete tokenData.actorData;
-
-    let actorData = tokenDoc.actor.toObject();
-    actorData.token = tokenData;
-    return actorData;
   }
 
 }

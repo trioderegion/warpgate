@@ -23,15 +23,21 @@ const NAME = "Mutator";
 
 /** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
 /** @typedef {import('./mutation-stack.js').MutationData} MutationData */
+/** @typedef {import('./api.js').Shorthand} Shorthand */
 
 /**
  * @typedef {Object} WorkflowOptions
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
  * @property {string} [description] Description of this mutation for potential display to the remote owning user.
  * @property {Object} [overrides]
- * @property {boolean} [overrides.alwaysAccept = false]
- * @property {boolean} [overrides.suppressToast = false]
- *
+ * @property {boolean} [overrides.alwaysAccept = false] Force the receiving clients "auto-accept" state,
+ *  regardless of world/client settings
+ * @property {boolean} [overrides.suppressToast = false] Force the initiating and receiving clients to suppress
+ *  the "call and response" UI toasts indicating the requests accepted/rejected response.
+ * @property {boolean} [overrides.includeRawData = false] Force events produced from this operation to include the 
+ *  raw data used for its operation (such as the final mutation data to be applied, or the resulting packed actor 
+ *  data from a spawn). **Caution, use judiciously** -- enabling this option can result in potentially large
+ *  socket data transfers during warpgate operation.
  */
 
 /**
@@ -51,12 +57,11 @@ const NAME = "Mutator";
  * increased by 10, but when reverted, you want to keep the extra Current HP applied. Update the delta object
  * with the desired HP to return to after revert, or remove it entirely.
  *
- * @typedef {function(Shorthand,TokenDocument):Promise|void} PostDelta
- * @async
+ * @typedef {(function(Shorthand,TokenDocument):Promise|undefined)} PostDelta
  * @param {Shorthand} delta Computed change of the actor based on `updates`. Used to "unroll" this mutation when reverted.
  * @param {TokenDocument} tokenDoc Token being modified.
  *
- * @returns Promise
+ * @returns {Promise<any>|any}
  */
 
 /**
@@ -64,12 +69,11 @@ const NAME = "Mutator";
  * has triggered. Useful for animations or changes that should not be tracked by the mutation system.
  *
  * @typedef {function(TokenDocument, Object):Promise|void} PostMutate
- * @async
  * @param {TokenDocument} tokenDoc Token that has been modified.
  * @param {Shorthand} updates Current permuatation of the original shorthand updates object provided, as
  *  applied for this mutation
  *
- * @returns Promise
+ * @returns {Promise<any>|any}
  */
 
 
@@ -354,7 +358,10 @@ export class Mutator {
 
       await Mutator._update(tokenDoc, updates, options);
 
-      await warpgate.event.notify(warpgate.EVENT.MUTATE, {uuid: tokenDoc.uuid, updates});
+      await warpgate.event.notify(warpgate.EVENT.MUTATE, {
+        uuid: tokenDoc.uuid, 
+        updates: (options.overrides?.includeRawData ?? false) ? updates : 'omitted',
+        options});
 
       if(callbacks.post) await callbacks.post(tokenDoc, updates, true);
 
@@ -484,7 +491,10 @@ export class Mutator {
         await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
 
         /* notify clients */
-        await warpgate.event.notify(warpgate.EVENT.REVERT, {uuid: tokenDoc.uuid, updates: mutateData});
+        await warpgate.event.notify(warpgate.EVENT.REVERT, {
+          uuid: tokenDoc.uuid, 
+          updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
+          options});
       }
     } else {
       RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutationName, options});

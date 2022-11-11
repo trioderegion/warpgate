@@ -70,6 +70,7 @@ export class MODULE {
   }
 
   /**
+   * A helper functions that returns the first active GM level user.
    * @returns {User|undefined} First active GM User
    */
   static firstGM() {
@@ -77,6 +78,8 @@ export class MODULE {
   }
 
   /**
+   * Checks whether the user calling this function is the user returned
+   * by {@link warpgate.util.firstGM}. Returns true if they are, false if they are not.
    * @returns {boolean} Is the current user the first active GM user?
    */
   static isFirstGM() {
@@ -101,11 +104,18 @@ export class MODULE {
 
   
   /**
+   * Returns the first active user with owner permissions for the given document, 
+   * falling back to the firstGM should there not be any. Returns false if the 
+   * document is falsey. In the case of token documents it checks the permissions 
+   * for the token's actor as tokens themselves do not have a permission object.
+   *
    * @param {{ actor: Actor } | { document: { actor: Actor } } | Actor} doc
+   *
+   * @returns {User|undefined}
    */
   static firstOwner(doc) {
     /* null docs could mean an empty lookup, null docs are not owned by anyone */
-    if (!doc) return false;
+    if (!doc) return undefined;
 
     /* while conceptually correct, tokens derive permissions from their
      * (synthetic) actor data.
@@ -131,7 +141,12 @@ export class MODULE {
   }
 
   /**
-   * Players first, then GM
+   * Checks whether the user calling this function is the user returned by 
+   * {@link warpgate.util.firstOwner} when the function is passed the 
+   * given document. Returns true if they are the same, false if they are not.
+   * 
+   * As `firstOwner`, biases towards players first.
+   *
    * @returns {boolean} the current user is the first player owner. If no owning player, first GM.
    */
   static isFirstOwner(doc) {
@@ -139,6 +154,9 @@ export class MODULE {
   }
 
   /**
+   * Helper function. Waits for a specified amount of time in milliseconds (be sure to await!). 
+   * Useful for timings with animations in the pre/post callbacks.
+   * 
    * @param {Number} ms Time to delay, in milliseconds
    * @returns Promise
    */
@@ -385,9 +403,18 @@ export class MODULE {
     }
 
     /**
-     * Advanced dialog helper providing multiple input type options as well as user defined buttons. This combines the functionality
-     * of `buttonDialog` as well as `dialog`
+     * Advanced dialog helper providing multiple input type options as well as user defined buttons.
      *
+     * | `type` | `options` | Return Value | Notes |
+     * |--|--|--|--|
+     * | header | none | undefined | Shortcut for `info | <h2>text</h2>`. |
+     * | info   | none | undefined | Inserts a line of text for display/informational purposes. |
+     * | text | default value | {String} final value of text field | |
+     * | password | (as `text`) | (as `text`) | Characters are obscured for security. |
+     * | radio | [group name, default state (`false`)] {Array of String/Bool} | selected: {Class<Primitive>} `value`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
+     * | checkbox | default state (`false`) {Boolean} | {Boolean} `value`/`false` checked/unchecked | `label` is used for the HTML element's `name` property |
+     * | number | (as `text`) | {Number} final value of text field converted to a number |
+     * | select | array of option labels | {String} label of choice | | 
      * @static
      * @param {object} [data]  
      * @param {Array<{label: string, type: string, options: any|Array<any>} >} [data.inputs=[]] follow the same structure as dialog

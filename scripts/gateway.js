@@ -27,12 +27,18 @@ const NAME = "Gateway";
 /** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
 
 /**
- * Asynchronous callback started just prior to the crosshairs template being drawn. Is not awaited. Used for modifying
+ * Callback started just prior to the crosshairs template being drawn. Is not awaited. Used for modifying
  * how the crosshairs is displayed and for responding to its displayed position
+ * 
+ * All of the fields in the {@link CrosshairsConfig} object can be modified directly. Any fields owned by 
+ * MeasuredTemplate must be changed via `update|updateSource` as other DocumentData|DataModel classes. 
+ * Async functions will run in parallel while the user is moving the crosshairs. Serial functions will 
+ * block detection of the left and right click operations until return.
  *
- * @typedef {function(Crosshairs):void} ParallelShow
- * @async
+ * @typedef {function(Crosshairs):any} ParallelShow
  * @param {Crosshairs} crosshairs The live Crosshairs instance associated with this callback
+ *
+ * @returns {any}
  */
 
 
@@ -174,7 +180,6 @@ export class Gateway {
   /**
    * Returns desired types of placeables whose center point
    * is within the crosshairs radius.
-   * @function
    *
    * @param {Object} crosshairsData Requires at least {x,y,radius,parent} (all in pixels, parent is a Scene)
    * @param {String|Array<String>} [types='Token'] Collects the desired embedded placeable types.
@@ -205,7 +210,15 @@ export class Gateway {
   }
 
   /**
+   * Deletes the specified token from the specified scene. This function allows anyone
+   * to delete any specified token unless this functionality is restricted to only 
+   * owned tokens in Warp Gate's module settings. This is the same function called 
+   * by the "Dismiss" header button on owned actor sheets.
    *
+   * @param {string} tokenId
+   * @param {string} [sceneId = canvas.scene.id] Needed if the dismissed token does not reside
+   *  on the currently viewed scene
+   * @param {string} [onBehalf = game.user.id] Impersonate another user making this request
    */
   static async dismissSpawn(tokenId, sceneId = canvas.scene?.id, onBehalf = game.user.id) {
 

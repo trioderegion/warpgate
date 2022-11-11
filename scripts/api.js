@@ -27,6 +27,10 @@ import { queueUpdate } from './update-queue.js'
 import { Crosshairs } from './crosshairs.js'
 import { MutationStack } from './mutation-stack.js'
 
+/** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
+/** @typedef {import('./mutator.js').WorkflowOptions} WorkflowOptions */
+/** @typedef {import('./gateway.js').ParallelShow} ParallelShow */
+
 /**
  * string-string key-value pairs indicating which field to use for comparisons for each needed embeddedDocument type. 
  * @typedef {Object<string,string>} ComparisonKeys 
@@ -37,12 +41,35 @@ import { MutationStack } from './mutation-stack.js'
  * }
  */
 
+/* 
+ * @private
+ * @ignore
+ * @todo Creating proper type and use in warpgate.dismiss
+ * @typedef {{overrides: ?{includeRawData: ?WorkflowOptions['overrides']['includeRawData']}}} DismissOptions
+ */
+
 /**
  * Common 'shorthand' notation describing arbitrary data related to a spawn/mutate/revert process.
+ *
+ * The `token` and `actor` key values are standard update or options objects as one would use in 
+ * `Actor#update` and `TokenDocument#update`.
+ *
+ * The `embedded` key uses a shorthand notation to make creating the updates for embedded documents
+ * (such as items) easier. Notably, it does not require the `_id` field to be part of the update object 
+ * for a given embedded document type.  
+ *
  * @typedef {Object} Shorthand
  * @prop {object} [token] Data related to the workflow TokenDocument.
  * @prop {object} [actor] Data related to the workflow Actor.
- * @prop {Object<string, object|string>} [embedded] Keyed by embedded document class name (e.g. `"Item"` or `"ActiveEffect"`)
+ * @prop {Object<string, object|string>} [embedded] Keyed by embedded document class name (e.g. `"Item"` or `"ActiveEffect"`), there are three operations that this object controls -- adding, updating, deleting (in that order).
+ *
+ * | Operation | Value Interpretation |
+ * | :-- | :-- |
+ * | Add | Given the identifier of a **non-existing** embedded document, the value contains the data object for document creation compatible with `createEmbeddedDocuments`. This object can be constructed in-place by hand, or gotten from a template document and modified using `"Item To Add": game.items.getName("Name of Item").data`. As an example. Note: the name contained in the key will override the corresponding identifier field in the final creation data. |
+ * | Update | Given a key of an existing document, the value contains the data object compatible with `updateEmbeddedDocuments`|
+ * | Delete | A value of {@link warpgate.CONST.DELETE} will remove this document (if it exists) from the spawned actor. e.g. `{"Item Name To Delete": warpgate.CONST.DELETE}`|
+ *
+ * @see ComparisonKeys
  */
 
 /**
@@ -50,8 +77,7 @@ import { MutationStack } from './mutation-stack.js'
  * spawning for _this iteration_ occurs. Used for modifying the spawning data prior to
  * each spawning iteration and for potentially skipping certain iterations.
  *
- * @typedef {function(Object,Object,number):Promise<boolean>|boolean} PreSpawn
- * @async
+ * @typedef {(function(Object,Object,number):Promise<boolean>|boolean)} PreSpawn
  * @param {{x: number, y: number}} location Desired centerpoint of spawned token.
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
  * @param {number} iteration Current iteration number (0-indexed) in the case of 'duplicates'
@@ -64,8 +90,7 @@ import { MutationStack } from './mutation-stack.js'
  * Used for modifying the spawning for the next iteration, operations on the TokenDocument directly
  * (such as animations or chat messages), and potentially aborting the spawning process entirely.
  *
- * @typedef {function(Object,TokenDocument,Object,number):Promise|void} PostSpawn
- * @async
+ * @typedef {(function(Object,TokenDocument,Object,number):Promise|void)} PostSpawn
  * @param {{x: number, y: number}} location Actual centerpoint of spawned token (affected by collision options).
  * @param {TokenDocument} spawnedToken Resulting token created for this spawning iteration
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
@@ -76,22 +101,32 @@ import { MutationStack } from './mutation-stack.js'
 
 
 /**
+ * This object controls how the crosshairs will be displayed and decorated. 
+ * Each field is optional with its default value listed.
+ *
  * @typedef {Object} CrosshairsConfig
- * @property {number} [size=1]
- * @property {string} [icon = 'icons/svg/dice-target.svg']
- * @property {string} [label = '']
- * @property {{x:number, y:number}} [labelOffset={x:0,y:0}]
- * @property {*} [tag='crosshairs']
- * @property {boolean} [drawIcon=true]
- * @property {boolean} [drawOutline=true]
- * @property {number} [interval=2]
- * @property {number} [fillAlpha=0]
- * @property {boolean} [tileTexture=false]
- * @property {boolean} [lockSize=true]
- * @property {boolean} [lockPosition=false]
- * @property {boolean} [rememberControlled=false]
- * @property {string} [texture]
- * @property {string} [fillColor=game.user.color]
+ * @property {number} [size=1] The initial diameter of the crosshairs outline in grid squares
+ * @property {string} [icon = 'icons/svg/dice-target.svg'] The icon displayed in the center of the crosshairs
+ * @property {string} [label = ''] The text to display below the crosshairs outline
+ * @property {{x:number, y:number}} [labelOffset={x:0,y:0}] Pixel offset from the label's initial relative position below the outline
+ * @property {*} [tag='crosshairs'] Arbitrary value used to identify this crosshairs object
+ * @property {boolean} [drawIcon=true] Controls the display of the center icon of the crosshairs
+ * @property {boolean} [drawOutline=true] Controls the display of the outline circle of the crosshairs
+ * @property {number} [interval=2] Sub-grid granularity per square. Snap points will be created every 1/`interval` 
+ *  grid spaces. Positive values begin snapping at grid intersections. Negative values begin snapping at the 
+ *  center of the square. Ex. the default value of 2 produces two snap points -- one at the edge and one at the 
+ *  center; `interval` of 1 will snap to grid intersections; `interval` of -1 will snap to grid centers. 
+ *  Additionally, a value of `0` will turn off grid snapping completely for this instance of crosshairs.
+ * @property {number} [fillAlpha=0] Alpha (opacity) of the template's fill color (if any).
+ * @property {string} [fillColor=game.user.color] Color of the template's fill when no texture is used. 
+ * @property {boolean} [rememberControlled=false] Will restore the previously selected tokens after using crosshairs.
+ * @property {boolean} [tileTexture=false] Indicates if the texture is tileable and does not need specific
+ *  offset/scaling to be drawn correctly. By default, the chosen texture will be position and scaled such 
+ *  that the center of the texture image resides at the center of the crosshairs template.
+ * @property {boolean} [lockSize=true] Controls the ability of the user to scale the size of the crosshairs 
+ *  using shift+scroll. When locked, shift+scroll acts as a "coarse rotation" step for rotating the center icon.
+ * @property {boolean} [lockPosition=false] Prevents updating the position of the crosshair based on mouse movement. Typically used in combination with the `show` callback to lock position conditionally.
+ * @property {string} [texture] Asset path of the texture to draw inside the crosshairs border.
  */
 
 /**
@@ -105,6 +140,8 @@ import { MutationStack } from './mutation-stack.js'
  * @property {boolean} [collision=duplicates>1] controls whether the placement of a token collides with any other token 
  *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
  *  than 1, default is `true`; otherwise `false`.
+ * @property {object} [overrides]
+ * @property {boolean} [overrides.includeRawData = false] See corresponding property description `overrides.includeRawData` in {@link WorkflowOptions}
  */
 
  /**
@@ -129,6 +166,7 @@ export class api {
   static globals() {
     /**
      * @global
+     * @summary Top level (global) symbol providing access to all Warp Gate API functions
      * @namespace warpgate
      * @property {warpgate.CONST} CONST
      * @property {warpgate.EVENT} EVENT
@@ -165,7 +203,7 @@ export class api {
       menu: MODULE.menu,
       buttonDialog : MODULE.buttonDialog,
       /**
-       * Utility functions
+       * @summary Utility functions for common queries and operations
        * @namespace
        * @alias warpgate.util
        * @borrows MODULE.firstGM as firstGM
@@ -181,7 +219,7 @@ export class api {
       },
 
       /**
-       * Crosshairs API Functions
+       * @summary Crosshairs API Functions
        * @namespace 
        * @alias warpgate.crosshairs
        * @borrows Gateway.showCrosshairs as show
@@ -194,8 +232,7 @@ export class api {
         collect: Gateway.collectPlaceables,
       },
       /**
-       * APIs intended for warp gate "pylons" (e.g.
-       * warp gate dependent modules)
+       * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
        * @namespace 
        * @alias warpgate.plugin
        */
@@ -203,7 +240,7 @@ export class api {
         queueUpdate
       },
       /**
-       * System specific helpers
+       * @summary System specific helpers
        * @namespace 
        * @alias warpgate.dnd5e
        * @borrows Gateway._rollItemGetLevel as rollItem
@@ -212,36 +249,67 @@ export class api {
         rollItem : Gateway._rollItemGetLevel
       },
       /**
-       * Constants and enums
+       * @description Constants and enums for use in embedded shorthand fields
        * @alias warpgate.CONST
        * @enum {string}
        */
       CONST : {
+        /** Instructs warpgate to delete the identified embedded document. Used in place of the update or create data objects. */
         DELETE : 'delete',
       },
       /**
-       * Event name constants
+       *
+       * The following table describes the stock event type payloads that are broadcast during {@link warpgate.event.notify}
+       * 
+       * | Event | Payload | Notes |
+       * | :-- | -- | -- |
+       * | `<any>` | `{sceneId: string, userId: string}` | userId is the initiator |
+       * | {@link warpgate.EVENT.PLACEMENT} | `{templateData: {@link CrosshairsData}|Object, tokenData: TokenData|String('omitted'), options: {@link WarpOptions}} | The final Crosshairs data used to spawn the token, and the final token data that will be spawned. There is no actor data provided. In the case of omitting raw data, `template` data will be of type `{x: number, y: number, size: number, cancelled: boolean}`  |
+       * | SPAWN | `{uuid: string, updates: {@link Shorthand}|String('omitted'), options: {@link WarpOptions}|{@link SpawningOptions}, iteration: number}` | UUID of created token, updates applied to the token, options used for spawning, and iteration this token was spawned on.|
+       * | DISMISS | `{actorData: {@link PackedActorData}|string}` | `actorData` is a customized version of `Actor#toObject` with its `token` field containing the actual token document data dismissed, instead of its prototype data. |
+       * | MUTATE | `{uuid: string, updates: {@link Shorthand}, options: {@link WorkflowOptions} & {@link MutationOptions}` | UUID of modified token, updates applied to the token, options used for mutation. When raw data is omitted, `updates` will be `String('omitted')`|
+       * | REVERT | `{uuid: string, updates: {@link Shorthand}, options: {@link WorkflowOptions}} | UUID is that of reverted token and updates applied to produce the final reverted state (or `String('omitted') if raw data is omitted). |
+       * | REVERT\_RESPONSE | `{accepted: bool, tokenId: string, mutationId: string, options: {@link WorkflowOptions}` | Indicates acceptance/rejection of the remote revert request, including target identifiers and options |
+       * | MUTATE\_RESPONSE | `{accepted: bool, tokenId: string, mutationId: string, options: {@link WorkflowOptions}` | `mutationId` is the name provided in `options.name` OR a randomly assigned ID if not provided. Callback functions provided for remote mutations will be internally converted to triggers for this event and do not need to be registered manually by the user. `accepted` is a bool field that indicates if the remote user accepted the mutation. |
+       *
+       * @description Event name constants for use with the {@link warpgate.event} system.
        * @alias warpgate.EVENT
        * @enum {string}
        */
       EVENT : {
         /** After placement is chosen */
         PLACEMENT: 'wg_placement',
+        /** After each token has been spawned and fully updated */
         SPAWN: 'wg_spawn',
+        /** After a token has been dismissed via warpgate */
         DISMISS: 'wg_dismiss',
+        /** After a token has been fully reverted */
         REVERT: 'wg_revert',
+        /** After a token has been fully modified */
         MUTATE: 'wg_mutate',
+        /** Feedback of mutation acceptance/rejection from the remote owning player in
+         * the case of an "unowned" or remote mutation operation
+         */
         MUTATE_RESPONSE: 'wg_response_mutate',
+        /** Feedback of mutation revert acceptance/rejection from the remote owning player in
+         * the case of an "unowned" or remote mutation operation
+         */
         REVERT_RESPONSE: 'wg_response_revert'
       },
       /**
-       * Event system API functions
+       * Warp Gate includes a hook-like event system that can be used to respond to stages of the
+       * spawning and mutation process. Additionally, the event system is exposed so that users 
+       * and module authors can create custom events in any context.
+       *
+       * @summary Event system API functions.
+       * @see warpgate.event.notify
+       *
        * @namespace 
        * @alias warpgate.event
        * @borrows Events.watch as watch
        * @borrows Events.trigger as trigger
        * @borrows Events.remove as remove
-       * @borrows Events.notifyEvent as notify
+       * @borrows Comms.notifyEvent as notify
        *
        */
       event : {
@@ -251,7 +319,7 @@ export class api {
         notify : Comms.notifyEvent,
       },
       /**
-       * Warp Gate classes suitable for extension
+       * @summary Warp Gate classes suitable for extension
        * @namespace 
        * @alias warpgate.abstract
        * @property {Crosshairs} Crosshairs
@@ -321,9 +389,17 @@ export class api {
     if(options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.minimize();
 
     const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
+
+    /** @type {CrosshairsData} */
     const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: tokenImg, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
 
-    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, {templateData, tokenData: protoData.toObject()});
+    const eventPayload = {
+      templateData: (options.overrides?.includeRawData ?? false) ? templateData : {x: templateData.x, y: templateData.y, size: templateData.size, cancelled: templateData.cancelled},
+      tokenData: (options.overrides?.includeRawData ?? false) ? protoData.toObject() : 'omitted',
+      options,
+    }
+
+    await warpgate.event.notify(warpgate.EVENT.PLACEMENT, eventPayload);
 
     if (templateData.cancelled) return;
 
@@ -424,7 +500,7 @@ export class api {
 
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
 
-      /** @type TokenDocument */
+      /** @type Object */
       const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
@@ -434,8 +510,14 @@ export class api {
       logger.debug('Spawned token with data: ', MODULE.isV10 ? spawnedTokenDoc : spawnedTokenDoc.data);
 
       await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
-      
-      await warpgate.event.notify(warpgate.EVENT.SPAWN, {uuid: spawnedTokenDoc.uuid, updates, iteration});
+
+      const eventPayload = {
+        uuid: spawnedTokenDoc.uuid,
+        updates: (options.overrides?.includeRawData ?? false) ? updates : 'omitted',
+        options,
+        iteration
+      } 
+      await warpgate.event.notify(warpgate.EVENT.SPAWN, eventPayload);
 
       /* post creation callback */
       if (callbacks.post) {

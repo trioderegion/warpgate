@@ -1,5 +1,3 @@
-export {}
-
 // try to use a proper type
 declare global {
   /**
@@ -10,18 +8,7 @@ declare global {
     canvas: {};
   }
 
-  /**
-   */
-  type Shorthand = {
-    token?: object;
-    actor?: object;
-    embedded?: Record<string,any>;
-  }
-
-
-  type ParentData = ReturnType<MeasuredTemplateDocument['toObject']>
-  
-
 }
 
 
+export {}
