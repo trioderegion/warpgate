@@ -70,7 +70,7 @@ export class Propagator{
       new Ray(origin, {
         x:position.x+tokenData.width*canvas.scene.dimensions.size/2,
         y:position.y+tokenData.height*canvas.scene.dimensions.size/2
-      })
+      }),{ type: "move" }
     )?.length ?? 0;
 
 
