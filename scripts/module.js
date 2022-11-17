@@ -230,6 +230,15 @@ export class MODULE {
     return mouse.getLocalPosition(canvas.app.stage);
   }
 
+  static async panToToken(origin) {
+    const options = {
+      scene: canvas.scene.id,
+      pull: true,
+      style: CONFIG.Canvas.pings.types.PULL
+    }
+    await canvas.ping(origin, options);
+  }
+
   static shimUpdate(updates) {
     if(MODULE.isV10) {
 

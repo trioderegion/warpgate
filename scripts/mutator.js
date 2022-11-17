@@ -82,6 +82,21 @@ export class Mutator {
   static register() {
     Mutator.defaults();
     Mutator.hooks();
+    this.settings();
+  }
+
+  static settings() {
+    const config = true;
+    const settingsData = {
+      spawnPan : {
+        scope: "world", config, default: false, type: Boolean,
+      },
+      mutatePan : {
+        scope: "world", config, default: false, type: Boolean,
+      }
+    };
+
+    MODULE.applySettings(settingsData);
   }
 
   static defaults(){
@@ -316,6 +331,9 @@ export class Mutator {
     /* ensure that we are working with clean data */
     await Mutator.clean(updates, options);
 
+    /* Getting center of token for pan */
+    const tokenCenter = canvas.tokens.placeables.find(i => i.id === tokenDoc.id).center;
+
     /* providing a delta means you are managing the
      * entire data change (including mutation stack changes).
      * Typically used by remote requests */
@@ -356,6 +374,8 @@ export class Mutator {
 
     if (tokenDoc.actor.isOwner) {
 
+      if(MODULE.setting('mutatePan')) await MODULE.panToToken({x: tokenCenter.x, y: tokenCenter.y});
+
       await Mutator._update(tokenDoc, updates, options);
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE, {
@@ -366,6 +386,8 @@ export class Mutator {
       if(callbacks.post) await callbacks.post(tokenDoc, updates, true);
 
     } else {
+      if(MODULE.setting('mutatePan')) await MODULE.panToToken({x: tokenCenter.x, y: tokenCenter.y});
+
       /* this is a remote mutation request, hand it over to that system */
       RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
     }

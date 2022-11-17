@@ -86,7 +86,7 @@ import { MutationStack } from './mutation-stack.js'
  */
 
 /**
- * Post spawn callback. After a the spawning and updating for _this iteration_ occurs. 
+ * Post spawn callback. After the spawning and updating for _this iteration_ occurs.
  * Used for modifying the spawning for the next iteration, operations on the TokenDocument directly
  * (such as animations or chat messages), and potentially aborting the spawning process entirely.
  *
@@ -411,6 +411,7 @@ export class api {
     /* insert changes from the template into the updates data */
     mergeObject(updates, {token: {rotation: templateData.direction + (updates.token.rotation ?? 0), width: templateData.size, height: protoData.height*scale}});
 
+    if(MODULE.setting('spawnPan')) await MODULE.panToToken(spawnLocation);
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
 
