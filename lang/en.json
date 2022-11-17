@@ -35,7 +35,7 @@
       },
       "mutatePan": {
         "name": "Mutated Token Pan",
-        "hint": "If checked, the viewport will pan to the mutated."
+        "hint": "If checked, the viewport will pan to the mutated token."
       },
       "dismissButtonScope": {
         "name": "Dismiss button scope",
