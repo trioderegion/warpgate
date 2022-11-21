@@ -22,6 +22,7 @@ import {RemoteMutator} from './remote-mutator.js'
 const NAME = "Mutator";
 
 /** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
+/** @typedef {import('./api.js').SpawnPan} MutatePan */
 /** @typedef {import('./mutation-stack.js').MutationData} MutationData */
 /** @typedef {import('./api.js').Shorthand} Shorthand */
 
@@ -38,6 +39,7 @@ const NAME = "Mutator";
  *  raw data used for its operation (such as the final mutation data to be applied, or the resulting packed actor 
  *  data from a spawn). **Caution, use judiciously** -- enabling this option can result in potentially large
  *  socket data transfers during warpgate operation.
+ *  @property {MutatePan} [mutatepan] Options for placing a ping or pan to the token after mutation
  */
 
 /**
@@ -46,7 +48,6 @@ const NAME = "Mutator";
  *  to the actor, which does not store the update delta information required to revert mutation.
  * @property {string} [name=randomId()] User provided name, or identifier, for this particular
  *  mutation operation. Used for reverting mutations by name, as opposed to popping last applied.
- * 
  * @property {Object} [delta]
  * @property {ComparisonKeys} [comparisonKeys]
  */
@@ -70,7 +71,7 @@ const NAME = "Mutator";
  *
  * @typedef {function(TokenDocument, Object):Promise|void} PostMutate
  * @param {TokenDocument} tokenDoc Token that has been modified.
- * @param {Shorthand} updates Current permuatation of the original shorthand updates object provided, as
+ * @param {Shorthand} updates Current permutation of the original shorthand updates object provided, as
  *  applied for this mutation
  *
  * @returns {Promise<any>|any}
@@ -82,21 +83,6 @@ export class Mutator {
   static register() {
     Mutator.defaults();
     Mutator.hooks();
-    this.settings();
-  }
-
-  static settings() {
-    const config = true;
-    const settingsData = {
-      spawnPan : {
-        scope: "world", config, default: false, type: Boolean,
-      },
-      mutatePan : {
-        scope: "world", config, default: false, type: Boolean,
-      }
-    };
-
-    MODULE.applySettings(settingsData);
   }
 
   static defaults(){
@@ -331,9 +317,6 @@ export class Mutator {
     /* ensure that we are working with clean data */
     await Mutator.clean(updates, options);
 
-    /* Getting center of token for pan */
-    const tokenCenter = canvas.tokens.placeables.find(i => i.id === tokenDoc.id).center;
-
     /* providing a delta means you are managing the
      * entire data change (including mutation stack changes).
      * Typically used by remote requests */
@@ -370,11 +353,24 @@ export class Mutator {
       mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
 
       options.delta = delta;
-    } 
+    }
+
+    /* Pan to mutated target */
+    if (options.mutatepan?.ping?.pull) {
+
+      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(tokenDoc.object?.center, request.options.mutatepan)}, () => MODULE.isFirstGM());
+
+    } else if (!!options.mutatepan?.pan) {
+
+      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(tokenDoc.object?.center, request.options.mutatepan)});
+
+    } else if (options.mutatepan) {
+
+      await MODULE.tokenPan(tokenDoc.object?.center, options.mutatepan)
+    }
+
 
     if (tokenDoc.actor.isOwner) {
-
-      if(MODULE.setting('mutatePan')) await MODULE.panToToken({x: tokenCenter.x, y: tokenCenter.y});
 
       await Mutator._update(tokenDoc, updates, options);
 
@@ -386,8 +382,6 @@ export class Mutator {
       if(callbacks.post) await callbacks.post(tokenDoc, updates, true);
 
     } else {
-      if(MODULE.setting('mutatePan')) await MODULE.panToToken({x: tokenCenter.x, y: tokenCenter.y});
-
       /* this is a remote mutation request, hand it over to that system */
       RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
     }

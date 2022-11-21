@@ -60,6 +60,18 @@ export class MODULE {
     return MODULE.canUser(user, reqs);
   }
 
+  static async tokenPan(spawnLocation, pingSettings = {ping:{pull:false,type:'pulse'}}) {
+    if (pingSettings.pan) {
+      await canvas.animatePan(spawnLocation);
+    } else if (!!pingSettings.ping) {
+      await canvas.ping(spawnLocation, {
+        scene: canvas.scene.id,
+        pull: pingSettings.ping?.pull,
+        style: CONFIG.Canvas.pings.types[`${pingSettings.ping?.style?.toUpperCase()}`]
+      });
+    }
+  }
+
   /**
    * @return {Array<String>} missing permissions for this operation
    */
@@ -228,15 +240,6 @@ export class MODULE {
   static getMouseStagePos() {
     const mouse = canvas.app.renderer.plugins.interaction.mouse;
     return mouse.getLocalPosition(canvas.app.stage);
-  }
-
-  static async panToToken(origin) {
-    const options = {
-      scene: canvas.scene.id,
-      pull: true,
-      style: CONFIG.Canvas.pings.types.PULL
-    }
-    await canvas.ping(origin, options);
   }
 
   static shimUpdate(updates) {

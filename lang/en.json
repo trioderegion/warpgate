@@ -29,14 +29,6 @@
         "name": "Always accept mutation requests",
         "hint": "If checked, request dialog will not be shown and blindly accepted."
       },
-      "spawnPan": {
-        "name": "Spawned Token Pan",
-        "hint": "If checked, the viewport will pan to the token after placement."
-      },
-      "mutatePan": {
-        "name": "Mutated Token Pan",
-        "hint": "If checked, the viewport will pan to the mutated token."
-      },
       "dismissButtonScope": {
         "name": "Dismiss button scope",
         "hint": "Determines when the dismiss button is added to actor sheets."

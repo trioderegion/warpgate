@@ -49,6 +49,23 @@ import { MutationStack } from './mutation-stack.js'
  */
 
 /**
+ * An object for pan and ping options
+ * @typedef {object} SpawnPan
+ * @property {boolean} [pan] Whether to pan to the spawned token
+ * @property {object} [ping] Object with ping options
+ * @property {boolean} [ping.pull] Whether to pull attention to the ping location
+ * @property {string} [ping.type] Ping type options from Foundry: 'PULSE', 'ALERT', 'PULL', 'ARROW' - case insensitive
+ * @example
+ * const spawnPan = {
+ *  pan: true,
+ *  ping: {
+ *   pull: true,
+ *   type: 'PULSE'
+ *  }
+ * }
+ */
+
+/**
  * Common 'shorthand' notation describing arbitrary data related to a spawn/mutate/revert process.
  *
  * The `token` and `actor` key values are standard update or options objects as one would use in 
@@ -140,6 +157,7 @@ import { MutationStack } from './mutation-stack.js'
  * @property {boolean} [collision=duplicates>1] controls whether the placement of a token collides with any other token 
  *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
  *  than 1, default is `true`; otherwise `false`.
+ * @property {SpawnPan} [spawnpan] will pan or ping the canvas to the token's position after spawning.
  * @property {object} [overrides]
  * @property {boolean} [overrides.includeRawData = false] See corresponding property description `overrides.includeRawData` in {@link WorkflowOptions}
  */
@@ -411,7 +429,6 @@ export class api {
     /* insert changes from the template into the updates data */
     mergeObject(updates, {token: {rotation: templateData.direction + (updates.token.rotation ?? 0), width: templateData.size, height: protoData.height*scale}});
 
-    if(MODULE.setting('spawnPan')) await MODULE.panToToken(spawnLocation);
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
 
@@ -500,6 +517,22 @@ export class api {
       }
 
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
+
+      /* pan to token if first iteration */
+      if (iteration == 0) {
+        if (options.spawnpan?.ping?.pull) {
+
+          warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(spawnLocation, request.options.spawnpan)}, () => MODULE.isFirstGM());
+
+        } else if (!!options.spawnpan?.pan) {
+
+          warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(spawnLocation, request.options.spawnpan)});
+
+        } else if (options.spawnpan) {
+
+          await MODULE.tokenPan(spawnLocation, options.spawnpan)
+        }
+      }
 
       /** @type Object */
       const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
