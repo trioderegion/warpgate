@@ -284,7 +284,7 @@ export class Mutator {
     /** perform the updates */
     if (updates.actor) await actor.update(updates.actor, updateOpts.actor ?? {});
 
-    await Mutator._updateEmbedded(actor, updates.embedded, comparisonKeys, updateOpts.embedded = {});
+    await Mutator._updateEmbedded(actor, updates.embedded, comparisonKeys, updateOpts.embedded);
 
     return;
   }
