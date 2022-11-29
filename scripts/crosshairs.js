@@ -176,7 +176,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.clear();
 
     // Load the texture
-    const texture = MODULE.isV10 ? this.texture : this.data.texture;
+    const texture = MODULE.isV10 ? this.document.texture : this.data.texture;
     if ( texture ) {
       this._texture = await loadTexture(texture, {fallback: 'icons/svg/hazard.svg'});
     } else {
@@ -193,7 +193,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Draw the control icon
     //if(this.drawIcon) 
-      this.controlIcon = this.addChild(this._drawControlIcon());
+    this.controlIcon = this.addChild(this._drawControlIcon());
 
     // Draw the ruler measurement
     this.ruler = this.addChild(this._drawRulerText());
