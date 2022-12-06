@@ -46,6 +46,7 @@ export class Crosshairs extends MeasuredTemplate {
       fillColor: config.fillColor,
       width: 1,
       texture: config.texture,
+      direction: config.direction,
     }   
 
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});

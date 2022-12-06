@@ -105,8 +105,11 @@ import { MutationStack } from './mutation-stack.js'
  * Each field is optional with its default value listed.
  *
  * @typedef {Object} CrosshairsConfig
+ * @property {number} [x=currentMousePosX] Initial x location for display
+ * @property {number} [y=currentMousePosY] Initial y location for display
  * @property {number} [size=1] The initial diameter of the crosshairs outline in grid squares
  * @property {string} [icon = 'icons/svg/dice-target.svg'] The icon displayed in the center of the crosshairs
+ * @property {number} [direction = 0] Initial rotation angle (in degrees) of the displayed icon (if any). 0 degrees corresponds to <0, 1> unit vector (y+ in screen space, or 'down' in "monitor space"). If this is included within a {@link WarpOptions} object, it is treated as a delta change to the token/update's current rotation value. Positive values rotate clockwise; negative values rotate counter-clockwise. 
  * @property {string} [label = ''] The text to display below the crosshairs outline
  * @property {{x:number, y:number}} [labelOffset={x:0,y:0}] Pixel offset from the label's initial relative position below the outline
  * @property {*} [tag='crosshairs'] Arbitrary value used to identify this crosshairs object
@@ -388,10 +391,17 @@ export class api {
     
     if(options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.minimize();
 
+    /* gather data needed for configuring the display of the crosshairs */
     const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
+    const rotation = updates.token?.rotation ?? protoData.rotation ?? 0;
 
     /** @type {CrosshairsData} */
-    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: tokenImg, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
+    const templateData = await Gateway.showCrosshairs({
+      size: protoData.width,
+      icon: tokenImg,
+      name: protoData.name,
+      ...options.crosshairs ?? {}
+    }, callbacks);
 
     const eventPayload = {
       templateData: (options.overrides?.includeRawData ?? false) ? templateData : {x: templateData.x, y: templateData.y, size: templateData.size, cancelled: templateData.cancelled},
@@ -409,7 +419,7 @@ export class api {
     const scale = templateData.size / protoData.width;
 
     /* insert changes from the template into the updates data */
-    mergeObject(updates, {token: {rotation: templateData.direction + (updates.token.rotation ?? 0), width: templateData.size, height: protoData.height*scale}});
+    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.size, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
