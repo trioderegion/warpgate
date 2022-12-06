@@ -106,13 +106,16 @@ export class Gateway {
   /** 
    * dnd5e helper function
    * @param { Item5e } item
+   * @param {Object} [options={}]
+   * @param {Object} [config={}] V10 Only field
    * @todo abstract further out of core code
    */
-  static async _rollItemGetLevel(item) {
-    const result = await item.roll();
+  static async _rollItemGetLevel(item, options = {}, config = {}) {
+
+    const result = MODULE.isV10 ?  await item.use(config, options) : await item.roll(options);
     // extract the level at which the spell was cast
     if (!result) return 0;
-    const content = result.data.content;
+    const content = MODULE.isV10 ? result.content : result.data.content;
     const level = content.charAt(content.indexOf("data-spell-level") + 18);
     return parseInt(level);
   }
