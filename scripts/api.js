@@ -404,14 +404,17 @@ export class api {
     /* gather data needed for configuring the display of the crosshairs */
     const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
     const rotation = updates.token?.rotation ?? protoData.rotation ?? 0;
-
-    /** @type {CrosshairsData} */
-    const templateData = await Gateway.showCrosshairs({
+    const crosshairsConfig = foundry.utils.mergeObject(options.crosshairs ?? {}, {
       size: protoData.width,
       icon: tokenImg,
       name: protoData.name,
-      ...options.crosshairs ?? {}
-    }, callbacks);
+      direction: 0,
+    }, {inplace: true, overwrite: false});
+
+    crosshairsConfig.direction = rotation + options.crosshairs.direction;
+
+    /** @type {CrosshairsData} */
+    const templateData = await Gateway.showCrosshairs(crosshairsConfig, callbacks);
 
     const eventPayload = {
       templateData: (options.overrides?.includeRawData ?? false) ? templateData : {x: templateData.x, y: templateData.y, size: templateData.size, cancelled: templateData.cancelled},
