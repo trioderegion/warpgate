@@ -404,11 +404,16 @@ export class Mutator {
       if(typeof single[key] == 'string') return;
 
       /* convert value to plain object if possible */
-      if(single[key].toObject) single[key] = single[key].toObject();
+      if(single[key]?.toObject) single[key] = single[key].toObject();
 
-      /* delete unupdatable values */
-      delete single[key]._id;
-      delete single[key].id;
+      if(single[key] == undefined) {
+        single[key] = {};
+      } else {
+        /* delete unupdatable values */
+        delete single[key]._id;
+        delete single[key].id;
+      }
+      return;
     });
   }
 
@@ -495,9 +500,11 @@ export class Mutator {
 
     const mutateData = await Mutator._popMutation(tokenDoc?.actor, mutationName);
 
-    if (tokenDoc.actor?.isOwner) {
+    if(!mutateData) {
+      return;
+    }
 
-      if (!!mutateData) {
+    if (tokenDoc.actor?.isOwner) {
 
         /* the provided options object will be mangled for our use -- copy it to
          * preserve the user's original input if requested (default).
@@ -516,9 +523,8 @@ export class Mutator {
           uuid: tokenDoc.uuid, 
           updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
           options});
-      }
     } else {
-      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutationName, options});
+      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
     }
 
     return mutateData;
@@ -526,9 +532,9 @@ export class Mutator {
 
   static async _popMutation(actor, mutationName) {
 
-    let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate');
+    let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate') ?? [];
 
-    if (!mutateStack || !actor){
+    if (mutateStack.length == 0 || !actor){
       logger.debug(`Provided actor is undefined or has no mutation stack. Cannot pop.`);
       return undefined;
     }
