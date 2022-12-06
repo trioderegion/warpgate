@@ -22,12 +22,7 @@ import {
   MODULE
 } from './module.js'
 
-/*** MUTATION DATA STRUCTURE ****/
-//  delta, (i.e. update object needed to revert this mutation)
-//  user: game.user.id,
-//  comparisonKeys: options.comparisonKeys ?? {},
-//  updateOpts: options.updateOpts ?? {}
-//  name: options.name ?? randomID()
+/** @typedef {import('./api.js').Shorthand} Shorthand */
 
 /** 
  * @typedef MutationData
