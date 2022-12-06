@@ -143,8 +143,9 @@ import { MutationStack } from './mutation-stack.js'
  * @property {boolean} [collision=duplicates>1] controls whether the placement of a token collides with any other token 
  *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
  *  than 1, default is `true`; otherwise `false`.
- * @property {object} [overrides]
- * @property {boolean} [overrides.includeRawData = false] See corresponding property description `overrides.includeRawData` in {@link WorkflowOptions}
+ * @property {object} [overrides] See corresponding property descriptions in {@link WorkflowOptions}
+ * @property {boolean} [overrides.includeRawData = false] 
+ * @property {boolean} [overrides.preserveData = false]
  */
 
  /**
@@ -373,8 +374,17 @@ export class api {
       [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
+    /* the provided update object will be mangled for our use -- copy it to
+     * preserve the user's original input if requested (default).
+     */
+    if(!options.overrides?.preserveData) {
+      updates = MODULE.copy(updates, 'error.badUpdate.complex');
+      if(!updates) return [];
+      options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+    }
+
     /* insert token updates to modify token actor permission */
-    updates = MODULE.shimUpdate(updates);
+    MODULE.shimUpdate(updates);
     foundry.utils.mergeObject(updates, {token: mergeObject(updates.token ?? {}, {actorData}, {overwrite:false})});
 
     /* Detect if the protoData is actually a name, and generate token data */
@@ -447,7 +457,16 @@ export class api {
       return [];
     }
 
-    updates = MODULE.shimUpdate(updates);
+    /* the provided update object will be mangled for our use -- copy it to
+     * preserve the user's original input if requested (default).
+     */
+    if(!options.overrides?.preserveData) {
+      updates = MODULE.copy(updates, 'error.badUpdate.complex');
+      if(!updates) return [];
+      options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+    }
+
+    MODULE.shimUpdate(updates);
 
     /* Detect if the protoData is actually a name, and generate token data */
     if (typeof protoData == 'string'){
