@@ -38,6 +38,10 @@ const NAME = "Mutator";
  *  raw data used for its operation (such as the final mutation data to be applied, or the resulting packed actor 
  *  data from a spawn). **Caution, use judiciously** -- enabling this option can result in potentially large
  *  socket data transfers during warpgate operation.
+ * @property {boolean} [overrides.preserveData = false] If enabled, the provided updates data object will
+ *  be modified in-place as needed for internal Warp Gate operations and will NOT be re-usable for a
+ *  subsequent operation. Otherwise, the provided data is copied and modified internally, preserving
+ *  the original input for subsequent re-use.
  */
 
 /**
@@ -313,6 +317,15 @@ export class Mutator {
       return false;
     }
 
+    /* the provided update object will be mangled for our use -- copy it to
+     * preserve the user's original input if requested (default).
+     */
+    if(!options.overrides?.preserveData) {
+      updates = MODULE.copy(updates, 'error.badUpdate.complex');
+      if(!updates) return false;
+      options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+    }
+
     /* ensure that we are working with clean data */
     await Mutator.clean(updates, options);
 
@@ -337,7 +350,7 @@ export class Mutator {
 
 
     /* expand the object to handle property paths correctly */
-    updates = MODULE.shimUpdate(updates);
+    MODULE.shimUpdate(updates);
 
     /* permanent changes are not tracked */
     if(!options.permanent) {
@@ -475,7 +488,8 @@ export class Mutator {
    * @param {String} [mutationName]. Specific mutation name to revert. optional.
    * @param {WorkflowOptions} [options]
    *
-   * @return {Promise<MutationData>} The mutation data (updates) used for this revert operation
+   * @return {Promise<MutationData|undefined>} The mutation data (updates) used for this 
+   *  revert operation or `undefined` if none occured.
    */
   static async revertMutation(tokenDoc, mutationName = undefined, options = {}) {
 
@@ -483,11 +497,18 @@ export class Mutator {
 
     if (tokenDoc.actor?.isOwner) {
 
-
       if (!!mutateData) {
 
+        /* the provided options object will be mangled for our use -- copy it to
+         * preserve the user's original input if requested (default).
+         */
+        if(!options.overrides?.preserveData) {
+          options = MODULE.copy(options, 'error.badUpdate.complex');
+          if(!options) return;
+          options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+        }
         /* perform the revert with the stored delta */
-        mutateData.delta = MODULE.shimUpdate(mutateData.delta);
+        MODULE.shimUpdate(mutateData.delta);
         await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
 
         /* notify clients */

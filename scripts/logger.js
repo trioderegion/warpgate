@@ -42,6 +42,11 @@ export class logger {
     ui.notifications.error(`${MODULE?.data?.title ?? "" } | ERROR | ${args[0]}`);
   }
 
+  static catchThrow(thrown, toastMsg = undefined) {
+    console.warn(thrown);
+    if(toastMsg) logger.error(toastMsg);
+  }
+
   static register(){
     this.settings()
   }
@@ -50,7 +55,7 @@ export class logger {
     const config = true;
     const settingsData = {
       debug : {
-        scope: "world", config, default: false, type: Boolean,
+        scope: "client", config, default: false, type: Boolean,
       },
     };
 

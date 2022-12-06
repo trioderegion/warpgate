@@ -73,6 +73,7 @@
       "findTargetLabel": "Find Target"
     },
     "error" : {
+      "unknown": "Unknown error occured during operation. See console for details.",
       "missingPerms": "Operation blocked due to missing user permissions: {permList}.",
       "noGm" : "There is no GM available for dismiss request.",
       "unownedDelete" : "Cannot delete unowned token.",
@@ -95,6 +96,9 @@
         "missing": {
           "type": "{embeddedName} Add data missing 'type' field. Was this supposed to be an Update instead? Double-check comparison keys and {embeddedName} identifier."
         }
+      },
+      "badUpdate": {
+        "complex": "Updates object cannot be serialized or contains non-primitive/object/array properties. Operation aborted."
       }
     }
 
