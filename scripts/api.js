@@ -149,7 +149,7 @@ import { MutationStack } from './mutation-stack.js'
  */
 
  /**
-  * @typedef {SpawningOptions} WarpOptions
+  * @typedef {Object} WarpOptions
   * @prop {CrosshairsConfig} [crosshairs] A crosshairs configuration object to be used for this spawning process
   */
 
@@ -355,7 +355,7 @@ export class api {
    * @param {PreSpawn} [callbacks.pre] 
    * @param {PostSpawn} [callbacks.post] 
    * @param {ParallelShow} [callbacks.show]
-   * @param {WarpOptions | SpawningOptions} [options]
+   * @param {WarpOptions & SpawningOptions} [options]
    *
    * @return {Promise<Array<String>>} list of created token ids
    */

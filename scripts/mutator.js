@@ -24,8 +24,10 @@ const NAME = "Mutator";
 /** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
 /** @typedef {import('./mutation-stack.js').MutationData} MutationData */
 /** @typedef {import('./api.js').Shorthand} Shorthand */
+/** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
 
 /**
+ * Workflow options
  * @typedef {Object} WorkflowOptions
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
  * @property {string} [description] Description of this mutation for potential display to the remote owning user.
@@ -42,10 +44,12 @@ const NAME = "Mutator";
  *  be modified in-place as needed for internal Warp Gate operations and will NOT be re-usable for a
  *  subsequent operation. Otherwise, the provided data is copied and modified internally, preserving
  *  the original input for subsequent re-use.
+ *
  */
 
 /**
- * @typedef {WorkflowOptions} MutationOptions
+ *
+ * @typedef {Object} MutationOptions
  * @property {boolean} [permanent=false] Indicates if this should be treated as a permanent change
  *  to the actor, which does not store the update delta information required to revert mutation.
  * @property {string} [name=randomId()] User provided name, or identifier, for this particular
@@ -80,8 +84,6 @@ const NAME = "Mutator";
  * @returns {Promise<any>|any}
  */
 
-
-
 export class Mutator {
   static register() {
     Mutator.defaults();
@@ -95,7 +97,7 @@ export class Mutator {
   }
 
   static hooks() {
-    Hooks.on('preUpdateToken', Mutator._correctActorLink)
+    if(!MODULE.isV10) Hooks.on('preUpdateToken', Mutator._correctActorLink)
   }
 
   static _correctActorLink(tokenDoc, update) {
@@ -244,19 +246,19 @@ export class Mutator {
     }
 
     try {
-      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, updateOpts[embeddedName] ?? {});
+      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, updateOpts);
     } catch (e) {
       logger.error(e);
     } 
 
     try {
-      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates, updateOpts[embeddedName] ?? {});
+      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates, updateOpts);
     } catch (e) {
       logger.error(e);
     }
 
     try {
-      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes, updateOpts[embeddedName] ?? {});
+      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes, updateOpts);
     } catch (e) {
       logger.error(e);
     }
@@ -386,12 +388,17 @@ export class Mutator {
     return mutateInfo;
   }
 
-  static _createMutateInfo( delta, options ) {
+  /**
+   * @returns {MutationData}
+   */
+  static _createMutateInfo( delta, options = {} ) {
+    options.name ??= randomID();
     return {
       delta,
       user: game.user.id,
       comparisonKeys: options.comparisonKeys ?? {},
-      name: options.name ?? randomID()
+      name: options.name,
+      updateOpts: options.updateOpts ?? {},
     };
   }
 
@@ -408,17 +415,16 @@ export class Mutator {
 
       if(single[key] == undefined) {
         single[key] = {};
-      } else {
-        /* delete unupdatable values */
-        delete single[key]._id;
-        delete single[key].id;
-      }
+      } 
+
       return;
     });
   }
 
   /**
    * Cleans and validates mutation data
+   * @param {Shorthand} updates
+   * @param {SpawningOptions & MutationOptions} options
    */
   static async clean(updates, options) {
 
@@ -454,6 +460,24 @@ export class Mutator {
         options.comparisonKeys ?? {},
         {ActiveEffect: 'label'},
         {overwrite:false, inplace:false});
+
+      /* if `id` is being used as the comparison key, 
+       * change it to `_id` and set the option to `keepId=true`
+       * if either are present
+       */
+      options.comparisonKeys ??= {};
+      options.updateOpts ??= {};
+      Object.keys(options.comparisonKeys).forEach( embName => {
+
+        /* switch to _id if needed */
+        if(options.comparisonKeys[embName] == 'id') options.comparisonKeys[embName] = '_id'
+
+        /* flag this update to preserve ids */
+        if(options.comparisonKeys[embName] == '_id') {
+          foundry.utils.mergeObject(options.updateOpts, {embedded: {[embName]: {keepId: true}}});
+        }
+      });
+      
     }
 
   }
