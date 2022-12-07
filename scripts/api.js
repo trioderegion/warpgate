@@ -411,7 +411,7 @@ export class api {
       direction: 0,
     }, {inplace: true, overwrite: false});
 
-    crosshairsConfig.direction = rotation + options.crosshairs.direction;
+    crosshairsConfig.direction += rotation;
 
     /** @type {CrosshairsData} */
     const templateData = await Gateway.showCrosshairs(crosshairsConfig, callbacks);
