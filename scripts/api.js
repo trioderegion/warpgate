@@ -50,19 +50,22 @@ import { MutationStack } from './mutation-stack.js'
 
 /**
  * An object for pan and ping options
- * @typedef {object} SpawnPan
- * @property {boolean} [pan] Whether to pan to the spawned token
+ * @typedef {Object} NoticeOpts
+ * @property {boolean} [pan = false] Whether to pan to the spawned token
  * @property {object} [ping] Object with ping options
- * @property {boolean} [ping.pull] Whether to pull attention to the ping location
- * @property {string} [ping.type] Ping type options from Foundry: 'PULSE', 'ALERT', 'PULL', 'ARROW' - case insensitive
+ * @property {boolean} [ping.pull = false] Whether to pull attention to the ping location
+ * @property {string} [ping.type = 'PULSE'] Ping type options from Foundry: 'PULSE', 'ALERT', 'PULL', 'ARROW' - case insensitive
+ *
  * @example
- * const spawnPan = {
+ * ```js
+ * const notice = {
  *  pan: true,
  *  ping: {
  *   pull: true,
  *   type: 'PULSE'
  *  }
  * }
+ * ```
  */
 
 /**
@@ -160,7 +163,7 @@ import { MutationStack } from './mutation-stack.js'
  * @property {boolean} [collision=duplicates>1] controls whether the placement of a token collides with any other token 
  *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
  *  than 1, default is `true`; otherwise `false`.
- * @property {SpawnPan} [spawnpan] will pan or ping the canvas to the token's position after spawning.
+ * @property {NoticeOpts} [notice] will pan or ping the canvas to the token's position after spawning.
  * @property {object} [overrides] See corresponding property descriptions in {@link WorkflowOptions}
  * @property {boolean} [overrides.includeRawData = false] 
  * @property {boolean} [overrides.preserveData = false]
@@ -551,18 +554,19 @@ export class api {
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
 
       /* pan to token if first iteration */
+      //TODO integrate into stock event data instead of hijacking mutate events
       if (iteration == 0) {
-        if (options.spawnpan?.ping?.pull) {
+        if (options.notice?.ping?.pull) {
 
           warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(spawnLocation, request.options.spawnpan)}, () => MODULE.isFirstGM());
 
-        } else if (!!options.spawnpan?.pan) {
+        } else if (!!options.notice?.pan) {
 
           warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(spawnLocation, request.options.spawnpan)});
 
-        } else if (options.spawnpan) {
+        } else if (options.notice) {
 
-          await MODULE.tokenPan(spawnLocation, options.spawnpan)
+          await MODULE.tokenPan(spawnLocation, options.notice)
         }
       }
 
@@ -583,6 +587,7 @@ export class api {
         options,
         iteration
       } 
+
       await warpgate.event.notify(warpgate.EVENT.SPAWN, eventPayload);
 
       /* post creation callback */

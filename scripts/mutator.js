@@ -22,7 +22,7 @@ import {RemoteMutator} from './remote-mutator.js'
 const NAME = "Mutator";
 
 /** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
-/** @typedef {import('./api.js').SpawnPan} MutatePan */
+/** @typedef {import('./api.js').NoticeOpts} NoticeOpts */
 /** @typedef {import('./mutation-stack.js').MutationData} MutationData */
 /** @typedef {import('./api.js').Shorthand} Shorthand */
 /** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
@@ -32,7 +32,7 @@ const NAME = "Mutator";
  * @typedef {Object} WorkflowOptions
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
  * @property {string} [description] Description of this mutation for potential display to the remote owning user.
- * @property {MutatePan} [mutatepan] Options for placing a ping or pan to the token after mutation
+ * @property {NoticeOpts} [mutatepan] Options for placing a ping or pan to the token after mutation
  * @property {Object} [overrides]
  * @property {boolean} [overrides.alwaysAccept = false] Force the receiving clients "auto-accept" state,
  *  regardless of world/client settings
@@ -440,9 +440,9 @@ export class Mutator {
   /**
    * Cleans and validates mutation data
    * @param {Shorthand} updates
-   * @param {SpawningOptions & MutationOptions} options
+   * @param {SpawningOptions & MutationOptions} [options]
    */
-  static async clean(updates, options) {
+  static async clean(updates, options = undefined) {
 
     if(!!updates) {
       /* ensure we are working with raw objects */
