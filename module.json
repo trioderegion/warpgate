@@ -1,7 +1,7 @@
 {
   "title": "Warp Gate",
   "description": "Utility module for spawning and modifying tokens.",
-  "version": "1.0",
+  "version": "1.15.4",
   "authors": [
     {
       "name": "honeybadger",

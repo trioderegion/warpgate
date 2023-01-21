@@ -117,7 +117,7 @@ export class Crosshairs extends MeasuredTemplate {
 
     /** @type {number} */
     this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance)
-      * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid);
+      * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid) /2;
   }
 
   /**
@@ -130,9 +130,9 @@ export class Crosshairs extends MeasuredTemplate {
       cancelled: this.cancelled,
       scene: this.scene,
       radius: this.radius,
-      size: this.data.distance,
+      size: MODULE.isV10 ? this.document.distance : this.data.distance,
     });
-
+    delete data.width;
     return data;
   }
 
@@ -410,7 +410,7 @@ export class Crosshairs extends MeasuredTemplate {
     const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
 
     const destination = Crosshairs.getSnappedPosition(MODULE.isV10 ? this.document : this.data, this.interval);
-    this.radius = document.distance * thisSceneSize;
+    this.radius = document.distance * thisSceneSize /2;
     this.cancelled = false;
 
     if ( MODULE.isV10 ) this.document.updateSource({...destination});
@@ -437,7 +437,7 @@ export class Crosshairs extends MeasuredTemplate {
       distance = Math.max(distance, 0.25);
       if ( MODULE.isV10 ) this.document.updateSource({distance});
       else this.data.update({distance});
-      this.radius = document.distance * thisSceneSize;
+      this.radius = document.distance * thisSceneSize /2;
     } else {
       const direction = document.direction + (snap * Math.sign(event.deltaY));
       if ( MODULE.isV10 ) this.document.updateSource({direction});
