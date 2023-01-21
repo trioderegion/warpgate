@@ -2,8 +2,8 @@
   "warpgate": {
     "setting" : {
       "debug" : {
-        "name" : "Debug",
-        "hint" : "Enables extended debug logging and data collection"
+        "name" : "Debug Mode",
+        "hint" : "Client-side setting enabling extended debug logging and data collection"
       },
       "openDelete" : {
         "name" : "Unrestricted dismissal",
@@ -36,6 +36,14 @@
       "revertButtonBehavior": {
         "name": "Revert button behavior",
         "hint": "Default action when the button is clicked. Shift+Click will perform the other behavior."
+      },
+      "suppressToast": {
+        "name": "Suppress feedback toasts by default",
+        "hint": "World-level setting controlling the display of toasts during remote operations."
+      },
+      "suppressToastLocal": {
+        "name": "Local feedback toast suppression",
+        "hint": "Client-side setting controlling override of global remote operation feedback toasts."
       },
       "option": {
         "disabled": "Disabled",
@@ -73,6 +81,7 @@
       "findTargetLabel": "Find Target"
     },
     "error" : {
+      "unknown": "Unknown error occured during operation. See console for details.",
       "missingPerms": "Operation blocked due to missing user permissions: {permList}.",
       "noGm" : "There is no GM available for dismiss request.",
       "unownedDelete" : "Cannot delete unowned token.",
@@ -95,6 +104,9 @@
         "missing": {
           "type": "{embeddedName} Add data missing 'type' field. Was this supposed to be an Update instead? Double-check comparison keys and {embeddedName} identifier."
         }
+      },
+      "badUpdate": {
+        "complex": "Updates object cannot be serialized or contains non-primitive/object/array properties. Operation aborted."
       }
     }
 

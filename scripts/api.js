@@ -122,8 +122,11 @@ import { MutationStack } from './mutation-stack.js'
  * Each field is optional with its default value listed.
  *
  * @typedef {Object} CrosshairsConfig
+ * @property {number} [x=currentMousePosX] Initial x location for display
+ * @property {number} [y=currentMousePosY] Initial y location for display
  * @property {number} [size=1] The initial diameter of the crosshairs outline in grid squares
  * @property {string} [icon = 'icons/svg/dice-target.svg'] The icon displayed in the center of the crosshairs
+ * @property {number} [direction = 0] Initial rotation angle (in degrees) of the displayed icon (if any). 0 degrees corresponds to <0, 1> unit vector (y+ in screen space, or 'down' in "monitor space"). If this is included within a {@link WarpOptions} object, it is treated as a delta change to the token/update's current rotation value. Positive values rotate clockwise; negative values rotate counter-clockwise. 
  * @property {string} [label = ''] The text to display below the crosshairs outline
  * @property {{x:number, y:number}} [labelOffset={x:0,y:0}] Pixel offset from the label's initial relative position below the outline
  * @property {*} [tag='crosshairs'] Arbitrary value used to identify this crosshairs object
@@ -158,12 +161,13 @@ import { MutationStack } from './mutation-stack.js'
  *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
  *  than 1, default is `true`; otherwise `false`.
  * @property {SpawnPan} [spawnpan] will pan or ping the canvas to the token's position after spawning.
- * @property {object} [overrides]
- * @property {boolean} [overrides.includeRawData = false] See corresponding property description `overrides.includeRawData` in {@link WorkflowOptions}
+ * @property {object} [overrides] See corresponding property descriptions in {@link WorkflowOptions}
+ * @property {boolean} [overrides.includeRawData = false] 
+ * @property {boolean} [overrides.preserveData = false]
  */
 
  /**
-  * @typedef {SpawningOptions} WarpOptions
+  * @typedef {Object} WarpOptions
   * @prop {CrosshairsConfig} [crosshairs] A crosshairs configuration object to be used for this spawning process
   */
 
@@ -369,7 +373,7 @@ export class api {
    * @param {PreSpawn} [callbacks.pre] 
    * @param {PostSpawn} [callbacks.post] 
    * @param {ParallelShow} [callbacks.show]
-   * @param {WarpOptions | SpawningOptions} [options]
+   * @param {WarpOptions & SpawningOptions} [options]
    *
    * @return {Promise<Array<String>>} list of created token ids
    */
@@ -388,8 +392,17 @@ export class api {
       [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
+    /* the provided update object will be mangled for our use -- copy it to
+     * preserve the user's original input if requested (default).
+     */
+    if(!options.overrides?.preserveData) {
+      updates = MODULE.copy(updates, 'error.badUpdate.complex');
+      if(!updates) return [];
+      options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+    }
+
     /* insert token updates to modify token actor permission */
-    updates = MODULE.shimUpdate(updates);
+    MODULE.shimUpdate(updates);
     foundry.utils.mergeObject(updates, {token: mergeObject(updates.token ?? {}, {actorData}, {overwrite:false})});
 
     /* Detect if the protoData is actually a name, and generate token data */
@@ -406,10 +419,20 @@ export class api {
     
     if(options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.minimize();
 
+    /* gather data needed for configuring the display of the crosshairs */
     const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
+    const rotation = updates.token?.rotation ?? protoData.rotation ?? 0;
+    const crosshairsConfig = foundry.utils.mergeObject(options.crosshairs ?? {}, {
+      size: protoData.width,
+      icon: tokenImg,
+      name: protoData.name,
+      direction: 0,
+    }, {inplace: true, overwrite: false});
+
+    crosshairsConfig.direction += rotation;
 
     /** @type {CrosshairsData} */
-    const templateData = await Gateway.showCrosshairs({size: protoData.width, icon: tokenImg, name: protoData.name, ...options.crosshairs ?? {} }, callbacks);
+    const templateData = await Gateway.showCrosshairs(crosshairsConfig, callbacks);
 
     const eventPayload = {
       templateData: (options.overrides?.includeRawData ?? false) ? templateData : {x: templateData.x, y: templateData.y, size: templateData.size, cancelled: templateData.cancelled},
@@ -427,7 +450,7 @@ export class api {
     const scale = templateData.size / protoData.width;
 
     /* insert changes from the template into the updates data */
-    mergeObject(updates, {token: {rotation: templateData.direction + (updates.token.rotation ?? 0), width: templateData.size, height: protoData.height*scale}});
+    mergeObject(updates, {token: {rotation: templateData.direction, width: templateData.size, height: protoData.height*scale}});
 
     return api._spawnAt(spawnLocation, protoData, updates, callbacks, options);
   }
@@ -455,7 +478,16 @@ export class api {
       return [];
     }
 
-    updates = MODULE.shimUpdate(updates);
+    /* the provided update object will be mangled for our use -- copy it to
+     * preserve the user's original input if requested (default).
+     */
+    if(!options.overrides?.preserveData) {
+      updates = MODULE.copy(updates, 'error.badUpdate.complex');
+      if(!updates) return [];
+      options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+    }
+
+    MODULE.shimUpdate(updates);
 
     /* Detect if the protoData is actually a name, and generate token data */
     if (typeof protoData == 'string'){

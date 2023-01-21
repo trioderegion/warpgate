@@ -114,6 +114,20 @@ export class MODULE {
     return foundry.utils.expandObject(result);
   }
 
+  /**
+   * Duplicates a compatible object (non-complex).
+   *
+   * @returns {Object}
+   */
+  static copy(source, errorString = 'error.unknown') {
+    try {
+      return foundry.utils.deepClone(source, {strict:true});
+    } catch (err) {
+      logger.catchThrow(err, MODULE.localize(errorString));
+    }
+
+    return;
+  }
   
   /**
    * Returns the first active user with owner permissions for the given document, 
@@ -242,6 +256,9 @@ export class MODULE {
     return mouse.getLocalPosition(canvas.app.stage);
   }
 
+  /**
+   * @returns {undefined} provided updates object modified in-place
+   */
   static shimUpdate(updates) {
     if(MODULE.isV10) {
 
@@ -257,8 +274,6 @@ export class MODULE {
       });
 
     }
-
-    return updates;
   }
 
   static shimClassData(cls, change) {

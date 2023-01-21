@@ -25,11 +25,14 @@ const NAME = "Mutator";
 /** @typedef {import('./api.js').SpawnPan} MutatePan */
 /** @typedef {import('./mutation-stack.js').MutationData} MutationData */
 /** @typedef {import('./api.js').Shorthand} Shorthand */
+/** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
 
 /**
+ * Workflow options
  * @typedef {Object} WorkflowOptions
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
  * @property {string} [description] Description of this mutation for potential display to the remote owning user.
+ * @property {MutatePan} [mutatepan] Options for placing a ping or pan to the token after mutation
  * @property {Object} [overrides]
  * @property {boolean} [overrides.alwaysAccept = false] Force the receiving clients "auto-accept" state,
  *  regardless of world/client settings
@@ -39,11 +42,16 @@ const NAME = "Mutator";
  *  raw data used for its operation (such as the final mutation data to be applied, or the resulting packed actor 
  *  data from a spawn). **Caution, use judiciously** -- enabling this option can result in potentially large
  *  socket data transfers during warpgate operation.
- *  @property {MutatePan} [mutatepan] Options for placing a ping or pan to the token after mutation
+ * @property {boolean} [overrides.preserveData = false] If enabled, the provided updates data object will
+ *  be modified in-place as needed for internal Warp Gate operations and will NOT be re-usable for a
+ *  subsequent operation. Otherwise, the provided data is copied and modified internally, preserving
+ *  the original input for subsequent re-use.
+ *
  */
 
 /**
- * @typedef {WorkflowOptions} MutationOptions
+ *
+ * @typedef {Object} MutationOptions
  * @property {boolean} [permanent=false] Indicates if this should be treated as a permanent change
  *  to the actor, which does not store the update delta information required to revert mutation.
  * @property {string} [name=randomId()] User provided name, or identifier, for this particular
@@ -77,8 +85,6 @@ const NAME = "Mutator";
  * @returns {Promise<any>|any}
  */
 
-
-
 export class Mutator {
   static register() {
     Mutator.defaults();
@@ -92,7 +98,7 @@ export class Mutator {
   }
 
   static hooks() {
-    Hooks.on('preUpdateToken', Mutator._correctActorLink)
+    if(!MODULE.isV10) Hooks.on('preUpdateToken', Mutator._correctActorLink)
   }
 
   static _correctActorLink(tokenDoc, update) {
@@ -241,19 +247,19 @@ export class Mutator {
     }
 
     try {
-      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, updateOpts[embeddedName] ?? {});
+      if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, updateOpts);
     } catch (e) {
       logger.error(e);
     } 
 
     try {
-      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates, updateOpts[embeddedName] ?? {});
+      if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates, updateOpts);
     } catch (e) {
       logger.error(e);
     }
 
     try {
-      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes, updateOpts[embeddedName] ?? {});
+      if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes, updateOpts);
     } catch (e) {
       logger.error(e);
     }
@@ -285,7 +291,7 @@ export class Mutator {
     /** perform the updates */
     if (updates.actor) await actor.update(updates.actor, updateOpts.actor ?? {});
 
-    await Mutator._updateEmbedded(actor, updates.embedded, comparisonKeys, updateOpts.embedded = {});
+    await Mutator._updateEmbedded(actor, updates.embedded, comparisonKeys, updateOpts.embedded);
 
     return;
   }
@@ -314,6 +320,15 @@ export class Mutator {
       return false;
     }
 
+    /* the provided update object will be mangled for our use -- copy it to
+     * preserve the user's original input if requested (default).
+     */
+    if(!options.overrides?.preserveData) {
+      updates = MODULE.copy(updates, 'error.badUpdate.complex');
+      if(!updates) return false;
+      options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+    }
+
     /* ensure that we are working with clean data */
     await Mutator.clean(updates, options);
 
@@ -338,7 +353,7 @@ export class Mutator {
 
 
     /* expand the object to handle property paths correctly */
-    updates = MODULE.shimUpdate(updates);
+    MODULE.shimUpdate(updates);
 
     /* permanent changes are not tracked */
     if(!options.permanent) {
@@ -389,12 +404,17 @@ export class Mutator {
     return mutateInfo;
   }
 
-  static _createMutateInfo( delta, options ) {
+  /**
+   * @returns {MutationData}
+   */
+  static _createMutateInfo( delta, options = {} ) {
+    options.name ??= randomID();
     return {
       delta,
       user: game.user.id,
       comparisonKeys: options.comparisonKeys ?? {},
-      name: options.name ?? randomID()
+      name: options.name,
+      updateOpts: options.updateOpts ?? {},
     };
   }
 
@@ -407,16 +427,20 @@ export class Mutator {
       if(typeof single[key] == 'string') return;
 
       /* convert value to plain object if possible */
-      if(single[key].toObject) single[key] = single[key].toObject();
+      if(single[key]?.toObject) single[key] = single[key].toObject();
 
-      /* delete unupdatable values */
-      delete single[key]._id;
-      delete single[key].id;
+      if(single[key] == undefined) {
+        single[key] = {};
+      } 
+
+      return;
     });
   }
 
   /**
    * Cleans and validates mutation data
+   * @param {Shorthand} updates
+   * @param {SpawningOptions & MutationOptions} options
    */
   static async clean(updates, options) {
 
@@ -452,6 +476,24 @@ export class Mutator {
         options.comparisonKeys ?? {},
         {ActiveEffect: 'label'},
         {overwrite:false, inplace:false});
+
+      /* if `id` is being used as the comparison key, 
+       * change it to `_id` and set the option to `keepId=true`
+       * if either are present
+       */
+      options.comparisonKeys ??= {};
+      options.updateOpts ??= {};
+      Object.keys(options.comparisonKeys).forEach( embName => {
+
+        /* switch to _id if needed */
+        if(options.comparisonKeys[embName] == 'id') options.comparisonKeys[embName] = '_id'
+
+        /* flag this update to preserve ids */
+        if(options.comparisonKeys[embName] == '_id') {
+          foundry.utils.mergeObject(options.updateOpts, {embedded: {[embName]: {keepId: true}}});
+        }
+      });
+      
     }
 
   }
@@ -491,19 +533,29 @@ export class Mutator {
    * @param {String} [mutationName]. Specific mutation name to revert. optional.
    * @param {WorkflowOptions} [options]
    *
-   * @return {Promise<MutationData>} The mutation data (updates) used for this revert operation
+   * @return {Promise<MutationData|undefined>} The mutation data (updates) used for this 
+   *  revert operation or `undefined` if none occured.
    */
   static async revertMutation(tokenDoc, mutationName = undefined, options = {}) {
 
     const mutateData = await Mutator._popMutation(tokenDoc?.actor, mutationName);
 
+    if(!mutateData) {
+      return;
+    }
+
     if (tokenDoc.actor?.isOwner) {
 
-
-      if (!!mutateData) {
-
+        /* the provided options object will be mangled for our use -- copy it to
+         * preserve the user's original input if requested (default).
+         */
+        if(!options.overrides?.preserveData) {
+          options = MODULE.copy(options, 'error.badUpdate.complex');
+          if(!options) return;
+          options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+        }
         /* perform the revert with the stored delta */
-        mutateData.delta = MODULE.shimUpdate(mutateData.delta);
+        MODULE.shimUpdate(mutateData.delta);
         await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
 
         /* notify clients */
@@ -511,9 +563,8 @@ export class Mutator {
           uuid: tokenDoc.uuid, 
           updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
           options});
-      }
     } else {
-      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutationName, options});
+      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
     }
 
     return mutateData;
@@ -521,9 +572,9 @@ export class Mutator {
 
   static async _popMutation(actor, mutationName) {
 
-    let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate');
+    let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate') ?? [];
 
-    if (!mutateStack || !actor){
+    if (mutateStack.length == 0 || !actor){
       logger.debug(`Provided actor is undefined or has no mutation stack. Cannot pop.`);
       return undefined;
     }
