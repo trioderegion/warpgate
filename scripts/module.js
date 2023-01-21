@@ -33,6 +33,14 @@ export class MODULE {
     return game.settings.get(MODULE.data.name, key);
   }
 
+  /**
+   * Returns the localized string for a given warpgate scoped i18n key
+   *
+   * @static
+   * @param {*} key
+   * @returns 
+   * @memberof MODULE
+   */
   static localize(key) {
     return game.i18n.localize(`warpgate.${key}`);
   }
@@ -60,15 +68,56 @@ export class MODULE {
     return MODULE.canUser(user, reqs);
   }
 
-  static async tokenPan(spawnLocation, pingSettings = {ping:{pull:false,type:'pulse'}}) {
-    if (pingSettings.pan) {
-      await canvas.animatePan(spawnLocation);
-    } else if (!!pingSettings.ping) {
-      await canvas.ping(spawnLocation, {
-        scene: canvas.scene.id,
-        pull: pingSettings.ping?.pull,
-        style: CONFIG.Canvas.pings.types[`${pingSettings.ping?.style?.toUpperCase()}`]
-      });
+  /**
+   * Handles notice request from spawns and mutations
+   *
+   * @static
+   * @param {{x: Number, y: Number}} location
+   * @param {string} sceneId
+   * @param {object} options
+   * @param {string} [options.ping] Creates an animated ping at designated location if a valid ping style from the values contained in `CONFIG.Canvas.pings.types`
+   * @param {boolean | Number} [options.pan] Pans all receivers to designated location if value is Truthy using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is provided, it is used as the duration of the pan.
+   * @param {Number} [options.zoom] Alters zoom level of all receivers, independent of pan/ping
+   * @param {string} [options.fromUser] The user who triggered the notice
+   * @memberof MODULE
+   */
+  static async handleNotice({x, y}, sceneId, {ping, pan, fromUser, zoom} = {}) {
+
+    /* can only operate if the user is on the scene requesting notice */
+    if( canvas.ready && !!sceneId && canvas.scene?.id === sceneId ) {
+
+      const panSettings = {};
+      const hasLoc = x !== undefined && y !== undefined;
+      const doPan = !!pan;
+      const doZoom = !!zoom;
+      const doPing = !!ping;
+
+      if(hasLoc) {
+        panSettings.x = x;
+        panSettings.y = y;
+      }
+
+      if(doPan) {
+        panSettings.duration = Number.isNumeric(pan) && pan !== true ? Number(pan) : CONFIG.Canvas.pings.pullSpeed;
+      }
+
+      if (doZoom) {
+        panSettings.scale = Math.min(CONFIG.Canvas.maxZoom, zoom);
+      }
+
+      if (pan) {
+        await canvas.animatePan(panSettings);
+      }
+
+      if (doPing && hasLoc) {
+        const user = game.users.get(fromUser);
+        const location = {x: panSettings.x, y: panSettings.y};
+
+        /* draw the ping, either onscreen or offscreen */
+        canvas.isOffscreen(location) ?
+          canvas.controls.drawOffscreenPing(location, {scene: sceneId, style: CONFIG.Canvas.pings.types.ARROW, user}) :
+          canvas.controls.drawPing(location, {scene: sceneId, style: ping, user});
+      }
     }
   }
 

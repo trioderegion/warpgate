@@ -50,11 +50,11 @@ import { MutationStack } from './mutation-stack.js'
 
 /**
  * An object for pan and ping options
- * @typedef {Object} NoticeOpts
- * @property {boolean} [pan = false] Whether to pan to the spawned token
- * @property {object} [ping] Object with ping options
- * @property {boolean} [ping.pull = false] Whether to pull attention to the ping location
- * @property {string} [ping.type = 'PULSE'] Ping type options from Foundry: 'PULSE', 'ALERT', 'PULL', 'ARROW' - case insensitive
+ * @typedef {Object} NoticeConfig
+ * @prop {string} [options.ping] Creates an animated ping at designated location if a valid ping style from the values contained in `CONFIG.Canvas.pings.types`
+ * @prop {Number} [options.pan] Pans all receivers to designated location if value is Truthy using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is provided, it is used as the duration of the pan.
+ * @prop {Number} [options.zoom] Alters zoom level of all receivers, independent of pan/ping
+ * @prop {string} [options.fromUser = game.userId] The user who triggered the notice
  *
  * @example
  * ```js
@@ -163,7 +163,7 @@ import { MutationStack } from './mutation-stack.js'
  * @property {boolean} [collision=duplicates>1] controls whether the placement of a token collides with any other token 
  *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
  *  than 1, default is `true`; otherwise `false`.
- * @property {NoticeOpts} [notice] will pan or ping the canvas to the token's position after spawning.
+ * @property {NoticeConfig} [notice] will pan or ping the canvas to the token's position after spawning.
  * @property {object} [overrides] See corresponding property descriptions in {@link WorkflowOptions}
  * @property {boolean} [overrides.includeRawData = false] 
  * @property {boolean} [overrides.preserveData = false]
@@ -262,7 +262,8 @@ export class api {
        * @alias warpgate.plugin
        */
       plugin: {
-        queueUpdate
+        queueUpdate,
+        notice: api._notice,
       },
       /**
        * @summary System specific helpers
@@ -281,6 +282,8 @@ export class api {
       CONST : {
         /** Instructs warpgate to delete the identified embedded document. Used in place of the update or create data objects. */
         DELETE : 'delete',
+        PING: 'ping',
+        PAN: 'pan',
       },
       /**
        *
@@ -555,20 +558,6 @@ export class api {
 
       /* pan to token if first iteration */
       //TODO integrate into stock event data instead of hijacking mutate events
-      if (iteration == 0) {
-        if (options.notice?.ping?.pull) {
-
-          warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(spawnLocation, request.options.spawnpan)}, () => MODULE.isFirstGM());
-
-        } else if (!!options.notice?.pan) {
-
-          warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(spawnLocation, request.options.spawnpan)});
-
-        } else if (options.notice) {
-
-          await MODULE.tokenPan(spawnLocation, options.notice)
-        }
-      }
 
       /** @type Object */
       const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
@@ -600,6 +589,21 @@ export class api {
 
     if (options.controllingActor?.sheet?.rendered) options.controllingActor?.sheet?.maximize();
     return createdIds;
+  }
+
+  /**
+   * 
+   *
+   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice 
+   * @param {NoticeConfig} [config] Configuration for the notice
+   * @memberof api
+   */
+  static _notice({x, y, scene}, config = {}){
+
+    config.fromUser ??= game.userId;
+    scene ??= canvas.scene;
+
+    return Comms.requestNotice({x,y}, scene.id, config);
   }
 
 }

@@ -23,7 +23,8 @@ import { MODULE } from './module.js'
 /**
  * Contains all fields from `MeasuredTemplate#toObject`, plus the following.
  * 
- * @typedef {MeasuredTemplateProperties} CrosshairsData
+ * @typedef {Object} CrosshairsData
+ * @borrows MeasuredTemplateProperties
  * @prop {boolean} cancelled Workflow cancelled via right click (true)
  * @prop {Scene} scene Scene on this crosshairs was last active
  * @prop {number} radius Final radius of template, in pixels

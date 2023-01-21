@@ -22,7 +22,7 @@ import {RemoteMutator} from './remote-mutator.js'
 const NAME = "Mutator";
 
 /** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
-/** @typedef {import('./api.js').NoticeOpts} NoticeOpts */
+/** @typedef {import('./api.js').NoticeConfig} NoticeOpts */
 /** @typedef {import('./mutation-stack.js').MutationData} MutationData */
 /** @typedef {import('./api.js').Shorthand} Shorthand */
 /** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
@@ -373,15 +373,15 @@ export class Mutator {
     /* Pan to mutated target */
     if (options.mutatepan?.ping?.pull) {
 
-      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(tokenDoc.object?.center, request.options.mutatepan)}, () => MODULE.isFirstGM());
+      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.handleNotice(tokenDoc.object?.center, request.options.mutatepan)}, () => MODULE.isFirstGM());
 
     } else if (!!options.mutatepan?.pan) {
 
-      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.tokenPan(tokenDoc.object?.center, request.options.mutatepan)});
+      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.handleNotice(tokenDoc.object?.center, request.options.mutatepan)});
 
     } else if (options.mutatepan) {
 
-      await MODULE.tokenPan(tokenDoc.object?.center, options.mutatepan)
+      await MODULE.handleNotice(tokenDoc.object?.center, options.mutatepan)
     }
 
 
