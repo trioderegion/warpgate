@@ -25,11 +25,12 @@ import {
 /** @typedef {import('./api.js').Shorthand} Shorthand */
 
 /** 
- * @typedef MutationData
- * @property {{actor:?object,token:?object,embedded:?object}} delta
+ * @typedef {Object} MutationData
+ * @property {Shorthand} delta
  * @property {string} user
  * @property {Object<string, string>} comparisonKeys
  * @property {Shorthand} updateOpts
+ * @property {object} overrides
  * @property {string} name
  */
 
