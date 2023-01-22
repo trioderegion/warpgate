@@ -354,6 +354,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.layer.activate();
     this.draw();
     this.layer.preview.addChild(this);
+    this.layer.interactiveChildren = false;
 
     // Hide the sheet that originated the preview
     //BEGIN WARPGATE
@@ -363,13 +364,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.activatePreviewListeners();
     
     // Callbacks
-    if (this.callbacks?.show) {
-      //await
-      this.callbacks.show(this);
-      //if (this.inFlight == false) {
-      //  this._clearHandlers();
-      //}
-    }
+    this.callbacks?.show?.(this);
 
     /* wait _indefinitely_ for placement to be decided. */
     await MODULE.waitFor( () => !this.inFlight, -1 )
@@ -462,6 +457,9 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
+
+    /* re-enable interactivity on this layer */
+    this.layer.interactiveChildren = true;
 
     /* moving off this layer also deletes ALL active previews?
      * unexpected, but manageable
