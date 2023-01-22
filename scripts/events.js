@@ -25,13 +25,13 @@ export class Events {
   /**
    * Similar in operation to `Hooks.on`, with two exceptions. First, the provided function 
    * can be asynchronous and will be awaited. Second, an optional `conditionFn` parameter 
-   * is added to help comparmentalize logic between detecting the desired event and responding to said event.
+   * is added to help compartmentalize logic between detecting the desired event and responding to said event.
    *
    * @param {String} name Event name to watch for; It is recommended to use the enums found in {@link warpgate.EVENT}
    * @param {function(object):Promise|void} fn Function to execute when this event has passed the condition function. Will be awaited
    * @param {function(object):boolean} [condition = ()=>true] Optional. Function to determine if the event function should 
    *  be executed. While not strictly required, as the `fn` function could simply return as a NOOP, providing this 
-   *  parameter may help comparmentalize "detection" vs "action" processing.
+   *  parameter may help compartmentalize "detection" vs "action" processing.
    *
    * @returns {number} Function id assigned to this event, for use with {@link warpgate.event.remove}
    */

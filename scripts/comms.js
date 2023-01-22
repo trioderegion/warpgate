@@ -28,7 +28,8 @@ const ops = {
   DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId
   EVENT : "event", //name, ...payload
   REQUEST_MUTATE: "req-mutate", // ...payload
-  REQUEST_REVERT: "req-revert" // ...payload
+  REQUEST_REVERT: "req-revert", // ...payload
+  NOTICE: "req-notice",
 }
 
 export class Comms {
@@ -70,6 +71,10 @@ export class Comms {
           /* First owner of this target token/actor should respond */
           await RemoteMutator.handleRevertRequest(socketData.payload);
           break;
+        case ops.NOTICE:
+          /* all users should respond to notices */
+          await MODULE.handleNotice(socketData.payload.location, socketData.payload.sceneId, socketData.payload.options);
+          break;
         default:
           logger.error("Unrecognized socket request", socketData);
           break;
@@ -98,8 +103,6 @@ export class Comms {
 
   /*
    * payload = {userId, tokenId, sceneId, updates, options}
-   * @param options
-   *   * description - message to display to receiving user
    */
   static requestMutate(tokenId, sceneId, { updates = {}, options = {} } = {}, onBehalf = game.user.id ) {
     
@@ -136,6 +139,19 @@ export class Comms {
     const data = {
       op: ops.REQUEST_REVERT,
       payload
+    }
+
+    return Comms._emit(data);
+  }
+
+  static requestNotice(location, sceneId = canvas.scene?.id, options = {}) {
+    const data = {
+      op: ops.NOTICE,
+      payload: {
+        sceneId,
+        location,
+        options,
+      }
     }
 
     return Comms._emit(data);

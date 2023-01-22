@@ -81,7 +81,7 @@ export class UserInterface {
         
         const controlData = token?.actor.getFlag(MODULE.data.name, 'control');
 
-        /** do not add the button if we are not the controlling actor AND we arent the GM */
+        /** do not add the button if we are not the controlling actor AND we aren't the GM */
         if ( !(controlData?.user === game.user.id) &&
           !game.user.isGM) return false;
 

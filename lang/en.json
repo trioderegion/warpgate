@@ -92,8 +92,8 @@
       "findActorFail": "Could not find world actor named {name}",
       "findProtoFail": "Could not find proto-token data for {name}",
       "noOpenLocation": "Could not locate open locations near chosen spawn point. Spawning at chosen point instead.",
-      "noOwningUserMutate": "No owning user online. Mutation request cannot be fullfilled.",
-      "noOwningUserRevert": "No owning user online. Revert request cannot be fullfilled.",
+      "noOwningUserMutate": "No owning user online. Mutation request cannot be fulfilled.",
+      "noOwningUserRevert": "No owning user online. Revert request cannot be fulfilled.",
       "incompleteMutateInfo": "Overwrite mode used for stack update, but no 'name' field provided.",
       "stackLockedOrEmpty": "Mutation stack has no changes or is locked for writing. Cannot commit changes to the stack.",
       "stack": {

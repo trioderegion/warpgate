@@ -21,7 +21,7 @@
  */
 
 export class Propagator{
-  // Find a non occupid cell in the grid that matches the size of the token given an origin
+  // Find a non-occupied cell in the grid that matches the size of the token given an origin
   static getFreePosition(tokenData,origin, collision = true){
     const center = canvas.grid.getCenter(origin.x,origin.y)
     origin = {x:center[0],y:center[1]};
