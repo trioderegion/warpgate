@@ -45,6 +45,10 @@
         "name": "Local feedback toast suppression",
         "hint": "Client-side setting controlling override of global remote operation feedback toasts."
       },
+      "disablePermCheck": {
+        "name": "Disable Strict Permissions Check",
+        "hint": "If checked, spawning and mutation operations will not check for permissions prior to execution."
+      },
       "option": {
         "disabled": "Disabled",
         "spawnedOnly": "Spawned tokens only",

@@ -126,6 +126,7 @@ export class MODULE {
    * @return {Array<String>} missing permissions for this operation
    */
   static canUser(user, requiredPermissions) {
+    if(MODULE.setting('disablePermCheck')) return [];
     const {role} = user;
     const permissions = game.settings.get('core','permissions');
     return requiredPermissions.filter( req => !permissions[req].includes(role) ).map(missing => game.i18n.localize(CONST.USER_PERMISSIONS[missing].label));
@@ -276,7 +277,13 @@ export class MODULE {
   }
 
   static settings() {
+    const data = {
+      disablePermCheck: {
+        config: true, scope: 'world', type: Boolean, default: false,
+      }
+    }
 
+    MODULE.applySettings(data);
   }
 
   static applySettings(settingsData) {
