@@ -250,6 +250,7 @@ export class Crosshairs extends MeasuredTemplate {
 
   /** @override */
   refresh() {
+    if(!this.template) return;
     let d = canvas.dimensions;
     const document = MODULE.isV10 ? this.document : this.data;
     this.position.set(document.x, document.y);
@@ -354,6 +355,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.layer.activate();
     this.draw();
     this.layer.preview.addChild(this);
+    this.layer.interactiveChildren = false;
 
     // Hide the sheet that originated the preview
     //BEGIN WARPGATE
@@ -363,13 +365,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.activatePreviewListeners();
     
     // Callbacks
-    if (this.callbacks?.show) {
-      //await
-      this.callbacks.show(this);
-      //if (this.inFlight == false) {
-      //  this._clearHandlers();
-      //}
-    }
+    this.callbacks?.show?.(this);
 
     /* wait _indefinitely_ for placement to be decided. */
     await MODULE.waitFor( () => !this.inFlight, -1 )
@@ -386,10 +382,8 @@ export class Crosshairs extends MeasuredTemplate {
   _mouseMoveHandler(event){
     event.stopPropagation();
 
-    // WARPGATE BEGIN
     /* if our position is locked, do not update it */
     if (this.lockPosition) return;
-    // WARPGATE END
     
     // Apply a 20ms throttle
     let now = Date.now(); 
@@ -401,6 +395,7 @@ export class Crosshairs extends MeasuredTemplate {
     else this.data.update({x, y});
     this.refresh();
     this.moveTime = now;
+    canvas._onDragCanvasPan(event.data.originalEvent);
   }
 
   _leftClickHandler(event){
@@ -420,29 +415,28 @@ export class Crosshairs extends MeasuredTemplate {
   }
 
   // Rotate the template by 3 degree increments (mouse-wheel)
+  // none = rotate 5 degrees
+  // shift = scale size
+  // ctrl = rotate 30 or 15 degrees (square/hex)
+  // alt = zoom canvas
   _mouseWheelHandler(event) {
 
     if ( event.ctrlKey ) event.preventDefault(); // Avoid zooming the browser window
-    event.stopPropagation();
+    if ( !event.altKey ) event.stopPropagation();
 
-    let delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
-    let snap = event.shiftKey ? delta : 5;
+    const delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
+    const snap = event.ctrlKey ? delta : 5;
     //BEGIN WARPGATE
-    const document = MODULE.isV10 ? this.document : this.data;
-    //const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
-    //const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
-    const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
+    const document = this.document;
+    const thisSceneSize = this.scene.grid.size;
     if (event.shiftKey && !this.lockSize) {
       let distance = document.distance + 0.25 * (Math.sign(event.deltaY));
       distance = Math.max(distance, 0.25);
-      if ( MODULE.isV10 ) this.document.updateSource({distance});
-      else this.data.update({distance});
+      this.document.updateSource({distance});
       this.radius = document.distance * thisSceneSize /2;
-    } else {
+    } else if (!event.altKey) {
       const direction = document.direction + (snap * Math.sign(event.deltaY));
-      if ( MODULE.isV10 ) this.document.updateSource({direction});
-      else this.data.update({direction});
-      logger.debug(`New Rotation: ${direction}`);
+      this.document.updateSource({direction});
     }
     //END WARPGATE
     this.refresh();
@@ -462,6 +456,9 @@ export class Crosshairs extends MeasuredTemplate {
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
+
+    /* re-enable interactivity on this layer */
+    this.layer.interactiveChildren = true;
 
     /* moving off this layer also deletes ALL active previews?
      * unexpected, but manageable
