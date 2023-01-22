@@ -22,7 +22,7 @@ import {RemoteMutator} from './remote-mutator.js'
 const NAME = "Mutator";
 
 /** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
-/** @typedef {import('./api.js').NoticeConfig} NoticeOpts */
+/** @typedef {import('./api.js').NoticeConfig} NoticeConfig */
 /** @typedef {import('./mutation-stack.js').MutationData} MutationData */
 /** @typedef {import('./api.js').Shorthand} Shorthand */
 /** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
@@ -32,7 +32,7 @@ const NAME = "Mutator";
  * @typedef {Object} WorkflowOptions
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
  * @property {string} [description] Description of this mutation for potential display to the remote owning user.
- * @property {NoticeOpts} [mutatepan] Options for placing a ping or pan to the token after mutation
+ * @property {NoticeConfig} [notice] Options for placing a ping or panning to the token after mutation
  * @property {Object} [overrides]
  * @property {boolean} [overrides.alwaysAccept = false] Force the receiving clients "auto-accept" state,
  *  regardless of world/client settings
@@ -351,7 +351,6 @@ export class Mutator {
     /* ensure the options parameter has a name field if not provided */
     options.name = mutateInfo.name;
 
-
     /* expand the object to handle property paths correctly */
     MODULE.shimUpdate(updates);
 
@@ -370,31 +369,27 @@ export class Mutator {
       options.delta = delta;
     }
 
-    /* Pan to mutated target */
-    if (options.mutatepan?.ping?.pull) {
-
-      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.handleNotice(tokenDoc.object?.center, request.options.mutatepan)}, () => MODULE.isFirstGM());
-
-    } else if (!!options.mutatepan?.pan) {
-
-      warpgate.event.watch(warpgate.EVENT.MUTATE, (request) => {MODULE.handleNotice(tokenDoc.object?.center, request.options.mutatepan)});
-
-    } else if (options.mutatepan) {
-
-      await MODULE.handleNotice(tokenDoc.object?.center, options.mutatepan)
-    }
-
-
     if (tokenDoc.actor.isOwner) {
 
+      if(options.notice && tokenDoc.object) {
+
+        const placement = {
+          scene: tokenDoc.object.scene,
+          ...tokenDoc.object.center,
+        };
+
+        warpgate.plugin.notice(placement, options.notice);
+      }
+      
       await Mutator._update(tokenDoc, updates, options);
+
+      if(callbacks.post) await callbacks.post(tokenDoc, updates);
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE, {
         uuid: tokenDoc.uuid, 
         updates: (options.overrides?.includeRawData ?? false) ? updates : 'omitted',
-        options});
-
-      if(callbacks.post) await callbacks.post(tokenDoc, updates, true);
+        options
+      });
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
@@ -545,24 +540,34 @@ export class Mutator {
     }
 
     if (tokenDoc.actor?.isOwner) {
+      if(options.notice && tokenDoc.object) {
 
-        /* the provided options object will be mangled for our use -- copy it to
-         * preserve the user's original input if requested (default).
-         */
-        if(!options.overrides?.preserveData) {
-          options = MODULE.copy(options, 'error.badUpdate.complex');
-          if(!options) return;
-          options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
-        }
-        /* perform the revert with the stored delta */
-        MODULE.shimUpdate(mutateData.delta);
-        await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
+        const placement = {
+          scene: tokenDoc.object.scene,
+          ...tokenDoc.object.center,
+        };
 
-        /* notify clients */
-        await warpgate.event.notify(warpgate.EVENT.REVERT, {
-          uuid: tokenDoc.uuid, 
-          updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
-          options});
+        warpgate.plugin.notice(placement, options.notice);
+      }
+
+      /* the provided options object will be mangled for our use -- copy it to
+       * preserve the user's original input if requested (default).
+       */
+      if(!options.overrides?.preserveData) {
+        options = MODULE.copy(options, 'error.badUpdate.complex');
+        if(!options) return;
+        options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
+      }
+      /* perform the revert with the stored delta */
+      MODULE.shimUpdate(mutateData.delta);
+      await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
+
+      /* notify clients */
+      await warpgate.event.notify(warpgate.EVENT.REVERT, {
+        uuid: tokenDoc.uuid, 
+        updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
+        options});
+
     } else {
       RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
     }

@@ -51,10 +51,15 @@ import { MutationStack } from './mutation-stack.js'
 /**
  * An object for pan and ping options
  * @typedef {Object} NoticeConfig
- * @prop {string} [options.ping] Creates an animated ping at designated location if a valid ping style from the values contained in `CONFIG.Canvas.pings.types`
- * @prop {Number} [options.pan] Pans all receivers to designated location if value is Truthy using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is provided, it is used as the duration of the pan.
+ * @prop {string} [options.ping] Creates an animated ping at designated location if a valid
+ *  ping style from the values contained in `CONFIG.Canvas.pings.types`
+ * @prop {boolean|Number} [options.pan] Pans all receivers to designated location if value is `true`
+ *   using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is 
+ *   provided, it is used as the duration of the pan.
  * @prop {Number} [options.zoom] Alters zoom level of all receivers, independent of pan/ping
- * @prop {string} [options.fromUser = game.userId] The user who triggered the notice
+ * @prop {string} [options.sender = game.userId] The user who triggered the notice
+ * @prop {Array<string>} [options.receivers = warpgate.USERS.SELF] An array of user IDs to send the notice to. If not
+ *   provided, the notice is only sent to the current user.
  *
  * @example
  * ```js
@@ -282,8 +287,21 @@ export class api {
       CONST : {
         /** Instructs warpgate to delete the identified embedded document. Used in place of the update or create data objects. */
         DELETE : 'delete',
-        PING: 'ping',
-        PAN: 'pan',
+      },
+      /**
+       * @description Helper enums for retrieving user IDs
+       * @alias warpgate.USERS
+       * @enum {Array<string>}
+       */
+      USERS: {
+        /** All online users */
+        get ALL() { return game.users.filter(user => user.active).map( user => user.id ) },
+        /** The current user */
+        get SELF() { return [game.userId] },
+        /** All online GMs */
+        get GM() { return game.users.filter(user => user.active && user.isGM).map( user => user.id ) },
+        /** All online players */
+        get PLAYERS() { return game.users.filter(user => user.active && !user.isGM).map( user => user.id ) }
       },
       /**
        *
@@ -505,21 +523,10 @@ export class api {
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
 
-    /* flag this user as the actor's creator */
-    const actorFlags = {
+    /* flag this user as the tokens's creator */
+    const tokenFlags = {
       [MODULE.data.name]: {
-        control: {user: game.user.id, actor: options.controllingActor?.id},
-      }
-    }
-    updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags}, {overwrite: false});
-
-    /* Flag this token with its original actor to work around
-     * updating the token properties of a token linked to
-     * an unowned actor
-     */
-    const tokenFlags = { 
-      [MODULE.data.name]: {
-        sourceActorId: sourceActor.id
+        control: {user: game.user.id, actor: options.controllingActor?.uuid},
       }
     }
 
@@ -533,6 +540,9 @@ export class api {
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
     Mutator.clean(null, options);
+
+    if(options.notice) warpgate.plugin.notice({...spawnLocation, scene: canvas.scene}, options.notice); 
+
     for (let iteration = 0; iteration < duplicates; iteration++) {
 
       /** pre creation callback */
@@ -548,7 +558,7 @@ export class api {
       if(iteration == 0){
         /* first iteration, potentially from a spawn with a determined image,
          * apply our changes to this version */
-        MODULE.updateProtoToken(protoData, updates.token);
+        await MODULE.updateProtoToken(protoData, updates.token);
       } else {
         /* get a fresh copy */
         protoData = await MODULE.getTokenData(game.actors.get(protoData.actorId), updates.token)
@@ -600,7 +610,8 @@ export class api {
    */
   static _notice({x, y, scene}, config = {}){
 
-    config.fromUser ??= game.userId;
+    config.sender ??= game.userId;
+    config.receivers ??= warpgate.USERS.SELF;
     scene ??= canvas.scene;
 
     return Comms.requestNotice({x,y}, scene.id, config);
