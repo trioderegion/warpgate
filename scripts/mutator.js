@@ -33,6 +33,7 @@ const NAME = "Mutator";
  * @property {Shorthand} [updateOpts] Options for the creation/deletion/updating of (embedded) documents related to this mutation 
  * @property {string} [description] Description of this mutation for potential display to the remote owning user.
  * @property {NoticeConfig} [notice] Options for placing a ping or panning to the token after mutation
+ * @property {boolean} [noMoveWait = false] If true, will not wait for potential token movement animation to complete before proceeding with remaining actor/embedded updates.
  * @property {Object} [overrides]
  * @property {boolean} [overrides.alwaysAccept = false] Force the receiving clients "auto-accept" state,
  *  regardless of world/client settings
@@ -366,7 +367,7 @@ export class Mutator {
       /* update the mutation info with the final updates including mutate stack info */
       mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
 
-      options.delta = delta;
+      options.delta = mutateInfo.delta;
     }
 
     if (tokenDoc.actor.isOwner) {
@@ -405,11 +406,12 @@ export class Mutator {
   static _createMutateInfo( delta, options = {} ) {
     options.name ??= randomID();
     return {
-      delta,
+      delta: MODULE.stripEmpty(delta),
       user: game.user.id,
-      comparisonKeys: options.comparisonKeys ?? {},
+      comparisonKeys: MODULE.stripEmpty(options.comparisonKeys ?? {}, false),
       name: options.name,
-      updateOpts: options.updateOpts ?? {},
+      updateOpts: MODULE.stripEmpty(options.updateOpts ?? {}, false),
+      overrides: MODULE.stripEmpty(options.overrides ?? {}, false),
     };
   }
 
@@ -448,10 +450,10 @@ export class Mutator {
 
       /* if the token is getting an image update, preload it */
       let source;
-      if(MODULE.isV10 && 'src' in (updates.token?.texture ?? {})) {
+      if('src' in (updates.token?.texture ?? {})) {
         source = updates.token.texture.src; 
       }
-      else if( !MODULE.isV10 && 'img' in (updates.token ?? {})){
+      else if( 'img' in (updates.token ?? {})){
         source = updates.token.img;
       }
 
@@ -515,7 +517,11 @@ export class Mutator {
   static async _update(tokenDoc, updates, options = {}) {
 
     /* update the token */
-    await tokenDoc.update(updates.token ?? {}, options.token ?? {});
+    await tokenDoc.update(updates.token ?? {}, options.updateOpts?.token ?? {});
+
+    if(!options.noMoveWait && !!tokenDoc.object) {
+      await CanvasAnimation.getAnimation(tokenDoc.object.animationName)?.promise
+    }
 
     /* update the actor */
     return Mutator._updateActor(tokenDoc.actor, updates, options.comparisonKeys ?? {}, options.updateOpts ?? {});
@@ -558,9 +564,17 @@ export class Mutator {
         if(!options) return;
         options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
       }
+
       /* perform the revert with the stored delta */
       MODULE.shimUpdate(mutateData.delta);
-      await Mutator._update(tokenDoc, mutateData.delta, {comparisonKeys: mutateData.comparisonKeys});
+      foundry.utils.mergeObject(mutateData.updateOpts, options.updateOpts ?? {});
+      foundry.utils.mergeObject(mutateData.overrides, options.overrides ?? {});
+
+      await Mutator._update(tokenDoc, mutateData.delta, {
+        overrides: mutateData.overrides,
+        comparisonKeys: mutateData.comparisonKeys,
+        updateOpts: mutateData.updateOpts
+      });
 
       /* notify clients */
       await warpgate.event.notify(warpgate.EVENT.REVERT, {

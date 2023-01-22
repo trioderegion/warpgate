@@ -150,7 +150,7 @@ export class MODULE {
 
   static emptyObject(obj){
     // @ts-ignore
-    return MODULE.isV10 ? foundry.utils.isEmpty(obj) : isObjectEmpty(obj);
+    return foundry.utils.isEmpty(obj);
   }
 
   static removeEmptyObjects(obj) {
@@ -177,6 +177,25 @@ export class MODULE {
     }
 
     return;
+  }
+
+  /**
+   * Removes top level empty objects from the provided object.
+   *
+   * @static
+   * @param {object} obj
+   * @memberof MODULE
+   */
+  static stripEmpty(obj, inplace = true) {
+    const result = inplace ? obj : MODULE.copy(obj);
+
+    Object.keys(result).forEach( key => {
+      if(typeof result[key] == 'object' && MODULE.emptyObject(result[key])) {
+        delete result[key];
+      } 
+    });
+
+    return result;
   }
   
   /**
