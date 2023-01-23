@@ -78,10 +78,11 @@ const NAME = "Mutator";
  * The post mutate callback prototype. Called after the actor has been mutated and after the mutate event
  * has triggered. Useful for animations or changes that should not be tracked by the mutation system.
  *
- * @typedef {function(TokenDocument, Object):Promise|void} PostMutate
+ * @typedef {function(TokenDocument, Object, boolean):Promise|void} PostMutate
  * @param {TokenDocument} tokenDoc Token that has been modified.
  * @param {Shorthand} updates Current permutation of the original shorthand updates object provided, as
  *  applied for this mutation
+ * @param {boolean} accepted Whether or not the mutation was accepted by the first owner.
  *
  * @returns {Promise<any>|any}
  */
@@ -286,7 +287,7 @@ export class Mutator {
   /* @TODO support embedded documents within embedded documents */
   static async _updateActor(actor, updates = {}, comparisonKeys = {}, updateOpts = {}) {
 
-    logger.debug('Performing update on (actor/updates)',actor, updates);
+    logger.debug('Performing update on (actor/updates)',actor, updates, comparisonKeys, updateOpts);
     await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
@@ -362,12 +363,18 @@ export class Mutator {
       let delta = options.delta ?? Mutator._createDelta(tokenDoc, updates, options);
 
       /* allow user to modify delta if needed (remote updates will never have callbacks) */
-      if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
-
+      if (callbacks.delta) {
+        
+        const cont = await callbacks.delta(delta, tokenDoc);
+        if(cont === false) return false;
       /* update the mutation info with the final updates including mutate stack info */
       mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
 
       options.delta = mutateInfo.delta;
+    } else if (callbacks.delta) {
+      /* call the delta callback if provided, but there is no object to modify */
+      const cont = await callbacks.delta({}, tokenDoc);
+      if(cont === false) return false;
     }
 
     if (tokenDoc.actor.isOwner) {
@@ -384,7 +391,7 @@ export class Mutator {
       
       await Mutator._update(tokenDoc, updates, options);
 
-      if(callbacks.post) await callbacks.post(tokenDoc, updates);
+      if(callbacks.post) await callbacks.post(tokenDoc, updates, true);
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE, {
         uuid: tokenDoc.uuid, 
