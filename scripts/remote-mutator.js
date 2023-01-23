@@ -149,6 +149,31 @@ export class RemoteMutator {
     return Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
   }
 
+  static async remoteBatchMutate( tokenDocs, {updates, callbacks = {}, options = {}} ) {
+    /* follow normal protocol for initial requests.
+     * if accepted, force accept and force suppress remaining token mutations
+     * if rejected, bail on all further mutations for this owner */
+
+    const firstToken = tokenDocs.shift();
+
+    const batchPost = async (...args) => {
+
+      if (callbacks.post) await callbacks.post(...args);
+
+      /* if initial was accepted, fire off remaining silently */
+      if(args[2] === true) {
+
+        const silentOptions = { ...options, overrides: {alwaysAccept: true, suppressToast: true} };
+        return tokenDocs.map( tokenDoc => {
+          return warpgate.mutate(tokenDoc, updates, callbacks, silentOptions);
+        })
+      }
+    }
+
+    await warpgate.mutate(firstToken, updates, {...callbacks, post: batchPost}, options);
+    return;
+  }
+
   static remoteRevert( tokenDoc, {mutationId, options = {}} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {

@@ -269,6 +269,7 @@ export class api {
       plugin: {
         queueUpdate,
         notice: api._notice,
+        batchMutate: Mutator.batchMutate,
       },
       /**
        * @summary System specific helpers

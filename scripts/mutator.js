@@ -400,6 +400,34 @@ export class Mutator {
     return mutateInfo;
   }
 
+  static batchMutate( tokenDocs, {updates, callbacks, options} ) {
+    
+    /* break token list into sublists by first owner */
+    const tokenLists = tokenDocs.reduce( (lists, tokenDoc) => {
+      if(!tokenDoc) return lists;
+      const owner = MODULE.firstOwner(tokenDoc)?.id ?? 'none';
+      lists[owner] ??= [];
+      lists[owner].push(tokenDoc);
+      return lists;
+    },{});
+
+    if((tokenLists['none'] ?? []).length > 0) {
+      //TODO error properly
+      return false;
+    }
+
+    Reflect.ownKeys(tokenLists).flatMap( async (owner) => {
+      if(owner == game.userId) {
+        //self service mutate
+        return tokenLists[owner].map( tokenDoc => warpgate.mutate(tokenDoc, updates, callbacks, options) );
+      }
+
+      /* is a remote update */
+      return RemoteMutator.remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
+
+    })
+  }
+
   /**
    * @returns {MutationData}
    */
