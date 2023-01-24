@@ -78,27 +78,31 @@ export class RemoteMutator {
 
     /* craft the response handler
      * execute the post callback */
-    const handleResponse = async (responseData) => {
+    const promise = new Promise( (resolve) => {
+      const handleResponse = async (responseData) => {
 
-      /* if accepted, run our post callback */
-      const tokenDoc = game.scenes.get(responseData.sceneId).getEmbeddedDocument('Token', responseData.tokenId);
-      if (responseData.accepted) {
-        const info = MODULE.format('display.mutationAccepted', {mName: options.name, tName: tokenDoc.name});
-        
-        const {suppressToast} = MODULE.getFeedbackSettings(options.overrides);
-        if(!suppressToast) ui.notifications.info(info);
-      } else {
-        const warn = MODULE.format('display.mutationRejected', {mName: options.name, tName: tokenDoc.name});
-        if(!options.overrides?.suppressReject) ui.notifications.warn(warn);
+        /* if accepted, run our post callback */
+        const tokenDoc = game.scenes.get(responseData.sceneId).getEmbeddedDocument('Token', responseData.tokenId);
+        if (responseData.accepted) {
+          const info = MODULE.format('display.mutationAccepted', {mName: options.name, tName: tokenDoc.name});
+
+          const {suppressToast} = MODULE.getFeedbackSettings(options.overrides);
+          if(!suppressToast) ui.notifications.info(info);
+        } else {
+          const warn = MODULE.format('display.mutationRejected', {mName: options.name, tName: tokenDoc.name});
+          if(!options.overrides?.suppressReject) ui.notifications.warn(warn);
+        }
+
+        /* only need to do this if we have a post callback */
+        if (post) await post(tokenDoc, responseData.updates, responseData.accepted);
+        resolve(responseData);
+        return;
       }
 
-      /* only need to do this if we have a post callback */
-      if (post) await post(tokenDoc, responseData.updates, responseData.accepted);
+      warpgate.event.trigger(warpgate.EVENT.MUTATE_RESPONSE, handleResponse, condition);
+    });
 
-      return;
-    }
-
-    warpgate.event.trigger(warpgate.EVENT.MUTATE_RESPONSE, handleResponse, condition);
+    return promise;
   }
 
   static _createRevertTriggers( tokenDoc, mutationName = undefined, {callbacks={}, options = {}} ) {
@@ -112,26 +116,30 @@ export class RemoteMutator {
 
     /* craft the response handler
      * execute the post callback */
-    const handleResponse = async (responseData) => {
-      const tokenDoc = game.scenes.get(responseData.sceneId).getEmbeddedDocument('Token', responseData.tokenId);
+    const promise = new Promise(async (resolve) => {
+      const handleResponse = async (responseData) => {
+        const tokenDoc = game.scenes.get(responseData.sceneId).getEmbeddedDocument('Token', responseData.tokenId);
 
-      /* if accepted, run our post callback */
-      if (responseData.accepted) {
-        const info = MODULE.format('display.revertAccepted', {mName , tName: tokenDoc.name});
-        const {suppressToast} = MODULE.getFeedbackSettings(options.overrides);
-        if(!suppressToast) ui.notifications.info(info);
-      } else {
-        const warn = MODULE.format('display.revertRejected', {mName , tName: tokenDoc.name});
-        if(!options.overrides?.suppressReject) ui.notifications.warn(warn);
+        /* if accepted, run our post callback */
+        if (responseData.accepted) {
+          const info = MODULE.format('display.revertAccepted', {mName , tName: tokenDoc.name});
+          const {suppressToast} = MODULE.getFeedbackSettings(options.overrides);
+          if(!suppressToast) ui.notifications.info(info);
+        } else {
+          const warn = MODULE.format('display.revertRejected', {mName , tName: tokenDoc.name});
+          if(!options.overrides?.suppressReject) ui.notifications.warn(warn);
+        }
+
+        await callbacks.post?.(tokenDoc, responseData.updates, responseData.accepted);
+
+        resolve(responseData);
+        return;
       }
 
-      await callbacks.post?.(tokenDoc, responseData.updates, responseData.accepted);
+      warpgate.event.trigger(warpgate.EVENT.REVERT_RESPONSE, handleResponse, condition);
+    });
 
-      return;
-    }
-
-    warpgate.event.trigger(warpgate.EVENT.REVERT_RESPONSE, handleResponse, condition);
-
+    return promise;
   }
 
   static remoteMutate( tokenDoc, {updates, callbacks = {}, options = {}} ) {
@@ -144,38 +152,43 @@ export class RemoteMutator {
     /* register our trigger for monitoring remote response.
      * This handles the post callback
      */
-    RemoteMutator._createMutateTriggers( tokenDoc, callbacks, options );
+    const promise = RemoteMutator._createMutateTriggers( tokenDoc, callbacks, options );
 
     /* broadcast the request to mutate the token */
-    return Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
+    Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
+
+    return promise;
   }
 
+  /**
+   *
+   * @returns {Promise<Array<Object>>}
+   */
   static async remoteBatchMutate( tokenDocs, {updates, callbacks = {}, options = {}} ) {
     /* follow normal protocol for initial requests.
      * if accepted, force accept and force suppress remaining token mutations
      * if rejected, bail on all further mutations for this owner */
 
     const firstToken = tokenDocs.shift();
+    let results = [await warpgate.mutate(firstToken, updates, callbacks, options)];
 
-    const batchPost = async (...args) => {
+    if (results[0].accepted) {
 
-      if (callbacks.post) await callbacks.post(...args);
+      const silentOptions = foundry.utils.mergeObject(options, { overrides: {alwaysAccept: true, suppressToast: true} }, {inplace: false});
 
-      /* if initial was accepted, fire off remaining silently */
-      if(args[2] === true) {
+      results = results.concat(tokenDocs.map( tokenDoc => {
+        return warpgate.mutate(tokenDoc, updates, callbacks, silentOptions);
+      }));
 
-        const silentOptions = { ...options, overrides: {alwaysAccept: true, suppressToast: true} };
-        return Promise.all(tokenDocs.map( tokenDoc => {
-          return warpgate.mutate(tokenDoc, updates, callbacks, silentOptions);
-        }))
-      }
+    } else {
+      results = results.concat(tokenDocs.map( tokenDoc => ({sceneId: tokenDoc.parent.id, tokenId: tokenDoc.id, accepted: false})));
     }
 
-    await warpgate.mutate(firstToken, updates, {...callbacks, post: batchPost}, options);
-    return;
+    
+    return results;
   }
 
-  static remoteRevert( tokenDoc, {mutationId, callbacks={}, options = {}} ) {
+  static remoteRevert( tokenDoc, {mutationId = null, callbacks={}, options = {}} = {} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {
       logger.error(MODULE.format('error.noOwningUserRevert'));
@@ -185,10 +198,46 @@ export class RemoteMutator {
     /* register our trigger for monitoring remote response.
      * This handles the post callback
      */
-    RemoteMutator._createRevertTriggers( tokenDoc, mutationId, {callbacks, options} );
+    const result = RemoteMutator._createRevertTriggers( tokenDoc, mutationId, {callbacks, options} );
 
     /* broadcast the request to mutate the token */
-    return Comms.requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId, options});
+    Comms.requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId, options});
+
+    return result;
+  }
+
+  /**
+   *
+   * @returns {Promise<Array<Object>>}
+   */
+  static async remoteBatchRevert( tokenDocs, {mutationName = null, options = {}} = {} ) {
+
+    /* follow normal protocol for initial requests.
+     * if accepted, force accept and force suppress remaining token mutations
+     * if rejected, bail on all further mutations for this owner */
+
+    let firstToken = tokenDocs.shift();
+    while( !!firstToken && warpgate.mutationStack(firstToken).stack.length == 0 ) firstToken = tokenDocs.shift();
+
+    if(!firstToken) return [];
+
+    const results = [await warpgate.revert(firstToken, mutationName, options)];
+
+    if(results[0].accepted) {
+
+      const silentOptions = foundry.utils.mergeObject(options, {
+          overrides: {alwaysAccept: true, suppressToast: true}
+        }, {inplace: false}
+      );
+
+      results.push(...(tokenDocs.map( tokenDoc => {
+        return warpgate.revert(tokenDoc, mutationName, silentOptions);
+      })))
+    } else {
+      results.push(...tokenDocs.map( tokenDoc => ({sceneId: tokenDoc.parent.id, tokenId: tokenDoc.id, accepted: false})));
+    }
+
+    return results;
   }
 
   static async handleMutationRequest(payload) {
@@ -230,14 +279,16 @@ export class RemoteMutator {
   }
 
   static async handleRevertRequest(payload) {
+
     /* First, are we the first player owner? If not, stop, they will handle it */
     const tokenDoc = game.scenes.get(payload.sceneId).getEmbeddedDocument('Token', payload.tokenId);
 
-    const stack = warpgate.mutationStack(tokenDoc);
-    const details = payload.mutationId ? stack.getName(payload.mutationId) : stack.last;
-    const description = MODULE.format('display.revertRequestDescription', {mName: details.name, tName: tokenDoc.name});
-
     if (MODULE.isFirstOwner(tokenDoc.actor)) {
+
+      const stack = warpgate.mutationStack(tokenDoc);
+      if( (stack.stack ?? []).length == 0 ) return;
+      const details = payload.mutationId ? stack.getName(payload.mutationId) : stack.last;
+      const description = MODULE.format('display.revertRequestDescription', {mName: details.name, tName: tokenDoc.name});
 
       let {alwaysAccept: accepted, suppressToast} = MODULE.getFeedbackSettings(payload.options.overrides);
 
@@ -258,7 +309,7 @@ export class RemoteMutator {
 
       /* if the request is accepted, do the revert */
       if (accepted) {
-        await Mutator.revertMutation(tokenDoc, payload.mutationId);
+        await Mutator.revertMutation(tokenDoc, payload.mutationId, payload.options);
 
         if (!suppressToast) { 
           ui.notifications.info(description);

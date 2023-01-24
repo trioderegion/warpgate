@@ -198,6 +198,20 @@ export class MODULE {
 
     return result;
   }
+
+  static ownerSublist(docList) {
+
+    /* break token list into sublists by first owner */
+    const subLists = docList.reduce( (lists, doc) => {
+      if(!doc) return lists;
+      const owner = MODULE.firstOwner(doc)?.id ?? 'none';
+      lists[owner] ??= [];
+      lists[owner].push(doc);
+      return lists;
+    },{});
+
+    return subLists;
+  }
   
   /**
    * Returns the first active user with owner permissions for the given document, 

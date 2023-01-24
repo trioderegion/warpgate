@@ -270,6 +270,7 @@ export class api {
         queueUpdate,
         notice: api._notice,
         batchMutate: Mutator.batchMutate,
+        batchRevert: Mutator.batchRevert,
       },
       /**
        * @summary System specific helpers

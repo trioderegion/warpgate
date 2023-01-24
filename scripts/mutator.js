@@ -364,13 +364,17 @@ export class Mutator {
 
       /* allow user to modify delta if needed (remote updates will never have callbacks) */
       if (callbacks.delta) {
-        
+
         const cont = await callbacks.delta(delta, tokenDoc);
         if(cont === false) return false;
+
+      }
+
       /* update the mutation info with the final updates including mutate stack info */
       mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
 
       options.delta = mutateInfo.delta;
+
     } else if (callbacks.delta) {
       /* call the delta callback if provided, but there is no object to modify */
       const cont = await callbacks.delta({}, tokenDoc);
@@ -401,38 +405,63 @@ export class Mutator {
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
-      RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
+      return RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
     }
 
     return mutateInfo;
   }
 
-  static batchMutate( tokenDocs, {updates, callbacks, options} ) {
+  static async batchMutate( tokenDocs, {updates, callbacks, options} ) {
     
     /* break token list into sublists by first owner */
-    const tokenLists = tokenDocs.reduce( (lists, tokenDoc) => {
-      if(!tokenDoc) return lists;
-      const owner = MODULE.firstOwner(tokenDoc)?.id ?? 'none';
-      lists[owner] ??= [];
-      lists[owner].push(tokenDoc);
-      return lists;
-    },{});
+    const tokenLists = MODULE.ownerSublist(tokenDocs);
 
     if((tokenLists['none'] ?? []).length > 0) {
       //TODO error properly
       return false;
     }
 
-    Reflect.ownKeys(tokenLists).flatMap( async (owner) => {
+    let promises = Reflect.ownKeys(tokenLists).flatMap( async (owner) => {
       if(owner == game.userId) {
         //self service mutate
-        return tokenLists[owner].map( tokenDoc => warpgate.mutate(tokenDoc, updates, callbacks, options) );
+        return await tokenLists[owner].map( tokenDoc => warpgate.mutate(tokenDoc, updates, callbacks, options) );
       }
 
       /* is a remote update */
-      return RemoteMutator.remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
+      return await RemoteMutator.remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
 
     })
+
+    /* wait for each client batch of mutations to complete */
+    promises = await Promise.all(promises);
+
+    /* flatten all into a single array, and ensure all subqueries are complete */
+    return Promise.all(promises.flat());
+  }
+
+  static async batchRevert( tokenDocs, {mutationName = null, options = {}} = {} ) {
+    
+    const tokenLists = MODULE.ownerSublist(tokenDocs);
+
+    if((tokenLists['none'] ?? []).length > 0) {
+      //TODO error properly
+      return false;
+    }
+
+    let promises = Reflect.ownKeys(tokenLists).map( (owner) => {
+      if(owner == game.userId) {
+        //self service mutate
+        return tokenLists[owner].map( tokenDoc => warpgate.revert(tokenDoc, mutationName, options) );
+      }
+
+      /* is a remote update */
+      return RemoteMutator.remoteBatchRevert( tokenLists[owner], {mutationName, options} );
+
+    })
+
+    promises = await Promise.all(promises);
+
+    return Promise.all(promises.flat());
   }
 
   /**
@@ -612,13 +641,13 @@ export class Mutator {
       });
 
       /* notify clients */
-      await warpgate.event.notify(warpgate.EVENT.REVERT, {
+      warpgate.event.notify(warpgate.EVENT.REVERT, {
         uuid: tokenDoc.uuid, 
         updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
         options});
 
     } else {
-      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
+      return RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
     }
 
     return mutateData;

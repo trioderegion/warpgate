@@ -51,6 +51,11 @@ export class Comms {
   static _receiveSocket(socketData) {
     logger.debug("Received socket data => ", socketData);
 
+    /* all users should immediately respond to notices */
+    if (socketData.op == ops.NOTICE) {
+      MODULE.handleNotice(socketData.payload.location, socketData.payload.sceneId, socketData.payload.options);
+      return socketData;
+    }
 
     queueUpdate( async () => {
       logger.debug("Routing operation: ",socketData.op);
@@ -70,10 +75,6 @@ export class Comms {
         case ops.REQUEST_REVERT:
           /* First owner of this target token/actor should respond */
           await RemoteMutator.handleRevertRequest(socketData.payload);
-          break;
-        case ops.NOTICE:
-          /* all users should respond to notices */
-          await MODULE.handleNotice(socketData.payload.location, socketData.payload.sceneId, socketData.payload.options);
           break;
         default:
           logger.error("Unrecognized socket request", socketData);
