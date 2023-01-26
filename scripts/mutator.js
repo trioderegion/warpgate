@@ -685,6 +685,8 @@ export class Mutator {
 
       /* perform the revert with the stored delta */
       MODULE.shimUpdate(mutateData.delta);
+      mutateData.updateOpts ??= {};
+      mutateData.overrides ??= {};
       foundry.utils.mergeObject(mutateData.updateOpts, options.updateOpts ?? {});
       foundry.utils.mergeObject(mutateData.overrides, options.overrides ?? {});
 
