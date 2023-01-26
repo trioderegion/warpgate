@@ -51,9 +51,9 @@ import { MutationStack } from './mutation-stack.js'
 /**
  * Configuration obect for pan and ping (i.e. Notice) operations
  * @typedef {Object} NoticeConfig
- * @prop {boolean|string} [ping] Creates an animated ping at designated location if a valid
+ * @prop {boolean|string} [ping=false] Creates an animated ping at designated location if a valid
  *  ping style from the values contained in `CONFIG.Canvas.pings.types` is provided, or `'pulse'` if `true`
- * @prop {boolean|Number} [pan] Pans all receivers to designated location if value is `true`
+ * @prop {boolean|Number} [pan=false] Pans all receivers to designated location if value is `true`
  *   using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is 
  *   provided, it is used as the duration of the pan.
  * @prop {Number} [zoom] Alters zoom level of all receivers, independent of pan/ping
@@ -104,7 +104,7 @@ import { MutationStack } from './mutation-stack.js'
  * Used for modifying the spawning for the next iteration, operations on the TokenDocument directly
  * (such as animations or chat messages), and potentially aborting the spawning process entirely.
  *
- * @typedef {(function(Object,TokenDocument,Object,number):Promise|void)} PostSpawn
+ * @callback PostSpawn
  * @param {{x: number, y: number}} location Actual centerpoint of spawned token (affected by collision options).
  * @param {TokenDocument} spawnedToken Resulting token created for this spawning iteration
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
@@ -256,6 +256,7 @@ export class api {
        * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
        * @namespace 
        * @alias warpgate.plugin
+       * @borrows api._notice as notice
        * @borrows Mutator.batchMutate as batchMutate
        * @borrows Mutator.batchRevert as batchRevert
        */
@@ -603,9 +604,10 @@ export class api {
   }
 
   /**
-   * Helper function for displaying pings for or panning the camera of specific users.
+   * Helper function for displaying pings for or panning the camera of specific users. If no scene is provided, the user's current
+   * is assumed.
    *
-   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice 
+   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice containing at least `{x: Number, y: Number, scene: Scene}`
    * @param {NoticeConfig} [config] Configuration for the notice
    */
   static _notice({x, y, scene}, config = {}){

@@ -1158,6 +1158,22 @@ window.lunrData = {
           "us",
           "warpgate.plugin.batchrevert"
         ],
+        "warpgate.plugin.html#.notice": [
+          "camera",
+          "config",
+          "display",
+          "function",
+          "helper",
+          "lt;static&gt",
+          "notic",
+          "pan",
+          "ping",
+          "placement",
+          "plugin.notic",
+          "specif",
+          "user",
+          "warpgate.plugin.notic"
+        ],
         "warpgate.plugin.html#.queueUpdate": [
           "concurr",
           "entiti",
@@ -1268,7 +1284,7 @@ window.lunrData = {
           "whether"
         ]
       },
-      "length": 72
+      "length": 73
     },
     "tokenStore": {
       "root": {
@@ -2227,6 +2243,10 @@ window.lunrData = {
                         "warpgate.crosshairs.html#.show": {
                           "ref": "warpgate.crosshairs.html#.show",
                           "tf": 1.25
+                        },
+                        "warpgate.plugin.html#.notice": {
+                          "ref": "warpgate.plugin.html#.notice",
+                          "tf": 6.25
                         }
                       },
                       "/": {
@@ -4569,6 +4589,26 @@ window.lunrData = {
                                             }
                                           }
                                         },
+                                        "n": {
+                                          "docs": {},
+                                          "o": {
+                                            "docs": {},
+                                            "t": {
+                                              "docs": {},
+                                              "i": {
+                                                "docs": {},
+                                                "c": {
+                                                  "docs": {
+                                                    "warpgate.plugin.html#.notice": {
+                                                      "ref": "warpgate.plugin.html#.notice",
+                                                      "tf": 1100
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        },
                                         "q": {
                                           "docs": {},
                                           "u": {
@@ -5783,6 +5823,23 @@ window.lunrData = {
                 }
               }
             },
+            "m": {
+              "docs": {},
+              "e": {
+                "docs": {},
+                "r": {
+                  "docs": {},
+                  "a": {
+                    "docs": {
+                      "warpgate.plugin.html#.notice": {
+                        "ref": "warpgate.plugin.html#.notice",
+                        "tf": 6.25
+                      }
+                    }
+                  }
+                }
+              }
+            },
             "s": {
               "docs": {},
               "e": {
@@ -6038,6 +6095,10 @@ window.lunrData = {
                       "warpgate.dnd5e.html#.rollItem": {
                         "ref": "warpgate.dnd5e.html#.rollItem",
                         "tf": 16.666666666666664
+                      },
+                      "warpgate.plugin.html#.notice": {
+                        "ref": "warpgate.plugin.html#.notice",
+                        "tf": 25
                       }
                     }
                   }
@@ -6787,6 +6848,10 @@ window.lunrData = {
                                     "ref": "warpgate.event.html#.watch",
                                     "tf": 16.666666666666664
                                   },
+                                  "warpgate.plugin.html#.notice": {
+                                    "ref": "warpgate.plugin.html#.notice",
+                                    "tf": 25
+                                  },
                                   "warpgate.plugin.html#.queueUpdate": {
                                     "ref": "warpgate.plugin.html#.queueUpdate",
                                     "tf": 33.33333333333333
@@ -7223,6 +7288,14 @@ window.lunrData = {
                         "ref": "warpgate.event.html#.notify",
                         "tf": 616.6666666666666
                       }
+                    }
+                  }
+                },
+                "c": {
+                  "docs": {
+                    "warpgate.plugin.html#.notice": {
+                      "ref": "warpgate.plugin.html#.notice",
+                      "tf": 625
                     }
                   }
                 }
@@ -7792,6 +7865,10 @@ window.lunrData = {
                           "warpgate.plugin.html#.batchRevert": {
                             "ref": "warpgate.plugin.html#.batchRevert",
                             "tf": 110
+                          },
+                          "warpgate.plugin.html#.notice": {
+                            "ref": "warpgate.plugin.html#.notice",
+                            "tf": 116.25
                           },
                           "warpgate.plugin.html#.queueUpdate": {
                             "ref": "warpgate.plugin.html#.queueUpdate",
@@ -9079,6 +9156,14 @@ window.lunrData = {
                   }
                 }
               }
+            },
+            "n": {
+              "docs": {
+                "warpgate.plugin.html#.notice": {
+                  "ref": "warpgate.plugin.html#.notice",
+                  "tf": 6.25
+                }
+              }
             }
           },
           "l": {
@@ -9109,6 +9194,10 @@ window.lunrData = {
                             "Crosshairs.html#cancelled": {
                               "ref": "Crosshairs.html#cancelled",
                               "tf": 8.333333333333332
+                            },
+                            "warpgate.plugin.html#.notice": {
+                              "ref": "warpgate.plugin.html#.notice",
+                              "tf": 25
                             }
                           }
                         }
@@ -9245,6 +9334,26 @@ window.lunrData = {
                                         }
                                       }
                                     }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "n": {
+                        "docs": {},
+                        "o": {
+                          "docs": {},
+                          "t": {
+                            "docs": {},
+                            "i": {
+                              "docs": {},
+                              "c": {
+                                "docs": {
+                                  "warpgate.plugin.html#.notice": {
+                                    "ref": "warpgate.plugin.html#.notice",
+                                    "tf": 100
                                   }
                                 }
                               }
@@ -9428,6 +9537,17 @@ window.lunrData = {
                         }
                       }
                     }
+                  }
+                }
+              }
+            },
+            "n": {
+              "docs": {},
+              "g": {
+                "docs": {
+                  "warpgate.plugin.html#.notice": {
+                    "ref": "warpgate.plugin.html#.notice",
+                    "tf": 6.25
                   }
                 }
               }
@@ -11420,6 +11540,10 @@ window.lunrData = {
                       "warpgate.plugin.html#.batchRevert": {
                         "ref": "warpgate.plugin.html#.batchRevert",
                         "tf": 1.4285714285714286
+                      },
+                      "warpgate.plugin.html#.notice": {
+                        "ref": "warpgate.plugin.html#.notice",
+                        "tf": 6.25
                       }
                     },
                     "i": {
@@ -12310,6 +12434,10 @@ window.lunrData = {
                     "ref": "warpgate.event.html#.notify",
                     "tf": 1.5151515151515151
                   },
+                  "warpgate.plugin.html#.notice": {
+                    "ref": "warpgate.plugin.html#.notice",
+                    "tf": 6.25
+                  },
                   "warpgate.util.html#.firstGM": {
                     "ref": "warpgate.util.html#.firstGM",
                     "tf": 6.25
@@ -13085,6 +13213,10 @@ window.lunrData = {
                         "ref": "warpgate.dnd5e.html#.rollItem",
                         "tf": 16.666666666666664
                       },
+                      "warpgate.plugin.html#.notice": {
+                        "ref": "warpgate.plugin.html#.notice",
+                        "tf": 6.25
+                      },
                       "warpgate.util.html#.firstGM": {
                         "ref": "warpgate.util.html#.firstGM",
                         "tf": 6.25
@@ -13277,7 +13409,7 @@ window.lunrData = {
           }
         }
       },
-      "length": 1084
+      "length": 1098
     },
     "corpusTokens": [
       "_drawcontrolicon",
@@ -13329,6 +13461,7 @@ window.lunrData = {
       "buttondialog",
       "call",
       "callback",
+      "camera",
       "cancel",
       "canvas.templates.preview",
       "case",
@@ -13575,6 +13708,7 @@ window.lunrData = {
       "newli",
       "none",
       "note",
+      "notic",
       "notifi",
       "number",
       "numer",
@@ -13597,6 +13731,7 @@ window.lunrData = {
       "own",
       "owner",
       "ownership",
+      "pan",
       "paramet",
       "particular",
       "pass",
@@ -13607,6 +13742,7 @@ window.lunrData = {
       "perform",
       "perman",
       "permiss",
+      "ping",
       "pixel",
       "pixi.displayobject|undefin",
       "place",
@@ -13617,6 +13753,7 @@ window.lunrData = {
       "plugin",
       "plugin.batchmut",
       "plugin.batchrevert",
+      "plugin.notic",
       "plugin.queueupd",
       "point",
       "posit",
@@ -13790,6 +13927,7 @@ window.lunrData = {
       "warpgate.plugin",
       "warpgate.plugin.batchmut",
       "warpgate.plugin.batchrevert",
+      "warpgate.plugin.notic",
       "warpgate.plugin.queueupd",
       "warpgate.revert",
       "warpgate.spawn",
@@ -14486,6 +14624,16 @@ window.lunrData = {
       "tags": "warpgate.plugin.batchRevert plugin.batchRevert batchRevert",
       "summary": "",
       "description": "Perform a managed, batch update of multple token documents. Heterogeneous ownership supported and routed through the Remote Mutation system as needed. The same updates, callbacks and options objects will be used for all mutations. Note: If a specific mutation name is not provided, a single random ID will be generated for all resulting individual mutations."
+    },
+    "warpgate.plugin.html#.notice": {
+      "id": "warpgate.plugin.html#.notice",
+      "kind": "function",
+      "title": "&lt;static&gt; notice( placement [, config ] )",
+      "longname": "warpgate.plugin.notice",
+      "name": "notice",
+      "tags": "warpgate.plugin.notice plugin.notice notice",
+      "summary": "",
+      "description": "Helper function for displaying pings for or panning the camera of specific users."
     },
     "warpgate.plugin.html#.queueUpdate": {
       "id": "warpgate.plugin.html#.queueUpdate",
