@@ -49,28 +49,17 @@ import { MutationStack } from './mutation-stack.js'
  */
 
 /**
- * An object for pan and ping options
+ * Configuration obect for pan and ping (i.e. Notice) operations
  * @typedef {Object} NoticeConfig
- * @prop {string} [options.ping] Creates an animated ping at designated location if a valid
- *  ping style from the values contained in `CONFIG.Canvas.pings.types`
- * @prop {boolean|Number} [options.pan] Pans all receivers to designated location if value is `true`
+ * @prop {boolean|string} [ping] Creates an animated ping at designated location if a valid
+ *  ping style from the values contained in `CONFIG.Canvas.pings.types` is provided, or `'pulse'` if `true`
+ * @prop {boolean|Number} [pan] Pans all receivers to designated location if value is `true`
  *   using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is 
  *   provided, it is used as the duration of the pan.
- * @prop {Number} [options.zoom] Alters zoom level of all receivers, independent of pan/ping
- * @prop {string} [options.sender = game.userId] The user who triggered the notice
- * @prop {Array<string>} [options.receivers = warpgate.USERS.SELF] An array of user IDs to send the notice to. If not
+ * @prop {Number} [zoom] Alters zoom level of all receivers, independent of pan/ping
+ * @prop {string} [sender = game.userId] The user who triggered the notice
+ * @prop {Array<string>} [receivers = warpgate.USERS.SELF] An array of user IDs to send the notice to. If not
  *   provided, the notice is only sent to the current user.
- *
- * @example
- * ```js
- * const notice = {
- *  pan: true,
- *  ping: {
- *   pull: true,
- *   type: 'PULSE'
- *  }
- * }
- * ```
  */
 
 /**
@@ -604,11 +593,10 @@ export class api {
   }
 
   /**
-   * 
+   * Helper function for displaying pings for or panning the camera of specific users.
    *
    * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice 
    * @param {NoticeConfig} [config] Configuration for the notice
-   * @memberof api
    */
   static _notice({x, y, scene}, config = {}){
 

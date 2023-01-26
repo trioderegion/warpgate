@@ -27,6 +27,10 @@ const NAME = "Mutator";
 /** @typedef {import('./api.js').Shorthand} Shorthand */
 /** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
 
+//TODO proper objects
+/** @typedef {Object} MutateInfo **/
+/** @typedef {Object} RemoteMutateResponse **/
+
 /**
  * Workflow options
  * @typedef {Object} WorkflowOptions
@@ -411,15 +415,42 @@ export class Mutator {
     return mutateInfo;
   }
 
+  /**
+   * Perform a managed, batch update of multple token documents. Heterogeneous ownership supported
+   * and routed through the Remote Mutation system as needed. The same updates, callbacks and options
+   * objects will be used for all mutations.
+   *
+   * Note: If a specific mutation name is not provided, a single random ID will be generated for all
+   * resulting individual mutations.
+   *
+   * @static
+   * @param {Array<TokenDocument>} tokenDocs List of tokens on which to apply the provided mutation.
+   * @param {Object} details The details of this batch mutation operation.
+   * @param {Shorthand} details.updates The updates to apply to each token; as {@link warpgate.spawn}
+   * @param {Object} [details.callbacks] Delta and post mutation callbacks; as {@link warpgate.mutate}
+   * @param {PostDelta} [details.callbacks.delta]
+   * @param {PostMutate} [details.callbacks.post]
+   * @param {WorkflowOptions & MutationOptions} [details.options]
+   *
+   * @returns {Promise<Array<MutateInfo|RemoteMutateResponse>>} List of mutation results, which resolve 
+   *   once all local mutations have been applied and when all remote mutations have been _accepted_ 
+   *   or _rejected_. Currently, local and remote mutations will contain differing object structures.
+   *   Notably, local mutations (MutateInfo) contain a `delta` field containing the revert data for
+   *   this mutation; whereas remote mutations (RemoteMutateResponse) will contain an `accepted` field,
+   *   indicating if the request was accepted.
+   */
   static async batchMutate( tokenDocs, {updates, callbacks, options} ) {
     
     /* break token list into sublists by first owner */
     const tokenLists = MODULE.ownerSublist(tokenDocs);
 
     if((tokenLists['none'] ?? []).length > 0) {
-      //TODO error properly
-      return false;
+      logger.warn(MODULE.localize('error.offlineOwnerBatch'));
+      logger.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
+      delete tokenLists['none'];
     }
+
+    options.name ??= randomID();
 
     let promises = Reflect.ownKeys(tokenLists).flatMap( async (owner) => {
       if(owner == game.userId) {
@@ -439,13 +470,30 @@ export class Mutator {
     return Promise.all(promises.flat());
   }
 
+  /**
+   * Perform a managed, batch update of multple token documents. Heterogeneous ownership supported
+   * and routed through the Remote Mutation system as needed. The same updates, callbacks and options
+   * objects will be used for all mutations.
+   *
+   * Note: If a specific mutation name is not provided, a single random ID will be generated for all
+   * resulting individual mutations.
+   *
+   * @static
+   * @param {Array<TokenDocument>} tokenDocs List of tokens on which to perform the revert
+   * @param {Object} details
+   * @param {string} [details.mutationName] Specific mutation name to revert, or the latest mutation for an individual token if not provided. Tokens without mutations or without the specific mutation requested are not processed.
+   * @param {WorkflowOptions & MutationOptions} [details.options]
+   *
+   * @returns 
+   */
   static async batchRevert( tokenDocs, {mutationName = null, options = {}} = {} ) {
     
     const tokenLists = MODULE.ownerSublist(tokenDocs);
 
     if((tokenLists['none'] ?? []).length > 0) {
-      //TODO error properly
-      return false;
+      logger.warn(MODULE.localize('error.offlineOwnerBatch'));
+      logger.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
+      delete tokenLists['none'];
     }
 
     let promises = Reflect.ownKeys(tokenLists).map( (owner) => {
