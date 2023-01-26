@@ -1,115 +1,107 @@
+<!-- start:source.tmpl.hbs -->
 <!DOCTYPE html>
 <html lang="en">
-
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Adding favicon -->
-    
-
-    <!-- Adding meta -->
-    
-
-    <!-- Adding external script-->
-    
-
-    <!-- Adding external style-->
-    
-
-    <!-- Adding scripts-->
-    
-
-    <!-- Adding style-->
-    
-
-    <!-- Adding overlay script-->
-    
-
-    <!-- Adding overlay style-->
-    
-
-
-    <title>
-      api.js
-    </title>
-
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/third-party/ionicons.min.css">
-    <link type="text/css" rel="stylesheet" href="styles/third-party/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/reset.css">
-    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-base.css">
-    <link type="text/css" rel="stylesheet" href="styles/clean-jsdoc-theme-dark.css">
-    
-    <svg aria-hidden="true" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-    style="display:none">
-    <defs>
-        <symbol id="copy-icon" viewbox="0 0 488.3 488.3">
-            <g>
-                <path
-                    d="M314.25,85.4h-227c-21.3,0-38.6,17.3-38.6,38.6v325.7c0,21.3,17.3,38.6,38.6,38.6h227c21.3,0,38.6-17.3,38.6-38.6V124    C352.75,102.7,335.45,85.4,314.25,85.4z M325.75,449.6c0,6.4-5.2,11.6-11.6,11.6h-227c-6.4,0-11.6-5.2-11.6-11.6V124    c0-6.4,5.2-11.6,11.6-11.6h227c6.4,0,11.6,5.2,11.6,11.6V449.6z" />
-                <path
-                    d="M401.05,0h-227c-21.3,0-38.6,17.3-38.6,38.6c0,7.5,6,13.5,13.5,13.5s13.5-6,13.5-13.5c0-6.4,5.2-11.6,11.6-11.6h227    c6.4,0,11.6,5.2,11.6,11.6v325.7c0,6.4-5.2,11.6-11.6,11.6c-7.5,0-13.5,6-13.5,13.5s6,13.5,13.5,13.5c21.3,0,38.6-17.3,38.6-38.6    V38.6C439.65,17.3,422.35,0,401.05,0z" />
-            </g>
-        </symbol>
-        <symbol id='search-icon' viewBox="0 0 512 512">
-            <g>
-                <g>
-                    <path
-                        d="M225.474,0C101.151,0,0,101.151,0,225.474c0,124.33,101.151,225.474,225.474,225.474    c124.33,0,225.474-101.144,225.474-225.474C450.948,101.151,349.804,0,225.474,0z M225.474,409.323    c-101.373,0-183.848-82.475-183.848-183.848S124.101,41.626,225.474,41.626s183.848,82.475,183.848,183.848    S326.847,409.323,225.474,409.323z" />
-                </g>
-            </g>
-            <g>
-                <g>
-                    <path
-                        d="M505.902,476.472L386.574,357.144c-8.131-8.131-21.299-8.131-29.43,0c-8.131,8.124-8.131,21.306,0,29.43l119.328,119.328    c4.065,4.065,9.387,6.098,14.715,6.098c5.321,0,10.649-2.033,14.715-6.098C514.033,497.778,514.033,484.596,505.902,476.472z" />
-                </g>
-            </g>
-        </symbol>
-        <symbol id="down-icon" viewBox="0 0 16 16">
-            <path 
-                fill-rule="evenodd" 
-                clip-rule="evenodd" 
-                d="M12.7803 6.21967C13.0732 6.51256 13.0732 6.98744 12.7803 7.28033L8.53033 11.5303C8.23744 11.8232 7.76256 11.8232 7.46967 11.5303L3.21967 7.28033C2.92678 6.98744 2.92678 6.51256 3.21967 6.21967C3.51256 5.92678 3.98744 5.92678 4.28033 6.21967L8 9.93934L11.7197 6.21967C12.0126 5.92678 12.4874 5.92678 12.7803 6.21967Z"
-            >
-            </path>
-        </symbol>
-    </defs>
-</svg>
-  </head>
-
-  <body>
-
-    <nav class="navbar" id="navbar">
-      <div class="navbar-heading" id="navbar-heading"><a href="index.html"><h2 class="navbar-heading-text">Home</h2></a></div><div class="search-box" id="search-box"><div class="search-box-input-container"><input class="search-box-input" type="text" placeholder="Search..." id="search-box-input" /><svg class="search-icon" alt="search-icon"><use xlink:href="#search-icon"></use></svg></div><div class="search-item-container" id="search-item-container"><ul class="search-item-ul" id="search-item-ul"></ul></div></div><div class="sidebar-main-content" id="sidebar-main-content"><div class="accordion collapsed" id="9913385" > <h3 class="accordion-heading">Classes<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=4411727><div class="accordion-heading child"><a href="Crosshairs.html">Crosshairs</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="Crosshairs.html#.getTag">getTag</a></li><li data-type='method'><a href="Crosshairs.html#_drawControlIcon">_drawControlIcon</a></li><li data-type='method'><a href="Crosshairs.html#_drawRulerText">_drawRulerText</a></li><li data-type='method'><a href="Crosshairs.html#activatePreviewListeners">activatePreviewListeners</a></li><li data-type='method'><a href="Crosshairs.html#draw">draw</a></li><li data-type='method'><a href="Crosshairs.html#drawPreview">drawPreview</a></li><li data-type='method'><a href="Crosshairs.html#refresh">refresh</a></li><li data-type='method'><a href="Crosshairs.html#toObject">toObject</a></li></ul></li><li class="accordion collapsed child" id=9494489><div class="accordion-heading child"><a href="MutationStack.html">MutationStack</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="MutationStack.html#commit">commit</a></li><li data-type='method'><a href="MutationStack.html#deleteAll">deleteAll</a></li><li data-type='method'><a href="MutationStack.html#find">find</a></li><li data-type='method'><a href="MutationStack.html#getName">getName</a></li><li data-type='method'><a href="MutationStack.html#update">update</a></li><li data-type='method'><a href="MutationStack.html#updateAll">updateAll</a></li></ul></li></ul> </div><div class="accordion collapsed" id="2508075" > <h3 class="accordion-heading">Namespaces<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion collapsed child" id=9917781><div class="accordion-heading child"><a href="warpgate.html">warpgate</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.html#.buttonDialog">buttonDialog</a></li><li data-type='method'><a href="warpgate.html#.dismiss">dismiss</a></li><li data-type='method'><a href="warpgate.html#.menu">menu</a></li><li data-type='method'><a href="warpgate.html#.mutate">mutate</a></li><li data-type='method'><a href="warpgate.html#.mutationStack">mutationStack</a></li><li data-type='method'><a href="warpgate.html#.revert">revert</a></li><li data-type='method'><a href="warpgate.html#.spawn">spawn</a></li><li data-type='method'><a href="warpgate.html#.spawnAt">spawnAt</a></li><li data-type='method'><a href="warpgate.html#.wait">wait</a></li></ul></li><li class="accordion-list" id=""><a href="warpgate.abstract.html">abstract</a></li><li class="accordion collapsed child" id=8728753><div class="accordion-heading child"><a href="warpgate.crosshairs.html">crosshairs</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.crosshairs.html#.collectPlaceables">collectPlaceables</a></li><li data-type='method'><a href="warpgate.crosshairs.html#.getTag">getTag</a></li><li data-type='method'><a href="warpgate.crosshairs.html#.show">show</a></li></ul></li><li class="accordion collapsed child" id=5700641><div class="accordion-heading child"><a href="warpgate.dnd5e.html">dnd5e</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.dnd5e.html#.rollItem">rollItem</a></li></ul></li><li class="accordion collapsed child" id=3338995><div class="accordion-heading child"><a href="warpgate.event.html">event</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.event.html#.notify">notify</a></li><li data-type='method'><a href="warpgate.event.html#.remove">remove</a></li><li data-type='method'><a href="warpgate.event.html#.trigger">trigger</a></li><li data-type='method'><a href="warpgate.event.html#.watch">watch</a></li></ul></li><li class="accordion collapsed child" id=4597518><div class="accordion-heading child"><a href="warpgate.plugin.html">plugin</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.plugin.html#.queueUpdate">queueUpdate</a></li></ul></li><li class="accordion collapsed child" id=4192527><div class="accordion-heading child"><a href="warpgate.util.html">util</a><svg><use xlink:href="#down-icon"></use></svg></div><ul class='methods accordion-content'><li data-type='method'><a href="warpgate.util.html#.firstGM">firstGM</a></li><li data-type='method'><a href="warpgate.util.html#.firstOwner">firstOwner</a></li><li data-type='method'><a href="warpgate.util.html#.isFirstGM">isFirstGM</a></li><li data-type='method'><a href="warpgate.util.html#.isFirstOwner">isFirstOwner</a></li></ul></li></ul> </div><div class="accordion collapsed" id="7159330" > <h3 class="accordion-heading">Global<svg><use xlink:href="#down-icon"></use></svg></h3><ul class="accordion-content"><li class="accordion-list" id=""><a href="global.html#ComparisonKeys">ComparisonKeys</a></li><li class="accordion-list" id=""><a href="global.html#CrosshairsConfig">CrosshairsConfig</a></li><li class="accordion-list" id=""><a href="global.html#CrosshairsData">CrosshairsData</a></li><li class="accordion-list" id=""><a href="global.html#MutationData">MutationData</a></li><li class="accordion-list" id=""><a href="global.html#MutationOptions">MutationOptions</a></li><li class="accordion-list" id=""><a href="global.html#ParallelShow">ParallelShow</a></li><li class="accordion-list" id=""><a href="global.html#PostDelta">PostDelta</a></li><li class="accordion-list" id=""><a href="global.html#PostMutate">PostMutate</a></li><li class="accordion-list" id=""><a href="global.html#PostSpawn">PostSpawn</a></li><li class="accordion-list" id=""><a href="global.html#PreSpawn">PreSpawn</a></li><li class="accordion-list" id=""><a href="global.html#Shorthand">Shorthand</a></li><li class="accordion-list" id=""><a href="global.html#SpawningOptions">SpawningOptions</a></li><li class="accordion-list" id=""><a href="global.html#WarpOptions">WarpOptions</a></li><li class="accordion-list" id=""><a href="global.html#WorkflowOptions">WorkflowOptions</a></li></ul> </div>
-      
-
-    </nav>
-    <div class="navbar-ham" id="navbar-ham">
-      <div>
-        <div class="first"></div>
-        <div class="second"></div>
-        <div class="third"></div>
-      </div>
-    </div>
-
-    <div id="main" class="main-content">
-      
-      <h1 id='page-title' class="page-title">
-        api.js
-      </h1>
-      
-
-      
-
-
-
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+		<title>api.js</title>
+		<!--[if lt IE 9]>
+		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link href="https://fonts.googleapis.com/css?family=PT+Mono" rel="stylesheet">
+		<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
+		<link type="text/css" rel="stylesheet" href="css/prism.min.css">
+		<link type="text/css" rel="stylesheet" href="css/template.min.css">
+		<script type="text/javascript">
+			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"class","title":"Classes","summary":"All documented classes."},{"kind":"external","title":"Externals","summary":"All documented external members."},{"kind":"global","title":"Globals","summary":"All documented globals."},{"kind":"mixin","title":"Mixins","summary":"All documented mixins."},{"kind":"interface","title":"Interfaces","summary":"All documented interfaces."},{"kind":"module","title":"Modules","summary":"All documented modules."},{"kind":"namespace","title":"Namespaces","summary":"All documented namespaces."},{"kind":"tutorial","title":"Tutorials","summary":"All available tutorials."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":[],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
+			window.DOCLET_TOC_ENABLED = false;
+			window.DOCLET_AFILTER_ENABLED = false;
+		</script>
+</head>
+<body>
+	<!-- start:navbar.hbs -->
+	<header class="navbar navbar-default navbar-fixed-top navbar-inverse">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand branding-logo" href="index.html" style="background-image: url(img/hb-icon.bmp);">
+					Warp Gate
+				</a>
+				<!-- displayed on small devices -->
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="topNavigation">
+				<ul class="nav navbar-nav">
+								<li class="dropdown">
+									<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Globals<b class="caret"></b></a>
+									<ul class="dropdown-menu">
+											<li><a href="global.html#ComparisonKeys">ComparisonKeys</a></li>
+											<li><a href="global.html#CrosshairsConfig">CrosshairsConfig</a></li>
+											<li><a href="global.html#CrosshairsData">CrosshairsData</a></li>
+											<li><a href="global.html#MutateInfo">MutateInfo</a></li>
+											<li><a href="global.html#MutationData">MutationData</a></li>
+											<li><a href="global.html#MutationOptions">MutationOptions</a></li>
+											<li><a href="global.html#NoticeConfig">NoticeConfig</a></li>
+											<li><a href="global.html#ParallelShow">ParallelShow</a></li>
+											<li><a href="global.html#PostDelta">PostDelta</a></li>
+											<li><a href="global.html#PostMutate">PostMutate</a></li>
+											<li><a href="global.html#PostSpawn">PostSpawn</a></li>
+											<li><a href="global.html#PreSpawn">PreSpawn</a></li>
+											<li><a href="global.html#Shorthand">Shorthand</a></li>
+											<li><a href="global.html#SpawningOptions">SpawningOptions</a></li>
+											<li><a href="global.html#WarpOptions">WarpOptions</a></li>
+											<li><a href="global.html#WorkflowOptions">WorkflowOptions</a></li>
+									</ul>
+								</li>
+								<li class="dropdown">
+									<a href="list_class.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+									<ul class="dropdown-menu">
+											<li><a href="Crosshairs.html">Crosshairs</a></li>
+											<li><a href="MutationStack.html">MutationStack</a></li>
+									</ul>
+								</li>
+								<li class="dropdown">
+									<a href="list_namespace.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+									<ul class="dropdown-menu">
+											<li><a href="warpgate.html">warpgate</a></li>
+											<li><a href="warpgate.abstract.html">warpgate.abstract</a></li>
+											<li><a href="warpgate.crosshairs.html">warpgate.crosshairs</a></li>
+											<li><a href="warpgate.dnd5e.html">warpgate.dnd5e</a></li>
+											<li><a href="warpgate.event.html">warpgate.event</a></li>
+											<li><a href="warpgate.plugin.html">warpgate.plugin</a></li>
+											<li><a href="warpgate.util.html">warpgate.util</a></li>
+									</ul>
+								</li>
+				</ul>
+					<!-- start:lunr-search-navbar.hbs -->
+					<form class="navbar-form navbar-right" role="search">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="Search" id="lunr-search-input">
+							<div class="input-group-btn">
+								<button class="btn btn-default" id="lunr-search-submit">
+									<i class="glyphicon glyphicon-search"></i>
+								</button>
+							</div>
+						</div>
+					</form>
+					<!-- start:lunr-search-navbar.hbs -->		</div>
+		</div>
+	</header>
+	<!-- end:navbar.hbs -->		<div class="page-header">
+			<div class="container">
+				<span class="kind">source</span>
+				<h1><span class="name">api.js</span></h1>
+			</div>
+		</div>
+	<div class="container content">
+		<div class="row">
+			<div class="col-md-12 main-content">
+		<section class="source-section">
+			<article></article>
+			<pre class="prettyprint source language-javascript line-numbers"><code class="language-javascript">
 /* 
  * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
  * Copyright (c) 2021 Matthew Haentschke.
@@ -160,6 +152,20 @@ import { MutationStack } from './mutation-stack.js'
  */
 
 /**
+ * Configuration obect for pan and ping (i.e. Notice) operations
+ * @typedef {Object} NoticeConfig
+ * @prop {boolean|string} [ping=false] Creates an animated ping at designated location if a valid
+ *  ping style from the values contained in `CONFIG.Canvas.pings.types` is provided, or `'pulse'` if `true`
+ * @prop {boolean|Number} [pan=false] Pans all receivers to designated location if value is `true`
+ *   using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is 
+ *   provided, it is used as the duration of the pan.
+ * @prop {Number} [zoom] Alters zoom level of all receivers, independent of pan/ping
+ * @prop {string} [sender = game.userId] The user who triggered the notice
+ * @prop {Array&lt;string>} [receivers = warpgate.USERS.SELF] An array of user IDs to send the notice to. If not
+ *   provided, the notice is only sent to the current user.
+ */
+
+/**
  * Common 'shorthand' notation describing arbitrary data related to a spawn/mutate/revert process.
  *
  * The `token` and `actor` key values are standard update or options objects as one would use in 
@@ -188,7 +194,7 @@ import { MutationStack } from './mutation-stack.js'
  * spawning for _this iteration_ occurs. Used for modifying the spawning data prior to
  * each spawning iteration and for potentially skipping certain iterations.
  *
- * @typedef {(function(Object,Object,number):Promise&lt;boolean>|boolean)} PreSpawn
+ * @callback PreSpawn
  * @param {{x: number, y: number}} location Desired centerpoint of spawned token.
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
  * @param {number} iteration Current iteration number (0-indexed) in the case of 'duplicates'
@@ -197,11 +203,11 @@ import { MutationStack } from './mutation-stack.js'
  */
 
 /**
- * Post spawn callback. After a the spawning and updating for _this iteration_ occurs. 
+ * Post spawn callback. After the spawning and updating for _this iteration_ occurs.
  * Used for modifying the spawning for the next iteration, operations on the TokenDocument directly
  * (such as animations or chat messages), and potentially aborting the spawning process entirely.
  *
- * @typedef {(function(Object,TokenDocument,Object,number):Promise|void)} PostSpawn
+ * @callback PostSpawn
  * @param {{x: number, y: number}} location Actual centerpoint of spawned token (affected by collision options).
  * @param {TokenDocument} spawnedToken Resulting token created for this spawning iteration
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
@@ -254,6 +260,7 @@ import { MutationStack } from './mutation-stack.js'
  * @property {boolean} [collision=duplicates>1] controls whether the placement of a token collides with any other token 
  *  or wall and finds a nearby unobstructed point (via a radial search) to place the token. If `duplicates` is greater 
  *  than 1, default is `true`; otherwise `false`.
+ * @property {NoticeConfig} [notice] will pan or ping the canvas to the token's position after spawning.
  * @property {object} [overrides] See corresponding property descriptions in {@link WorkflowOptions}
  * @property {boolean} [overrides.includeRawData = false] 
  * @property {boolean} [overrides.preserveData = false]
@@ -282,9 +289,11 @@ export class api {
     /**
      * @global
      * @summary Top level (global) symbol providing access to all Warp Gate API functions
+     * @static
      * @namespace warpgate
      * @property {warpgate.CONST} CONST
      * @property {warpgate.EVENT} EVENT
+     * @property {warpgate.USERS} USERS
      * @borrows api._spawn as spawn
      * @borrows api._spawnAt as spawnAt
      * @borrows Gateway.dismissSpawn as dismiss
@@ -350,9 +359,15 @@ export class api {
        * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
        * @namespace 
        * @alias warpgate.plugin
+       * @borrows api._notice as notice
+       * @borrows Mutator.batchMutate as batchMutate
+       * @borrows Mutator.batchRevert as batchRevert
        */
       plugin: {
-        queueUpdate
+        queueUpdate,
+        notice: api._notice,
+        batchMutate: Mutator.batchMutate,
+        batchRevert: Mutator.batchRevert,
       },
       /**
        * @summary System specific helpers
@@ -366,11 +381,32 @@ export class api {
       /**
        * @description Constants and enums for use in embedded shorthand fields
        * @alias warpgate.CONST
+       * @readonly
        * @enum {string}
        */
       CONST : {
         /** Instructs warpgate to delete the identified embedded document. Used in place of the update or create data objects. */
         DELETE : 'delete',
+      },
+      /**
+       * @description Helper enums for retrieving user IDs
+       * @alias warpgate.USERS
+       * @readonly
+       * @enum {Array&lt;string>}
+       * @property {Array&lt;string>} ALL All online users
+       * @property {Array&lt;string>} SELF The current user
+       * @property {Array&lt;string>} GM All online GMs
+       * @property {Array&lt;string>} PLAYERS All online players (non-gms)
+       */
+      USERS: {
+        /** All online users */
+        get ALL() { return game.users.filter(user => user.active).map( user => user.id ) },
+        /** The current user */
+        get SELF() { return [game.userId] },
+        /** All online GMs */
+        get GM() { return game.users.filter(user => user.active &amp;&amp; user.isGM).map( user => user.id ) },
+        /** All online players */
+        get PLAYERS() { return game.users.filter(user => user.active &amp;&amp; !user.isGM).map( user => user.id ) }
       },
       /**
        *
@@ -522,7 +558,7 @@ export class api {
       direction: 0,
     }, {inplace: true, overwrite: false});
 
-    crosshairsConfig.direction = rotation + options.crosshairs.direction;
+    crosshairsConfig.direction += rotation;
 
     /** @type {CrosshairsData} */
     const templateData = await Gateway.showCrosshairs(crosshairsConfig, callbacks);
@@ -592,21 +628,10 @@ export class api {
     const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
 
-    /* flag this user as the actor's creator */
-    const actorFlags = {
+    /* flag this user as the tokens's creator */
+    const tokenFlags = {
       [MODULE.data.name]: {
-        control: {user: game.user.id, actor: options.controllingActor?.id},
-      }
-    }
-    updates.actor = mergeObject(updates.actor ?? {} , {flags: actorFlags}, {overwrite: false});
-
-    /* Flag this token with its original actor to work around
-     * updating the token properties of a token linked to
-     * an unowned actor
-     */
-    const tokenFlags = { 
-      [MODULE.data.name]: {
-        sourceActorId: sourceActor.id
+        control: {user: game.user.id, actor: options.controllingActor?.uuid},
       }
     }
 
@@ -620,6 +645,9 @@ export class api {
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
     Mutator.clean(null, options);
+
+    if(options.notice) warpgate.plugin.notice({...spawnLocation, scene: canvas.scene}, options.notice); 
+
     for (let iteration = 0; iteration &lt; duplicates; iteration++) {
 
       /** pre creation callback */
@@ -635,13 +663,16 @@ export class api {
       if(iteration == 0){
         /* first iteration, potentially from a spawn with a determined image,
          * apply our changes to this version */
-        MODULE.updateProtoToken(protoData, updates.token);
+        await MODULE.updateProtoToken(protoData, updates.token);
       } else {
         /* get a fresh copy */
         protoData = await MODULE.getTokenData(game.actors.get(protoData.actorId), updates.token)
       }
 
       logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
+
+      /* pan to token if first iteration */
+      //TODO integrate into stock event data instead of hijacking mutate events
 
       /** @type Object */
       const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
@@ -660,6 +691,7 @@ export class api {
         options,
         iteration
       } 
+
       await warpgate.event.notify(warpgate.EVENT.SPAWN, eventPayload);
 
       /* post creation callback */
@@ -674,45 +706,54 @@ export class api {
     return createdIds;
   }
 
+  /**
+   * Helper function for displaying pings for or panning the camera of specific users.
+   *
+   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice 
+   * @param {NoticeConfig} [config] Configuration for the notice
+   */
+  static _notice({x, y, scene}, config = {}){
+
+    config.sender ??= game.userId;
+    config.receivers ??= warpgate.USERS.SELF;
+    scene ??= canvas.scene;
+
+    return Comms.requestNotice({x,y}, scene.id, config);
+  }
+
 }
 </code></pre>
-        </article>
-    </section>
-
-
-
-
-    </div>
-
-    <footer class="footer" id="footer">
-      
-    </footer>
-
-    <script src="scripts/third-party/prettify.js"></script>
-    <script src="scripts/third-party/lang-css.js"></script>
-    <script type="text/javascript" src="scripts/misc.js"></script>
-
-    <script>prettyPrint();</script>
-    <script src="scripts/linenumber.js"></script>
-    <script src="scripts/fix-code-block.js"></script>
-    <script src="scripts/fix-navbar.js"></script>
-    
-      <script src="scripts/search.js"></script>
-      <script src="scripts/third-party/fuse.js"></script>
-      <script>
-        var list = [{"title":"Crosshairs","link":"<a href=\"Crosshairs.html\">Crosshairs</a>"},{"title":"Crosshairs.getTag","link":"<a href=\"Crosshairs.html#.getTag\">Crosshairs &rtrif; getTag</a>"},{"title":"Crosshairs#_drawControlIcon","link":"<a href=\"Crosshairs.html#_drawControlIcon\">Crosshairs &rtrif; _drawControlIcon</a>"},{"title":"Crosshairs#_drawRulerText","link":"<a href=\"Crosshairs.html#_drawRulerText\">Crosshairs &rtrif; _drawRulerText</a>"},{"title":"Crosshairs#activatePreviewListeners","link":"<a href=\"Crosshairs.html#activatePreviewListeners\">Crosshairs &rtrif; activatePreviewListeners</a>"},{"title":"Crosshairs#draw","link":"<a href=\"Crosshairs.html#draw\">Crosshairs &rtrif; draw</a>"},{"title":"Crosshairs#drawPreview","link":"<a href=\"Crosshairs.html#drawPreview\">Crosshairs &rtrif; drawPreview</a>"},{"title":"Crosshairs#refresh","link":"<a href=\"Crosshairs.html#refresh\">Crosshairs &rtrif; refresh</a>"},{"title":"Crosshairs#toObject","link":"<a href=\"Crosshairs.html#toObject\">Crosshairs &rtrif; toObject</a>"},{"title":"MutationStack","link":"<a href=\"MutationStack.html\">MutationStack</a>"},{"title":"MutationStack#commit","link":"<a href=\"MutationStack.html#commit\">MutationStack &rtrif; commit</a>"},{"title":"MutationStack#deleteAll","link":"<a href=\"MutationStack.html#deleteAll\">MutationStack &rtrif; deleteAll</a>"},{"title":"MutationStack#find","link":"<a href=\"MutationStack.html#find\">MutationStack &rtrif; find</a>"},{"title":"MutationStack#getName","link":"<a href=\"MutationStack.html#getName\">MutationStack &rtrif; getName</a>"},{"title":"MutationStack#update","link":"<a href=\"MutationStack.html#update\">MutationStack &rtrif; update</a>"},{"title":"MutationStack#updateAll","link":"<a href=\"MutationStack.html#updateAll\">MutationStack &rtrif; updateAll</a>"},{"title":"warpgate","link":"<a href=\"warpgate.html\">warpgate</a>"},{"title":"warpgate.buttonDialog","link":"<a href=\"warpgate.html#.buttonDialog\">warpgate &rtrif; buttonDialog</a>"},{"title":"warpgate.dismiss","link":"<a href=\"warpgate.html#.dismiss\">warpgate &rtrif; dismiss</a>"},{"title":"warpgate.menu","link":"<a href=\"warpgate.html#.menu\">warpgate &rtrif; menu</a>"},{"title":"warpgate.mutate","link":"<a href=\"warpgate.html#.mutate\">warpgate &rtrif; mutate</a>"},{"title":"warpgate.mutationStack","link":"<a href=\"warpgate.html#.mutationStack\">warpgate &rtrif; mutationStack</a>"},{"title":"warpgate.revert","link":"<a href=\"warpgate.html#.revert\">warpgate &rtrif; revert</a>"},{"title":"warpgate.spawn","link":"<a href=\"warpgate.html#.spawn\">warpgate &rtrif; spawn</a>"},{"title":"warpgate.spawnAt","link":"<a href=\"warpgate.html#.spawnAt\">warpgate &rtrif; spawnAt</a>"},{"title":"warpgate.wait","link":"<a href=\"warpgate.html#.wait\">warpgate &rtrif; wait</a>"},{"title":"abstract","link":"<a href=\"warpgate.abstract.html\">abstract</a>"},{"title":"crosshairs","link":"<a href=\"warpgate.crosshairs.html\">crosshairs</a>"},{"title":"warpgate.crosshairs.collectPlaceables","link":"<a href=\"warpgate.crosshairs.html#.collectPlaceables\">warpgate &rtrif; crosshairs</a>"},{"title":"warpgate.crosshairs.getTag","link":"<a href=\"warpgate.crosshairs.html#.getTag\">warpgate &rtrif; crosshairs</a>"},{"title":"warpgate.crosshairs.show","link":"<a href=\"warpgate.crosshairs.html#.show\">warpgate &rtrif; crosshairs</a>"},{"title":"dnd5e","link":"<a href=\"warpgate.dnd5e.html\">dnd5e</a>"},{"title":"warpgate.dnd5e.rollItem","link":"<a href=\"warpgate.dnd5e.html#.rollItem\">warpgate &rtrif; dnd5e</a>"},{"title":"event","link":"<a href=\"warpgate.event.html\">event</a>"},{"title":"warpgate.event.notify","link":"<a href=\"warpgate.event.html#.notify\">warpgate &rtrif; event</a>"},{"title":"warpgate.event.remove","link":"<a href=\"warpgate.event.html#.remove\">warpgate &rtrif; event</a>"},{"title":"warpgate.event.trigger","link":"<a href=\"warpgate.event.html#.trigger\">warpgate &rtrif; event</a>"},{"title":"warpgate.event.watch","link":"<a href=\"warpgate.event.html#.watch\">warpgate &rtrif; event</a>"},{"title":"plugin","link":"<a href=\"warpgate.plugin.html\">plugin</a>"},{"title":"warpgate.plugin.queueUpdate","link":"<a href=\"warpgate.plugin.html#.queueUpdate\">warpgate &rtrif; plugin</a>"},{"title":"util","link":"<a href=\"warpgate.util.html\">util</a>"},{"title":"warpgate.util.firstGM","link":"<a href=\"warpgate.util.html#.firstGM\">warpgate &rtrif; util</a>"},{"title":"warpgate.util.firstOwner","link":"<a href=\"warpgate.util.html#.firstOwner\">warpgate &rtrif; util</a>"},{"title":"warpgate.util.isFirstGM","link":"<a href=\"warpgate.util.html#.isFirstGM\">warpgate &rtrif; util</a>"},{"title":"warpgate.util.isFirstOwner","link":"<a href=\"warpgate.util.html#.isFirstOwner\">warpgate &rtrif; util</a>"},{"title":"ComparisonKeys","link":"<a href=\"global.html#ComparisonKeys\">ComparisonKeys</a>"},{"title":"CrosshairsConfig","link":"<a href=\"global.html#CrosshairsConfig\">CrosshairsConfig</a>"},{"title":"CrosshairsData","link":"<a href=\"global.html#CrosshairsData\">CrosshairsData</a>"},{"title":"MutationData","link":"<a href=\"global.html#MutationData\">MutationData</a>"},{"title":"MutationOptions","link":"<a href=\"global.html#MutationOptions\">MutationOptions</a>"},{"title":"ParallelShow","link":"<a href=\"global.html#ParallelShow\">ParallelShow</a>"},{"title":"PostDelta","link":"<a href=\"global.html#PostDelta\">PostDelta</a>"},{"title":"PostMutate","link":"<a href=\"global.html#PostMutate\">PostMutate</a>"},{"title":"PostSpawn","link":"<a href=\"global.html#PostSpawn\">PostSpawn</a>"},{"title":"PreSpawn","link":"<a href=\"global.html#PreSpawn\">PreSpawn</a>"},{"title":"Shorthand","link":"<a href=\"global.html#Shorthand\">Shorthand</a>"},{"title":"SpawningOptions","link":"<a href=\"global.html#SpawningOptions\">SpawningOptions</a>"},{"title":"WarpOptions","link":"<a href=\"global.html#WarpOptions\">WarpOptions</a>"},{"title":"WorkflowOptions","link":"<a href=\"global.html#WorkflowOptions\">WorkflowOptions</a>"}];
-        var options = 
-          setupSearch(list, options)
-      </script>
-    
-
-    
-
-    
-
-    
-
-
-  </body>
-
+		</section>
+			</div>
+		</div>
+	</div>
+	<footer>
+				<div class="copyright">Warp Gate <a href="https://github.com/trioderegion/warpgate/blob/master/LICENSE">Copyright © 2021</a> Matthew Haentschke</div>
+			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 26th Jan 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
+	</footer>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/clipboard.min.js"></script>
+	<script src="js/prism.min.js"></script>
+	<script src="js/template.min.js"></script>
+		<!-- start:lunr-search-modal.hbs -->
+		<div class="modal fade" id="lunr-search-modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Search results</h4>
+					</div>
+					<div class="modal-body" id="lunr-search-body">
+					</div>
+					<div class="modal-footer" id="lunr-search-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div>
+		<!-- end:lunr-search-modal.hbs -->		<script src="js/lunr.min.js"></script>
+	
+</body>
 </html>
+<!-- end:source.tmpl.hbs -->

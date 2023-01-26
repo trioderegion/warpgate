@@ -27,6 +27,9 @@ const NAME = "Mutator";
 /** @typedef {import('./api.js').Shorthand} Shorthand */
 /** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
 
+//TODO proper objects
+/** @typedef {Object} MutateInfo **/
+
 /**
  * Workflow options
  * @typedef {Object} WorkflowOptions
@@ -78,10 +81,11 @@ const NAME = "Mutator";
  * The post mutate callback prototype. Called after the actor has been mutated and after the mutate event
  * has triggered. Useful for animations or changes that should not be tracked by the mutation system.
  *
- * @typedef {function(TokenDocument, Object):Promise|void} PostMutate
+ * @typedef {function(TokenDocument, Object, boolean):Promise|void} PostMutate
  * @param {TokenDocument} tokenDoc Token that has been modified.
  * @param {Shorthand} updates Current permutation of the original shorthand updates object provided, as
  *  applied for this mutation
+ * @param {boolean} accepted Whether or not the mutation was accepted by the first owner.
  *
  * @returns {Promise<any>|any}
  */
@@ -286,7 +290,7 @@ export class Mutator {
   /* @TODO support embedded documents within embedded documents */
   static async _updateActor(actor, updates = {}, comparisonKeys = {}, updateOpts = {}) {
 
-    logger.debug('Performing update on (actor/updates)',actor, updates);
+    logger.debug('Performing update on (actor/updates)',actor, updates, comparisonKeys, updateOpts);
     await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
@@ -362,12 +366,22 @@ export class Mutator {
       let delta = options.delta ?? Mutator._createDelta(tokenDoc, updates, options);
 
       /* allow user to modify delta if needed (remote updates will never have callbacks) */
-      if (callbacks.delta) await callbacks.delta(delta, tokenDoc);
+      if (callbacks.delta) {
+
+        const cont = await callbacks.delta(delta, tokenDoc);
+        if(cont === false) return false;
+
+      }
 
       /* update the mutation info with the final updates including mutate stack info */
       mutateInfo = Mutator._mergeMutateDelta(tokenDoc.actor, delta, updates, options);
 
       options.delta = mutateInfo.delta;
+
+    } else if (callbacks.delta) {
+      /* call the delta callback if provided, but there is no object to modify */
+      const cont = await callbacks.delta({}, tokenDoc);
+      if(cont === false) return false;
     }
 
     if (tokenDoc.actor.isOwner) {
@@ -384,7 +398,7 @@ export class Mutator {
       
       await Mutator._update(tokenDoc, updates, options);
 
-      if(callbacks.post) await callbacks.post(tokenDoc, updates);
+      if(callbacks.post) await callbacks.post(tokenDoc, updates, true);
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE, {
         uuid: tokenDoc.uuid, 
@@ -394,10 +408,114 @@ export class Mutator {
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
-      RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
+      return RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
     }
 
     return mutateInfo;
+  }
+
+  /**
+   * Perform a managed, batch update of multple token documents. Heterogeneous ownership supported
+   * and routed through the Remote Mutation system as needed. The same updates, callbacks and options
+   * objects will be used for all mutations.
+   *
+   * Note: If a specific mutation name is not provided, a single random ID will be generated for all
+   * resulting individual mutations.
+   *
+   * @static
+   * @param {Array<TokenDocument>} tokenDocs List of tokens on which to apply the provided mutation.
+   * @param {Object} details The details of this batch mutation operation.
+   * @param {Shorthand} details.updates The updates to apply to each token; as {@link warpgate.spawn}
+   * @param {Object} [details.callbacks] Delta and post mutation callbacks; as {@link warpgate.mutate}
+   * @param {PostDelta} [details.callbacks.delta]
+   * @param {PostMutate} [details.callbacks.post]
+   * @param {WorkflowOptions & MutationOptions} [details.options]
+   *
+   * @returns {Promise<Array<MutateInfo>>} List of mutation results, which resolve 
+   *   once all local mutations have been applied and when all remote mutations have been _accepted_ 
+   *   or _rejected_. Currently, local and remote mutations will contain differing object structures.
+   *   Notably, local mutations contain a `delta` field containing the revert data for
+   *   this mutation; whereas remote mutations will contain an `accepted` field,
+   *   indicating if the request was accepted.
+   */
+  static async batchMutate( tokenDocs, {updates, callbacks, options} ) {
+    
+    /* break token list into sublists by first owner */
+    const tokenLists = MODULE.ownerSublist(tokenDocs);
+
+    if((tokenLists['none'] ?? []).length > 0) {
+      logger.warn(MODULE.localize('error.offlineOwnerBatch'));
+      logger.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
+      delete tokenLists['none'];
+    }
+
+    options.name ??= randomID();
+
+    let promises = Reflect.ownKeys(tokenLists).flatMap( async (owner) => {
+      if(owner == game.userId) {
+        //self service mutate
+        return await tokenLists[owner].map( tokenDoc => warpgate.mutate(tokenDoc, updates, callbacks, options) );
+      }
+
+      /* is a remote update */
+      return await RemoteMutator.remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
+
+    })
+
+    /* wait for each client batch of mutations to complete */
+    promises = await Promise.all(promises);
+
+    /* flatten all into a single array, and ensure all subqueries are complete */
+    return Promise.all(promises.flat());
+  }
+
+  /**
+   * Perform a managed, batch update of multple token documents. Heterogeneous ownership supported
+   * and routed through the Remote Mutation system as needed. The same updates, callbacks and options
+   * objects will be used for all mutations.
+   *
+   * Note: If a specific mutation name is not provided, a single random ID will be generated for all
+   * resulting individual mutations.
+   *
+   * @static
+   * @param {Array<TokenDocument>} tokenDocs List of tokens on which to perform the revert
+   * @param {Object} details
+   * @param {string} [details.mutationName] Specific mutation name to revert, or the latest mutation 
+   *   for an individual token if not provided. Tokens without mutations or without the specific 
+   *   mutation requested are not processed.
+   * @param {WorkflowOptions & MutationOptions} [details.options]
+   * @returns {Promise<Array<MutateInfo>>} List of mutation revert results, which resolve 
+   *   once all local reverts have been applied and when all remote reverts have been _accepted_ 
+   *   or _rejected_. Currently, local and remote reverts will contain differing object structures.
+   *   Notably, local revert contain a `delta` field containing the revert data for
+   *   this mutation; whereas remote reverts will contain an `accepted` field,
+   *   indicating if the request was accepted.
+
+   */
+  static async batchRevert( tokenDocs, {mutationName = null, options = {}} = {} ) {
+    
+    const tokenLists = MODULE.ownerSublist(tokenDocs);
+
+    if((tokenLists['none'] ?? []).length > 0) {
+      logger.warn(MODULE.localize('error.offlineOwnerBatch'));
+      logger.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
+      delete tokenLists['none'];
+    }
+
+    let promises = Reflect.ownKeys(tokenLists).map( (owner) => {
+      if(owner == game.userId) {
+        //self service mutate
+        return tokenLists[owner].map( tokenDoc => warpgate.revert(tokenDoc, mutationName, options) );
+      }
+
+      /* is a remote update */
+      return RemoteMutator.remoteBatchRevert( tokenLists[owner], {mutationName, options} );
+
+    })
+
+    promises = await Promise.all(promises);
+
+    return Promise.all(promises.flat());
   }
 
   /**
@@ -577,13 +695,13 @@ export class Mutator {
       });
 
       /* notify clients */
-      await warpgate.event.notify(warpgate.EVENT.REVERT, {
+      warpgate.event.notify(warpgate.EVENT.REVERT, {
         uuid: tokenDoc.uuid, 
         updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
         options});
 
     } else {
-      RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
+      return RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
     }
 
     return mutateData;

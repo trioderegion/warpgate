@@ -1,10 +1,9 @@
-<!-- start:source.tmpl.hbs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-		<title>update-queue.js</title>
+		<title>Namespaces</title>
 		<!--[if lt IE 9]>
 		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
@@ -14,7 +13,7 @@
 		<link type="text/css" rel="stylesheet" href="css/template.min.css">
 		<script type="text/javascript">
 			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"class","title":"Classes","summary":"All documented classes."},{"kind":"external","title":"Externals","summary":"All documented external members."},{"kind":"global","title":"Globals","summary":"All documented globals."},{"kind":"mixin","title":"Mixins","summary":"All documented mixins."},{"kind":"interface","title":"Interfaces","summary":"All documented interfaces."},{"kind":"module","title":"Modules","summary":"All documented modules."},{"kind":"namespace","title":"Namespaces","summary":"All documented namespaces."},{"kind":"tutorial","title":"Tutorials","summary":"All available tutorials."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":[],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
-			window.DOCLET_TOC_ENABLED = false;
+			window.DOCLET_TOC_ENABLED = true;
 			window.DOCLET_AFILTER_ENABLED = false;
 		</script>
 </head>
@@ -92,126 +91,84 @@
 	</header>
 	<!-- end:navbar.hbs -->		<div class="page-header">
 			<div class="container">
-				<span class="kind">source</span>
-				<h1><span class="name">update-queue.js</span></h1>
-			</div>
+				<span class="kind">list</span>
+				<h1><span class="name">Namespaces</span></h1>
+				<div class="summary"><p>All documented namespaces.</p></div>			</div>
 		</div>
 	<div class="container content">
 		<div class="row">
-			<div class="col-md-12 main-content">
-		<section class="source-section">
-			<article></article>
-			<pre class="prettyprint source language-javascript line-numbers"><code class="language-javascript">/*
- * MIT License
- * 
- * Copyright (c) 2021 DnD5e Helpers Team
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-import {MODULE} from './module.js'
-
-let updateQueues = new Map();
-
-/** 
- * Safely manages concurrent updates to the provided entity type
- * @function warpgate.plugin.queueUpdate
- * @param {Function} updateFn   the function that handles the actual update (can be async)
- */
-export function queueUpdate(updateFn) {
-
-  /** queue the update for this entity */
-  getQueue().queueUpdate(updateFn);
-}
-
-export function flush() {
-  return getQueue().flush();
-}
-
-function getQueue(entity = "default"){
-  /** if this is a new entity type, create the queue object to manage it */
-  if(!updateQueues.has(entity)) {
-    updateQueues.set(entity, new UpdateQueue(entity));
-  }
-
-  /** queue the update for this entity */
-  return updateQueues.get(entity);
-}
-
-/** 
- * Helper class to manage database updates that occur from
- * hooks that may fire back to back.
- * @ignore
- */
-class UpdateQueue {
-  constructor(entityType) {
-
-    /** self identification */
-    this.entityType = entityType;
-
-    /** buffer of update functions to run */
-    this.queue = [];
-
-    /** Semaphore for 'batch update in progress' */
-    this.inFlight = false;
-  }
-
-  queueUpdate(fn) {
-    this.queue.push(fn);
-
-    /** only kick off a batch of updates if none are in flight */
-    if (!this.inFlight) {
-      this.runUpdate();
-    }
-  }
-
-  flush() {
-    return MODULE.waitFor( () => !this.inFlight )
-  }
-
-  async runUpdate(){
-
-    this.inFlight = true;
-
-    while(this.queue.length > 0) {
-
-
-      /** grab the last update in the list and hold onto its index
-       *  in case another update pushes onto this array before we
-       *  are finished.
-       */
-      const updateIndex = this.queue.length-1;
-      const updateFn = this.queue[updateIndex];
-
-      /** wait for the update to complete */
-      await updateFn();
-
-      /** remove this entry from the queue */
-      this.queue.splice(updateIndex,1);
-    }
-
-    this.inFlight = false;
-
-  }
-}
-</code></pre>
-		</section>
+			<div class="col-md-9 main-content">
+						<ol class="breadcrumb">
+							<li><a href="index.html">Home</a></li>
+							<li class="active">Namespaces</li>
+						</ol>
+					<section>
+		<h2><span class="name">Namespaces</span></h2>
+		<article class="secondary">
+				<dl class="symbol">
+						
+						<dt class="symbol-title namespace public">
+			<h4 id="warpgate" class="namespace public"><a href="warpgate.html"><span class="name">warpgate</span></a></h4>
+		<div class="summary"><p>Top level (global) symbol providing access to all Warp Gate API functions</p></div></dt>
+<dd class="symbol-details namespace public">
+	<div class="symbol-details-inner">
+	</div>
+</dd>
+						<hr/>
+						<dt class="symbol-title namespace public">
+			<h4 id="abstract" class="namespace public"><a href="warpgate.abstract.html"><span class="ancestors">.warpgate.</span><span class="name">abstract</span></a></h4>
+		<div class="summary"><p>Warp Gate classes suitable for extension</p></div></dt>
+<dd class="symbol-details namespace public">
+	<div class="symbol-details-inner">
+	</div>
+</dd>
+						<hr/>
+						<dt class="symbol-title namespace public">
+			<h4 id="crosshairs" class="namespace public"><a href="warpgate.crosshairs.html"><span class="ancestors">.warpgate.</span><span class="name">crosshairs</span></a></h4>
+		<div class="summary"><p>Crosshairs API Functions</p></div></dt>
+<dd class="symbol-details namespace public">
+	<div class="symbol-details-inner">
+	</div>
+</dd>
+						<hr/>
+						<dt class="symbol-title namespace public">
+			<h4 id="dnd5e" class="namespace public"><a href="warpgate.dnd5e.html"><span class="ancestors">.warpgate.</span><span class="name">dnd5e</span></a></h4>
+		<div class="summary"><p>System specific helpers</p></div></dt>
+<dd class="symbol-details namespace public">
+	<div class="symbol-details-inner">
+	</div>
+</dd>
+						<hr/>
+						<dt class="symbol-title namespace public">
+			<h4 id="event" class="namespace public"><a href="warpgate.event.html"><span class="ancestors">.warpgate.</span><span class="name">event</span></a></h4>
+		<div class="summary"><p>Event system API functions.</p></div></dt>
+<dd class="symbol-details namespace public">
+	<div class="symbol-details-inner">
+	</div>
+</dd>
+						<hr/>
+						<dt class="symbol-title namespace public">
+			<h4 id="plugin" class="namespace public"><a href="warpgate.plugin.html"><span class="ancestors">.warpgate.</span><span class="name">plugin</span></a></h4>
+		<div class="summary"><p>APIs intended for warp gate &quot;pylons&quot; (e.g. Warp Gate-dependent modules)</p></div></dt>
+<dd class="symbol-details namespace public">
+	<div class="symbol-details-inner">
+	</div>
+</dd>
+						<hr/>
+						<dt class="symbol-title namespace public">
+			<h4 id="util" class="namespace public"><a href="warpgate.util.html"><span class="ancestors">.warpgate.</span><span class="name">util</span></a></h4>
+		<div class="summary"><p>Utility functions for common queries and operations</p></div></dt>
+<dd class="symbol-details namespace public">
+	<div class="symbol-details-inner">
+	</div>
+</dd>
+				</dl>
+		</article>
+					</section>
 			</div>
+				<div class="col-md-3 side-content">
+					<nav class="toc hidden-print hidden-sm hidden-xs"></nav>
+				</div>
 		</div>
 	</div>
 	<footer>
@@ -243,4 +200,3 @@ class UpdateQueue {
 	
 </body>
 </html>
-<!-- end:source.tmpl.hbs -->

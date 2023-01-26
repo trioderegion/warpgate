@@ -49,28 +49,17 @@ import { MutationStack } from './mutation-stack.js'
  */
 
 /**
- * An object for pan and ping options
+ * Configuration obect for pan and ping (i.e. Notice) operations
  * @typedef {Object} NoticeConfig
- * @prop {string} [options.ping] Creates an animated ping at designated location if a valid
- *  ping style from the values contained in `CONFIG.Canvas.pings.types`
- * @prop {boolean|Number} [options.pan] Pans all receivers to designated location if value is `true`
+ * @prop {boolean|string} [ping=false] Creates an animated ping at designated location if a valid
+ *  ping style from the values contained in `CONFIG.Canvas.pings.types` is provided, or `'pulse'` if `true`
+ * @prop {boolean|Number} [pan=false] Pans all receivers to designated location if value is `true`
  *   using the configured default pan duration of `CONFIG.Canvas.pings.pullSpeed`. If a Number is 
  *   provided, it is used as the duration of the pan.
- * @prop {Number} [options.zoom] Alters zoom level of all receivers, independent of pan/ping
- * @prop {string} [options.sender = game.userId] The user who triggered the notice
- * @prop {Array<string>} [options.receivers = warpgate.USERS.SELF] An array of user IDs to send the notice to. If not
+ * @prop {Number} [zoom] Alters zoom level of all receivers, independent of pan/ping
+ * @prop {string} [sender = game.userId] The user who triggered the notice
+ * @prop {Array<string>} [receivers = warpgate.USERS.SELF] An array of user IDs to send the notice to. If not
  *   provided, the notice is only sent to the current user.
- *
- * @example
- * ```js
- * const notice = {
- *  pan: true,
- *  ping: {
- *   pull: true,
- *   type: 'PULSE'
- *  }
- * }
- * ```
  */
 
 /**
@@ -102,7 +91,7 @@ import { MutationStack } from './mutation-stack.js'
  * spawning for _this iteration_ occurs. Used for modifying the spawning data prior to
  * each spawning iteration and for potentially skipping certain iterations.
  *
- * @typedef {(function(Object,Object,number):Promise<boolean>|boolean)} PreSpawn
+ * @callback PreSpawn
  * @param {{x: number, y: number}} location Desired centerpoint of spawned token.
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
  * @param {number} iteration Current iteration number (0-indexed) in the case of 'duplicates'
@@ -115,7 +104,7 @@ import { MutationStack } from './mutation-stack.js'
  * Used for modifying the spawning for the next iteration, operations on the TokenDocument directly
  * (such as animations or chat messages), and potentially aborting the spawning process entirely.
  *
- * @typedef {(function(Object,TokenDocument,Object,number):Promise|void)} PostSpawn
+ * @callback PostSpawn
  * @param {{x: number, y: number}} location Actual centerpoint of spawned token (affected by collision options).
  * @param {TokenDocument} spawnedToken Resulting token created for this spawning iteration
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
@@ -197,9 +186,11 @@ export class api {
     /**
      * @global
      * @summary Top level (global) symbol providing access to all Warp Gate API functions
+     * @static
      * @namespace warpgate
      * @property {warpgate.CONST} CONST
      * @property {warpgate.EVENT} EVENT
+     * @property {warpgate.USERS} USERS
      * @borrows api._spawn as spawn
      * @borrows api._spawnAt as spawnAt
      * @borrows Gateway.dismissSpawn as dismiss
@@ -265,10 +256,15 @@ export class api {
        * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
        * @namespace 
        * @alias warpgate.plugin
+       * @borrows api._notice as notice
+       * @borrows Mutator.batchMutate as batchMutate
+       * @borrows Mutator.batchRevert as batchRevert
        */
       plugin: {
         queueUpdate,
         notice: api._notice,
+        batchMutate: Mutator.batchMutate,
+        batchRevert: Mutator.batchRevert,
       },
       /**
        * @summary System specific helpers
@@ -282,6 +278,7 @@ export class api {
       /**
        * @description Constants and enums for use in embedded shorthand fields
        * @alias warpgate.CONST
+       * @readonly
        * @enum {string}
        */
       CONST : {
@@ -291,7 +288,12 @@ export class api {
       /**
        * @description Helper enums for retrieving user IDs
        * @alias warpgate.USERS
+       * @readonly
        * @enum {Array<string>}
+       * @property {Array<string>} ALL All online users
+       * @property {Array<string>} SELF The current user
+       * @property {Array<string>} GM All online GMs
+       * @property {Array<string>} PLAYERS All online players (non-gms)
        */
       USERS: {
         /** All online users */
@@ -602,11 +604,11 @@ export class api {
   }
 
   /**
-   * 
+   * Helper function for displaying pings for or panning the camera of specific users. If no scene is provided, the user's current
+   * is assumed.
    *
-   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice 
+   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice containing at least `{x: Number, y: Number, scene: Scene}`
    * @param {NoticeConfig} [config] Configuration for the notice
-   * @memberof api
    */
   static _notice({x, y, scene}, config = {}){
 
