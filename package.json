@@ -17,10 +17,12 @@
   "devDependencies": {
     "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
     "better-docs": "^2.7.2",
+    "foodoc": "^0.0.9",
     "jsdoc-plugin-intersection": "^1.0.4"
   },
   "scripts": {
-    "doc": "jsdoc --configure jsdoc.conf"
+    "doc": "jsdoc --configure jsdoc.conf",
+    "foodoc": "jsdoc --configure jsdoc.conf -t ./node_modules/foodoc/template -R index.md"
   },
   "dependencies": {
     "clean-jsdoc-theme": "^3.3.4"

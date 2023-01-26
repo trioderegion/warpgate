@@ -91,7 +91,7 @@ import { MutationStack } from './mutation-stack.js'
  * spawning for _this iteration_ occurs. Used for modifying the spawning data prior to
  * each spawning iteration and for potentially skipping certain iterations.
  *
- * @typedef {(function(Object,Object,number):Promise<boolean>|boolean)} PreSpawn
+ * @callback PreSpawn
  * @param {{x: number, y: number}} location Desired centerpoint of spawned token.
  * @param {Object} updates Current working "updates" object, which is modified for every iteration
  * @param {number} iteration Current iteration number (0-indexed) in the case of 'duplicates'
@@ -186,9 +186,11 @@ export class api {
     /**
      * @global
      * @summary Top level (global) symbol providing access to all Warp Gate API functions
+     * @static
      * @namespace warpgate
      * @property {warpgate.CONST} CONST
      * @property {warpgate.EVENT} EVENT
+     * @property {warpgate.USERS} USERS
      * @borrows api._spawn as spawn
      * @borrows api._spawnAt as spawnAt
      * @borrows Gateway.dismissSpawn as dismiss
@@ -254,6 +256,8 @@ export class api {
        * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
        * @namespace 
        * @alias warpgate.plugin
+       * @borrows Mutator.batchMutate as batchMutate
+       * @borrows Mutator.batchRevert as batchRevert
        */
       plugin: {
         queueUpdate,
@@ -273,6 +277,7 @@ export class api {
       /**
        * @description Constants and enums for use in embedded shorthand fields
        * @alias warpgate.CONST
+       * @readonly
        * @enum {string}
        */
       CONST : {
@@ -282,7 +287,12 @@ export class api {
       /**
        * @description Helper enums for retrieving user IDs
        * @alias warpgate.USERS
+       * @readonly
        * @enum {Array<string>}
+       * @property {Array<string>} ALL All online users
+       * @property {Array<string>} SELF The current user
+       * @property {Array<string>} GM All online GMs
+       * @property {Array<string>} PLAYERS All online players (non-gms)
        */
       USERS: {
         /** All online users */

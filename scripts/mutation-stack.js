@@ -88,9 +88,16 @@ export class MutationStack {
   }
 
   /**
+   * @callback FilterFn
+   * @param {MutationData} mutation
+   * @returns {boolean} provided mutation meets criteria
+   * @memberof MutationStack
+   */
+
+  /**
    * Searches for an element of the mutation stack that satisfies the provided predicate
    *
-   * @param {function(MutationData, ...any):boolean} predicate Receives the argments of `Array.prototype.find` 
+   * @param {FilterFn} predicate Receives the argments of `Array.prototype.find` 
    *  and should return a boolean indicating if the current element satisfies the predicate condition
    * @return {MutationData|undefined} Element of the mutation stack that matches the predicate, or undefined if none.
    */
@@ -104,7 +111,7 @@ export class MutationStack {
    * Searches for an element of the mutation stack that satisfies the provided predicate and returns its
    * stack index
    *
-   * @param {function(any):boolean} predicate Receives the argments of {@link Array.findIndex} and returns a Boolean indicating if the current
+   * @param {FilterFn} predicate Receives the argments of {@link Array.findIndex} and returns a Boolean indicating if the current
    *                             element satisfies the predicate condition
    * @return {Number} Index of the element of the mutation stack that matches the predicate, or undefined if none.
    */
@@ -183,9 +190,9 @@ export class MutationStack {
    * Applies a given change or tranform function to the current buffer,
    * unlocking if needed.
    *
-   * @param {MutationData|function(MutationData) : MutationData} transform Object to merge or function to generate an object to merge.
-   * @param {function(MutationData):boolean} [filterFn = () => true] Optional function returning a boolean indicating if this
-   *                   element should be modified. By default, affects all elements of the mutation stack.
+   * @param {MutationData|function(MutationData) : MutationData} transform Object to merge or function to generate an object to merge from provided {@link MutationData}
+   * @param {FilterFn} [filterFn = () => true] Optional function returning a boolean indicating 
+   *   if this element should be modified. By default, affects all elements of the mutation stack.
    * @return {MutationStack} self, unlocked for writing and updates staged.
    */
   updateAll(transform, filterFn = () => true) {

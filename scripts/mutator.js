@@ -29,7 +29,6 @@ const NAME = "Mutator";
 
 //TODO proper objects
 /** @typedef {Object} MutateInfo **/
-/** @typedef {Object} RemoteMutateResponse **/
 
 /**
  * Workflow options
@@ -432,11 +431,11 @@ export class Mutator {
    * @param {PostMutate} [details.callbacks.post]
    * @param {WorkflowOptions & MutationOptions} [details.options]
    *
-   * @returns {Promise<Array<MutateInfo|RemoteMutateResponse>>} List of mutation results, which resolve 
+   * @returns {Promise<Array<MutateInfo>>} List of mutation results, which resolve 
    *   once all local mutations have been applied and when all remote mutations have been _accepted_ 
    *   or _rejected_. Currently, local and remote mutations will contain differing object structures.
-   *   Notably, local mutations (MutateInfo) contain a `delta` field containing the revert data for
-   *   this mutation; whereas remote mutations (RemoteMutateResponse) will contain an `accepted` field,
+   *   Notably, local mutations contain a `delta` field containing the revert data for
+   *   this mutation; whereas remote mutations will contain an `accepted` field,
    *   indicating if the request was accepted.
    */
   static async batchMutate( tokenDocs, {updates, callbacks, options} ) {
@@ -481,10 +480,17 @@ export class Mutator {
    * @static
    * @param {Array<TokenDocument>} tokenDocs List of tokens on which to perform the revert
    * @param {Object} details
-   * @param {string} [details.mutationName] Specific mutation name to revert, or the latest mutation for an individual token if not provided. Tokens without mutations or without the specific mutation requested are not processed.
+   * @param {string} [details.mutationName] Specific mutation name to revert, or the latest mutation 
+   *   for an individual token if not provided. Tokens without mutations or without the specific 
+   *   mutation requested are not processed.
    * @param {WorkflowOptions & MutationOptions} [details.options]
-   *
-   * @returns 
+   * @returns {Promise<Array<MutateInfo>>} List of mutation revert results, which resolve 
+   *   once all local reverts have been applied and when all remote reverts have been _accepted_ 
+   *   or _rejected_. Currently, local and remote reverts will contain differing object structures.
+   *   Notably, local revert contain a `delta` field containing the revert data for
+   *   this mutation; whereas remote reverts will contain an `accepted` field,
+   *   indicating if the request was accepted.
+
    */
   static async batchRevert( tokenDocs, {mutationName = null, options = {}} = {} ) {
     

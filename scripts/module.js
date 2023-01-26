@@ -38,9 +38,10 @@ export class MODULE {
   /**
    * Returns the localized string for a given warpgate scoped i18n key
    *
+   * @ignore
    * @static
    * @param {*} key
-   * @returns 
+   * @returns {string}
    * @memberof MODULE
    */
   static localize(key) {
