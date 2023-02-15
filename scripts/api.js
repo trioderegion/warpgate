@@ -521,23 +521,22 @@ export class api {
 
     if (!protoData) return [];
 
-    const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
 
     /* flag this user as the tokens's creator */
-    const tokenFlags = {
+    const actorFlags = {
       [MODULE.data.name]: {
         control: {user: game.user.id, actor: options.controllingActor?.uuid},
       }
     }
 
     /* create permissions for this user */
-    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      ownership: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
-    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData}, {overwrite: false})
+    updates.token = mergeObject({actorData}, updates.token ?? {}, {inplace: false})
+    updates.actor = mergeObject({flags: actorFlags}, updates.actor ?? {}, {inplace: false})
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
     Mutator.clean(null, options);
