@@ -50,7 +50,7 @@ export class Crosshairs extends MeasuredTemplate {
       direction: config.direction,
     }
 
-    const template = new CONFIG.MeasuredTemplate.documentClass(templateData, { parent: canvas.scene });
+    const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
     super(template);
 
     /** @TODO all of these fields should be part of the source data schema for this class **/
@@ -123,8 +123,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.rightY = 0;
 
     /** @type {number} */
-    this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance)
-      * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid) / 2;
+    this.radius = this.document.distance * this.scene.grid.size / 2;
   }
 
   /**
@@ -137,7 +136,7 @@ export class Crosshairs extends MeasuredTemplate {
       cancelled: this.cancelled,
       scene: this.scene,
       radius: this.radius,
-      size: MODULE.isV10 ? this.document.distance : this.data.distance,
+      size: this.document.distance,
     });
     delete data.width;
     return data;
@@ -151,13 +150,13 @@ export class Crosshairs extends MeasuredTemplate {
    * @returns {PIXI.DisplayObject|undefined}
    */
   static getTag(key) {
-    return canvas.templates.preview.children.find(child => child.tag === key)
+    return canvas.templates.preview.children.find( child => child.tag === key )
   }
 
-  static getSnappedPosition({ x, y }, interval) {
-    const offset = interval < 0 ? canvas.grid.size / 2 : 0;
+  static getSnappedPosition({x,y}, interval){
+    const offset = interval < 0 ? canvas.grid.size/2 : 0;
     const snapped = canvas.grid.getSnappedPosition(x - offset, y - offset, interval);
-    return { x: snapped.x + offset, y: snapped.y + offset };
+    return {x: snapped.x + offset, y: snapped.y + offset};
   }
 
   /* -----------EXAMPLE CODE FROM MEASUREDTEMPLATE.JS--------- */
@@ -185,9 +184,9 @@ export class Crosshairs extends MeasuredTemplate {
     this.clear();
 
     // Load the texture
-    const texture = MODULE.isV10 ? this.document.texture : this.data.texture;
-    if (texture) {
-      this._texture = await loadTexture(texture, { fallback: 'icons/svg/hazard.svg' });
+    const texture = this.document.texture;
+    if ( texture ) {
+      this._texture = await loadTexture(texture, {fallback: 'icons/svg/hazard.svg'});
     } else {
       this._texture = null;
     }
@@ -215,7 +214,7 @@ export class Crosshairs extends MeasuredTemplate {
     //END WARPGATE
 
     // Enable interactivity, only if the Tile has a true ID
-    if (this.id) this.activateListeners();
+    if ( this.id ) this.activateListeners();
     return this;
   }
 
@@ -244,14 +243,14 @@ export class Crosshairs extends MeasuredTemplate {
     const size = Math.max(Math.round((canvas.dimensions.size * 0.5) / 20) * 20, 40);
 
     //BEGIN WARPGATE
-    let icon = new ControlIcon({ texture: this.icon, size: size });
+    let icon = new ControlIcon({texture: this.icon, size: size});
     icon.visible = this.drawIcon;
     //END WARPGATE
 
-    icon.pivot.set(size * 0.5, size * 0.5);
+    icon.pivot.set(size*0.5, size*0.5);
     //icon.x -= (size * 0.5);
     //icon.y -= (size * 0.5);
-    icon.angle = MODULE.isV10 ? this.document.direction : this.data.direction;
+    icon.angle = this.document.direction;
     return icon;
   }
 
@@ -259,12 +258,12 @@ export class Crosshairs extends MeasuredTemplate {
   refresh() {
     if (!this.template) return;
     let d = canvas.dimensions;
-    const document = MODULE.isV10 ? this.document : this.data;
+    const document = this.document;
     this.position.set(document.x, document.y);
 
     // Extract and prepare data
-    let { direction, distance } = document;
-    distance *= (d.size / 2);
+    let {direction, distance} = document;
+    distance *= (d.size/2);
     //BEGIN WARPGATE
     //width *= (d.size / d.distance);
     //END WARPGATE
@@ -284,10 +283,6 @@ export class Crosshairs extends MeasuredTemplate {
     // Draw the Template outline
     this.template.clear()
       .lineStyle(this._borderThickness, this.borderColor, this.drawOutline ? 0.75 : 0)
-    //BEGIN WARPGATE
-    //.beginFill(/*0x000000, 0.0*/this.fillColor, this.alpha);
-    //END WARPGATE
-
 
     // Fill Color or Texture
 
@@ -397,27 +392,23 @@ export class Crosshairs extends MeasuredTemplate {
     if (now - this.moveTime <= 20) return;
 
     const center = event.data.getLocalPosition(this.layer);
-    const { x, y } = Crosshairs.getSnappedPosition(center, this.interval);
-    if (MODULE.isV10) this.document.updateSource({ x, y });
-    else this.data.update({ x, y });
+    const {x,y} = Crosshairs.getSnappedPosition(center, this.interval);
+    this.document.updateSource({x, y});
     this.refresh();
     this.moveTime = now;
     canvas._onDragCanvasPan(event.data.originalEvent);
   }
 
   _leftClickHandler(event) {
-    const document = MODULE.isV10 ? this.document : this.data;
-    //const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
-    //const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
-    const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
+    const document = this.document;
+    const thisSceneSize = this.scene.grid.size;
 
-    const destination = Crosshairs.getSnappedPosition(MODULE.isV10 ? this.document : this.data, this.interval);
+    const destination = Crosshairs.getSnappedPosition(this.document, this.interval);
     this.radius = document.distance * thisSceneSize / 2;
     this.cancelled = false;
 
-    if (MODULE.isV10) this.document.updateSource({ ...destination });
-    else this.data.update({ destination });
-
+    this.document.updateSource({ ...destination });
+    
     this.clearHandlers(event);
   }
 
@@ -472,14 +463,15 @@ export class Crosshairs extends MeasuredTemplate {
     //WARPGATE BEGIN
     /* remove only ourselves, in case of multiple */
     this.layer.preview.removeChild(this);
-    //WARPGATE END
+    
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.onmousedown = null;
     canvas.app.view.onmouseup = null;
     canvas.app.view.onwheel = null;
-
-    /* re-enable interactivity on this layer */
+		//WARPGATE END
+    
+		/* re-enable interactivity on this layer */
     this.layer.interactiveChildren = true;
 
     /* moving off this layer also deletes ALL active previews?
