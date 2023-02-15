@@ -37,8 +37,8 @@ import { MODULE } from './module.js'
 export class Crosshairs extends MeasuredTemplate {
 
   //constructor(gridSize = 1, data = {}){
-  constructor(config, callbacks = {}){
-     const templateData = {
+  constructor(config, callbacks = {}) {
+    const templateData = {
       t: "circle",
       user: game.user.id,
       distance: config.size,
@@ -48,7 +48,7 @@ export class Crosshairs extends MeasuredTemplate {
       width: 1,
       texture: config.texture,
       direction: config.direction,
-    }   
+    }
 
     const template = new CONFIG.MeasuredTemplate.documentClass(templateData, {parent: canvas.scene});
     super(template);
@@ -115,9 +115,15 @@ export class Crosshairs extends MeasuredTemplate {
      */
     this.cancelled = true;
 
+    /**
+     * Indicators on where cancel was initiated
+     * for determining if it was a drag or a cancel
+     */
+    this.rightX = 0;
+    this.rightY = 0;
+
     /** @type {number} */
-    this.radius = (MODULE.isV10 ? this.document.distance : this.data.distance)
-      * (MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid) /2;
+    this.radius = this.document.distance * this.scene.grid.size / 2;
   }
 
   /**
@@ -130,7 +136,7 @@ export class Crosshairs extends MeasuredTemplate {
       cancelled: this.cancelled,
       scene: this.scene,
       radius: this.radius,
-      size: MODULE.isV10 ? this.document.distance : this.data.distance,
+      size: this.document.distance,
     });
     delete data.width;
     return data;
@@ -164,12 +170,12 @@ export class Crosshairs extends MeasuredTemplate {
    * Set the displayed ruler tooltip text and position
    * @private
    */
-    //BEGIN WARPGATE
+  //BEGIN WARPGATE
   _setRulerText() {
     this.ruler.text = this.label;
     /** swap the X and Y to use the default dx/dy of a ray (pointed right)
     //to align the text to the bottom of the template */
-    this.ruler.position.set(-this.ruler.width/2 + this.labelOffset.x, this.template.height/2 + 5 + this.labelOffset.y);
+    this.ruler.position.set(-this.ruler.width / 2 + this.labelOffset.x, this.template.height / 2 + 5 + this.labelOffset.y);
     //END WARPGATE
   }
 
@@ -178,7 +184,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.clear();
 
     // Load the texture
-    const texture = MODULE.isV10 ? this.document.texture : this.data.texture;
+    const texture = this.document.texture;
     if ( texture ) {
       this._texture = await loadTexture(texture, {fallback: 'icons/svg/hazard.svg'});
     } else {
@@ -244,15 +250,15 @@ export class Crosshairs extends MeasuredTemplate {
     icon.pivot.set(size*0.5, size*0.5);
     //icon.x -= (size * 0.5);
     //icon.y -= (size * 0.5);
-    icon.angle = MODULE.isV10 ? this.document.direction : this.data.direction;
+    icon.angle = this.document.direction;
     return icon;
   }
 
   /** @override */
   refresh() {
-    if(!this.template) return;
+    if (!this.template) return;
     let d = canvas.dimensions;
-    const document = MODULE.isV10 ? this.document : this.data;
+    const document = this.document;
     this.position.set(document.x, document.y);
 
     // Extract and prepare data
@@ -267,7 +273,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.ray = Ray.fromAngle(document.x, document.y, direction, distance);
 
     // Get the Template shape
-    switch ( document.t ) {
+    switch (document.t) {
       case "circle":
         this.shape = this._getCircleShape(distance);
         break;
@@ -277,14 +283,10 @@ export class Crosshairs extends MeasuredTemplate {
     // Draw the Template outline
     this.template.clear()
       .lineStyle(this._borderThickness, this.borderColor, this.drawOutline ? 0.75 : 0)
-    //BEGIN WARPGATE
-      //.beginFill(/*0x000000, 0.0*/this.fillColor, this.alpha);
-    //END WARPGATE
-
 
     // Fill Color or Texture
 
-    if ( this._texture ) {
+    if (this._texture) {
       /* assume 0,0 is top left of texture
        * and scale/offset this texture (due to origin
        * at center of template). tileTexture indicates
@@ -294,9 +296,9 @@ export class Crosshairs extends MeasuredTemplate {
       const offset = this.tileTexture ? 0 : distance;
       this.template.beginTextureFill({
         texture: this._texture,
-        matrix: new PIXI.Matrix().scale(scale, scale).translate(-offset,-offset)
+        matrix: new PIXI.Matrix().scale(scale, scale).translate(-offset, -offset)
       });
-    } else { 
+    } else {
       this.template.beginFill(this.fillColor, this.fillAlpha);
     }
 
@@ -324,8 +326,8 @@ export class Crosshairs extends MeasuredTemplate {
     //END WARPGATE
     return this;
   }
-  
-   /* END MEASUREDTEMPLATE.JS USAGE */
+
+  /* END MEASUREDTEMPLATE.JS USAGE */
 
 
   /* -----------EXAMPLE CODE FROM ABILITY-TEMPLATE.JS--------- */
@@ -360,15 +362,15 @@ export class Crosshairs extends MeasuredTemplate {
     // Hide the sheet that originated the preview
     //BEGIN WARPGATE
     this.inFlight = true;
-    
+
     // Activate interactivity
     this.activatePreviewListeners();
-    
+
     // Callbacks
     this.callbacks?.show?.(this);
 
     /* wait _indefinitely_ for placement to be decided. */
-    await MODULE.waitFor( () => !this.inFlight, -1 )
+    await MODULE.waitFor(() => !this.inFlight, -1)
     if (this.activeHandlers) {
       this.clearHandlers();
     }
@@ -379,38 +381,34 @@ export class Crosshairs extends MeasuredTemplate {
 
   /* -------------------------------------------- */
 
-  _mouseMoveHandler(event){
+  _mouseMoveHandler(event) {
     event.stopPropagation();
 
     /* if our position is locked, do not update it */
     if (this.lockPosition) return;
-    
+
     // Apply a 20ms throttle
-    let now = Date.now(); 
-    if ( now - this.moveTime <= 20 ) return;
+    let now = Date.now();
+    if (now - this.moveTime <= 20) return;
 
     const center = event.data.getLocalPosition(this.layer);
     const {x,y} = Crosshairs.getSnappedPosition(center, this.interval);
-    if ( MODULE.isV10 ) this.document.updateSource({x, y});
-    else this.data.update({x, y});
+    this.document.updateSource({x, y});
     this.refresh();
     this.moveTime = now;
     canvas._onDragCanvasPan(event.data.originalEvent);
   }
 
-  _leftClickHandler(event){
-    const document = MODULE.isV10 ? this.document : this.data;
-    //const canvasSceneDistance = MODULE.isV10 ? canvas.scene.grid.distance : canvas.scene.data.gridDistance;
-    //const thisSceneDistance = MODULE.isV10 ? this.scene.grid.distance : this.scene.data.gridDistance;
-    const thisSceneSize = MODULE.isV10 ? this.scene.grid.size : this.scene.data.grid;
+  _leftClickHandler(event) {
+    const document = this.document;
+    const thisSceneSize = this.scene.grid.size;
 
-    const destination = Crosshairs.getSnappedPosition(MODULE.isV10 ? this.document : this.data, this.interval);
-    this.radius = document.distance * thisSceneSize /2;
+    const destination = Crosshairs.getSnappedPosition(this.document, this.interval);
+    this.radius = document.distance * thisSceneSize / 2;
     this.cancelled = false;
 
-    if ( MODULE.isV10 ) this.document.updateSource({...destination});
-    else this.data.update({destination});
-
+    this.document.updateSource({ ...destination });
+    
     this.clearHandlers(event);
   }
 
@@ -421,8 +419,8 @@ export class Crosshairs extends MeasuredTemplate {
   // alt = zoom canvas
   _mouseWheelHandler(event) {
 
-    if ( event.ctrlKey ) event.preventDefault(); // Avoid zooming the browser window
-    if ( !event.altKey ) event.stopPropagation();
+    if (event.ctrlKey) event.preventDefault(); // Avoid zooming the browser window
+    if (!event.altKey) event.stopPropagation();
 
     const delta = canvas.grid.type > CONST.GRID_TYPES.SQUARE ? 30 : 15;
     const snap = event.ctrlKey ? delta : 5;
@@ -432,44 +430,60 @@ export class Crosshairs extends MeasuredTemplate {
     if (event.shiftKey && !this.lockSize) {
       let distance = document.distance + 0.25 * (Math.sign(event.deltaY));
       distance = Math.max(distance, 0.25);
-      this.document.updateSource({distance});
-      this.radius = document.distance * thisSceneSize /2;
+      this.document.updateSource({ distance });
+      this.radius = document.distance * thisSceneSize / 2;
     } else if (!event.altKey) {
       const direction = document.direction + (snap * Math.sign(event.deltaY));
-      this.document.updateSource({direction});
+      this.document.updateSource({ direction });
     }
     //END WARPGATE
     this.refresh();
   }
 
-  _cancelHandler(event) {
-    this.cancelled = true;
-    this.clearHandlers(event);
+  _rightDownHandler(event) {
+    if (event.button !== 2) return;
+
+    this.rightX = event.screenX;
+    this.rightY = event.screenY;
+  }
+
+  _rightUpHandler(event) {
+    if (event.button !== 2) return;
+
+    const isWithinThreshold = (current, previous) => Math.abs(current - previous) < 10;
+    if (isWithinThreshold(this.rightX, event.screenX)
+      && isWithinThreshold(this.rightY, event.screenY)
+    ) {
+      this.cancelled = true;
+      this.clearHandlers(event);
+    }
   }
 
   _clearHandlers(event) {
     //WARPGATE BEGIN
     /* remove only ourselves, in case of multiple */
     this.layer.preview.removeChild(this);
-    //WARPGATE END
+    
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
-    canvas.app.view.oncontextmenu = null;
+    canvas.app.view.onmousedown = null;
+    canvas.app.view.onmouseup = null;
     canvas.app.view.onwheel = null;
-
-    /* re-enable interactivity on this layer */
+		//WARPGATE END
+    
+		/* re-enable interactivity on this layer */
     this.layer.interactiveChildren = true;
 
     /* moving off this layer also deletes ALL active previews?
      * unexpected, but manageable
      */
-    if(this.layer.preview.children.length == 0){
+    if (this.layer.preview.children.length == 0) {
       this.initialLayer.activate();
     }
 
     //BEGIN WARPGATE
     // Show the sheet that originated the preview
-    if ( this.actorSheet ) this.actorSheet.maximize();
+    if (this.actorSheet) this.actorSheet.maximize();
     this.activeHandlers = false;
     this.inFlight = false;
 
@@ -487,10 +501,10 @@ export class Crosshairs extends MeasuredTemplate {
     this.activeHandlers = true;
 
     /* Activate listeners */
-
     this.activeMoveHandler = this._mouseMoveHandler.bind(this);
     this.activeLeftClickHandler = this._leftClickHandler.bind(this);
-    this.cancelHandler = this._cancelHandler.bind(this);
+    this.rightDownHandler = this._rightDownHandler.bind(this);
+    this.rightUpHandler = this._rightUpHandler.bind(this);
     this.activeWheelHandler = this._mouseWheelHandler.bind(this);
 
     this.clearHandlers = this._clearHandlers.bind(this);
@@ -503,9 +517,10 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Mouse Wheel rotate
     canvas.app.view.onwheel = this.activeWheelHandler;
-    
+
     // Right click cancel
-    canvas.app.view.oncontextmenu = this.cancelHandler;
+    canvas.app.view.onmousedown = this.rightDownHandler;
+    canvas.app.view.onmouseup = this.rightUpHandler;
 
     // END WARPGATE
   }
