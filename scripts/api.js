@@ -437,8 +437,7 @@ export class api {
       protoData = await MODULE.getTokenData(spawnName, updates.token);
     } else {
       protoData = spawnName;
-      const updateFn = MODULE.isV10 ? protoData.updateSource : protoData.update;
-      if(updateFn) updateFn(updates.token);
+      protoData.updateSource(updates.token ?? {});
     }
 
     if (!protoData) return;

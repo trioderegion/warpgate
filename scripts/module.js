@@ -313,6 +313,12 @@ export class MODULE {
     });
   }
 
+  /**
+   * @param {string|Actor} actorNameDoc
+   * @param {object} tokenUpdates
+   *
+   * @returns {Promise<TokenDocument|false>}
+   */
   static async getTokenData(actorNameDoc, tokenUpdates) {
 
     let sourceActor = actorNameDoc;
@@ -354,27 +360,25 @@ export class MODULE {
    * @returns {undefined} provided updates object modified in-place
    */
   static shimUpdate(updates) {
-    if(MODULE.isV10) {
 
-      updates.token = MODULE.shimClassData(TokenDocument.implementation, updates.token);
-      updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
+    updates.token = MODULE.shimClassData(TokenDocument.implementation, updates.token);
+    updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
 
-      Object.keys(updates.embedded ?? {}).forEach( (embeddedName) => {
-        const cls = CONFIG[embeddedName].documentClass;
+    Object.keys(updates.embedded ?? {}).forEach( (embeddedName) => {
+      const cls = CONFIG[embeddedName].documentClass;
 
-        Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
-          updates.embedded[embeddedName][shortId] = (typeof data == 'string') ? data : MODULE.shimClassData(cls, data);
-        });
+      Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
+        updates.embedded[embeddedName][shortId] = (typeof data == 'string') ? data : MODULE.shimClassData(cls, data);
       });
+    });
 
-    }
   }
 
   static shimClassData(cls, change) {
 
     if(!change) return change;
 
-    if(MODULE.isV10 && !!change && !foundry.utils.isEmpty(change)) {
+    if(!!change && !foundry.utils.isEmpty(change)) {
       /* shim data if needed */
       return cls.migrateData(foundry.utils.expandObject(change));
     }
@@ -493,6 +497,15 @@ export class MODULE {
 
   static dialogInputs = (data) => {
 
+    /* correct legacy input data */
+    data.forEach(inputData => {
+      if (inputData.type === 'select') {
+        inputData.options.forEach((e, i) => {
+          inputData.options[i] = typeof e === 'string' ? {value: e, html: e} : e;
+        });
+      }
+    });
+
     const mapped = data.map(({type, label, value, options}, i) => {
       type = type.toLowerCase();
       switch (type) {
@@ -502,7 +515,6 @@ export class MODULE {
         case 'select': {
 
           const optionString = options.map((e, i) => {
-            e = typeof e === 'string' ? {value: i, html: e} : e;
             e.value ??= i;
             return `<option value="${i}">${e.html}</option>`
           }).join('');
@@ -547,9 +559,9 @@ export class MODULE {
    * | number | (as `text`) | {Number} final value of text field converted to a number |
    * | select | array of option labels or objects {value, html} | `value` property of selected option. If values not provided, numeric index of option in original list | | 
    * @static
-   * @param {object} [data]  
-   * @param {Array<{label: string, type: string, options: any|Array<any>} >} [data.inputs=[]] follow the same structure as dialog
-   * @param {Array<{label: string, value: any}>} [data.buttons=[]] as buttonDialog
+   * @param {object} [prompts]  
+   * @param {Array<{label: string, type: string, options: any|Array<any>} >} [prompts.inputs=[]] follow the same structure as dialog
+   * @param {Array<{label: string, value: any, callback: Function }>} [prompts.buttons=[]] as buttonDialog
    * @param {object} [config] 
    * @param {string} [config.title='Prompt'] Title of dialog
    * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
@@ -592,16 +604,19 @@ export class MODULE {
    * })
    *
    */
-  static async menu({
-    inputs = [],
-    buttons = []
-  }= {}, {
-    title = 'Prompt',
-    defaultButton = 'Ok',
-    render,
-    close = (resolve) => resolve({buttons: false}),
-    options = {}
-  } = {}) {
+  static async menu(prompts = {}, config = {}) {
+
+    /* apply defaults to optional params */
+    const configDefaults = {
+      title : 'Prompt',
+      defaultButton : 'Ok',
+      render:null,
+      close : (resolve) => resolve({buttons: false}),
+      options : {}
+    }
+
+    const {title, defaultButton, render, close, options} = foundry.utils.mergeObject(configDefaults, config);
+    const {inputs, buttons} = foundry.utils.mergeObject({inputs: [], buttons: []}, prompts);
 
     return await new Promise((resolve) => {
       let content = MODULE.dialogInputs(inputs);
@@ -611,12 +626,12 @@ export class MODULE {
       buttons.forEach((button) => {
         buttonData[button.label] = {
           label: button.label,
-          callback: (html) => {
+          callback: async (html) => {
             const results = {
               inputs: MODULE._innerValueParse(inputs, html),
               buttons: button.value
             }
-            if(button.callback instanceof Function) button.callback(results, button, html); 
+            if(button.callback instanceof Function) await button.callback(results, button, html); 
             resolve(results);
           }
         }
