@@ -112,7 +112,8 @@
       },
       "badUpdate": {
         "complex": "Updates object cannot be serialized or contains non-primitive/object/array properties. Operation aborted."
-      }
+      },
+      "badSelectOpts": "\"{fnName}\" inputs received invalid options for 'select'"
     }
 
   }

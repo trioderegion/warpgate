@@ -501,7 +501,29 @@ export class MODULE {
     data.forEach(inputData => {
       if (inputData.type === 'select') {
         inputData.options.forEach((e, i) => {
-          inputData.options[i] = typeof e === 'string' ? {value: e, html: e} : e;
+          switch (typeof e) {
+            case 'string':
+              /* if we are handed legacy string values, convert them to objects */
+              inputData.options[i] = {value: e, html: e};
+              /* fallthrough to tweak missing values from object */
+
+            case 'object':
+              /* if no HMTL provided, use value */
+              inputData.options[i].html ??= inputData.options[i].value;
+
+              /* sanity check */
+              if(!!inputData.options[i].html && inputData.options[i].value != undefined) {
+                break;
+              }
+
+              /* fallthrough to throw error if all else fails */
+              
+            default: {
+              const emsg = MODULE.format('error.badSelectOpts', {fnName: 'menu'});
+              logger.error(emsg);
+              throw new Error(emsg);
+            }
+          }
         });
       }
     });
@@ -515,7 +537,6 @@ export class MODULE {
         case 'select': {
 
           const optionString = options.map((e, i) => {
-            e.value ??= i;
             return `<option value="${i}">${e.html}</option>`
           }).join('');
 
