@@ -16,9 +16,34 @@ export class MODULE {
       title: "Warp Gate"
     };
 
-  static get isV10() {
-    // @ts-ignore
-    return game.release?.generation >= 10;
+  /**
+   *
+   *
+   * @static
+   * @param {*} shimId
+   * @param {globalThis|*} [root=globalThis]
+   * @returns 
+   * @memberof MODULE
+   */
+  static compat(shimId, root = globalThis) {
+    const gen = game.release?.generation
+    switch (shimId) {
+      case 'interaction.pointer':
+        return {
+          10: root.canvas.app.renderer.plugins.interaction.mouse,
+        }[gen] ?? canvas.app.renderer.plugins.interaction.pointer;
+      case 'crosshairs.computeShape':
+          return ({
+            10: ()=>{
+              if(root.document.t != 'circle'){
+                logger.error("Non-circular Crosshairs is unsupported!");
+              }
+              return root._getCircleShape(root.ray.distance);
+            }
+          }[gen] ?? (()=>root._computeShape()))()
+      default:
+          return null;
+    }
   }
 
   static async register() {
@@ -235,9 +260,7 @@ export class MODULE {
                       // @ts-ignore 2589
                       doc instanceof Token ? doc.document.actor : doc;
     
-    const ownershipPath = MODULE.isV10 ? 'ownership' : 'data.permission';
-
-    const permissionObject = getProperty(corrected ?? {}, ownershipPath) ?? {};
+    const permissionObject = getProperty(corrected ?? {}, 'ownership') ?? {};
 
     const playerOwners = Object.entries(permissionObject)
       .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
@@ -352,7 +375,7 @@ export class MODULE {
   }
 
   static getMouseStagePos() {
-    const mouse = canvas.app.renderer.plugins.interaction.mouse;
+    const mouse = MODULE.compat('interaction.pointer');
     return mouse.getLocalPosition(canvas.app.stage);
   }
 

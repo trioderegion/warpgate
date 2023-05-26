@@ -270,10 +270,13 @@ export class api {
        * @summary System specific helpers
        * @namespace 
        * @alias warpgate.dnd5e
+       * @prop {Function} rollItem
        * @borrows Gateway._rollItemGetLevel as rollItem
        */
-      dnd5e : {
-        rollItem : Gateway._rollItemGetLevel
+      get dnd5e() {
+        foundry.utils.logCompatibilityWarning(`[${MODULE.data.name}] System-specific namespaces and helper functions have been deprecated. Please convert to system provided functions.`, {since: 1.16, until: 2, details:`Migration details:\nrollItem(Item) to Item#use()`});
+
+        return {rollItem : Gateway._rollItemGetLevel}
       },
       /**
        * @description Constants and enums for use in embedded shorthand fields
@@ -413,9 +416,8 @@ export class api {
     }
 
     /* create permissions for this user */
-    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      ownership: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
     /* the provided update object will be mangled for our use -- copy it to
@@ -445,7 +447,7 @@ export class api {
     if(options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.minimize();
 
     /* gather data needed for configuring the display of the crosshairs */
-    const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
+    const tokenImg = protoData.texture.src;
     const rotation = updates.token?.rotation ?? protoData.rotation ?? 0;
     const crosshairsConfig = foundry.utils.mergeObject(options.crosshairs ?? {}, {
       size: protoData.width,
@@ -535,8 +537,7 @@ export class api {
       ownership: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
-    updates.token = mergeObject({actorData}, updates.token ?? {}, {inplace: false})
-    updates.actor = mergeObject({flags: actorFlags}, updates.actor ?? {}, {inplace: false})
+    updates.actor = mergeObject({flags: actorFlags, ...actorData}, updates.actor ?? {}, {inplace: false})
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
     Mutator.clean(null, options);
@@ -576,7 +577,7 @@ export class api {
 
       createdIds.push(spawnedTokenDoc.id);
 
-      logger.debug('Spawned token with data: ', MODULE.isV10 ? spawnedTokenDoc : spawnedTokenDoc.data);
+      logger.debug('Spawned token with data: ', spawnedTokenDoc);
 
       await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
 

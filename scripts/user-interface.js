@@ -62,12 +62,9 @@ export class UserInterface {
   }
 
   static _renderActorSheet(app, html, data) {
-    logger.debug("app |", app);
-    logger.debug("html |", html);
-    logger.debug("data |", data);
     
-    UserInterface.addDismissButton(app, html, data);
-    UserInterface.addRevertMutation(app, html, data);
+    UserInterface.addDismissButton(app, html);
+    UserInterface.addRevertMutation(app, html);
   }
 
   static _shouldAddDismiss(token) {
@@ -92,7 +89,7 @@ export class UserInterface {
 
   }
 
-  static addDismissButton(app, html/*, data*/) {
+  static addDismissButton(app, html) {
     const token = app.token;
 
     /** this is not a warpgate spawned actor */
@@ -146,7 +143,7 @@ export class UserInterface {
     if( !hasToken ) {
       /* check if linked and has an active token on scene */
       const candidates = actor?.getActiveTokens() ?? [];
-      const linkedToken = candidates.find( t => (MODULE.isV10?t.document:t.data).actorLink )?.document ?? null;
+      const linkedToken = candidates.find( t => t.document.actorLink )?.document ?? null;
       
       return linkedToken;
       
@@ -155,7 +152,7 @@ export class UserInterface {
     return token;
   }
 
-  static addRevertMutation(app, html, data) {
+  static addRevertMutation(app, html) {
 
     /* do not add duplicate buttons! */
     let foundButton = html.closest('.app').find('.revert-warpgate')

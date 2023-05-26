@@ -39,7 +39,7 @@ export class Crosshairs extends MeasuredTemplate {
   //constructor(gridSize = 1, data = {}){
   constructor(config, callbacks = {}) {
     const templateData = {
-      t: "circle",
+      t: config.t ?? "circle",
       user: game.user.id,
       distance: config.size,
       x: config.x,
@@ -273,12 +273,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.ray = Ray.fromAngle(document.x, document.y, direction, distance);
 
     // Get the Template shape
-    switch (document.t) {
-      case "circle":
-        this.shape = this._getCircleShape(distance);
-        break;
-      default: logger.error("Non-circular Crosshairs is unsupported!");
-    }
+    this.shape = MODULE.compat('crosshairs.computeShape', this);
 
     // Draw the Template outline
     this.template.clear()

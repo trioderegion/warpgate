@@ -112,10 +112,10 @@ export class Gateway {
    */
   static async _rollItemGetLevel(item, options = {}, config = {}) {
 
-    const result = MODULE.isV10 ?  await item.use(config, options) : await item.roll(options);
+    const result = await item.use(config, options);
     // extract the level at which the spell was cast
     if (!result) return 0;
-    const content = MODULE.isV10 ? result.content : result.data.content;
+    const content = result.content;
     const level = content.charAt(content.indexOf("data-spell-level") + 18);
     return parseInt(level);
   }
@@ -277,7 +277,7 @@ export class Gateway {
   static async _spawnTokenAtLocation(protoToken, spawnPoint, collision) {
 
     // Increase this offset for larger summons
-    const gridSize = MODULE.isV10 ? canvas.scene.grid.size : canvas.scene.data.grid;
+    const gridSize = canvas.scene.grid.size;
     let internalSpawnPoint = {x: spawnPoint.x - (gridSize  * (protoToken.width/2)),
         y:spawnPoint.y - (gridSize  * (protoToken.height/2))}
     
@@ -293,8 +293,7 @@ export class Gateway {
       }
     }
 
-    if ( MODULE.isV10 ) protoToken.updateSource(internalSpawnPoint);
-    else protoToken.update(internalSpawnPoint);
+    protoToken.updateSource(internalSpawnPoint);
 
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
