@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-		<title>Globals</title>
+		<title>Types</title>
 		<!--[if lt IE 9]>
 		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
@@ -11,8 +11,9 @@
 		<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
 		<link type="text/css" rel="stylesheet" href="css/prism.min.css">
 		<link type="text/css" rel="stylesheet" href="css/template.min.css">
+			<link type="text/css" rel="stylesheet" href="../.github/css/foodoc-overrides.css">
 		<script type="text/javascript">
-			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"class","title":"Classes","summary":"All documented classes."},{"kind":"external","title":"Externals","summary":"All documented external members."},{"kind":"global","title":"Globals","summary":"All documented globals."},{"kind":"mixin","title":"Mixins","summary":"All documented mixins."},{"kind":"interface","title":"Interfaces","summary":"All documented interfaces."},{"kind":"module","title":"Modules","summary":"All documented modules."},{"kind":"namespace","title":"Namespaces","summary":"All documented namespaces."},{"kind":"tutorial","title":"Tutorials","summary":"All available tutorials."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":[],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
+			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"global","title":"Types","summary":"Definitions for commonly used api parameters and return values."},{"kind":"namespace","title":"API","summary":"Primary API for warp gate operations."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":["../.github/css/foodoc-overrides.css"],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
 			window.DOCLET_TOC_ENABLED = true;
 			window.DOCLET_AFILTER_ENABLED = false;
 		</script>
@@ -35,12 +36,11 @@
 			<div class="navbar-collapse collapse" id="topNavigation">
 				<ul class="nav navbar-nav">
 								<li class="dropdown">
-									<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Globals<b class="caret"></b></a>
+									<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Types<b class="caret"></b></a>
 									<ul class="dropdown-menu">
 											<li><a href="global.html#ComparisonKeys">ComparisonKeys</a></li>
 											<li><a href="global.html#CrosshairsConfig">CrosshairsConfig</a></li>
 											<li><a href="global.html#CrosshairsData">CrosshairsData</a></li>
-											<li><a href="global.html#MutateInfo">MutateInfo</a></li>
 											<li><a href="global.html#MutationData">MutationData</a></li>
 											<li><a href="global.html#MutationOptions">MutationOptions</a></li>
 											<li><a href="global.html#NoticeConfig">NoticeConfig</a></li>
@@ -56,14 +56,7 @@
 									</ul>
 								</li>
 								<li class="dropdown">
-									<a href="list_class.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
-									<ul class="dropdown-menu">
-											<li><a href="Crosshairs.html">Crosshairs</a></li>
-											<li><a href="MutationStack.html">MutationStack</a></li>
-									</ul>
-								</li>
-								<li class="dropdown">
-									<a href="list_namespace.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+									<a href="list_namespace.html" class="dropdown-toggle" data-toggle="dropdown">API<b class="caret"></b></a>
 									<ul class="dropdown-menu">
 											<li><a href="warpgate.html">warpgate</a></li>
 											<li><a href="warpgate.abstract.html">warpgate.abstract</a></li>
@@ -92,15 +85,15 @@
 	<!-- end:navbar.hbs -->		<div class="page-header">
 			<div class="container">
 				<span class="kind">global</span>
-				<h1><span class="name">Globals</span></h1>
-				<div class="summary"><p>All documented globals.</p></div>			</div>
+				<h1><span class="name">Types</span></h1>
+				<div class="summary"><p>Definitions for commonly used api parameters and return values.</p></div>			</div>
 		</div>
 	<div class="container content">
 		<div class="row">
 			<div class="col-md-9 main-content">
 						<ol class="breadcrumb">
 							<li><a href="index.html">Home</a></li>
-							<li class="active">Globals</li>
+							<li class="active">Types</li>
 						</ol>
 					<section>
 							<article class="secondary">
@@ -471,49 +464,6 @@
 </dd>
 											<hr/>
 											<dt class="symbol-title typedef public collapsible-symbol">
-			<h4 id="MutateInfo" class="typedef public"><span class="name">MutateInfo</span></h4>
-		</dt>
-<dd class="symbol-details typedef public  collapsible-symbol">
-	<div class="symbol-details-inner">
-			<div class="callout callout-default"><h5>Details</h5>		<form class="form-horizontal details">
-			
-							<!-- type -->
-							<div class="form-group">
-								<label class="col-sm-3 control-label">Type</label>
-								<div class="col-sm-9">
-									<div class="form-control-static type-names"><span class="param-type">Object</span></div>
-								</div>
-							</div>
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-							<!-- source -->
-							<div class="form-group">
-								<label class="col-sm-3 control-label">Source</label>
-								<div class="col-sm-9">
-									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-31">line 31</a></p>
-								</div>
-							</div>
-			
-			
-			
-			
-					</form>
-			</div>	</div>
-</dd>
-											<hr/>
-											<dt class="symbol-title typedef public collapsible-symbol">
 			<h4 id="MutationData" class="typedef public"><span class="name">MutationData</span></h4>
 		</dt>
 <dd class="symbol-details typedef public  collapsible-symbol">
@@ -543,7 +493,7 @@
 						</tr>
 						<tr>
 								<td><code>comparisonKeys</code></td>
-							<td><span class="param-type">Object.&lt;string, string></span></td>
+							<td><span class="param-type"><a href="global.html#ComparisonKeys">ComparisonKeys</a></span></td>
 							<td class="last">
 							</td>
 						</tr>
@@ -595,7 +545,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="mutation-stack.js.html">mutation-stack.js</a>, <a href="mutation-stack.js.html#line-27">line 27</a></p>
+									<p class="form-control-static"><a href="mutation-stack.js.html">mutation-stack.js</a>, <a href="mutation-stack.js.html#line-28">line 28</a></p>
 								</div>
 							</div>
 			
@@ -690,7 +640,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-56">line 56</a></p>
+									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-58">line 58</a></p>
 								</div>
 							</div>
 			
@@ -960,7 +910,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-67">line 67</a></p>
+									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-69">line 69</a></p>
 								</div>
 							</div>
 			
@@ -1049,7 +999,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-80">line 80</a></p>
+									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-82">line 82</a></p>
 								</div>
 							</div>
 			
@@ -1733,7 +1683,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-33">line 33</a></p>
+									<p class="form-control-static"><a href="mutator.js.html">mutator.js</a>, <a href="mutator.js.html#line-35">line 35</a></p>
 								</div>
 							</div>
 			
@@ -1754,7 +1704,7 @@
 	</div>
 	<footer>
 				<div class="copyright">Warp Gate <a href="https://github.com/trioderegion/warpgate/blob/master/LICENSE">Copyright © 2021</a> Matthew Haentschke</div>
-			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 26th Jan 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
+			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 1st Jun 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
 	</footer>
 	<script src="js/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>

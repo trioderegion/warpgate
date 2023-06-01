@@ -22,7 +22,7 @@ export class MODULE {
    * @static
    * @param {*} shimId
    * @param {globalThis|*} [root=globalThis]
-   * @returns 
+   * @returns {*|null}
    * @memberof MODULE
    */
   static compat(shimId, root = globalThis) {

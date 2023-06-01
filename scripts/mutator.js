@@ -28,7 +28,9 @@ const NAME = "Mutator";
 /** @typedef {import('./api.js').SpawningOptions} SpawningOptions */
 
 //TODO proper objects
-/** @typedef {Object} MutateInfo **/
+/** @typedef {Object} MutateInfo
+ *  @ignore
+ */
 
 /**
  * Workflow options

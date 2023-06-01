@@ -23,12 +23,13 @@ import {
 } from './module.js'
 
 /** @typedef {import('./api.js').Shorthand} Shorthand */
+/** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
 
 /** 
  * @typedef {Object} MutationData
  * @property {Shorthand} delta
  * @property {string} user
- * @property {Object<string, string>} comparisonKeys
+ * @property {ComparisonKeys} comparisonKeys
  * @property {Shorthand} updateOpts
  * @property {object} overrides
  * @property {string} name

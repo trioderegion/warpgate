@@ -1,0 +1,89 @@
+{
+  "warpgate": {
+    "setting" : {
+      "debug" : {
+        "name" : "Déboguer",
+        "hint" : "Active la journalisation de débogage et la collecte de données."
+      },
+      "openDelete" : {
+        "name" : "Révocation sans restrictions",
+        "hint" : "Permet aux joueurs de rejeter les jetons non possédés."
+      },
+      "showDismissLabel" : {
+        "name" : "Afficher le libellé du bouton de rejet",
+        "indice" : "Afficher l'icône et le libellé de fermeture, ou simplement l'icône sur l'en-tête de la feuille." 
+      },
+      "showRevertLabel" : {
+        "name" : "Afficher le libellé du bouton de retour",
+        "hint" : "Afficher l'icône et l'étiquette de restauration, ou simplement l'icône sur l'en-tête de la feuille." 
+      },
+      "updateDelay" : {
+        "name" : "Délai de mise à jour (ms)",
+        "hint" : "Solution temporaire. Augmentez cette valeur si vous rencontrez des erreurs avec le placement en double. Réduisez cette valeur pour un placement plus rapide."
+      },
+      "alwaysAccept": {
+        "name": "Always accept mutation requests",
+        "hint": "If checked, request dialog will not be shown and blindly accepted."
+      },
+      "dismissButtonScope": {
+        "name": "Dismiss button scope",
+        "hint": "Determines when the dismiss button is added to actor sheets."
+      },
+      "revertButtonBehavior": {
+        "name": "Revert button behavior",
+        "hint": "Default action when the button is clicked. Shift+Click will perform the other behavior."
+      },
+      "option": {
+        "disabled": "Disabled",
+        "spawnedOnly": "Spawned tokens only",
+        "all": "All owned tokens",
+        "showMutationList": "Show mutation stack dialog",
+        "popLatestMutation": "Revert last mutation"
+      }
+    },
+    "debug": {
+      "dismissPresent": "Dismiss button already present. Not adding duplicate.",
+      "finalRevertUpdate": "Final revert update:",
+      "tokenDelta": "Token Delta",
+      "actorDelta": "Actor Delta",
+      "embeddedDelta": "Embedded Delta"
+    },
+    "display" : {
+      "dismiss" : "Rejeter",
+      "revert" : "Rétablir",
+      "revertDialogTitle" : "Sélectionnez la mutation à rétablir",
+      "inspectLabel": "Inspect",
+      "descriptionLabel": "Description",
+      "mutationRequestTitle": "{userName} is mutating {tokenName}",
+      "mutationAccepted": "Mutation \"{mName}\" for {tName} has been accepted.",
+      "mutationRejected": "Mutation \"{mName}\" for {tName} has been rejected.",
+      "revertAccepted": "Revert of mutation [{mName}] for {tName} has been accepted.",
+      "revertRejected": "Revert of mutation [{mName}] for {tName} has been rejected.",
+      "revertRequestDescription": "Reverting mutation [{mName}] from {tName}.",
+      "acceptLabel": "Accept",
+      "rejectLabel": "Reject",
+      "findTargetLabel": "Find Target"
+    },
+    "error" : {
+      "noGm" : "Il n'y a pas de MJ disponible pour une demande de rejet.",
+      "unownedDelete": "Impossible de supprimer le jeton sans propriétaire.",
+      "createItem": "Création d'un élément",
+      "updateItem": "Mise à jour de l'élément",
+      "deleteItem": "Suppression d'un élément",
+      "sheetNoToken": "Impossible de trouver le jeton associé à cette feuille.",
+      "findActorFail": "Impossible de trouver l'acteur sur ce monde nommé {name}",
+      "findProtoFail": "Impossible de trouver les données de proto-jeton pour {name}",
+      "noOpenLocation": "Impossible de localiser les emplacements ouverts à proximité du point d'apparition choisi. Reproduire au point choisi à la place.",
+      "noOwningUserMutate": "No owning user online. Mutation request cannot be fullfilled",
+      "noOwningUserRevert": "No owning user online. Revert request cannot be fullfilled.",
+      "incompleteMutateInfo": "Overwrite mode used for stack update, but no 'name' field provided.",
+      "stackLockedOrEmpty": "Mutation stack has no changes or is locked for writing. Cannot commit changes to the stack.",
+      "badMutate": {
+        "missing": {
+          "type": "{embeddedName} Add data missing 'type' field. Was this supposed to be an Update instead? Double-check comparison keys and {embeddedName} identifier."
+        }
+      }
+    }
+
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "warpgate": {
+    "setting" : {
+      "debug" : {
+        "name" : "Debug Modus",
+        "hint" : "Aktiviert das erweiterte Debug Logging und Datensammlung"
+      },
+      "openDelete" : {
+        "name" : "Unbeschränkte FreigabeUnrestricted",
+        "hint" : "Erlaubt Spielern die Freigabe herrenloser Token"
+      },
+      "showDismissLabel" : {
+        "name" : "Zeige die Beschriftung des Freigabeknopfs",
+        "hint" : "Zeigt das Symbol und die Beschriftung oder nur das Symbol der Freigabefunktion."
+      },
+      "showRevertLabel" : {
+        "name" : "Zeige Beschriftung des Rückgängigknopfes",
+        "hint" : "Zeigt das Symbol und die Beschriftung oder nur das Symbol der Rückgängigfunktion."
+      },
+      "updateDelay" : {
+        "name" : "Aktualisierungsverzögerung (ms)",
+        "hint" : "Vorübergehender Workaround. Erhöhe diesen Wert wenn du Probleme mit doppelte Platzierung hast. Setze den Wert herunter für eine schnellen Platzierung."
+      },
+      "alwaysAccept": {
+        "name": "Veränderungsanfragen immer akzeptieren",
+        "hint": "Akzeptiere Veränderungen automatisch und unterdrücke den Anfragedialog."
+      },
+      "dismissButtonScope": {
+        "name": "Geltungsbereich Freigabebutton ",
+        "hint": "Legt fest, wann der Freigaebutton zu den Akteursheets hinzugefügt wird."
+      },
+      "revertButtonBehavior": {
+        "name": "Verhalten Rückgängigknopf",
+        "hint": "Standardaktion when der Knopf betätigt wird. Shift+Klick wird das zweite Verhalten ausführen."
+      },
+      "option": {
+        "disabled": "Deaktiviert",
+        "spawnedOnly": "Nur platzierte Tokens",
+        "all": "Alle Tokens im Besitz",
+        "showMutationList": "Zeige den Mutationsstapeldialog",
+        "popLatestMutation": "Mache die letzte Mutations Rückgängig"
+      }
+    },
+    "debug": {
+      "dismissPresent": "Entferne vorhandene Knöpfe. Fügt keine Duplikate hinzu.",
+      "finalRevertUpdate": "Letzte rückgängig gemacht Änderung:",
+      "tokenDelta": "Token Delta",
+      "actorDelta": "Akteur Delta",
+      "embeddedDelta": "Eingebettetes Delta"
+    },
+    "display" : {
+      "dismiss" : "Entferne",
+      "revert" : "Zurücknehmen",
+      "revertDialogTitle" : "Wähle die zurückzunehmende Mutation",
+      "inspectLabel": "Inspizieren",
+      "descriptionLabel": "Beschreibung",
+      "mutationRequestTitle": "{userName} mutiert {tokenName}",
+      "mutationAccepted": "Mutation \"{mName}\" für {tName} wurde freigegeben.",
+      "mutationRejected": "Mutation \"{mName}\" fü {tName} wurde abgelehnt.",
+      "revertAccepted": "Die Zurücknahme der Mutation [{mName}] für {tName} wurde freigegeben.",
+      "revertRejected": "Die Zurücknahme der Mutation [{mName}] für {tName} wurde abgelehnt.",
+      "revertRequestDescription": "Nehme Mutation [{mName}] von {tName} zurück.",
+      "acceptLabel": "Akzeptieren",
+      "rejectLabel": "Ablehnen",
+      "findTargetLabel": "Finde Ziel"
+    },
+    "error" : {
+      "noGm" : "Es ist kein Spielleiter für die Freigabeanfrage verfügbar.",
+      "unownedDelete" : "Löschen nicht im Besitz befindlicher Token nicht möglich.",
+      "createItem": "Erstelle Element",
+      "updateItem": "Aktualisiere Element",
+      "deleteItem": "Lösche Element",
+      "sheetNoToken": "Konnte keine mit dem Bogen verbundene Figur finden.",
+      "findActorFail": "Konnte in der Welt keinen Akteur {name} finden.",
+      "findProtoFail": "Konnte keine Prototyp Figur für {name} finden",
+      "noOpenLocation": "Konnte keine freien Flächen nahe des gewählten Punktes finden. Setze stattdessen auf gewählter Fläche.",
+      "noOwningUserMutate": "Kein User mit Besitzerrechten online. Mutationsanfrage kann nicht durchgeführt werden.",
+      "noOwningUserRevert": "Kein User mit Besitzerrechten online. Rücknahmeanfrage kann nicht durchgeführt werden.",
+      "incompleteMutateInfo": "Überschreiben-Modus für Stapelaktualisierung aktiv, aber das 'name' Feld fehlt.",
+      "stackLockedOrEmpty": "Der Mutationsstapel wurde nicht geändert oder ist für die Bearbeitung gesperrt. Kann keine Änderungen am Stapel durchführen.",
+      "badMutate": {
+        "missing": {
+          "type": "{embeddedName} Füge fehlendes 'type' Feld hinzu. Sollte dies eine Aktualisierung sein? Kontrolliere die Vergleichsschüssel und den {embeddedName} identifier."
+        }
+      }
+    }
+
+  }
+}

@@ -12,8 +12,9 @@
 		<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
 		<link type="text/css" rel="stylesheet" href="css/prism.min.css">
 		<link type="text/css" rel="stylesheet" href="css/template.min.css">
+			<link type="text/css" rel="stylesheet" href="../.github/css/foodoc-overrides.css">
 		<script type="text/javascript">
-			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"class","title":"Classes","summary":"All documented classes."},{"kind":"external","title":"Externals","summary":"All documented external members."},{"kind":"global","title":"Globals","summary":"All documented globals."},{"kind":"mixin","title":"Mixins","summary":"All documented mixins."},{"kind":"interface","title":"Interfaces","summary":"All documented interfaces."},{"kind":"module","title":"Modules","summary":"All documented modules."},{"kind":"namespace","title":"Namespaces","summary":"All documented namespaces."},{"kind":"tutorial","title":"Tutorials","summary":"All available tutorials."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":[],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
+			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"global","title":"Types","summary":"Definitions for commonly used api parameters and return values."},{"kind":"namespace","title":"API","summary":"Primary API for warp gate operations."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":["../.github/css/foodoc-overrides.css"],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
 			window.DOCLET_TOC_ENABLED = false;
 			window.DOCLET_AFILTER_ENABLED = false;
 		</script>
@@ -36,12 +37,11 @@
 			<div class="navbar-collapse collapse" id="topNavigation">
 				<ul class="nav navbar-nav">
 								<li class="dropdown">
-									<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Globals<b class="caret"></b></a>
+									<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Types<b class="caret"></b></a>
 									<ul class="dropdown-menu">
 											<li><a href="global.html#ComparisonKeys">ComparisonKeys</a></li>
 											<li><a href="global.html#CrosshairsConfig">CrosshairsConfig</a></li>
 											<li><a href="global.html#CrosshairsData">CrosshairsData</a></li>
-											<li><a href="global.html#MutateInfo">MutateInfo</a></li>
 											<li><a href="global.html#MutationData">MutationData</a></li>
 											<li><a href="global.html#MutationOptions">MutationOptions</a></li>
 											<li><a href="global.html#NoticeConfig">NoticeConfig</a></li>
@@ -57,14 +57,7 @@
 									</ul>
 								</li>
 								<li class="dropdown">
-									<a href="list_class.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
-									<ul class="dropdown-menu">
-											<li><a href="Crosshairs.html">Crosshairs</a></li>
-											<li><a href="MutationStack.html">MutationStack</a></li>
-									</ul>
-								</li>
-								<li class="dropdown">
-									<a href="list_namespace.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+									<a href="list_namespace.html" class="dropdown-toggle" data-toggle="dropdown">API<b class="caret"></b></a>
 									<ul class="dropdown-menu">
 											<li><a href="warpgate.html">warpgate</a></li>
 											<li><a href="warpgate.abstract.html">warpgate.abstract</a></li>
@@ -119,9 +112,34 @@ export class MODULE {
       title: "Warp Gate"
     };
 
-  static get isV10() {
-    // @ts-ignore
-    return game.release?.generation >= 10;
+  /**
+   *
+   *
+   * @static
+   * @param {*} shimId
+   * @param {globalThis|*} [root=globalThis]
+   * @returns {*|null}
+   * @memberof MODULE
+   */
+  static compat(shimId, root = globalThis) {
+    const gen = game.release?.generation
+    switch (shimId) {
+      case 'interaction.pointer':
+        return {
+          10: root.canvas.app.renderer.plugins.interaction.mouse,
+        }[gen] ?? canvas.app.renderer.plugins.interaction.pointer;
+      case 'crosshairs.computeShape':
+          return ({
+            10: ()=>{
+              if(root.document.t != 'circle'){
+                logger.error("Non-circular Crosshairs is unsupported!");
+              }
+              return root._getCircleShape(root.ray.distance);
+            }
+          }[gen] ?? (()=>root._computeShape()))()
+      default:
+          return null;
+    }
   }
 
   static async register() {
@@ -338,9 +356,7 @@ export class MODULE {
                       // @ts-ignore 2589
                       doc instanceof Token ? doc.document.actor : doc;
     
-    const ownershipPath = MODULE.isV10 ? 'ownership' : 'data.permission';
-
-    const permissionObject = getProperty(corrected ?? {}, ownershipPath) ?? {};
+    const permissionObject = getProperty(corrected ?? {}, 'ownership') ?? {};
 
     const playerOwners = Object.entries(permissionObject)
       .filter(([id, level]) => (!game.users.get(id)?.isGM &amp;&amp; game.users.get(id)?.active) &amp;&amp; level === 3)
@@ -416,6 +432,12 @@ export class MODULE {
     });
   }
 
+  /**
+   * @param {string|Actor} actorNameDoc
+   * @param {object} tokenUpdates
+   *
+   * @returns {Promise&lt;TokenDocument|false>}
+   */
   static async getTokenData(actorNameDoc, tokenUpdates) {
 
     let sourceActor = actorNameDoc;
@@ -449,7 +471,7 @@ export class MODULE {
   }
 
   static getMouseStagePos() {
-    const mouse = canvas.app.renderer.plugins.interaction.mouse;
+    const mouse = MODULE.compat('interaction.pointer');
     return mouse.getLocalPosition(canvas.app.stage);
   }
 
@@ -457,27 +479,25 @@ export class MODULE {
    * @returns {undefined} provided updates object modified in-place
    */
   static shimUpdate(updates) {
-    if(MODULE.isV10) {
 
-      updates.token = MODULE.shimClassData(TokenDocument.implementation, updates.token);
-      updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
+    updates.token = MODULE.shimClassData(TokenDocument.implementation, updates.token);
+    updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
 
-      Object.keys(updates.embedded ?? {}).forEach( (embeddedName) => {
-        const cls = CONFIG[embeddedName].documentClass;
+    Object.keys(updates.embedded ?? {}).forEach( (embeddedName) => {
+      const cls = CONFIG[embeddedName].documentClass;
 
-        Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
-          updates.embedded[embeddedName][shortId] = (typeof data == 'string') ? data : MODULE.shimClassData(cls, data);
-        });
+      Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
+        updates.embedded[embeddedName][shortId] = (typeof data == 'string') ? data : MODULE.shimClassData(cls, data);
       });
+    });
 
-    }
   }
 
   static shimClassData(cls, change) {
 
     if(!change) return change;
 
-    if(MODULE.isV10 &amp;&amp; !!change &amp;&amp; !foundry.utils.isEmpty(change)) {
+    if(!!change &amp;&amp; !foundry.utils.isEmpty(change)) {
       /* shim data if needed */
       return cls.migrateData(foundry.utils.expandObject(change));
     }
@@ -596,6 +616,37 @@ export class MODULE {
 
   static dialogInputs = (data) => {
 
+    /* correct legacy input data */
+    data.forEach(inputData => {
+      if (inputData.type === 'select') {
+        inputData.options.forEach((e, i) => {
+          switch (typeof e) {
+            case 'string':
+              /* if we are handed legacy string values, convert them to objects */
+              inputData.options[i] = {value: e, html: e};
+              /* fallthrough to tweak missing values from object */
+
+            case 'object':
+              /* if no HMTL provided, use value */
+              inputData.options[i].html ??= inputData.options[i].value;
+
+              /* sanity check */
+              if(!!inputData.options[i].html &amp;&amp; inputData.options[i].value != undefined) {
+                break;
+              }
+
+              /* fallthrough to throw error if all else fails */
+              
+            default: {
+              const emsg = MODULE.format('error.badSelectOpts', {fnName: 'menu'});
+              logger.error(emsg);
+              throw new Error(emsg);
+            }
+          }
+        });
+      }
+    });
+
     const mapped = data.map(({type, label, value, options}, i) => {
       type = type.toLowerCase();
       switch (type) {
@@ -605,8 +656,6 @@ export class MODULE {
         case 'select': {
 
           const optionString = options.map((e, i) => {
-            e = typeof e === 'string' ? {value: i, html: e} : e;
-            e.value ??= i;
             return `&lt;option value="${i}">${e.html}&lt;/option>`
           }).join('');
 
@@ -650,9 +699,9 @@ export class MODULE {
    * | number | (as `text`) | {Number} final value of text field converted to a number |
    * | select | array of option labels or objects {value, html} | `value` property of selected option. If values not provided, numeric index of option in original list | | 
    * @static
-   * @param {object} [data]  
-   * @param {Array&lt;{label: string, type: string, options: any|Array&lt;any>} >} [data.inputs=[]] follow the same structure as dialog
-   * @param {Array&lt;{label: string, value: any}>} [data.buttons=[]] as buttonDialog
+   * @param {object} [prompts]  
+   * @param {Array&lt;{label: string, type: string, options: any|Array&lt;any>} >} [prompts.inputs=[]] follow the same structure as dialog
+   * @param {Array&lt;{label: string, value: any, callback: Function }>} [prompts.buttons=[]] as buttonDialog
    * @param {object} [config] 
    * @param {string} [config.title='Prompt'] Title of dialog
    * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
@@ -695,16 +744,19 @@ export class MODULE {
    * })
    *
    */
-  static async menu({
-    inputs = [],
-    buttons = []
-  }= {}, {
-    title = 'Prompt',
-    defaultButton = 'Ok',
-    render,
-    close = (resolve) => resolve({buttons: false}),
-    options = {}
-  } = {}) {
+  static async menu(prompts = {}, config = {}) {
+
+    /* apply defaults to optional params */
+    const configDefaults = {
+      title : 'Prompt',
+      defaultButton : 'Ok',
+      render:null,
+      close : (resolve) => resolve({buttons: false}),
+      options : {}
+    }
+
+    const {title, defaultButton, render, close, options} = foundry.utils.mergeObject(configDefaults, config);
+    const {inputs, buttons} = foundry.utils.mergeObject({inputs: [], buttons: []}, prompts);
 
     return await new Promise((resolve) => {
       let content = MODULE.dialogInputs(inputs);
@@ -714,12 +766,12 @@ export class MODULE {
       buttons.forEach((button) => {
         buttonData[button.label] = {
           label: button.label,
-          callback: (html) => {
+          callback: async (html) => {
             const results = {
               inputs: MODULE._innerValueParse(inputs, html),
               buttons: button.value
             }
-            if(button.callback instanceof Function) button.callback(results, button, html); 
+            if(button.callback instanceof Function) await button.callback(results, button, html); 
             resolve(results);
           }
         }
@@ -774,7 +826,7 @@ export class MODULE {
 	</div>
 	<footer>
 				<div class="copyright">Warp Gate <a href="https://github.com/trioderegion/warpgate/blob/master/LICENSE">Copyright © 2021</a> Matthew Haentschke</div>
-			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 26th Jan 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
+			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 1st Jun 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
 	</footer>
 	<script src="js/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>

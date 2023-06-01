@@ -1,0 +1,89 @@
+{
+  "warpgate": {
+    "setting" : {
+      "debug" : {
+        "name" : "デバッグの有効化",
+        "hint" : "拡張デバッグログとデータ収集を有効にします。"
+      },
+      "openDelete" : {
+        "name" : "退去の無制限化",
+        "hint" : "プレイヤーに所有権のないコマの退去を許可します。"
+      },
+      "showDismissLabel" : {
+        "name" : "退去ボタンにラベルを表示する",
+        "hint" : "シートのヘッダに表示される退去アイコンに、ラベルを表示するかを設定します。"
+      },
+      "showRevertLabel" : {
+        "name" : "復元ボタンにラベルを表示する",
+        "hint" : "シートのヘッダに表示される復元アイコンに、ラベルを表示するかを設定します。"
+      },
+      "updateDelay" : {
+        "name" : "更新ディレイ（ms）",
+        "hint" : "一時的な回避策です。重複配置エラーが発生する場合は値を大きくしてください。より高速に配置するには、この値を小さくします。"
+      },
+      "alwaysAccept": {
+        "name": "改変申請を常に受け入れる",
+        "hint": "有効にすると、申請ダイアログが表示されることなく自動的に受諾が行われます。"
+      },
+      "dismissButtonScope": {
+        "name": "退去ボタンの追加範囲",
+        "hint": "退去ボタンを追加するアクターシートを設定します。"
+      },
+      "revertButtonBehavior": {
+        "name": "復元ボタンの挙動",
+        "hint": "ボタンを押したときの標準動作です。［Shift］＋クリックで別の動作になります。"
+      },
+      "option": {
+        "disabled": "無効",
+        "spawnedOnly": "生成されたコマのみ",
+        "all": "所有権を持つすべてのコマ",
+        "showMutationList": "改変履歴ダイアログを表示する",
+        "popLatestMutation": "直近の改変を復元する"
+      }
+    },
+    "debug": {
+      "dismissPresent": "退去ボタンはすでに存在しています。重複した追加は行えません。",
+      "finalRevertUpdate": "最後に更新された復元：",
+      "tokenDelta": "トークンのデルタ",
+      "actorDelta": "アクターのデルタ",
+      "embeddedDelta": "埋め込まれたデルタ"
+    },
+    "display" : {
+      "dismiss" : "退去",
+      "revert" : "復元",
+      "revertDialogTitle" : "復元する改変を選択してください",
+      "inspectLabel": "検査",
+      "descriptionLabel": "概要",
+      "mutationRequestTitle": "{userName} が {tokenName} を改変しています。",
+      "mutationAccepted": "{tName} に対する改変 \"{mName}\" を受理されました。",
+      "mutationRejected": "{tName} に対する改変 \"{mName}\" が拒否されました。",
+      "revertAccepted": "{tName}に対する改変[{mName}]の復元が受理されました。",
+      "revertRejected": "{tName}に対する改変[{mName}]の復元が拒否されました。",
+      "revertRequestDescription": "[{mName}]の改変を{tName}に復元しています。",
+      "acceptLabel": "許諾",
+      "rejectLabel": "拒否",
+      "findTargetLabel": "目標を探す"
+    },
+    "error" : {
+      "noGm" : "退去リクエストに対応するGMがいません。",
+      "unownedDelete" : "所有権のないコマは削除できません。",
+      "createItem": "アイテムを作成しています。",
+      "updateItem": "アイテムを更新しています。",
+      "deleteItem": "アイテムを削除しています。",
+      "sheetNoToken": "このシートに関連するコマが見つかりません。",
+      "findActorFail": "{name} という名のワールドアクターが見つかりません。",
+      "findProtoFail": "{name} のプロトタイプトークンデータが見つかりません。",
+      "noOpenLocation": "選択した場所の付近に開いた場所が見つかりませんでした。代わりに選択した地点にスポーンします。",
+      "noOwningUserMutate": "所有するユーザーがオフラインです。改変リクエストに応じられません。",
+      "noOwningUserRevert": "所有するユーザーがオフラインです。復元リクエストを完了できません。",
+      "incompleteMutateInfo": "上書きモードで履歴の更新を試みましたが、'name'フィールドが提供されませんでした。",
+      "stackLockedOrEmpty": "改変履歴に変更がないか、書込がロックされています。履歴の変更を完了できません。",
+      "badMutate": {
+        "missing": {
+          "type": "{embeddedName}の追加データに'type'フィールドがありません。これは更新でしょうか。比較キーと{embeddedName}の識別子を再確認してください。"
+        }
+      }
+    }
+
+  }
+}

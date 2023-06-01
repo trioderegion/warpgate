@@ -12,8 +12,9 @@
 		<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css">
 		<link type="text/css" rel="stylesheet" href="css/prism.min.css">
 		<link type="text/css" rel="stylesheet" href="css/template.min.css">
+			<link type="text/css" rel="stylesheet" href="../.github/css/foodoc-overrides.css">
 		<script type="text/javascript">
-			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"class","title":"Classes","summary":"All documented classes."},{"kind":"external","title":"Externals","summary":"All documented external members."},{"kind":"global","title":"Globals","summary":"All documented globals."},{"kind":"mixin","title":"Mixins","summary":"All documented mixins."},{"kind":"interface","title":"Interfaces","summary":"All documented interfaces."},{"kind":"module","title":"Modules","summary":"All documented modules."},{"kind":"namespace","title":"Namespaces","summary":"All documented namespaces."},{"kind":"tutorial","title":"Tutorials","summary":"All available tutorials."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":[],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
+			window.TEMPLATE_OPTIONS = {"includeDate":true,"dateFormat":"Do MMM YYYY","systemName":"Warp Gate","systemSummary":"API Documentation","systemLogo":"img/hb-icon.bmp","systemColor":"","navMembers":[{"kind":"global","title":"Types","summary":"Definitions for commonly used api parameters and return values."},{"kind":"namespace","title":"API","summary":"Primary API for warp gate operations."}],"footer":"","copyright":"Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke","linenums":true,"collapseSymbols":true,"inverseNav":true,"inlineNav":false,"outputSourceFiles":true,"sourceRootPath":null,"disablePackagePath":true,"outputSourcePath":false,"showTableOfContents":true,"showAccessFilter":true,"analytics":null,"methodHeadingReturns":true,"sort":"longname, linenum, version, since","search":true,"favicon":null,"stylesheets":["../.github/css/foodoc-overrides.css"],"scripts":[],"monospaceLinks":true,"cleverLinks":true};
 			window.DOCLET_TOC_ENABLED = false;
 			window.DOCLET_AFILTER_ENABLED = false;
 		</script>
@@ -36,12 +37,11 @@
 			<div class="navbar-collapse collapse" id="topNavigation">
 				<ul class="nav navbar-nav">
 								<li class="dropdown">
-									<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Globals<b class="caret"></b></a>
+									<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Types<b class="caret"></b></a>
 									<ul class="dropdown-menu">
 											<li><a href="global.html#ComparisonKeys">ComparisonKeys</a></li>
 											<li><a href="global.html#CrosshairsConfig">CrosshairsConfig</a></li>
 											<li><a href="global.html#CrosshairsData">CrosshairsData</a></li>
-											<li><a href="global.html#MutateInfo">MutateInfo</a></li>
 											<li><a href="global.html#MutationData">MutationData</a></li>
 											<li><a href="global.html#MutationOptions">MutationOptions</a></li>
 											<li><a href="global.html#NoticeConfig">NoticeConfig</a></li>
@@ -57,14 +57,7 @@
 									</ul>
 								</li>
 								<li class="dropdown">
-									<a href="list_class.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
-									<ul class="dropdown-menu">
-											<li><a href="Crosshairs.html">Crosshairs</a></li>
-											<li><a href="MutationStack.html">MutationStack</a></li>
-									</ul>
-								</li>
-								<li class="dropdown">
-									<a href="list_namespace.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+									<a href="list_namespace.html" class="dropdown-toggle" data-toggle="dropdown">API<b class="caret"></b></a>
 									<ul class="dropdown-menu">
 											<li><a href="warpgate.html">warpgate</a></li>
 											<li><a href="warpgate.abstract.html">warpgate.abstract</a></li>
@@ -373,10 +366,13 @@ export class api {
        * @summary System specific helpers
        * @namespace 
        * @alias warpgate.dnd5e
+       * @prop {Function} rollItem
        * @borrows Gateway._rollItemGetLevel as rollItem
        */
-      dnd5e : {
-        rollItem : Gateway._rollItemGetLevel
+      get dnd5e() {
+        foundry.utils.logCompatibilityWarning(`[${MODULE.data.name}] System-specific namespaces and helper functions have been deprecated. Please convert to system provided functions.`, {since: 1.16, until: 2, details:`Migration details:\nrollItem(Item) to Item#use()`});
+
+        return {rollItem : Gateway._rollItemGetLevel}
       },
       /**
        * @description Constants and enums for use in embedded shorthand fields
@@ -516,9 +512,8 @@ export class api {
     }
 
     /* create permissions for this user */
-    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      ownership: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
     /* the provided update object will be mangled for our use -- copy it to
@@ -540,8 +535,7 @@ export class api {
       protoData = await MODULE.getTokenData(spawnName, updates.token);
     } else {
       protoData = spawnName;
-      const updateFn = MODULE.isV10 ? protoData.updateSource : protoData.update;
-      if(updateFn) updateFn(updates.token);
+      protoData.updateSource(updates.token ?? {});
     }
 
     if (!protoData) return;
@@ -549,7 +543,7 @@ export class api {
     if(options.controllingActor?.sheet?.rendered) options.controllingActor.sheet.minimize();
 
     /* gather data needed for configuring the display of the crosshairs */
-    const tokenImg = MODULE.isV10 ? protoData.texture.src : protoData.img;
+    const tokenImg = protoData.texture.src;
     const rotation = updates.token?.rotation ?? protoData.rotation ?? 0;
     const crosshairsConfig = foundry.utils.mergeObject(options.crosshairs ?? {}, {
       size: protoData.width,
@@ -625,23 +619,21 @@ export class api {
 
     if (!protoData) return [];
 
-    const sourceActor = game.actors.get(protoData.actorId);
     let createdIds = [];
 
     /* flag this user as the tokens's creator */
-    const tokenFlags = {
+    const actorFlags = {
       [MODULE.data.name]: {
         control: {user: game.user.id, actor: options.controllingActor?.uuid},
       }
     }
 
     /* create permissions for this user */
-    const ownershipKey = MODULE.isV10 ? "ownership" : "permission";
     const actorData = {
-      [ownershipKey]: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
+      ownership: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
 
-    updates.token = mergeObject(updates.token ?? {}, {flags: tokenFlags, actorData}, {overwrite: false})
+    updates.actor = mergeObject({flags: actorFlags, ...actorData}, updates.actor ?? {}, {inplace: false})
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
     Mutator.clean(null, options);
@@ -681,7 +673,7 @@ export class api {
 
       createdIds.push(spawnedTokenDoc.id);
 
-      logger.debug('Spawned token with data: ', MODULE.isV10 ? spawnedTokenDoc : spawnedTokenDoc.data);
+      logger.debug('Spawned token with data: ', spawnedTokenDoc);
 
       await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
 
@@ -707,9 +699,10 @@ export class api {
   }
 
   /**
-   * Helper function for displaying pings for or panning the camera of specific users.
+   * Helper function for displaying pings for or panning the camera of specific users. If no scene is provided, the user's current
+   * is assumed.
    *
-   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice 
+   * @param {{x: Number, y: Number, scene: Scene} | CrosshairsData} placement Information for the physical placement of the notice containing at least `{x: Number, y: Number, scene: Scene}`
    * @param {NoticeConfig} [config] Configuration for the notice
    */
   static _notice({x, y, scene}, config = {}){
@@ -729,7 +722,7 @@ export class api {
 	</div>
 	<footer>
 				<div class="copyright">Warp Gate <a href="https://github.com/trioderegion/warpgate/blob/master/LICENSE">Copyright © 2021</a> Matthew Haentschke</div>
-			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 26th Jan 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
+			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 1st Jun 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
 	</footer>
 	<script src="js/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
