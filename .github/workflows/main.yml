@@ -89,7 +89,7 @@ jobs:
          git clean -f
          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY"
          git fetch origin "warpgate-next"
-         git switch -c "next" "origin/warpgate-next"
+         git switch -c "warpgate-next" "origin/warpgate-next"
          git checkout stash dist/warpgate/module.json
          mv dist/warpgate/module.json module.json
          git commit -am "${{github.event.release.tag_name}} manifest"
