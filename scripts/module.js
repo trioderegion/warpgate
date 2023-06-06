@@ -715,7 +715,7 @@ export class MODULE {
             return html.find(`input#${i}qd`)[0].value;
           case `radio`:
           case `checkbox`:
-            return html.find(`input#${i}qd`)[0].checked ? html.find(`input#${i}qd`)[0].value : false;
+            return html.find(`input#${i}qd`)[0].checked;
           case `number`:
             return html.find(`input#${i}qd`)[0].valueAsNumber;
         }
