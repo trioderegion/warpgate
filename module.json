@@ -1,52 +1,50 @@
 {
     "title": "Warp Gate",
-    "description": "Utility module for spawning and modifying tokens.",
-    "version": "1.16.+3",
-    "authors": [
-        {
-            "name": "honeybadger",
-            "url": "https://github.com/trioderegion",
-            "flags": {}
-        }
-    ],
+    "id": "warpgate",
     "esmodules": [
-        "/scripts/warpgate.js"
+        "scripts\\warpgate.js"
     ],
+    "styles": [],
     "languages": [
         {
-            "lang": "en",
-            "name": "English",
-            "path": "lang/en.json",
-            "flags": {}
+            "lang": "ja",
+            "name": "Japanese",
+            "path": "lang\\ja.json"
         },
         {
             "lang": "fr",
             "name": "French",
-            "path": "lang/fr.json",
-            "flags": {}
+            "path": "lang\\fr.json"
         },
         {
-            "lang": "ja",
-            "name": "日本語",
-            "path": "lang/ja.json",
-            "flags": {}
+            "lang": "en",
+            "name": "English",
+            "path": "lang\\en.json"
         },
         {
             "lang": "de",
             "name": "German",
-            "path": "lang/de.json",
-            "flags": {}
+            "path": "lang\\de.json"
         }
     ],
-    "socket": true,
-    "url": "https://github.com/trioderegion/warpgate",
-    "manifest": "https://raw.githubusercontent.com/trioderegion/warpgate/warpgate-next/module.json",
-    "download": "https://github.com/trioderegion/warpgate/releases/download/1.16.+3/module.zip",
-    "id": "warpgate",
+    "externals": [],
     "compatibility": {
         "minimum": "10",
-        "verified": "11.299"
+        "verified": "11.300"
     },
-    "name": "warpgate",
-    "minimumCoreVersion": "10"
+    "relationships": {
+        "systems": [],
+        "modules": []
+    },
+    "description": "Utility module providing system-agnostic functions for creating and modifying tokens, p2p \"hooks\", lookup helpers, and more.",
+    "version": "1.16.+3.4",
+    "authors": [
+        {
+            "name": "honeybadger",
+            "url": "https://github.com/trioderegion"
+        }
+    ],
+    "url": "https://github.com/trioderegion/warpgate",
+    "manifest": "https://raw.githubusercontent.com/trioderegion/warpgate/warpgate-next/module.json",
+    "download": "https://github.com/trioderegion/warpgate/releases/download/1.16.+3.4/module.zip"
 }
