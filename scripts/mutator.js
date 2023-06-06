@@ -385,6 +385,7 @@ export class Mutator {
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE, {
         uuid: tokenDoc.uuid, 
+        name: options.name,
         updates: (options.overrides?.includeRawData ?? false) ? updates : 'omitted',
         options
       });
@@ -682,6 +683,7 @@ export class Mutator {
       /* notify clients */
       warpgate.event.notify(warpgate.EVENT.REVERT, {
         uuid: tokenDoc.uuid, 
+        name: mutateData.name,
         updates: (options.overrides?.includeRawData ?? false) ? mutateData : 'omitted',
         options});
 
