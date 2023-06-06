@@ -20,12 +20,15 @@
     "foodoc": "^0.0.9",
     "jsdoc": "^3.6.11",
     "jsdoc-plugin-intersection": "^1.0.4",
+    "rollup": "^3.23.1",
     "rollup-config-badger-den": ">=0.1.0"
   },
   "scripts": {
+    "den-test-dev": "rollup -c ../rollup-config-badger-den/src/rollup-config-badger-den.mjs --config-den warpgate:dev",
+    "den-test-release": "rollup -c ../rollup-config-badger-den/src/rollup-config-badger-den.mjs --config-den warpgate:release",
     "dev": "rollup -w -c node:rollup-config-badger-den --config-den warpgate:dev",
     "release:module": "rollup --config node:rollup-config-badger-den --config-den warpgate:release",
-    "release:docs": "jsdoc --configure jsdoc.conf",
+    "release:docs": "jsdoc --configure jsdoc.config.json",
     "release": "npm run release:module && npm run release:docs"
   }
 }

@@ -7,17 +7,23 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+   #defaults:
+   #run:
+   #  working-directory: ./dist/warpgate
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       
       # Substitute the Manifest and Download URLs in the module.json
       # for a FULL RELEASE
       - name: Substitute Manifest and Download Links For Versioned Ones
         if: "!github.event.release.prerelease"
         id: sub_release_manifest_version
-        uses: microsoft/variable-substitution@v1
+        uses: rajbos-actions/variable-substitution@v1.1
         with:
-          files: 'module.json'
+          files: './dist/warpgate/module.json'
+         
         env:
           version: ${{github.event.release.tag_name}}
           url: https://github.com/${{github.repository}}
@@ -30,32 +36,30 @@ jobs:
       - name: Substitute Manifest and Download Links For Versioned Ones
         if: "github.event.release.prerelease"
         id: sub_prerelease_manifest_version
-        uses: microsoft/variable-substitution@v1
+        uses: rajbos-actions/variable-substitution@v1.1
         with:
-          files: 'module.json'
+          files: './dist/warpgate/module.json'
         env:
           version: ${{github.event.release.tag_name}}
           url: https://github.com/${{github.repository}}
-          manifest: https://raw.githubusercontent.com/${{github.repository}}/${{github.event.repository.name}}-next/module.json
+          manifest: https://raw.githubusercontent.com/${{github.repository}}/next/module.json
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
-     
-
 
       # Create a zip file with all files required by the module to add to the release
-      - run: zip -r ./module.zip module.json LICENSE scripts/ lang/ 
+      - run: (cp LICENSE dist/warpgate/LICENSE;cd dist/warpgate; zip -r module.zip *)
 
       # Create a release for this specific version
       - name: Update Release with Files
         if: "!github.event.release.prerelease"
         id: create_version_release
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true # Set this to false if you want to prevent updating existing releases
           name: ${{ github.event.release.name }}
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: './module.json, ./module.zip'
+          artifacts: './dist/warpgate/module.json, ./dist/warpgate/module.zip'
           tag: ${{ github.event.release.tag_name }}
           body: ${{ github.event.release.body }}
           
@@ -63,14 +67,14 @@ jobs:
       - name: Update Release with Files
         if: "github.event.release.prerelease"
         id: create_version_prerelease
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true # Set this to false if you want to prevent updating existing releases
           name: ${{ github.event.release.name }}
           draft: false
           prerelease: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          artifacts: './module.json, ./module.zip'
+          artifacts: './dist/warpgate/module.json, ./dist/warpgate/module.zip'
           tag: ${{ github.event.release.tag_name }}
           body: ${{ github.event.release.body }}
           
@@ -80,12 +84,12 @@ jobs:
         run: |
          git config --global user.name '${{github.actor}}'
          git config --global user.email '${{github.actor}}@users.noreply.github.com'
-         git add module.json
+         git add dist/warpgate/module.json
          git stash
          git clean -f
          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY"
-         git fetch origin "${{github.event.repository.name}}-next"
-         git switch -c "${{github.event.repository.name}}-next" "origin/${{github.event.repository.name}}-next"
+         git fetch origin "next"
+         git switch -c "next" "origin/next"
          git checkout stash module.json    
          git commit -m "${{github.event.release.tag_name}} manifest"
          git push -f

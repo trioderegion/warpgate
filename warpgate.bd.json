@@ -1,12 +1,13 @@
 {
   "version": "1.16.3",
   "title": "Warp Gate",
-  "description": "Template module from the badger den.",
+  "description": "Utility module providing system-agnostic functions for creating and modifying tokens, p2p \"hooks\", lookup helpers, and more.",
   "projectUrl": "https://www.github.com/trioderegion/warpgate",
   "entryPoints": {
     "main": "scripts/warpgate.js",
     "lang": "lang/**"
   },
+  "static": [],
   "profile": {
     "dev":{
       "dest":"G:/FoundryVTTData/v10_Data/Data/modules",
@@ -18,13 +19,13 @@
       "dest":"dist",
       "compress":true,
       "sourcemaps": true,
-      "clean": false
+      "clean": true
     }
   },
   "dependencies": {
     "core": [
       "10",
-      "11.299"
+      "11.300"
     ]
   },
   "authors": [
