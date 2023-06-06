@@ -1,0 +1,41 @@
+{
+  "tags": {
+    "allowUnknownTags": true,
+      "dictionaries": ["jsdoc","closure"]
+  },
+    "source": {
+      "include": ["scripts"],
+      "includePattern": ".+\\.(js(doc|x)?|mjs|ts)$",
+      "excludePattern": "(node_modules/|docs)"
+    },
+    "plugins": [
+      "plugins/markdown",
+    "node_modules/better-docs/typedef-import",
+    "node_modules/jsdoc-plugin-intersection"
+    ],
+    "templates": {
+      "cleverLinks": true,
+      "monospaceLinks": true,
+      "systemName": "Warp Gate",
+      "systemSummary": "API Documentation",
+      "systemLogo": "./.github/assets/hb-icon.bmp",
+      "copyright": "Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke",
+      "sort": "longname, linenum, version, since",
+      "stylesheets": ["../../.github/css/foodoc-overrides.css"],
+      "navMembers": [
+        {"kind": "global", "title": "Types", "summary": "Definitions for commonly used api parameters and return values."},
+        {"kind": "namespace", "title": "API", "summary": "Primary API for warp gate operations."}
+      ]
+    },
+    "opts": {
+      "encoding": "utf8",
+      "readme": "index.md",
+      "destination": "dist/docs/",
+      "recurse": true,
+      "verbose": true,
+      "template": "node_modules/foodoc/template"
+    },
+    "metadata": {
+      "title": "Warp Gate"
+    }
+}

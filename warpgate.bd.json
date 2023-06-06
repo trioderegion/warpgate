@@ -1,0 +1,37 @@
+{
+  "version": "1.16.3",
+  "title": "Warp Gate",
+  "description": "Utility module providing system-agnostic functions for creating and modifying tokens, p2p \"hooks\", lookup helpers, and more.",
+  "projectUrl": "https://www.github.com/trioderegion/warpgate",
+  "entryPoints": {
+    "main": "scripts/warpgate.js",
+    "lang": "lang/**"
+  },
+  "static": [],
+  "profile": {
+    "dev":{
+      "dest":"G:/FoundryVTTData/v10_Data/Data/modules",
+      "compress":false,
+      "sourcemaps": true,
+      "clean": true
+    },
+    "release":{
+      "dest":"dist",
+      "compress":true,
+      "sourcemaps": true,
+      "clean": true
+    }
+  },
+  "dependencies": {
+    "core": [
+      "10",
+      "11.300"
+    ]
+  },
+  "authors": [
+    {
+      "name": "honeybadger",
+      "url": "https://github.com/trioderegion"
+    }
+  ]
+}

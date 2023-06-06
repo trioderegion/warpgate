@@ -15,16 +15,20 @@
   },
   "homepage": "https://github.com/trioderegion/warpgate#readme",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
+    "@league-of-foundry-developers/foundry-vtt-types": ">=9",
     "better-docs": "^2.7.2",
     "foodoc": "^0.0.9",
-    "jsdoc-plugin-intersection": "^1.0.4"
+    "jsdoc": "^3.6.11",
+    "jsdoc-plugin-intersection": "^1.0.4",
+    "rollup": "^3.23.1",
+    "rollup-config-badger-den": ">=0.1.0"
   },
   "scripts": {
-    "doc": "jsdoc --configure jsdoc.conf",
-    "foodoc": "jsdoc --configure jsdoc.conf -t ./node_modules/foodoc/template -R index.md"
-  },
-  "dependencies": {
-    "clean-jsdoc-theme": "^3.3.4"
+    "den-test-dev": "rollup -c ../rollup-config-badger-den/src/rollup-config-badger-den.mjs --config-den warpgate:dev",
+    "den-test-release": "rollup -c ../rollup-config-badger-den/src/rollup-config-badger-den.mjs --config-den warpgate:release",
+    "dev": "rollup -w -c node:rollup-config-badger-den --config-den warpgate:dev",
+    "release:module": "rollup --config node:rollup-config-badger-den --config-den warpgate:release",
+    "release:docs": "jsdoc --configure jsdoc.config.json",
+    "release": "npm run release:module && npm run release:docs"
   }
 }
