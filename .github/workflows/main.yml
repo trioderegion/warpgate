@@ -42,7 +42,7 @@ jobs:
         env:
           version: ${{github.event.release.tag_name}}
           url: https://github.com/${{github.repository}}
-          manifest: https://raw.githubusercontent.com/${{github.repository}}/next/module.json
+          manifest: https://raw.githubusercontent.com/${{github.repository}}/warpgate-next/module.json
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip
 
       # Create a zip file with all files required by the module to add to the release
@@ -88,7 +88,7 @@ jobs:
          git stash
          git clean -f
          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY"
-         git fetch origin "next"
+         git fetch origin "warpgate-next"
          git switch -c "next" "origin/warpgate-next"
          git checkout stash dist/warpgate/module.json
          mv dist/warpgate/module.json module.json
