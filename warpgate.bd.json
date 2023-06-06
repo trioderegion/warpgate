@@ -17,8 +17,8 @@
     },
     "release":{
       "dest":"dist",
-      "compress":true,
-      "sourcemaps": true,
+      "compress":false,
+      "sourcemaps": false,
       "clean": true
     }
   },
