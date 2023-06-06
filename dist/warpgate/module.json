@@ -2,29 +2,29 @@
   "title": "Warp Gate",
   "id": "warpgate",
   "esmodules": [
-    "scripts\\warpgate.js"
+    "scripts/warpgate.js"
   ],
   "styles": [],
   "languages": [
     {
       "lang": "ja",
       "name": "Japanese",
-      "path": "lang\\ja.json"
+      "path": "lang/ja.json"
     },
     {
       "lang": "fr",
       "name": "French",
-      "path": "lang\\fr.json"
+      "path": "lang/fr.json"
     },
     {
       "lang": "en",
       "name": "English",
-      "path": "lang\\en.json"
+      "path": "lang/en.json"
     },
     {
       "lang": "de",
       "name": "German",
-      "path": "lang\\de.json"
+      "path": "lang/de.json"
     }
   ],
   "externals": [],
