@@ -4416,3 +4416,4 @@ Hooks.on(`setup`, () => {
   //GlobalTesting
   //Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
 });
+//# sourceMappingURL=warpgate.js.map
