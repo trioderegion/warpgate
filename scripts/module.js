@@ -41,6 +41,10 @@ export class MODULE {
               return root._getCircleShape(root.ray.distance);
             }
           }[gen] ?? (()=>root._computeShape()))()
+      case 'token.delta':
+          return {
+            10: 'actorData',
+          }[gen] ?? 'delta'
       default:
           return null;
     }

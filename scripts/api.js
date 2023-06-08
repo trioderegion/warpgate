@@ -536,8 +536,10 @@ export class api {
     const actorData = {
       ownership: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     }
+    const deltaField = MODULE.compat('token.delta');
+    updates.token = mergeObject({[deltaField]: actorData}, updates.token ?? {}, {inplace: false})
 
-    updates.actor = mergeObject({flags: actorFlags, ...actorData}, updates.actor ?? {}, {inplace: false})
+    updates.actor = mergeObject({flags: actorFlags}, updates.actor ?? {}, {inplace: false})
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
     Mutator.clean(null, options);
