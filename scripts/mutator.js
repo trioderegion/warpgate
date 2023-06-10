@@ -15,9 +15,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {logger} from './logger.js'
-import {MODULE} from './module.js'
-import {RemoteMutator} from './remote-mutator.js'
+import {MODULE, logger} from './module.js'
+import {remoteMutate, remoteRevert, remoteBatchMutate, remoteBatchRevert} from './remote-mutator.js'
 
 const NAME = "Mutator";
 
@@ -92,7 +91,7 @@ const NAME = "Mutator";
  * @returns {Promise<any>|any}
  */
 
-export class Mutator {
+class Mutator {
   static register() {
     Mutator.defaults();
   }
@@ -392,7 +391,7 @@ export class Mutator {
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
-      return RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
+      return remoteMutate( tokenDoc, {updates, callbacks, options} );
     }
 
     return mutateInfo;
@@ -442,7 +441,7 @@ export class Mutator {
       }
 
       /* is a remote update */
-      return await RemoteMutator.remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
+      return await remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
 
     })
 
@@ -493,7 +492,7 @@ export class Mutator {
       }
 
       /* is a remote update */
-      return RemoteMutator.remoteBatchRevert( tokenLists[owner], {mutationName, options} );
+      return remoteBatchRevert( tokenLists[owner], {mutationName, options} );
 
     })
 
@@ -688,7 +687,7 @@ export class Mutator {
         options});
 
     } else {
-      return RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
+      return remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
     }
 
     return mutateData;
@@ -794,3 +793,5 @@ export class Mutator {
     return actorData;
   }
 }
+
+export const register = Mutator.register, mutate = Mutator.mutate, revertMutation = Mutator.revertMutation, batchMutate = Mutator.batchMutate, batchRevert = Mutator.batchRevert, clean = Mutator.clean, _updateActor = Mutator._updateActor;

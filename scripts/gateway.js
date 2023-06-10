@@ -15,10 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {logger} from './logger.js'
-import {MODULE} from './module.js'
+import {MODULE, logger} from './module.js'
 import {Crosshairs} from './crosshairs.js'
-import { Comms } from './comms.js'
+import { packToken, requestDismissSpawn } from './comms.js'
 import {Propagator} from './propagator.js'
 
 const NAME = "Gateway";
@@ -46,11 +45,11 @@ const NAME = "Gateway";
  * @class
  * @private
  */
-export class Gateway {
+class Gateway {
 
   static register() {
-    this.settings();
-    this.defaults();
+    Gateway.settings();
+    Gateway.defaults();
   }
 
   static settings() {
@@ -213,6 +212,14 @@ export class Gateway {
     return isArray ? result : result[types[0]];
   }
 
+  static async handleDismissSpawn({tokenId, sceneId, userId, ...rest}) {
+    /* let the first GM handle all dismissals */
+    if (MODULE.isFirstGM())
+      await Gateway.dismissSpawn(
+        tokenId, sceneId, userId
+      );
+  }
+
   /**
    * Deletes the specified token from the specified scene. This function allows anyone
    * to delete any specified token unless this functionality is restricted to only 
@@ -258,11 +265,11 @@ export class Gateway {
     /** first gm drives */
     if (MODULE.isFirstGM()) {
       const tokenDocs = await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
-      const actorData = Comms.packToken(tokenDocs[0]);
+      const actorData = packToken(tokenDocs[0]);
       await warpgate.event.notify(warpgate.EVENT.DISMISS, {actorData}, onBehalf);
     } else {
       /** otherwise, we need to send a request for deletion */
-      Comms.requestDismissSpawn(tokenId, sceneId);
+      requestDismissSpawn(tokenId, sceneId);
     }
     
     return;
@@ -297,7 +304,6 @@ export class Gateway {
 
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
-
-  
-
 }
+
+export const register = Gateway.register, dismissSpawn = Gateway.dismissSpawn, showCrosshairs = Gateway.showCrosshairs, collectPlaceables = Gateway.collectPlaceables, _rollItemGetLevel = Gateway._rollItemGetLevel, handleDismissSpawn = Gateway.handleDismissSpawn, _spawnTokenAtLocation = Gateway._spawnTokenAtLocation;

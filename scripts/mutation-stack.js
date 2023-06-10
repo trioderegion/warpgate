@@ -16,10 +16,7 @@
  */
 
 import {
-  logger
-} from './logger.js';
-import {
-  MODULE
+  MODULE, logger
 } from './module.js'
 
 /** @typedef {import('./api.js').Shorthand} Shorthand */

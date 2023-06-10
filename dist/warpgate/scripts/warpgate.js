@@ -1,80 +1,16 @@
-/*
- * MIT License
- * 
- * Copyright (c) 2020-2021 DnD5e Helpers Team and Contributors
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
-class logger {
-  static info(...args) {
-    console.log(`${MODULE?.data?.title ?? "" }  | `, ...args);
-  }
-  static debug(...args) {
-    if (MODULE.setting('debug'))
-      console.debug(`${MODULE?.data?.title ?? "" }  | `, ...args);
-  }
-
-  static warn(...args) {
-    console.warn(`${MODULE?.data?.title ?? "" } | WARNING | `, ...args);
-    ui.notifications.warn(`${MODULE?.data?.title ?? "" } | WARNING | ${args[0]}`);
-  }
-
-  static error(...args) {
-    console.error(`${MODULE?.data?.title ?? "" } | ERROR | `, ...args);
-    ui.notifications.error(`${MODULE?.data?.title ?? "" } | ERROR | ${args[0]}`);
-  }
-
-  static catchThrow(thrown, toastMsg = undefined) {
-    console.warn(thrown);
-    if(toastMsg) logger.error(toastMsg);
-  }
-
-  static register(){
-    this.settings();
-  }
-
-  static settings(){
-    const config = true;
-    const settingsData = {
-      debug : {
-        scope: "client", config, default: false, type: Boolean,
-      },
-    };
-
-    
-    MODULE.applySettings(settingsData);
-  }
-}
-
 /** MIT (c) 2021 DnD5e Helpers */
 
+/** @typedef {import('./api.js').NoticeConfig} NoticeConfig */
 
 const NAME$3 = "warpgate";
 const PATH = `/modules/${NAME$3}`;
 
 class MODULE {
   static data = {
-      name: NAME$3,
-      path: PATH,
-      title: "Warp Gate"
-    };
+    name: NAME$3,
+    path: PATH,
+    title: "Warp Gate",
+  };
 
   /**
    *
@@ -88,32 +24,37 @@ class MODULE {
   static compat(shimId, root = globalThis) {
     const gen = game.release?.generation;
     switch (shimId) {
-      case 'interaction.pointer':
-        return {
-          10: root.canvas.app.renderer.plugins.interaction.mouse,
-        }[gen] ?? canvas.app.renderer.plugins.interaction.pointer;
-      case 'crosshairs.computeShape':
-          return ({
-            10: ()=>{
-              if(root.document.t != 'circle'){
+      case "interaction.pointer":
+        return (
+          {
+            10: root.canvas.app.renderer.plugins.interaction.mouse,
+          }[gen] ?? canvas.app.renderer.plugins.interaction.pointer
+        );
+      case "crosshairs.computeShape":
+        return (
+          {
+            10: () => {
+              if (root.document.t != "circle") {
                 logger.error("Non-circular Crosshairs is unsupported!");
               }
               return root._getCircleShape(root.ray.distance);
-            }
-          }[gen] ?? (()=>root._computeShape()))()
+            },
+          }[gen] ?? (() => root._computeShape())
+        )();
+      case "token.delta":
+        return (
+          {
+            10: "actorData",
+          }[gen] ?? "delta"
+        );
       default:
-          return null;
+        return null;
     }
   }
 
   static async register() {
     logger.info("Initializing Module");
     MODULE.settings();
-  }
-
-  static async build() {
-    
-    logger.info("Module Data Built");
   }
 
   static setting(key) {
@@ -138,20 +79,13 @@ class MODULE {
   }
 
   static canSpawn(user) {
-    const reqs = [
-      'TOKEN_CREATE',
-      'TOKEN_CONFIGURE',
-      'FILES_BROWSE',
-    ];
+    const reqs = ["TOKEN_CREATE", "TOKEN_CONFIGURE", "FILES_BROWSE"];
 
     return MODULE.canUser(user, reqs);
   }
 
   static canMutate(user) {
-    const reqs = [
-      'TOKEN_CONFIGURE',
-      'FILES_BROWSE',
-    ];
+    const reqs = ["TOKEN_CONFIGURE", "FILES_BROWSE"];
 
     return MODULE.canUser(user, reqs);
   }
@@ -165,27 +99,31 @@ class MODULE {
    * @param {NoticeConfig} config
    * @memberof MODULE
    */
-  static async handleNotice({x, y}, sceneId, config) {
-
+  static async handleNotice({ x, y }, sceneId, config) {
     /* can only operate if the user is on the scene requesting notice */
-    if( canvas.ready && 
-        !!sceneId && !!config &&
-        config.receivers.includes(game.userId) &&
-        canvas.scene?.id === sceneId ) {
-
+    if (
+      canvas.ready &&
+      !!sceneId &&
+      !!config &&
+      config.receivers.includes(game.userId) &&
+      canvas.scene?.id === sceneId
+    ) {
       const panSettings = {};
       const hasLoc = x !== undefined && y !== undefined;
       const doPan = !!config.pan;
       const doZoom = !!config.zoom;
       const doPing = !!config.ping;
 
-      if(hasLoc) {
+      if (hasLoc) {
         panSettings.x = x;
         panSettings.y = y;
       }
 
-      if(doPan) {
-        panSettings.duration = Number.isNumeric(config.pan) && config.pan !== true ? Number(config.pan) : CONFIG.Canvas.pings.pullSpeed;
+      if (doPan) {
+        panSettings.duration =
+          Number.isNumeric(config.pan) && config.pan !== true
+            ? Number(config.pan)
+            : CONFIG.Canvas.pings.pullSpeed;
       }
 
       if (doZoom) {
@@ -198,12 +136,20 @@ class MODULE {
 
       if (doPing && hasLoc) {
         const user = game.users.get(config.sender);
-        const location = {x: panSettings.x, y: panSettings.y};
+        const location = { x: panSettings.x, y: panSettings.y };
 
         /* draw the ping, either onscreen or offscreen */
-        canvas.isOffscreen(location) ?
-          canvas.controls.drawOffscreenPing(location, {scene: sceneId, style: CONFIG.Canvas.pings.types.ARROW, user}) :
-          canvas.controls.drawPing(location, {scene: sceneId, style: config.ping, user});
+        canvas.isOffscreen(location)
+          ? canvas.controls.drawOffscreenPing(location, {
+              scene: sceneId,
+              style: CONFIG.Canvas.pings.types.ARROW,
+              user,
+            })
+          : canvas.controls.drawPing(location, {
+              scene: sceneId,
+              style: config.ping,
+              user,
+            });
       }
     }
   }
@@ -212,10 +158,14 @@ class MODULE {
    * @return {Array<String>} missing permissions for this operation
    */
   static canUser(user, requiredPermissions) {
-    if(MODULE.setting('disablePermCheck')) return [];
-    const {role} = user;
-    const permissions = game.settings.get('core','permissions');
-    return requiredPermissions.filter( req => !permissions[req].includes(role) ).map(missing => game.i18n.localize(CONST.USER_PERMISSIONS[missing].label));
+    if (MODULE.setting("disablePermCheck")) return [];
+    const { role } = user;
+    const permissions = game.settings.get("core", "permissions");
+    return requiredPermissions
+      .filter((req) => !permissions[req].includes(role))
+      .map((missing) =>
+        game.i18n.localize(CONST.USER_PERMISSIONS[missing].label)
+      );
   }
 
   /**
@@ -223,7 +173,7 @@ class MODULE {
    * @returns {User|undefined} First active GM User
    */
   static firstGM() {
-    return game.users?.find(u => u.isGM && u.active);
+    return game.users?.find((u) => u.isGM && u.active);
   }
 
   /**
@@ -235,17 +185,17 @@ class MODULE {
     return game.user?.id === MODULE.firstGM()?.id;
   }
 
-  static emptyObject(obj){
+  static emptyObject(obj) {
     // @ts-ignore
     return foundry.utils.isEmpty(obj);
   }
 
   static removeEmptyObjects(obj) {
     let result = foundry.utils.flattenObject(obj);
-    Object.keys(result).forEach( key => {
-      if(typeof result[key] == 'object' && MODULE.emptyObject(result[key])) {
+    Object.keys(result).forEach((key) => {
+      if (typeof result[key] == "object" && MODULE.emptyObject(result[key])) {
         delete result[key];
-      } 
+      }
     });
 
     return foundry.utils.expandObject(result);
@@ -256,9 +206,9 @@ class MODULE {
    *
    * @returns {Object}
    */
-  static copy(source, errorString = 'error.unknown') {
+  static copy(source, errorString = "error.unknown") {
     try {
-      return foundry.utils.deepClone(source, {strict:true});
+      return foundry.utils.deepClone(source, { strict: true });
     } catch (err) {
       logger.catchThrow(err, MODULE.localize(errorString));
     }
@@ -276,33 +226,32 @@ class MODULE {
   static stripEmpty(obj, inplace = true) {
     const result = inplace ? obj : MODULE.copy(obj);
 
-    Object.keys(result).forEach( key => {
-      if(typeof result[key] == 'object' && MODULE.emptyObject(result[key])) {
+    Object.keys(result).forEach((key) => {
+      if (typeof result[key] == "object" && MODULE.emptyObject(result[key])) {
         delete result[key];
-      } 
+      }
     });
 
     return result;
   }
 
   static ownerSublist(docList) {
-
     /* break token list into sublists by first owner */
-    const subLists = docList.reduce( (lists, doc) => {
-      if(!doc) return lists;
-      const owner = MODULE.firstOwner(doc)?.id ?? 'none';
+    const subLists = docList.reduce((lists, doc) => {
+      if (!doc) return lists;
+      const owner = MODULE.firstOwner(doc)?.id ?? "none";
       lists[owner] ??= [];
       lists[owner].push(doc);
       return lists;
-    },{});
+    }, {});
 
     return subLists;
   }
-  
+
   /**
-   * Returns the first active user with owner permissions for the given document, 
-   * falling back to the firstGM should there not be any. Returns false if the 
-   * document is falsey. In the case of token documents it checks the permissions 
+   * Returns the first active user with owner permissions for the given document,
+   * falling back to the firstGM should there not be any. Returns false if the
+   * document is falsey. In the case of token documents it checks the permissions
    * for the token's actor as tokens themselves do not have a permission object.
    *
    * @param {{ actor: Actor } | { document: { actor: Actor } } | Actor} doc
@@ -316,16 +265,23 @@ class MODULE {
     /* while conceptually correct, tokens derive permissions from their
      * (synthetic) actor data.
      */
-    const corrected = doc instanceof TokenDocument ? doc.actor :
-                      // @ts-ignore 2589
-                      doc instanceof Token ? doc.document.actor : doc;
-    
-    const permissionObject = getProperty(corrected ?? {}, 'ownership') ?? {};
+    const corrected =
+      doc instanceof TokenDocument
+        ? doc.actor
+        : // @ts-ignore 2589
+        doc instanceof Token
+        ? doc.document.actor
+        : doc;
+
+    const permissionObject = getProperty(corrected ?? {}, "ownership") ?? {};
 
     const playerOwners = Object.entries(permissionObject)
-      .filter(([id, level]) => (!game.users.get(id)?.isGM && game.users.get(id)?.active) && level === 3)
-      .map(([id, ]) => id);
-    
+      .filter(
+        ([id, level]) =>
+          !game.users.get(id)?.isGM && game.users.get(id)?.active && level === 3
+      )
+      .map(([id]) => id);
+
     if (playerOwners.length > 0) {
       return game.users.get(playerOwners[0]);
     }
@@ -335,10 +291,10 @@ class MODULE {
   }
 
   /**
-   * Checks whether the user calling this function is the user returned by 
-   * {@link warpgate.util.firstOwner} when the function is passed the 
+   * Checks whether the user calling this function is the user returned by
+   * {@link warpgate.util.firstOwner} when the function is passed the
    * given document. Returns true if they are the same, false if they are not.
-   * 
+   *
    * As `firstOwner`, biases towards players first.
    *
    * @returns {boolean} the current user is the first player owner. If no owning player, first GM.
@@ -348,26 +304,25 @@ class MODULE {
   }
 
   /**
-   * Helper function. Waits for a specified amount of time in milliseconds (be sure to await!). 
+   * Helper function. Waits for a specified amount of time in milliseconds (be sure to await!).
    * Useful for timings with animations in the pre/post callbacks.
-   * 
+   *
    * @param {Number} ms Time to delay, in milliseconds
    * @returns Promise
    */
   static async wait(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   static async waitFor(fn, maxIter = 600, iterWaitTime = 100, i = 0) {
     const continueWait = (current, max) => {
-
       /* negative max iter means wait forever */
       if (maxIter < 0) return true;
 
       return current < max;
     };
 
-    while (!fn(i, ((i * iterWaitTime) / 100)) && continueWait(i, maxIter)) {
+    while (!fn(i, (i * iterWaitTime) / 100) && continueWait(i, maxIter)) {
       i++;
       await MODULE.wait(iterWaitTime);
     }
@@ -377,8 +332,11 @@ class MODULE {
   static settings() {
     const data = {
       disablePermCheck: {
-        config: true, scope: 'world', type: Boolean, default: false,
-      }
+        config: true,
+        scope: "world",
+        type: Boolean,
+        default: false,
+      },
     };
 
     MODULE.applySettings(data);
@@ -386,13 +344,11 @@ class MODULE {
 
   static applySettings(settingsData) {
     Object.entries(settingsData).forEach(([key, data]) => {
-      game.settings.register(
-        MODULE.data.name, key, {
-          name: MODULE.localize(`setting.${key}.name`),
-          hint: MODULE.localize(`setting.${key}.hint`),
-          ...data
-        }
-      );
+      game.settings.register(MODULE.data.name, key, {
+        name: MODULE.localize(`setting.${key}.name`),
+        hint: MODULE.localize(`setting.${key}.hint`),
+        ...data,
+      });
     });
   }
 
@@ -403,16 +359,17 @@ class MODULE {
    * @returns {Promise<TokenDocument|false>}
    */
   static async getTokenData(actorNameDoc, tokenUpdates) {
-
     let sourceActor = actorNameDoc;
-    if(typeof actorNameDoc == 'string') {
+    if (typeof actorNameDoc == "string") {
       /* lookup by actor name */
       sourceActor = game.actors.getName(actorNameDoc);
     }
 
     //get source actor
     if (!sourceActor) {
-      logger.error(`Could not find world actor named "${actorNameDoc}" or no souce actor document provided.`);
+      logger.error(
+        `Could not find world actor named "${actorNameDoc}" or no souce actor document provided.`
+      );
       return false;
     }
 
@@ -429,13 +386,13 @@ class MODULE {
   }
 
   static async updateProtoToken(protoToken, changes) {
-    protoToken.updateSource(changes);  
-    const img = getProperty(changes, 'texture.src'); 
+    protoToken.updateSource(changes);
+    const img = getProperty(changes, "texture.src");
     if (img) await loadTexture(img);
   }
 
   static getMouseStagePos() {
-    const mouse = MODULE.compat('interaction.pointer');
+    const mouse = MODULE.compat("interaction.pointer");
     return mouse.getLocalPosition(canvas.app.stage);
   }
 
@@ -443,25 +400,28 @@ class MODULE {
    * @returns {undefined} provided updates object modified in-place
    */
   static shimUpdate(updates) {
-
-    updates.token = MODULE.shimClassData(TokenDocument.implementation, updates.token);
+    updates.token = MODULE.shimClassData(
+      TokenDocument.implementation,
+      updates.token
+    );
     updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
 
-    Object.keys(updates.embedded ?? {}).forEach( (embeddedName) => {
+    Object.keys(updates.embedded ?? {}).forEach((embeddedName) => {
       const cls = CONFIG[embeddedName].documentClass;
 
-      Object.entries(updates.embedded[embeddedName]).forEach( ([shortId, data]) => {
-        updates.embedded[embeddedName][shortId] = (typeof data == 'string') ? data : MODULE.shimClassData(cls, data);
-      });
+      Object.entries(updates.embedded[embeddedName]).forEach(
+        ([shortId, data]) => {
+          updates.embedded[embeddedName][shortId] =
+            typeof data == "string" ? data : MODULE.shimClassData(cls, data);
+        }
+      );
     });
-
   }
 
   static shimClassData(cls, change) {
+    if (!change) return change;
 
-    if(!change) return change;
-
-    if(!!change && !foundry.utils.isEmpty(change)) {
+    if (!!change && !foundry.utils.isEmpty(change)) {
       /* shim data if needed */
       return cls.migrateData(foundry.utils.expandObject(change));
     }
@@ -469,21 +429,25 @@ class MODULE {
     return foundry.utils.expandObject(change);
   }
 
-  static getFeedbackSettings({alwaysAccept = false, suppressToast = false} = {}) {
-    const acceptSetting = MODULE.setting('alwaysAcceptLocal') == 0 ? 
-      MODULE.setting('alwaysAccept') :
-      {1: true, 2: false}[MODULE.setting('alwaysAcceptLocal')];
+  static getFeedbackSettings({
+    alwaysAccept = false,
+    suppressToast = false,
+  } = {}) {
+    const acceptSetting =
+      MODULE.setting("alwaysAcceptLocal") == 0
+        ? MODULE.setting("alwaysAccept")
+        : { 1: true, 2: false }[MODULE.setting("alwaysAcceptLocal")];
 
     const accepted = !!alwaysAccept ? true : acceptSetting;
 
-    const suppressSetting = MODULE.setting('suppressToastLocal') == 0 ? 
-      MODULE.setting('suppressToast') :
-      {1: true, 2: false}[MODULE.setting('suppressToastLocal')];
+    const suppressSetting =
+      MODULE.setting("suppressToastLocal") == 0
+        ? MODULE.setting("suppressToast")
+        : { 1: true, 2: false }[MODULE.setting("suppressToastLocal")];
 
     const suppress = !!suppressToast ? true : suppressSetting;
 
-    return {alwaysAccept: accepted, suppressToast: suppress};
-
+    return { alwaysAccept: accepted, suppressToast: suppress };
   }
 
   /**
@@ -493,14 +457,16 @@ class MODULE {
    */
   static strictUpdateDiff(base, other) {
     /* get the changed fields */
-    const diff = foundry.utils.flattenObject(foundry.utils.diffObject(base, other, {inner: true}));
+    const diff = foundry.utils.flattenObject(
+      foundry.utils.diffObject(base, other, { inner: true })
+    );
 
     /* get any newly added fields */
     const additions = MODULE.unique(flattenObject(base), flattenObject(other));
 
     /* set their data to null */
-    Object.keys(additions).forEach( key => {
-      if( typeof additions[key] != 'object' ) diff[key] = null;
+    Object.keys(additions).forEach((key) => {
+      if (typeof additions[key] != "object") diff[key] = null;
     });
 
     return foundry.utils.expandObject(diff);
@@ -510,7 +476,8 @@ class MODULE {
     // Validate input
     const ts = getType(object);
     const tt = getType(remove);
-    if ((ts !== "Object") || (tt !== "Object")) throw new Error("One of source or template are not Objects!");
+    if (ts !== "Object" || tt !== "Object")
+      throw new Error("One of source or template are not Objects!");
 
     // Define recursive filtering function
     const _filter = function (s, t, filtered) {
@@ -519,7 +486,7 @@ class MODULE {
         let x = t[k];
 
         // Case 1 - inner object
-        if (has && (getType(v) === "Object") && (getType(x) === "Object")) {
+        if (has && getType(v) === "Object" && getType(x) === "Object") {
           filtered[k] = _filter(v, x, {});
         }
 
@@ -536,10 +503,10 @@ class MODULE {
   }
 
   /**
-   * Helper function for quickly creating a simple dialog with labeled buttons and associated data. 
+   * Helper function for quickly creating a simple dialog with labeled buttons and associated data.
    * Useful for allowing a choice of actors to spawn prior to `warpgate.spawn`.
    *
-   * @param {Object} data 
+   * @param {Object} data
    * @param {Array<{label: string, value:*}>} data.buttons
    * @param {string} [data.title]
    * @param {string} [data.content]
@@ -547,7 +514,7 @@ class MODULE {
    *
    * @param {string} [direction = 'row'] 'column' or 'row' accepted. Controls layout direction of dialog.
    */
-  static async buttonDialog(data, direction = 'row') {
+  static async buttonDialog(data, direction = "row") {
     return await new Promise(async (resolve) => {
       /** @type Object<string, object> */
       let buttons = {},
@@ -556,53 +523,60 @@ class MODULE {
       data.buttons.forEach((button) => {
         buttons[button.label] = {
           label: button.label,
-          callback: () => resolve(button.value)
+          callback: () => resolve(button.value),
         };
       });
 
-      dialog = new Dialog({
-        title: data.title ?? '',
-        content: data.content ?? '',
-        buttons,
-        close: () => resolve(false)
-      }, {
-        /*width: '100%',*/
-        height: '100%',
-        ...data.options
-      });
+      dialog = new Dialog(
+        {
+          title: data.title ?? "",
+          content: data.content ?? "",
+          buttons,
+          close: () => resolve(false),
+        },
+        {
+          /*width: '100%',*/
+          height: "100%",
+          ...data.options,
+        }
+      );
 
       await dialog._render(true);
-      dialog.element.find('.dialog-buttons').css({
-        'flex-direction': direction
+      dialog.element.find(".dialog-buttons").css({
+        "flex-direction": direction,
       });
     });
   }
 
   static dialogInputs = (data) => {
-
     /* correct legacy input data */
-    data.forEach(inputData => {
-      if (inputData.type === 'select') {
+    data.forEach((inputData) => {
+      if (inputData.type === "select") {
         inputData.options.forEach((e, i) => {
           switch (typeof e) {
-            case 'string':
+            case "string":
               /* if we are handed legacy string values, convert them to objects */
-              inputData.options[i] = {value: e, html: e};
-              /* fallthrough to tweak missing values from object */
+              inputData.options[i] = { value: e, html: e };
+            /* fallthrough to tweak missing values from object */
 
-            case 'object':
+            case "object":
               /* if no HMTL provided, use value */
               inputData.options[i].html ??= inputData.options[i].value;
 
               /* sanity check */
-              if(!!inputData.options[i].html && inputData.options[i].value != undefined) {
+              if (
+                !!inputData.options[i].html &&
+                inputData.options[i].value != undefined
+              ) {
                 break;
               }
 
-              /* fallthrough to throw error if all else fails */
-              
+            /* fallthrough to throw error if all else fails */
+
             default: {
-              const emsg = MODULE.format('error.badSelectOpts', {fnName: 'menu'});
+              const emsg = MODULE.format("error.badSelectOpts", {
+                fnName: "menu",
+              });
               logger.error(emsg);
               throw new Error(emsg);
             }
@@ -611,26 +585,46 @@ class MODULE {
       }
     });
 
-    const mapped = data.map(({type, label, value, options}, i) => {
-      type = type.toLowerCase();
-      switch (type) {
-        case 'header': return `<tr><td colspan = "2"><h2>${label}</h2></td></tr>`;
-        case 'button': return '';
-        case 'info': return `<tr><td colspan="2">${label}</td></tr>`;
-        case 'select': {
+    const mapped = data
+      .map(({ type, label, value, options }, i) => {
+        type = type.toLowerCase();
+        switch (type) {
+          case "header":
+            return `<tr><td colspan = "2"><h2>${label}</h2></td></tr>`;
+          case "button":
+            return "";
+          case "info":
+            return `<tr><td colspan="2">${label}</td></tr>`;
+          case "select": {
+            const optionString = options
+              .map((e, i) => {
+                return `<option value="${i}">${e.html}</option>`;
+              })
+              .join("");
 
-          const optionString = options.map((e, i) => {
-            return `<option value="${i}">${e.html}</option>`
-          }).join('');
-
-          return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${optionString}</select></td></tr>`;
+            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${optionString}</select></td></tr>`;
+          }
+          case "radio":
+            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
+              (options instanceof Array ? options[1] : false )
+                ? "checked"
+                : ""
+            } value="${value ?? label}" name="${
+              options instanceof Array ? options[0] : options ?? "radio"
+            }"/></td></tr>`;
+          case "checkbox":
+            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
+              (options instanceof Array ? options[0] : options ?? false)
+                ? "checked"
+                : ""
+            } value="${value ?? label}"/></td></tr>`;
+          default:
+            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${
+              options instanceof Array ? options[0] : options
+            }"/></td></tr>`;
         }
-        case 'radio': return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[1] : false ) ? 'checked' : ''} value="${value ?? label}" name="${options instanceof Array ? options[0] : options ?? 'radio'}"/></td></tr>`;
-        case 'checkbox': return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${(options instanceof Array ? options[0] : options ?? false) ? 'checked' : ''} value="${value ?? label}"/></td></tr>`;
-        default: return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${options instanceof Array ? options[0] : options}"/></td></tr>`;
-      }
-    }).join(``);
-
+      })
+      .join(``);
 
     const content = `
 <table style="width:100%">
@@ -638,14 +632,19 @@ class MODULE {
 </table>`;
 
     return content;
-  }
+  };
 
-  static async dialog(data = {}, title = 'Prompt', submitLabel = 'Ok') {
-    logger.warn(`'warpgate.dialog' is deprecated and will be removed in version 1.17.0. See 'warpgate.menu' as a replacement.`);
+  static async dialog(data = {}, title = "Prompt", submitLabel = "Ok") {
+    logger.warn(
+      `'warpgate.dialog' is deprecated and will be removed in version 1.17.0. See 'warpgate.menu' as a replacement.`
+    );
     data = data instanceof Array ? data : [data];
 
-    const results = await warpgate.menu({inputs: data}, {title, defaultButton: submitLabel});
-    if(results.buttons === false) return false;
+    const results = await warpgate.menu(
+      { inputs: data },
+      { title, defaultButton: submitLabel }
+    );
+    if (results.buttons === false) return false;
     return results.inputs;
   }
 
@@ -658,15 +657,15 @@ class MODULE {
    * | info   | none | undefined | Inserts a line of text for display/informational purposes. |
    * | text | default value | {String} final value of text field | |
    * | password | (as `text`) | (as `text`) | Characters are obscured for security. |
-   * | radio | [group name, default state (`false`)] {Array of String/Bool} | selected: {Class<Primitive>} `value`. un-selected: {Boolean} `false` | For a given group name, only one radio button can be selected. |
-   * | checkbox | default state (`false`) {Boolean} | {Boolean} `value`/`false` checked/unchecked | `label` is used for the HTML element's `name` property |
+   * | radio | [group name, default state (`false`)] {Array of Bool} | {Boolean} selected | For a given group name, only one radio button can be selected. |
+   * | checkbox | default state (`false`) {Boolean} | {Boolean} checked | `label` is used for the HTML element's `name` property |
    * | number | (as `text`) | {Number} final value of text field converted to a number |
-   * | select | array of option labels or objects {value, html} | `value` property of selected option. If values not provided, numeric index of option in original list | | 
+   * | select | array of option labels or objects {value, html} | `value` property of selected option. If values not provided, numeric index of option in original list | |
    * @static
-   * @param {object} [prompts]  
+   * @param {object} [prompts]
    * @param {Array<{label: string, type: string, options: any|Array<any>} >} [prompts.inputs=[]] follow the same structure as dialog
    * @param {Array<{label: string, value: any, callback: Function }>} [prompts.buttons=[]] as buttonDialog
-   * @param {object} [config] 
+   * @param {object} [config]
    * @param {string} [config.title='Prompt'] Title of dialog
    * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
    * @param {function(HTMLElement) : void} [config.render=undefined]
@@ -709,18 +708,21 @@ class MODULE {
    *
    */
   static async menu(prompts = {}, config = {}) {
-
     /* apply defaults to optional params */
     const configDefaults = {
-      title : 'Prompt',
-      defaultButton : 'Ok',
-      render:null,
-      close : (resolve) => resolve({buttons: false}),
-      options : {}
+      title: "Prompt",
+      defaultButton: "Ok",
+      render: null,
+      close: (resolve) => resolve({ buttons: false }),
+      options: {},
     };
 
-    const {title, defaultButton, render, close, options} = foundry.utils.mergeObject(configDefaults, config);
-    const {inputs, buttons} = foundry.utils.mergeObject({inputs: [], buttons: []}, prompts);
+    const { title, defaultButton, render, close, options } =
+      foundry.utils.mergeObject(configDefaults, config);
+    const { inputs, buttons } = foundry.utils.mergeObject(
+      { inputs: [], buttons: [] },
+      prompts
+    );
 
     return await new Promise((resolve) => {
       let content = MODULE.dialogInputs(inputs);
@@ -733,11 +735,12 @@ class MODULE {
           callback: async (html) => {
             const results = {
               inputs: MODULE._innerValueParse(inputs, html),
-              buttons: button.value
+              buttons: button.value,
             };
-            if(button.callback instanceof Function) await button.callback(results, button, html); 
+            if (button.callback instanceof Function)
+              await button.callback(results, button, html);
             resolve(results);
-          }
+          },
         };
       });
 
@@ -746,41 +749,93 @@ class MODULE {
         buttonData = {
           Ok: {
             label: defaultButton,
-            callback: (html) => resolve({inputs: MODULE._innerValueParse(inputs, html), buttons: true})
-          }
+            callback: (html) =>
+              resolve({
+                inputs: MODULE._innerValueParse(inputs, html),
+                buttons: true,
+              }),
+          },
         };
       }
 
-      new Dialog({
-        title,
-        content,
-        close: (...args) => close(resolve, ...args),
-        buttons: buttonData,
-        render,
-      }, {focus: true, ...options}).render(true);
+      new Dialog(
+        {
+          title,
+          content,
+          close: (...args) => close(resolve, ...args),
+          buttons: buttonData,
+          render,
+        },
+        { focus: true, ...options }
+      ).render(true);
     });
   }
 
   static _innerValueParse(data, html) {
-    return Array(data.length).fill().map((e, i) => {
-      let {
-        type
-      } = data[i];
-      if (type.toLowerCase() === `select`) {
-        return data[i].options[html.find(`select#${i}qd`).val()].value;
-      } else {
-        switch (type.toLowerCase()) {
-          case `text`:
-          case `password`:
-            return html.find(`input#${i}qd`)[0].value;
-          case `radio`:
-          case `checkbox`:
-            return html.find(`input#${i}qd`)[0].checked;
-          case `number`:
-            return html.find(`input#${i}qd`)[0].valueAsNumber;
+    return Array(data.length)
+      .fill()
+      .map((e, i) => {
+        let { type } = data[i];
+        if (type.toLowerCase() === `select`) {
+          return data[i].options[html.find(`select#${i}qd`).val()].value;
+        } else {
+          switch (type.toLowerCase()) {
+            case `text`:
+            case `password`:
+              return html.find(`input#${i}qd`)[0].value;
+            case `radio`:
+            case `checkbox`:
+              return html.find(`input#${i}qd`)[0].checked;
+            case `number`:
+              return html.find(`input#${i}qd`)[0].valueAsNumber;
+          }
         }
-      }
-    })
+      });
+  }
+}
+
+class logger {
+  static info(...args) {
+    console.log(`${MODULE?.data?.title ?? ""}  | `, ...args);
+  }
+  static debug(...args) {
+    if (MODULE.setting("debug"))
+      console.debug(`${MODULE?.data?.title ?? ""}  | `, ...args);
+  }
+
+  static warn(...args) {
+    console.warn(`${MODULE?.data?.title ?? ""} | WARNING | `, ...args);
+    ui.notifications.warn(
+      `${MODULE?.data?.title ?? ""} | WARNING | ${args[0]}`
+    );
+  }
+
+  static error(...args) {
+    console.error(`${MODULE?.data?.title ?? ""} | ERROR | `, ...args);
+    ui.notifications.error(`${MODULE?.data?.title ?? ""} | ERROR | ${args[0]}`);
+  }
+
+  static catchThrow(thrown, toastMsg = undefined) {
+    console.warn(thrown);
+    if (toastMsg) logger.error(toastMsg);
+  }
+
+  static register() {
+    this.settings();
+  }
+
+  static settings() {
+    const config = true;
+    const settingsData = {
+      debug: {
+        scope: "client",
+        config,
+        default: false,
+        type: Boolean,
+      },
+    };
+
+    MODULE.applySettings(settingsData);
   }
 }
 
@@ -1847,7 +1902,7 @@ class Mutator {
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
-      return RemoteMutator.remoteMutate( tokenDoc, {updates, callbacks, options} );
+      return remoteMutate( tokenDoc, {updates, callbacks, options} );
     }
 
     return mutateInfo;
@@ -1897,7 +1952,7 @@ class Mutator {
       }
 
       /* is a remote update */
-      return await RemoteMutator.remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
+      return await remoteBatchMutate( tokenLists[owner], {updates, callbacks, options} );
 
     });
 
@@ -1948,7 +2003,7 @@ class Mutator {
       }
 
       /* is a remote update */
-      return RemoteMutator.remoteBatchRevert( tokenLists[owner], {mutationName, options} );
+      return remoteBatchRevert( tokenLists[owner], {mutationName, options} );
 
     });
 
@@ -2143,7 +2198,7 @@ class Mutator {
         options});
 
     } else {
-      return RemoteMutator.remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
+      return remoteRevert(tokenDoc, {mutationId: mutateData.name, options});
     }
 
     return mutateData;
@@ -2249,6 +2304,8 @@ class Mutator {
     return actorData;
   }
 }
+
+const register$3 = Mutator.register, mutate = Mutator.mutate, revertMutation = Mutator.revertMutation, batchMutate = Mutator.batchMutate, batchRevert = Mutator.batchRevert, clean = Mutator.clean, _updateActor = Mutator._updateActor;
 
 /* 
  * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
@@ -2401,7 +2458,7 @@ class RemoteMutator {
     const promise = RemoteMutator._createMutateTriggers( tokenDoc, callbacks, options );
 
     /* broadcast the request to mutate the token */
-    Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
+    requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
 
     return promise;
   }
@@ -2447,7 +2504,7 @@ class RemoteMutator {
     const result = RemoteMutator._createRevertTriggers( tokenDoc, mutationId, {callbacks, options} );
 
     /* broadcast the request to mutate the token */
-    Comms.requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId, options});
+    requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId, options});
 
     return result;
   }
@@ -2516,7 +2573,7 @@ class RemoteMutator {
       if (accepted) {
         /* first owner accepts mutation -- apply it */
         /* requests will never have callbacks */
-        await Mutator.mutate(tokenDoc, payload.updates, {}, payload.options);
+        await mutate(tokenDoc, payload.updates, {}, payload.options);
         const message = MODULE.format('display.mutationRequestTitle', {userName: game.users.get(payload.userId).name, tokenName: tokenDoc.name});
         
         if(!suppressToast) ui.notifications.info(message);
@@ -2555,7 +2612,7 @@ class RemoteMutator {
 
       /* if the request is accepted, do the revert */
       if (accepted) {
-        await Mutator.revertMutation(tokenDoc, payload.mutationId, payload.options);
+        await revertMutation(tokenDoc, payload.mutationId, payload.options);
 
         if (!suppressToast) { 
           ui.notifications.info(description);
@@ -2612,6 +2669,8 @@ class RemoteMutator {
   }
 
 }
+
+const register$2 = RemoteMutator.register, handleMutationRequest = RemoteMutator.handleMutationRequest, handleRevertRequest = RemoteMutator.handleRevertRequest, remoteMutate = RemoteMutator.remoteMutate, remoteRevert = RemoteMutator.remoteRevert, remoteBatchMutate = RemoteMutator.remoteBatchMutate, remoteBatchRevert = RemoteMutator.remoteBatchRevert;
 
 /*
  * MIT License
@@ -2717,42 +2776,39 @@ class UpdateQueue {
   }
 }
 
-/* 
+/*
  * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
  * Copyright (c) 2021 Matthew Haentschke.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 
-
-
 const ops = {
-  DISMISS_SPAWN : "dismiss", //tokenId, sceneId, userId
-  EVENT : "event", //name, ...payload
+  DISMISS_SPAWN: "dismiss", //tokenId, sceneId, userId
+  EVENT: "event", //name, ...payload
   REQUEST_MUTATE: "req-mutate", // ...payload
   REQUEST_REVERT: "req-revert", // ...payload
   NOTICE: "req-notice",
 };
 
 class Comms {
-
   static register() {
     Comms.hooks();
   }
 
   static hooks() {
-    Hooks.on("ready", Comms._ready); 
+    Hooks.on("ready", Comms._ready);
   }
 
   static _ready() {
@@ -2766,16 +2822,19 @@ class Comms {
 
     /* all users should immediately respond to notices */
     if (socketData.op == ops.NOTICE) {
-      MODULE.handleNotice(socketData.payload.location, socketData.payload.sceneId, socketData.payload.options);
+      MODULE.handleNotice(
+        socketData.payload.location,
+        socketData.payload.sceneId,
+        socketData.payload.options
+      );
       return socketData;
     }
 
-    queueUpdate( async () => {
-      logger.debug("Routing operation: ",socketData.op);
-      switch (socketData.op){
+    queueUpdate(async () => {
+      logger.debug("Routing operation: ", socketData.op);
+      switch (socketData.op) {
         case ops.DISMISS_SPAWN:
-          /* let the first GM handle all dismissals */
-          if (MODULE.isFirstGM()) await Gateway.dismissSpawn(socketData.payload.tokenId, socketData.payload.sceneId, socketData.payload.userId);
+          await handleDismissSpawn(socketData.payload);
           break;
         case ops.EVENT:
           /* all users should respond to events */
@@ -2783,11 +2842,11 @@ class Comms {
           break;
         case ops.REQUEST_MUTATE:
           /* First owner of this target token/actor should respond */
-          await RemoteMutator.handleMutationRequest(socketData.payload);
+          await handleMutationRequest(socketData.payload);
           break;
         case ops.REQUEST_REVERT:
           /* First owner of this target token/actor should respond */
-          await RemoteMutator.handleRevertRequest(socketData.payload);
+          await handleRevertRequest(socketData.payload);
           break;
         default:
           logger.error("Unrecognized socket request", socketData);
@@ -2808,18 +2867,22 @@ class Comms {
   static requestDismissSpawn(tokenId, sceneId) {
     /** craft the socket data */
     const data = {
-      op : ops.DISMISS_SPAWN,
-      payload : { tokenId, sceneId, userId: game.user.id }
+      op: ops.DISMISS_SPAWN,
+      payload: { tokenId, sceneId, userId: game.user.id },
     };
-    
+
     return Comms._emit(data);
   }
 
   /*
    * payload = {userId, tokenId, sceneId, updates, options}
    */
-  static requestMutate(tokenId, sceneId, { updates = {}, options = {} } = {}, onBehalf = game.user.id ) {
-    
+  static requestMutate(
+    tokenId,
+    sceneId,
+    { updates = {}, options = {} } = {},
+    onBehalf = game.user.id
+  ) {
     /* insert common fields */
     const payload = {
       userId: onBehalf,
@@ -2832,14 +2895,17 @@ class Comms {
     /* craft the socket data */
     const data = {
       op: ops.REQUEST_MUTATE,
-      payload
+      payload,
     };
 
     return Comms._emit(data);
   }
 
-  static requestRevert(tokenId, sceneId, {mutationId = undefined, onBehalf = game.user.id, options = {}}) {
-
+  static requestRevert(
+    tokenId,
+    sceneId,
+    { mutationId = undefined, onBehalf = game.user.id, options = {} }
+  ) {
     /* insert common fields */
     const payload = {
       userId: onBehalf,
@@ -2852,7 +2918,7 @@ class Comms {
     /* craft the socket data */
     const data = {
       op: ops.REQUEST_REVERT,
-      payload
+      payload,
     };
 
     return Comms._emit(data);
@@ -2865,7 +2931,7 @@ class Comms {
         sceneId,
         location,
         options,
-      }
+      },
     };
 
     return Comms._emit(data);
@@ -2874,6 +2940,7 @@ class Comms {
   static packToken(tokenDoc) {
     const tokenData = tokenDoc.toObject();
     delete tokenData.actorData;
+    delete tokenData.delta;
 
     let actorData = tokenDoc.actor?.toObject() ?? {};
     actorData.token = tokenData;
@@ -2881,37 +2948,44 @@ class Comms {
   }
 
   /**
-   * Allow custom events to be fired using the Warp Gate event system. Is broadcast to all users, including the initiator. 
+   * Allow custom events to be fired using the Warp Gate event system. Is broadcast to all users, including the initiator.
    * Like Hooks, these functions cannot be awaited for a response, but all event functions executing on a given client
-   * will be evaluated in order of initial registration and the processing of the event functions will respect 
+   * will be evaluated in order of initial registration and the processing of the event functions will respect
    * (and await) returned Promises.
-   * 
-   * @param {string} name Name of this event. Watches and triggers use this name to register themselves. 
+   *
+   * @param {string} name Name of this event. Watches and triggers use this name to register themselves.
    *  Like Hooks, any string can be used and it is dependent upon the watch or trigger registration to monitor the correct event name.
-   * @param {object} [payload={sceneId: canvas.scene.id, userId: game.user.id}] eventData {Object} The data that will be 
+   * @param {object} [payload={sceneId: canvas.scene.id, userId: game.user.id}] eventData {Object} The data that will be
    *  provided to watches and triggers and their condition functions.
    * @param {string} [onBehalf=game.user.id] User ID that will be used in place of the current user in the
    *  cases of a relayed request to the GM (e.g. dismissal).
-   * 
+   *
    * @returns {Object} Data object containing the event's payload (execution details), and identifying metadata about
    *  this event, sent to all watching and triggering clients.
    */
-  static notifyEvent(name, payload = {}, onBehalf = game.user.id) {
+  static notifyEvent(name, payload = {}, onBehalf = game.user?.id) {
     /** insert common fields */
-    payload.sceneId = canvas.scene.id;
+    payload.sceneId = canvas.scene?.id;
     payload.userId = onBehalf;
 
     /* craft the socket data */
     const data = {
-      op : ops.EVENT,
+      op: ops.EVENT,
       eventName: name,
-      payload
+      payload,
     };
 
     return Comms._emit(data);
   }
-
 }
+
+const register$1 = Comms.register,
+  requestMutate = Comms.requestMutate,
+  requestRevert = Comms.requestRevert,
+  packToken = Comms.packToken,
+  requestDismissSpawn = Comms.requestDismissSpawn,
+  notifyEvent = Comms.notifyEvent,
+  requestNotice = Comms.requestNotice;
 
 /* theripper93
  * Copyright (C) 2021 dnd-randomizer
@@ -3039,8 +3113,8 @@ const NAME = "Gateway";
 class Gateway {
 
   static register() {
-    this.settings();
-    this.defaults();
+    Gateway.settings();
+    Gateway.defaults();
   }
 
   static settings() {
@@ -3203,6 +3277,14 @@ class Gateway {
     return isArray ? result : result[types[0]];
   }
 
+  static async handleDismissSpawn({tokenId, sceneId, userId, ...rest}) {
+    /* let the first GM handle all dismissals */
+    if (MODULE.isFirstGM())
+      await Gateway.dismissSpawn(
+        tokenId, sceneId, userId
+      );
+  }
+
   /**
    * Deletes the specified token from the specified scene. This function allows anyone
    * to delete any specified token unless this functionality is restricted to only 
@@ -3248,11 +3330,11 @@ class Gateway {
     /** first gm drives */
     if (MODULE.isFirstGM()) {
       const tokenDocs = await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
-      const actorData = Comms.packToken(tokenDocs[0]);
+      const actorData = packToken(tokenDocs[0]);
       await warpgate.event.notify(warpgate.EVENT.DISMISS, {actorData}, onBehalf);
     } else {
       /** otherwise, we need to send a request for deletion */
-      Comms.requestDismissSpawn(tokenId, sceneId);
+      requestDismissSpawn(tokenId, sceneId);
     }
     
     return;
@@ -3287,10 +3369,9 @@ class Gateway {
 
     return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
   }
-
-  
-
 }
+
+const register = Gateway.register, dismissSpawn = Gateway.dismissSpawn, showCrosshairs = Gateway.showCrosshairs, collectPlaceables = Gateway.collectPlaceables, _rollItemGetLevel = Gateway._rollItemGetLevel, handleDismissSpawn = Gateway.handleDismissSpawn, _spawnTokenAtLocation = Gateway._spawnTokenAtLocation;
 
 /* 
  * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
@@ -3744,9 +3825,9 @@ class api {
     window[MODULE.data.name] = {
       spawn : api._spawn,
       spawnAt : api._spawnAt,
-      dismiss : Gateway.dismissSpawn,
-      mutate : Mutator.mutate,
-      revert : Mutator.revertMutation,
+      dismiss : dismissSpawn,
+      mutate : mutate,
+      revert : revertMutation,
       /**
        * Factory method for creating a new mutation stack class from
        * the provided token document
@@ -3788,9 +3869,9 @@ class api {
        * @borrows Gateway.collectPlaceables as collectPlaceables
        */
       crosshairs: {
-        show: Gateway.showCrosshairs,
+        show: showCrosshairs,
         getTag: Crosshairs.getTag,
-        collect: Gateway.collectPlaceables,
+        collect: collectPlaceables,
       },
       /**
        * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
@@ -3803,8 +3884,8 @@ class api {
       plugin: {
         queueUpdate,
         notice: api._notice,
-        batchMutate: Mutator.batchMutate,
-        batchRevert: Mutator.batchRevert,
+        batchMutate,
+        batchRevert,
       },
       /**
        * @summary System specific helpers
@@ -3816,7 +3897,7 @@ class api {
       get dnd5e() {
         foundry.utils.logCompatibilityWarning(`[${MODULE.data.name}] System-specific namespaces and helper functions have been deprecated. Please convert to system provided functions.`, {since: 1.16, until: 2, details:`Migration details:\nrollItem(Item) to Item#use()`});
 
-        return {rollItem : Gateway._rollItemGetLevel}
+        return {rollItem : _rollItemGetLevel}
       },
       /**
        * @description Constants and enums for use in embedded shorthand fields
@@ -3907,7 +3988,7 @@ class api {
         watch : Events.watch,
         trigger : Events.trigger,
         remove : Events.remove,
-        notify : Comms.notifyEvent,
+        notify : notifyEvent,
       },
       /**
        * @summary Warp Gate classes suitable for extension
@@ -3999,7 +4080,7 @@ class api {
     crosshairsConfig.direction += rotation;
 
     /** @type {CrosshairsData} */
-    const templateData = await Gateway.showCrosshairs(crosshairsConfig, callbacks);
+    const templateData = await showCrosshairs(crosshairsConfig, callbacks);
 
     const eventPayload = {
       templateData: (options.overrides?.includeRawData ?? false) ? templateData : {x: templateData.x, y: templateData.y, size: templateData.size, cancelled: templateData.cancelled},
@@ -4076,11 +4157,13 @@ class api {
     const actorData = {
       ownership: {[game.user.id]: CONST.DOCUMENT_PERMISSION_LEVELS.OWNER}
     };
+    const deltaField = MODULE.compat('token.delta');
+    updates.token = mergeObject({[deltaField]: actorData}, updates.token ?? {}, {inplace: false});
 
-    updates.actor = mergeObject({flags: actorFlags, ...actorData}, updates.actor ?? {}, {inplace: false});
+    updates.actor = mergeObject({flags: actorFlags}, updates.actor ?? {}, {inplace: false});
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
-    Mutator.clean(null, options);
+    await clean(null, options);
 
     if(options.notice) warpgate.plugin.notice({...spawnLocation, scene: canvas.scene}, options.notice); 
 
@@ -4093,7 +4176,7 @@ class api {
         /* pre create callbacks can skip this spawning iteration */
         if(response === false) continue;
       }
-      await Mutator.clean(updates);
+      await clean(updates);
 
       /* merge in changes to the prototoken */
       if(iteration == 0){
@@ -4111,7 +4194,7 @@ class api {
       //TODO integrate into stock event data instead of hijacking mutate events
 
       /** @type Object */
-      const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
+      const spawnedTokenDoc = (await _spawnTokenAtLocation(protoData,
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
 
@@ -4119,7 +4202,7 @@ class api {
 
       logger.debug('Spawned token with data: ', spawnedTokenDoc);
 
-      await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
+      await _updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
 
       const eventPayload = {
         uuid: spawnedTokenDoc.uuid,
@@ -4155,7 +4238,7 @@ class api {
     config.receivers ??= warpgate.USERS.SELF;
     scene ??= canvas.scene;
 
-    return Comms.requestNotice({x,y}, scene.id, config);
+    return requestNotice({x,y}, scene.id, config);
   }
 
 }
@@ -4266,7 +4349,7 @@ class UserInterface {
         return;
       }
       const {id, parent} = token;
-      Gateway.dismissSpawn(id, parent?.id);
+      dismissSpawn(id, parent?.id);
 
       /** close the actor sheet if provided */
       app?.close({submit: false});
@@ -4355,7 +4438,7 @@ class UserInterface {
        * as it will be refreshed on the render call
        */
       queueUpdate( async () => {
-        await Mutator.revertMutation(token, name);
+        await revertMutation(token, name);
         app?.render(false);
       });
 
@@ -4395,24 +4478,17 @@ const SUB_MODULES = {
   MODULE,
   logger,
   api,
-  Gateway,
-  Mutator,
-  RemoteMutator,
+  Gateway: {register: register},
+  Mutator: {register: register$3},
+  RemoteMutator: {register: register$2},
   UserInterface,
-  Comms
+  Comms: {register: register$1}
 };
-
-/*
-  Initialize Module
-*/
-MODULE.build();
 
 /*
   Initialize all Sub Modules
 */
 Hooks.on(`setup`, () => {
   Object.values(SUB_MODULES).forEach(cl => cl.register());
-
-  //GlobalTesting
-  //Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
 });
+//# sourceMappingURL=warpgate.js.map

@@ -15,14 +15,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {logger} from './logger.js'
-import {MODULE} from './module.js'
-import {Comms} from './comms.js'
-import {Mutator} from './mutator.js'
+import {MODULE, logger} from './module.js'
+import {requestMutate, requestRevert} from './comms.js'
+import {mutate, revertMutation} from './mutator.js'
 
 const NAME = "RemoteMutator";
 
-export class RemoteMutator {
+class RemoteMutator {
 
   static register() {
     RemoteMutator.settings();
@@ -155,7 +154,7 @@ export class RemoteMutator {
     const promise = RemoteMutator._createMutateTriggers( tokenDoc, callbacks, options );
 
     /* broadcast the request to mutate the token */
-    Comms.requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
+    requestMutate(tokenDoc.id, tokenDoc.parent.id, { updates, options });
 
     return promise;
   }
@@ -201,7 +200,7 @@ export class RemoteMutator {
     const result = RemoteMutator._createRevertTriggers( tokenDoc, mutationId, {callbacks, options} );
 
     /* broadcast the request to mutate the token */
-    Comms.requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId, options});
+    requestRevert(tokenDoc.id, tokenDoc.parent.id, {mutationId, options});
 
     return result;
   }
@@ -270,7 +269,7 @@ export class RemoteMutator {
       if (accepted) {
         /* first owner accepts mutation -- apply it */
         /* requests will never have callbacks */
-        await Mutator.mutate(tokenDoc, payload.updates, {}, payload.options);
+        await mutate(tokenDoc, payload.updates, {}, payload.options);
         const message = MODULE.format('display.mutationRequestTitle', {userName: game.users.get(payload.userId).name, tokenName: tokenDoc.name});
         
         if(!suppressToast) ui.notifications.info(message);
@@ -309,7 +308,7 @@ export class RemoteMutator {
 
       /* if the request is accepted, do the revert */
       if (accepted) {
-        await Mutator.revertMutation(tokenDoc, payload.mutationId, payload.options);
+        await revertMutation(tokenDoc, payload.mutationId, payload.options);
 
         if (!suppressToast) { 
           ui.notifications.info(description);
@@ -366,4 +365,7 @@ export class RemoteMutator {
   }
 
 }
+
+export const register = RemoteMutator.register, handleMutationRequest = RemoteMutator.handleMutationRequest, handleRevertRequest = RemoteMutator.handleRevertRequest, remoteMutate = RemoteMutator.remoteMutate, remoteRevert = RemoteMutator.remoteRevert, remoteBatchMutate = RemoteMutator.remoteBatchMutate, remoteBatchRevert = RemoteMutator.remoteBatchRevert;
+
 

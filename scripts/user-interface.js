@@ -15,12 +15,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-import { logger } from './logger.js'
-import { Gateway } from './gateway.js'
-import { MODULE } from './module.js'
+import { dismissSpawn } from './gateway.js'
+import { MODULE, logger } from './module.js'
 import {queueUpdate} from './update-queue.js'
-import { Mutator } from './mutator.js'
+import { revertMutation } from './mutator.js'
 
 export class UserInterface {
 
@@ -110,7 +108,7 @@ export class UserInterface {
         return;
       }
       const {id, parent} = token;
-      Gateway.dismissSpawn(id, parent?.id);
+      dismissSpawn(id, parent?.id);
 
       /** close the actor sheet if provided */
       app?.close({submit: false});
@@ -199,7 +197,7 @@ export class UserInterface {
        * as it will be refreshed on the render call
        */
       queueUpdate( async () => {
-        await Mutator.revertMutation(token, name);
+        await revertMutation(token, name);
         app?.render(false);
       });
 

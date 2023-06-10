@@ -45,6 +45,7 @@
     }
   ],
   "url": "https://www.github.com/trioderegion/warpgate",
+  "socket": true,
   "manifest": "",
   "download": ""
 }

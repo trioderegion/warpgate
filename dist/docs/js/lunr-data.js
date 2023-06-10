@@ -605,12 +605,12 @@ window.lunrData = {
           "any}&gt",
           "array",
           "array.&lt;any&gt",
+          "bool",
           "boolean",
           "button",
           "charact",
+          "check",
           "checkbox",
-          "checked/uncheck",
-          "class",
           "config",
           "convert",
           "default",
@@ -661,15 +661,12 @@ window.lunrData = {
           "state",
           "static&gt",
           "string",
-          "string/bool",
           "text",
           "type",
-          "un",
           "undefin",
           "us",
           "user",
           "valu",
-          "value/fals",
           "warpgate.menu",
           "well"
         ],
@@ -1635,7 +1632,7 @@ window.lunrData = {
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.9345794392523363
+                      "tf": 0.9900990099009901
                     }
                   },
                   ".": {
@@ -1806,7 +1803,7 @@ window.lunrData = {
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -2172,7 +2169,7 @@ window.lunrData = {
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.46728971962616817
+                      "tf": 0.49504950495049505
                     },
                     "warpgate.crosshairs.html#.getTag": {
                       "ref": "warpgate.crosshairs.html#.getTag",
@@ -2206,7 +2203,7 @@ window.lunrData = {
                         },
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
-                          "tf": 1.4018691588785046
+                          "tf": 1.4851485148514851
                         },
                         "warpgate.html#.mutate": {
                           "ref": "warpgate.html#.mutate",
@@ -2536,7 +2533,7 @@ window.lunrData = {
                                     "docs": {
                                       "warpgate.html#.menu": {
                                         "ref": "warpgate.html#.menu",
-                                        "tf": 0.46728971962616817
+                                        "tf": 0.49504950495049505
                                       }
                                     }
                                   }
@@ -2603,7 +2600,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -2879,7 +2876,7 @@ window.lunrData = {
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.46728971962616817
+                      "tf": 0.49504950495049505
                     },
                     "warpgate.html#.mutate": {
                       "ref": "warpgate.html#.mutate",
@@ -2916,7 +2913,7 @@ window.lunrData = {
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.9345794392523363
+                      "tf": 0.9900990099009901
                     }
                   }
                 }
@@ -2959,7 +2956,7 @@ window.lunrData = {
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.46728971962616817
+                      "tf": 0.49504950495049505
                     }
                   }
                 },
@@ -3056,7 +3053,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.9345794392523363
+                    "tf": 0.9900990099009901
                   }
                 },
                 "r": {
@@ -3170,7 +3167,7 @@ window.lunrData = {
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -3185,7 +3182,7 @@ window.lunrData = {
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.46728971962616817
+                      "tf": 0.49504950495049505
                     }
                   }
                 }
@@ -3487,7 +3484,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       },
                       "warpgate.html#.spawn": {
                         "ref": "warpgate.html#.spawn",
@@ -3807,7 +3804,7 @@ window.lunrData = {
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.9345794392523363
+                      "tf": 0.9900990099009901
                     }
                   }
                 }
@@ -4799,7 +4796,7 @@ window.lunrData = {
                 "docs": {
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.46728971962616817
+                    "tf": 0.49504950495049505
                   }
                 }
               }
@@ -5150,7 +5147,7 @@ window.lunrData = {
                       "docs": {
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
-                          "tf": 0.46728971962616817
+                          "tf": 0.49504950495049505
                         }
                       }
                     }
@@ -5240,10 +5237,6 @@ window.lunrData = {
                     "MutationStack.html": {
                       "ref": "MutationStack.html",
                       "tf": 111.26582278481013
-                    },
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.46728971962616817
                     },
                     "warpgate.html#.mutationStack": {
                       "ref": "warpgate.html#.mutationStack",
@@ -6518,7 +6511,7 @@ window.lunrData = {
                       "docs": {
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
-                          "tf": 0.46728971962616817
+                          "tf": 0.49504950495049505
                         }
                       }
                     }
@@ -6532,6 +6525,10 @@ window.lunrData = {
                 "docs": {},
                 "k": {
                   "docs": {
+                    "warpgate.html#.menu": {
+                      "ref": "warpgate.html#.menu",
+                      "tf": 0.49504950495049505
+                    },
                     "warpgate.util.html#.firstOwner": {
                       "ref": "warpgate.util.html#.firstOwner",
                       "tf": 1.9230769230769231
@@ -6553,42 +6550,7 @@ window.lunrData = {
                         "docs": {
                           "warpgate.html#.menu": {
                             "ref": "warpgate.html#.menu",
-                            "tf": 0.46728971962616817
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "e": {
-                    "docs": {},
-                    "d": {
-                      "docs": {},
-                      "/": {
-                        "docs": {},
-                        "u": {
-                          "docs": {},
-                          "n": {
-                            "docs": {},
-                            "c": {
-                              "docs": {},
-                              "h": {
-                                "docs": {},
-                                "e": {
-                                  "docs": {},
-                                  "c": {
-                                    "docs": {},
-                                    "k": {
-                                      "docs": {
-                                        "warpgate.html#.menu": {
-                                          "ref": "warpgate.html#.menu",
-                                          "tf": 0.46728971962616817
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
+                            "tf": 0.49504950495049505
                           }
                         }
                       }
@@ -6683,7 +6645,7 @@ window.lunrData = {
                         "docs": {
                           "warpgate.html#.menu": {
                             "ref": "warpgate.html#.menu",
-                            "tf": 0.46728971962616817
+                            "tf": 0.49504950495049505
                           }
                         }
                       }
@@ -7359,7 +7321,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.9345794392523363
+                        "tf": 0.9900990099009901
                       },
                       "warpgate.html#.mutationStack": {
                         "ref": "warpgate.html#.mutationStack",
@@ -7417,7 +7379,7 @@ window.lunrData = {
                         "docs": {
                           "warpgate.html#.menu": {
                             "ref": "warpgate.html#.menu",
-                            "tf": 0.9345794392523363
+                            "tf": 0.9900990099009901
                           }
                         }
                       }
@@ -7919,7 +7881,7 @@ window.lunrData = {
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -7959,7 +7921,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.9345794392523363
+                    "tf": 0.9900990099009901
                   },
                   "warpgate.crosshairs.html#.collectPlaceables": {
                     "ref": "warpgate.crosshairs.html#.collectPlaceables",
@@ -8152,7 +8114,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 3.2710280373831773
+                    "tf": 3.4653465346534658
                   }
                 },
                 "u": {
@@ -8466,7 +8428,7 @@ window.lunrData = {
               },
               "warpgate.html#.menu": {
                 "ref": "warpgate.html#.menu",
-                "tf": 0.46728971962616817
+                "tf": 0.49504950495049505
               },
               "warpgate.html#.spawn": {
                 "ref": "warpgate.html#.spawn",
@@ -8507,7 +8469,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.46728971962616817
+                    "tf": 0.49504950495049505
                   },
                   "warpgate.html#.mutate": {
                     "ref": "warpgate.html#.mutate",
@@ -8587,12 +8549,7 @@ window.lunrData = {
             }
           },
           "n": {
-            "docs": {
-              "warpgate.html#.menu": {
-                "ref": "warpgate.html#.menu",
-                "tf": 0.46728971962616817
-              }
-            },
+            "docs": {},
             "d": {
               "docs": {},
               "e": {
@@ -8617,7 +8574,7 @@ window.lunrData = {
                         },
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
-                          "tf": 0.9345794392523363
+                          "tf": 0.9900990099009901
                         }
                       }
                     }
@@ -8876,34 +8833,11 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 3.7383177570093453
+                    "tf": 3.4653465346534658
                   },
                   "warpgate.event.html#.remove": {
                     "ref": "warpgate.event.html#.remove",
                     "tf": 5
-                  }
-                },
-                "e": {
-                  "docs": {},
-                  "/": {
-                    "docs": {},
-                    "f": {
-                      "docs": {},
-                      "a": {
-                        "docs": {},
-                        "l": {
-                          "docs": {},
-                          "s": {
-                            "docs": {
-                              "warpgate.html#.menu": {
-                                "ref": "warpgate.html#.menu",
-                                "tf": 0.46728971962616817
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -8943,7 +8877,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.46728971962616817
+                    "tf": 0.49504950495049505
                   },
                   "warpgate.html#.mutate": {
                     "ref": "warpgate.html#.mutate",
@@ -9001,7 +8935,7 @@ window.lunrData = {
                 "docs": {
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.46728971962616817
+                    "tf": 0.49504950495049505
                   }
                 }
               }
@@ -9159,7 +9093,7 @@ window.lunrData = {
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.9345794392523363
+                      "tf": 0.9900990099009901
                     }
                   },
                   "o": {
@@ -9508,7 +9442,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 2.336448598130841
+                        "tf": 2.4752475247524752
                       },
                       "warpgate.html#.mutate": {
                         "ref": "warpgate.html#.mutate",
@@ -9623,7 +9557,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       },
                       "warpgate.html#.spawn": {
                         "ref": "warpgate.html#.spawn",
@@ -9689,7 +9623,7 @@ window.lunrData = {
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -9722,7 +9656,7 @@ window.lunrData = {
               },
               "warpgate.html#.menu": {
                 "ref": "warpgate.html#.menu",
-                "tf": 0.46728971962616817
+                "tf": 0.49504950495049505
               },
               "warpgate.html#.spawn": {
                 "ref": "warpgate.html#.spawn",
@@ -9854,7 +9788,7 @@ window.lunrData = {
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -10108,7 +10042,7 @@ window.lunrData = {
                         "docs": {
                           "warpgate.html#.menu": {
                             "ref": "warpgate.html#.menu",
-                            "tf": 0.46728971962616817
+                            "tf": 0.49504950495049505
                           }
                         }
                       }
@@ -10564,7 +10498,7 @@ window.lunrData = {
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.9345794392523363
+                      "tf": 0.9900990099009901
                     }
                   }
                 }
@@ -10657,7 +10591,7 @@ window.lunrData = {
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.9345794392523363
+                      "tf": 0.9900990099009901
                     },
                     "warpgate.crosshairs.html#.show": {
                       "ref": "warpgate.crosshairs.html#.show",
@@ -10691,7 +10625,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 1.4018691588785046
+                    "tf": 0.9900990099009901
                   },
                   "warpgate.util.html#.firstOwner": {
                     "ref": "warpgate.util.html#.firstOwner",
@@ -11550,7 +11484,7 @@ window.lunrData = {
                       "docs": {
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
-                          "tf": 0.46728971962616817
+                          "tf": 0.49504950495049505
                         },
                         "warpgate.html#.mutate": {
                           "ref": "warpgate.html#.mutate",
@@ -11685,7 +11619,7 @@ window.lunrData = {
                         "docs": {
                           "warpgate.html#.menu": {
                             "ref": "warpgate.html#.menu",
-                            "tf": 0.46728971962616817
+                            "tf": 0.49504950495049505
                           }
                         }
                       }
@@ -11822,7 +11756,7 @@ window.lunrData = {
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.46728971962616817
+                      "tf": 0.49504950495049505
                     }
                   }
                 }
@@ -11852,7 +11786,7 @@ window.lunrData = {
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 2.336448598130841
+                        "tf": 1.9801980198019802
                       }
                     }
                   }
@@ -11958,7 +11892,7 @@ window.lunrData = {
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.9345794392523363
+                      "tf": 0.9900990099009901
                     }
                   }
                 },
@@ -12057,27 +11991,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
-                      }
-                    },
-                    "/": {
-                      "docs": {},
-                      "b": {
-                        "docs": {},
-                        "o": {
-                          "docs": {},
-                          "o": {
-                            "docs": {},
-                            "l": {
-                              "docs": {
-                                "warpgate.html#.menu": {
-                                  "ref": "warpgate.html#.menu",
-                                  "tf": 0.46728971962616817
-                                }
-                              }
-                            }
-                          }
-                        }
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -12660,7 +12574,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 1.4018691588785046
+                        "tf": 1.4851485148514851
                       },
                       "warpgate.event.html#.watch": {
                         "ref": "warpgate.event.html#.watch",
@@ -12676,7 +12590,7 @@ window.lunrData = {
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.46728971962616817
+                      "tf": 0.49504950495049505
                     }
                   }
                 }
@@ -12754,7 +12668,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.9345794392523363
+                    "tf": 0.9900990099009901
                   }
                 }
               }
@@ -12765,7 +12679,7 @@ window.lunrData = {
                 "docs": {
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.46728971962616817
+                    "tf": 0.49504950495049505
                   },
                   "warpgate.crosshairs.html#.show": {
                     "ref": "warpgate.crosshairs.html#.show",
@@ -12825,7 +12739,7 @@ window.lunrData = {
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 1.4018691588785046
+                    "tf": 1.4851485148514851
                   },
                   "warpgate.event.html#.notify": {
                     "ref": "warpgate.event.html#.notify",
@@ -13142,7 +13056,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 12.045690550363448
+                        "tf": 12.101210121012102
                       }
                     },
                     "d": {
@@ -13178,7 +13092,12 @@ window.lunrData = {
             "o": {
               "docs": {},
               "l": {
-                "docs": {},
+                "docs": {
+                  "warpgate.html#.menu": {
+                    "ref": "warpgate.html#.menu",
+                    "tf": 0.49504950495049505
+                  }
+                },
                 "e": {
                   "docs": {},
                   "a": {
@@ -13191,7 +13110,7 @@ window.lunrData = {
                         },
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
-                          "tf": 1.4018691588785046
+                          "tf": 1.4851485148514851
                         },
                         "warpgate.util.html#.isFirstGM": {
                           "ref": "warpgate.util.html#.isFirstGM",
@@ -13410,7 +13329,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       },
                       "warpgate.html#.wait": {
                         "ref": "warpgate.html#.wait",
@@ -13451,7 +13370,7 @@ window.lunrData = {
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.46728971962616817
+                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -13497,7 +13416,7 @@ window.lunrData = {
                 "docs": {
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.9345794392523363
+                    "tf": 0.9900990099009901
                   }
                 }
               }
@@ -13557,7 +13476,7 @@ window.lunrData = {
           }
         }
       },
-      "length": 1117
+      "length": 1114
     },
     "corpusTokens": [
       "_drawcontrolicon",
@@ -13603,6 +13522,7 @@ window.lunrData = {
       "below",
       "between",
       "bias",
+      "bool",
       "boolean",
       "broadcast",
       "buffer",
@@ -13619,7 +13539,6 @@ window.lunrData = {
       "charact",
       "check",
       "checkbox",
-      "checked/uncheck",
       "choic",
       "chosen",
       "circl",
@@ -14006,7 +13925,6 @@ window.lunrData = {
       "stop",
       "store",
       "string",
-      "string/bool",
       "subset",
       "suitabl",
       "support",
@@ -14036,7 +13954,6 @@ window.lunrData = {
       "two",
       "type",
       "typedef",
-      "un",
       "undefin",
       "under",
       "unless",
@@ -14056,7 +13973,6 @@ window.lunrData = {
       "util.isfirstgm",
       "util.isfirstown",
       "valu",
-      "value/fals",
       "via",
       "wait",
       "warp",
@@ -14563,7 +14479,7 @@ window.lunrData = {
       "name": "menu",
       "tags": "warpgate.menu menu",
       "summary": "",
-      "description": "Advanced dialog helper providing multiple input type options as well as user defined buttons. type options Return Value Notes header none undefined Shortcut for `info info none undefined Inserts a line of text for display/informational purposes. text default value {String} final value of text field password (as text) (as text) Characters are obscured for security. radio [group name, default state (false)] {Array of String/Bool} selected: {Class} value. un-selected: {Boolean} false For a given group name, only one radio button can be selected. checkbox default state (false) {Boolean} {Boolean} value/false checked/unchecked label is used for the HTML element's name property number (as text) {Number} final value of text field converted to a number select array of option labels or objects {value, html} value property of selected option. If values not provided, numeric index of option in original list"
+      "description": "Advanced dialog helper providing multiple input type options as well as user defined buttons. type options Return Value Notes header none undefined Shortcut for `info info none undefined Inserts a line of text for display/informational purposes. text default value {String} final value of text field password (as text) (as text) Characters are obscured for security. radio [group name, default state (false)] {Array of Bool} {Boolean} selected For a given group name, only one radio button can be selected. checkbox default state (false) {Boolean} {Boolean} checked label is used for the HTML element's name property number (as text) {Number} final value of text field converted to a number select array of option labels or objects {value, html} value property of selected option. If values not provided, numeric index of option in original list"
     },
     "warpgate.html#.mutate": {
       "id": "warpgate.html#.mutate",
