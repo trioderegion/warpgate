@@ -1,6 +1,6 @@
 import {
   logger
-} from './logger.js'
+} from './module.js'
 
 const NAME = 'Events';
 

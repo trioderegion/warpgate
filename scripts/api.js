@@ -16,16 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { logger } from './logger.js'
-
-import { Gateway } from './gateway.js'
-import { Mutator } from './mutator.js'
-import { MODULE } from './module.js'
-import { Comms } from './comms.js'
-import { Events } from './events.js'
-import { queueUpdate } from './update-queue.js'
-import { Crosshairs } from './crosshairs.js'
-import { MutationStack } from './mutation-stack.js'
+import { dismissSpawn, showCrosshairs, collectPlaceables, _rollItemGetLevel, _spawnTokenAtLocation } from './gateway.js';
+import { mutate, revertMutation, batchMutate, batchRevert, clean, _updateActor } from './mutator.js';
+import { MODULE, logger } from './module.js';
+import { notifyEvent, requestNotice } from './comms.js';
+import { Events } from './events.js';
+import { queueUpdate } from './update-queue.js';
+import { Crosshairs } from './crosshairs.js';
+import { MutationStack } from './mutation-stack.js';
 
 /** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
 /** @typedef {import('./mutator.js').WorkflowOptions} WorkflowOptions */
@@ -204,9 +202,9 @@ export class api {
     window[MODULE.data.name] = {
       spawn : api._spawn,
       spawnAt : api._spawnAt,
-      dismiss : Gateway.dismissSpawn,
-      mutate : Mutator.mutate,
-      revert : Mutator.revertMutation,
+      dismiss : dismissSpawn,
+      mutate : mutate,
+      revert : revertMutation,
       /**
        * Factory method for creating a new mutation stack class from
        * the provided token document
@@ -248,9 +246,9 @@ export class api {
        * @borrows Gateway.collectPlaceables as collectPlaceables
        */
       crosshairs: {
-        show: Gateway.showCrosshairs,
+        show: showCrosshairs,
         getTag: Crosshairs.getTag,
-        collect: Gateway.collectPlaceables,
+        collect: collectPlaceables,
       },
       /**
        * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
@@ -263,8 +261,8 @@ export class api {
       plugin: {
         queueUpdate,
         notice: api._notice,
-        batchMutate: Mutator.batchMutate,
-        batchRevert: Mutator.batchRevert,
+        batchMutate,
+        batchRevert,
       },
       /**
        * @summary System specific helpers
@@ -276,7 +274,7 @@ export class api {
       get dnd5e() {
         foundry.utils.logCompatibilityWarning(`[${MODULE.data.name}] System-specific namespaces and helper functions have been deprecated. Please convert to system provided functions.`, {since: 1.16, until: 2, details:`Migration details:\nrollItem(Item) to Item#use()`});
 
-        return {rollItem : Gateway._rollItemGetLevel}
+        return {rollItem : _rollItemGetLevel}
       },
       /**
        * @description Constants and enums for use in embedded shorthand fields
@@ -367,7 +365,7 @@ export class api {
         watch : Events.watch,
         trigger : Events.trigger,
         remove : Events.remove,
-        notify : Comms.notifyEvent,
+        notify : notifyEvent,
       },
       /**
        * @summary Warp Gate classes suitable for extension
@@ -459,7 +457,7 @@ export class api {
     crosshairsConfig.direction += rotation;
 
     /** @type {CrosshairsData} */
-    const templateData = await Gateway.showCrosshairs(crosshairsConfig, callbacks);
+    const templateData = await showCrosshairs(crosshairsConfig, callbacks);
 
     const eventPayload = {
       templateData: (options.overrides?.includeRawData ?? false) ? templateData : {x: templateData.x, y: templateData.y, size: templateData.size, cancelled: templateData.cancelled},
@@ -542,7 +540,7 @@ export class api {
     updates.actor = mergeObject({flags: actorFlags}, updates.actor ?? {}, {inplace: false})
 
     const duplicates = options.duplicates > 0 ? options.duplicates : 1;
-    Mutator.clean(null, options);
+    await clean(null, options);
 
     if(options.notice) warpgate.plugin.notice({...spawnLocation, scene: canvas.scene}, options.notice); 
 
@@ -555,7 +553,7 @@ export class api {
         /* pre create callbacks can skip this spawning iteration */
         if(response === false) continue;
       }
-      await Mutator.clean(updates);
+      await clean(updates);
 
       /* merge in changes to the prototoken */
       if(iteration == 0){
@@ -573,7 +571,7 @@ export class api {
       //TODO integrate into stock event data instead of hijacking mutate events
 
       /** @type Object */
-      const spawnedTokenDoc = (await Gateway._spawnTokenAtLocation(protoData,
+      const spawnedTokenDoc = (await _spawnTokenAtLocation(protoData,
         spawnLocation,
         options.collision ?? (options.duplicates > 1)))[0];
 
@@ -581,7 +579,7 @@ export class api {
 
       logger.debug('Spawned token with data: ', spawnedTokenDoc);
 
-      await Mutator._updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
+      await _updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
 
       const eventPayload = {
         uuid: spawnedTokenDoc.uuid,
@@ -617,7 +615,7 @@ export class api {
     config.receivers ??= warpgate.USERS.SELF;
     scene ??= canvas.scene;
 
-    return Comms.requestNotice({x,y}, scene.id, config);
+    return requestNotice({x,y}, scene.id, config);
   }
 
 }

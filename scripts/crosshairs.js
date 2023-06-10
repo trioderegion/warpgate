@@ -15,7 +15,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { logger } from './logger.js'
 import { MODULE } from './module.js'
 
 /** @typedef {import('@league-of-foundry-developers/foundry-vtt-types/src/foundry/common/data/data.mjs/measuredTemplateData.js').MeasuredTemplateDataProperties} MeasuredTemplateProperties */

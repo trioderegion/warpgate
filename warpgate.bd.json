@@ -7,10 +7,15 @@
     "main": "scripts/warpgate.js",
     "lang": "lang/**"
   },
-  "static": [],
   "profile": {
-    "dev":{
+    "dev10":{
       "dest":"G:/FoundryVTTData/v10_Data/Data/modules",
+      "compress":false,
+      "sourcemaps": true,
+      "clean": true
+    },
+    "dev":{
+      "dest":"G:/FoundryVTTData/v11_Data/Data/modules",
       "compress":false,
       "sourcemaps": true,
       "clean": true

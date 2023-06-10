@@ -21,37 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { MODULE } from './module.js';
-import { logger } from './logger.js';
+import { MODULE, logger } from './module.js';
 import { api } from './api.js';
-import { Gateway } from './gateway.js';
-import { Mutator } from './mutator.js';
-import { RemoteMutator } from './remote-mutator.js'
+import { register as rGateway } from './gateway.js';
+import { register as rMutator } from './mutator.js';
+import { register as rRemoteMutator } from './remote-mutator.js'
 import { UserInterface } from './user-interface.js';
-import { Comms } from './comms.js';
+import { register as rComms } from './comms.js';
 
 const SUB_MODULES = {
   MODULE,
   logger,
   api,
-  Gateway,
-  Mutator,
-  RemoteMutator,
+  Gateway: {register: rGateway},
+  Mutator: {register: rMutator},
+  RemoteMutator: {register: rRemoteMutator},
   UserInterface,
-  Comms
+  Comms: {register: rComms}
 }
-
-/*
-  Initialize Module
-*/
-MODULE.build();
 
 /*
   Initialize all Sub Modules
 */
 Hooks.on(`setup`, () => {
   Object.values(SUB_MODULES).forEach(cl => cl.register());
-
-  //GlobalTesting
-  //Object.entries(SUB_MODULES).forEach(([key, cl])=> window[key] = cl);
 });
