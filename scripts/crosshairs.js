@@ -455,8 +455,10 @@ export class Crosshairs extends MeasuredTemplate {
 
   _clearHandlers(event) {
     //WARPGATE BEGIN
-    /* remove only ourselves, in case of multiple */
-    this.layer.preview.removeChild(this);
+    /* destroy ourselves */
+    this.document.object.destroy();
+	this.template.destroy()
+	this.destroy();
     
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
@@ -468,9 +470,6 @@ export class Crosshairs extends MeasuredTemplate {
     if (this.actorSheet) this.actorSheet.maximize();
     this.activeHandlers = false;
     this.inFlight = false;
-
-    /* mark this pixi element as destroyed */
-    this._destroyed = true;
 	//WARPGATE END
     
     /* re-enable interactivity on this layer */
