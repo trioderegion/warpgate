@@ -457,8 +457,9 @@ export class Crosshairs extends MeasuredTemplate {
     //WARPGATE BEGIN
     /* destroy ourselves */
     this.document.object.destroy();
-	this.template.destroy()
-	this.destroy();
+    this.template.destroy();
+    this.layer.preview.removeChild(this);
+    this._destroyed = true;
     
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
