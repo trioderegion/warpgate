@@ -1,8 +1,8 @@
 {
   "version": "1.16.3",
   "title": "Warp Gate",
-  "description": "Utility module providing system-agnostic functions for creating and modifying tokens, p2p \"hooks\", lookup helpers, and more.",
-  "projectUrl": "https://www.github.com/trioderegion/warpgate",
+  "description": "Library module providing system-agnostic functions for creating tokens, modifying and reverting actors, canvas interactions, peer-to-peer hooks, and more. Warp Gate makes your life easier and your code safer.",
+  "projectUrl": "https://trioderegion.github.io/warpgate/warpgate.html",
   "entryPoints": {
     "main": "scripts/warpgate.js",
     "lang": "lang/**"
