@@ -455,17 +455,25 @@ export class Crosshairs extends MeasuredTemplate {
 
   _clearHandlers(event) {
     //WARPGATE BEGIN
-    /* remove only ourselves, in case of multiple */
+    /* destroy ourselves */
+    this.document.object.destroy();
+    this.template.destroy();
     this.layer.preview.removeChild(this);
+    this._destroyed = true;
     
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.onmousedown = null;
     canvas.app.view.onmouseup = null;
     canvas.app.view.onwheel = null;
-		//WARPGATE END
+
+    // Show the sheet that originated the preview
+    if (this.actorSheet) this.actorSheet.maximize();
+    this.activeHandlers = false;
+    this.inFlight = false;
+	//WARPGATE END
     
-		/* re-enable interactivity on this layer */
+    /* re-enable interactivity on this layer */
     this.layer.interactiveChildren = true;
 
     /* moving off this layer also deletes ALL active previews?
@@ -474,16 +482,6 @@ export class Crosshairs extends MeasuredTemplate {
     if (this.layer.preview.children.length == 0) {
       this.initialLayer.activate();
     }
-
-    //BEGIN WARPGATE
-    // Show the sheet that originated the preview
-    if (this.actorSheet) this.actorSheet.maximize();
-    this.activeHandlers = false;
-    this.inFlight = false;
-
-    /* mark this pixi element as destroyed */
-    this._destroyed = true;
-    //END WARPGATE
   }
 
   /**
