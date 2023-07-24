@@ -560,15 +560,14 @@ window.lunrData = {
           "top",
           "without"
         ],
-        "PlaceableFit.exports.PlaceableFit.html": [
+        "PlaceableFit_PlaceableFit.html": [
           "bound",
           "class",
-          "exports.placeablefit",
           "fit",
           "initi",
           "new",
           "placeablefit",
-          "placeablefit.exports.placeablefit",
+          "placeablefit#placeablefit",
           "provid",
           "search"
         ],
@@ -3194,8 +3193,8 @@ window.lunrData = {
                       "ref": "PlaceableFit.html",
                       "tf": 2
                     },
-                    "PlaceableFit.exports.PlaceableFit.html": {
-                      "ref": "PlaceableFit.exports.PlaceableFit.html",
+                    "PlaceableFit_PlaceableFit.html": {
+                      "ref": "PlaceableFit_PlaceableFit.html",
                       "tf": 8.333333333333332
                     },
                     "warpgate.event.html#.notify": {
@@ -5326,8 +5325,8 @@ window.lunrData = {
                       "ref": "PlaceableFit.html",
                       "tf": 112
                     },
-                    "PlaceableFit.exports.PlaceableFit.html": {
-                      "ref": "PlaceableFit.exports.PlaceableFit.html",
+                    "PlaceableFit_PlaceableFit.html": {
+                      "ref": "PlaceableFit_PlaceableFit.html",
                       "tf": 110
                     },
                     "warpgate.html#.mutationStack": {
@@ -7421,8 +7420,8 @@ window.lunrData = {
                         "ref": "PlaceableFit.html#spaceClear",
                         "tf": 5.555555555555555
                       },
-                      "PlaceableFit.exports.PlaceableFit.html": {
-                        "ref": "PlaceableFit.exports.PlaceableFit.html",
+                      "PlaceableFit_PlaceableFit.html": {
+                        "ref": "PlaceableFit_PlaceableFit.html",
                         "tf": 8.333333333333332
                       },
                       "warpgate.html": {
@@ -7591,9 +7590,9 @@ window.lunrData = {
                                     "ref": "PlaceableFit.html",
                                     "tf": 1900
                                   },
-                                  "PlaceableFit.exports.PlaceableFit.html": {
-                                    "ref": "PlaceableFit.exports.PlaceableFit.html",
-                                    "tf": 100
+                                  "PlaceableFit_PlaceableFit.html": {
+                                    "ref": "PlaceableFit_PlaceableFit.html",
+                                    "tf": 650
                                   }
                                 },
                                 "#": {
@@ -7755,61 +7754,34 @@ window.lunrData = {
                                         }
                                       }
                                     }
-                                  }
-                                },
-                                ".": {
-                                  "docs": {},
-                                  "e": {
+                                  },
+                                  "p": {
                                     "docs": {},
-                                    "x": {
+                                    "l": {
                                       "docs": {},
-                                      "p": {
+                                      "a": {
                                         "docs": {},
-                                        "o": {
+                                        "c": {
                                           "docs": {},
-                                          "r": {
+                                          "e": {
                                             "docs": {},
-                                            "t": {
+                                            "a": {
                                               "docs": {},
-                                              "s": {
+                                              "b": {
                                                 "docs": {},
-                                                ".": {
+                                                "l": {
                                                   "docs": {},
-                                                  "p": {
+                                                  "e": {
                                                     "docs": {},
-                                                    "l": {
+                                                    "f": {
                                                       "docs": {},
-                                                      "a": {
+                                                      "i": {
                                                         "docs": {},
-                                                        "c": {
-                                                          "docs": {},
-                                                          "e": {
-                                                            "docs": {},
-                                                            "a": {
-                                                              "docs": {},
-                                                              "b": {
-                                                                "docs": {},
-                                                                "l": {
-                                                                  "docs": {},
-                                                                  "e": {
-                                                                    "docs": {},
-                                                                    "f": {
-                                                                      "docs": {},
-                                                                      "i": {
-                                                                        "docs": {},
-                                                                        "t": {
-                                                                          "docs": {
-                                                                            "PlaceableFit.exports.PlaceableFit.html": {
-                                                                              "ref": "PlaceableFit.exports.PlaceableFit.html",
-                                                                              "tf": 1200
-                                                                            }
-                                                                          }
-                                                                        }
-                                                                      }
-                                                                    }
-                                                                  }
-                                                                }
-                                                              }
+                                                        "t": {
+                                                          "docs": {
+                                                            "PlaceableFit_PlaceableFit.html": {
+                                                              "ref": "PlaceableFit_PlaceableFit.html",
+                                                              "tf": 1250
                                                             }
                                                           }
                                                         }
@@ -10454,63 +10426,27 @@ window.lunrData = {
                 }
               }
             },
+            "t": {
+              "docs": {},
+              "e": {
+                "docs": {},
+                "n": {
+                  "docs": {},
+                  "s": {
+                    "docs": {
+                      "warpgate.abstract.html": {
+                        "ref": "warpgate.abstract.html",
+                        "tf": 14
+                      }
+                    }
+                  }
+                }
+              }
+            },
             "p": {
               "docs": {},
               "o": {
                 "docs": {},
-                "r": {
-                  "docs": {},
-                  "t": {
-                    "docs": {},
-                    "s": {
-                      "docs": {},
-                      ".": {
-                        "docs": {},
-                        "p": {
-                          "docs": {},
-                          "l": {
-                            "docs": {},
-                            "a": {
-                              "docs": {},
-                              "c": {
-                                "docs": {},
-                                "e": {
-                                  "docs": {},
-                                  "a": {
-                                    "docs": {},
-                                    "b": {
-                                      "docs": {},
-                                      "l": {
-                                        "docs": {},
-                                        "e": {
-                                          "docs": {},
-                                          "f": {
-                                            "docs": {},
-                                            "i": {
-                                              "docs": {},
-                                              "t": {
-                                                "docs": {
-                                                  "PlaceableFit.exports.PlaceableFit.html": {
-                                                    "ref": "PlaceableFit.exports.PlaceableFit.html",
-                                                    "tf": 600
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
                 "s": {
                   "docs": {
                     "warpgate.event.html": {
@@ -10529,23 +10465,6 @@ window.lunrData = {
                       "warpgate.util.html#.RingGenerator": {
                         "ref": "warpgate.util.html#.RingGenerator",
                         "tf": 5
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "t": {
-              "docs": {},
-              "e": {
-                "docs": {},
-                "n": {
-                  "docs": {},
-                  "s": {
-                    "docs": {
-                      "warpgate.abstract.html": {
-                        "ref": "warpgate.abstract.html",
-                        "tf": 14
                       }
                     }
                   }
@@ -11291,8 +11210,8 @@ window.lunrData = {
                   "ref": "PlaceableFit.html#spaceClear",
                   "tf": 5.555555555555555
                 },
-                "PlaceableFit.exports.PlaceableFit.html": {
-                  "ref": "PlaceableFit.exports.PlaceableFit.html",
+                "PlaceableFit_PlaceableFit.html": {
+                  "ref": "PlaceableFit_PlaceableFit.html",
                   "tf": 8.333333333333332
                 }
               }
@@ -12464,8 +12383,8 @@ window.lunrData = {
                         "ref": "PlaceableFit.html#find",
                         "tf": 7.142857142857142
                       },
-                      "PlaceableFit.exports.PlaceableFit.html": {
-                        "ref": "PlaceableFit.exports.PlaceableFit.html",
+                      "PlaceableFit_PlaceableFit.html": {
+                        "ref": "PlaceableFit_PlaceableFit.html",
                         "tf": 8.333333333333332
                       }
                     }
@@ -13401,8 +13320,8 @@ window.lunrData = {
             },
             "w": {
               "docs": {
-                "PlaceableFit.exports.PlaceableFit.html": {
-                  "ref": "PlaceableFit.exports.PlaceableFit.html",
+                "PlaceableFit_PlaceableFit.html": {
+                  "ref": "PlaceableFit_PlaceableFit.html",
                   "tf": 8.333333333333332
                 },
                 "warpgate.html#.mutationStack": {
@@ -13961,8 +13880,8 @@ window.lunrData = {
                       "ref": "PlaceableFit.html#find",
                       "tf": 7.142857142857142
                     },
-                    "PlaceableFit.exports.PlaceableFit.html": {
-                      "ref": "PlaceableFit.exports.PlaceableFit.html",
+                    "PlaceableFit_PlaceableFit.html": {
+                      "ref": "PlaceableFit_PlaceableFit.html",
                       "tf": 8.333333333333332
                     }
                   }
@@ -14414,7 +14333,7 @@ window.lunrData = {
           }
         }
       },
-      "length": 1177
+      "length": 1176
     },
     "corpusTokens": [
       "_collisionbound",
@@ -14592,7 +14511,6 @@ window.lunrData = {
       "except",
       "execut",
       "explor",
-      "exports.placeablefit",
       "expos",
       "extens",
       "factori",
@@ -14780,8 +14698,8 @@ window.lunrData = {
       "placeablefit#_collisionbound",
       "placeablefit#_offsetcollideswal",
       "placeablefit#find",
+      "placeablefit#placeablefit",
       "placeablefit#spaceclear",
-      "placeablefit.exports.placeablefit",
       "placeableobject&gt",
       "placement",
       "player",
@@ -15433,13 +15351,13 @@ window.lunrData = {
       "summary": "",
       "description": "With the provided origin (top left), can this placeable fit without overlapping other placeables?"
     },
-    "PlaceableFit.exports.PlaceableFit.html": {
-      "id": "PlaceableFit.exports.PlaceableFit.html",
+    "PlaceableFit_PlaceableFit.html": {
+      "id": "PlaceableFit_PlaceableFit.html",
       "kind": "class",
-      "title": "PlaceableFit.exports.PlaceableFit",
-      "longname": "PlaceableFit.exports.PlaceableFit",
-      "name": "exports.PlaceableFit",
-      "tags": "PlaceableFit.exports.PlaceableFit exports.PlaceableFit PlaceableFit",
+      "title": "PlaceableFit#PlaceableFit",
+      "longname": "PlaceableFit#PlaceableFit",
+      "name": "PlaceableFit",
+      "tags": "PlaceableFit#PlaceableFit PlaceableFit",
       "summary": "",
       "description": "Initialize new \"fit\" search from the provided bounds.",
       "body": ""

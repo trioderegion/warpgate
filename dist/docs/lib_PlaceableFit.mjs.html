@@ -161,7 +161,6 @@ export function* RingGenerator(origin, numRings) {
  * the requested position to a nearby position free of other
  * tokens (by default, but accepts arbitrary canvas layers with quad trees)
  *
- * @export
  * @class PlaceableFit
  */
 export class PlaceableFit {
@@ -171,7 +170,7 @@ export class PlaceableFit {
    *
    * @param {{x:Number, y:Number, width:Number, height:Number}} bounds
    * @param {Object} [options]
-   * @memberof PlaceableFit
+   * @constructor
    */
   constructor(bounds, options = {}) {
     this.options = {

@@ -1539,6 +1539,7 @@ class Events {
  */
 
 
+/** @ignore */
 const NAME$1 = "Mutator";
 
 /** @typedef {import('./api.js').ComparisonKeys} ComparisonKeys */
@@ -3772,7 +3773,6 @@ function* RingGenerator(origin, numRings) {
  * the requested position to a nearby position free of other
  * tokens (by default, but accepts arbitrary canvas layers with quad trees)
  *
- * @export
  * @class PlaceableFit
  */
 class PlaceableFit {
@@ -3782,7 +3782,7 @@ class PlaceableFit {
    *
    * @param {{x:Number, y:Number, width:Number, height:Number}} bounds
    * @param {Object} [options]
-   * @memberof PlaceableFit
+   * @constructor
    */
   constructor(bounds, options = {}) {
     this.options = {

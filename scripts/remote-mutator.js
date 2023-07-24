@@ -19,8 +19,6 @@ import {MODULE, logger} from './module.js'
 import {requestMutate, requestRevert} from './comms.js'
 import {mutate, revertMutation} from './mutator.js'
 
-const NAME = "RemoteMutator";
-
 class RemoteMutator {
 
   static register() {
