@@ -1,4 +1,4 @@
-import {Propagator} from './propagator.js'
+import { Propagator } from "./propagator.js";
 
 /**
  * Generator function for exploring vertex-connected grid locations in an
@@ -55,7 +55,7 @@ export function* RingGenerator(origin, numRings) {
     ring += 1;
   }
 
-  return {x: null, y: null};
+  return { x: null, y: null };
 }
 
 /**
@@ -86,7 +86,12 @@ export class PlaceableFit {
 
     foundry.utils.mergeObject(this.options, options);
 
-    this.bounds = new PIXI.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
+    this.bounds = new PIXI.Rectangle(
+      bounds.x,
+      bounds.y,
+      bounds.width,
+      bounds.height
+    );
 
     if (this.options.visualize) canvas.controls?.debug?.clear?.();
   }
@@ -160,7 +165,6 @@ export class PlaceableFit {
    * @memberof PlaceableFit
    */
   find() {
-
     if (game.release?.generation < 11) {
       return Propagator.getFreePosition(this.bounds, this.bounds);
     }

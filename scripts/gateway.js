@@ -268,7 +268,7 @@ class Gateway {
       }
     }
 
-    logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
+    logger.debug(`Deleting ${tokenData.uuid}`);
 
     if (!MODULE.firstGM()) {
       logger.error(MODULE.localize("error.noGm"));
@@ -277,9 +277,15 @@ class Gateway {
 
     /** first gm drives */
     if (MODULE.isFirstGM()) {
+      
+      if( tokenData.isLinked ) {
+        logger.debug('...and removing control flag from linked token actor');
+        await tokenData.actor?.unsetFlag(MODULE.data.name, 'control');
+      }
       const tokenDocs = await game.scenes
         .get(sceneId)
         .deleteEmbeddedDocuments("Token", [tokenId]);
+
       const actorData = packToken(tokenDocs[0]);
       await warpgate.event.notify(
         warpgate.EVENT.DISMISS,

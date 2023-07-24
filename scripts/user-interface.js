@@ -59,7 +59,7 @@ export class UserInterface {
     MODULE.applySettings(settingsData);
   }
 
-  static _renderActorSheet(app, html, data) {
+  static _renderActorSheet(app, html) {
     
     UserInterface.addDismissButton(app, html);
     UserInterface.addRevertMutation(app, html);
@@ -77,8 +77,7 @@ export class UserInterface {
         const controlData = token?.actor.getFlag(MODULE.data.name, 'control');
 
         /** do not add the button if we are not the controlling actor AND we aren't the GM */
-        if ( !(controlData?.user === game.user.id) &&
-          !game.user.isGM) return false;
+        if ( controlData?.user !== game.user.id ) return false;
 
         return !!controlData;
       case 'all':
