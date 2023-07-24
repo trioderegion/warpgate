@@ -28,45 +28,18 @@
     }
   ],
   "packs": [],
-  "documentTypes": {
-    "Item": {
-      "trickwep": {
-        "htmlFields": [
-          "description.value",
-          "description.chat",
-          "description.unidentified"
-        ],
-        "filePathFields": {
-          "img": [
-            "IMAGE"
-          ]
-        }
-      },
-      "example-subtype": {
-        "htmlFields": [
-          "description.value",
-          "description.chat",
-          "description.unidentified"
-        ],
-        "filePathFields": {
-          "img": [
-            "IMAGE"
-          ]
-        }
-      }
-    }
-  },
+  "documentTypes": {},
   "externals": [],
   "compatibility": {
     "minimum": "10",
-    "verified": "11.300"
+    "verified": "11.306"
   },
   "relationships": {
     "systems": [],
     "modules": []
   },
   "description": "Library module providing system-agnostic functions for creating tokens, modifying and reverting actors, canvas interactions, peer-to-peer hooks, and more. Warp Gate makes your life easier and your code safer.",
-  "version": "1.16.3",
+  "version": "x",
   "authors": [
     {
       "name": "honeybadger",
