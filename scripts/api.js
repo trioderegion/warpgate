@@ -24,6 +24,7 @@ import { Events } from './events.js';
 import { queueUpdate } from './update-queue.js';
 import { Crosshairs } from './crosshairs.js';
 import { MutationStack } from './mutation-stack.js';
+import {PlaceableFit, RingGenerator} from './lib/PlaceableFit.mjs'
 
 /** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
 /** @typedef {import('./mutator.js').WorkflowOptions} WorkflowOptions */
@@ -229,12 +230,14 @@ export class api {
        * @borrows MODULE.isFirstGM as isFirstGM
        * @borrows MODULE.firstOwner as firstOwner
        * @borrows MODULE.isFirstOwner as isFirstOwner
+       * @borrows RingGenerator as RingGenerator
        */
       util: {
         firstGM : MODULE.firstGM,
         isFirstGM : MODULE.isFirstGM,
         firstOwner : MODULE.firstOwner,
         isFirstOwner : MODULE.isFirstOwner,
+        RingGenerator,
       },
 
       /**
@@ -263,6 +266,7 @@ export class api {
         notice: api._notice,
         batchMutate,
         batchRevert,
+        RingGenerator,
       },
       /**
        * @summary System specific helpers
@@ -373,10 +377,12 @@ export class api {
        * @alias warpgate.abstract
        * @property {Crosshairs} Crosshairs
        * @property {MutationStack} MutationStack
+       * @property {PlaceableFit} PlaceableFit
        */
       abstract : {
         Crosshairs,
-        MutationStack
+        MutationStack,
+        PlaceableFit,
       }
     }
   }

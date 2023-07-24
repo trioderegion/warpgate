@@ -28,7 +28,7 @@ export class MODULE {
         return (
           {
             10: root.canvas.app.renderer.plugins.interaction.mouse,
-          }[gen] ?? canvas.app.renderer.plugins.interaction.pointer
+          }[gen] ?? canvas.app.renderer.events.pointer
         );
       case "crosshairs.computeShape":
         return (

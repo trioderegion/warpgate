@@ -59,8 +59,8 @@ export class Propagator{
   static canFit(tokenData, position, origin, collision){
     for(let i = 0; i < tokenData.width; i++){
       for(let j = 0; j < tokenData.height; j++){
-        const x = position.x + j*canvas.scene.dimensions.size;
-        const y = position.y + i*canvas.scene.dimensions.size;
+        const x = position.x + j;
+        const y = position.y + i;
         if(!Propagator.isFree({x,y})){
           return false;
         }
@@ -68,8 +68,8 @@ export class Propagator{
     }
     const wallCollisions = canvas.walls.checkCollision(
       new Ray(origin, {
-        x:position.x+tokenData.width*canvas.scene.dimensions.size/2,
-        y:position.y+tokenData.height*canvas.scene.dimensions.size/2
+        x:position.x+tokenData.width/2,
+        y:position.y+tokenData.height/2
       }),{ type: "move" }
     )?.length ?? 0;
 
