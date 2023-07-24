@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-		<title>update-queue.js</title>
+		<title>lib/PlaceableFit.mjs</title>
 		<!--[if lt IE 9]>
 		<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
@@ -85,7 +85,7 @@
 	<!-- end:navbar.hbs -->		<div class="page-header">
 			<div class="container">
 				<span class="kind">source</span>
-				<h1><span class="name">update-queue.js</span></h1>
+				<h1><span class="name">lib/PlaceableFit.mjs</span></h1>
 			</div>
 		</div>
 	<div class="container content">
@@ -93,112 +93,200 @@
 			<div class="col-md-12 main-content">
 		<section class="source-section">
 			<article></article>
-			<pre class="prettyprint source language-javascript line-numbers"><code class="language-javascript">/*
- * MIT License
- * 
- * Copyright (c) 2021 DnD5e Helpers Team
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+			<pre class="prettyprint source language-javascript line-numbers"><code class="language-javascript">import { Propagator } from "./propagator.js";
+
+/**
+ * Generator function for exploring vertex-connected grid locations in an
+ * outward "ring" pattern.
+ *
+ * @export
+ * @generator
+ * @name warpgate.util.RingGenerator
+ * @param {{x:Number, y:Number}} origin Staring location (pixels) for search
+ * @param {Number} numRings
+ * @yields {{x: Number, y: Number}} pixel location of next grid-ring-connected origin
  */
-import {MODULE} from './module.js'
+export function* RingGenerator(origin, numRings) {
+  const gridLoc = canvas.grid.grid.getGridPositionFromPixels(
+    origin.x,
+    origin.y
+  );
 
-let updateQueues = new Map();
+  const positions = new Set();
 
-/** 
- * Safely manages concurrent updates to the provided entity type
- * @function warpgate.plugin.queueUpdate
- * @param {Function} updateFn   the function that handles the actual update (can be async)
- */
-export function queueUpdate(updateFn) {
+  const seen = (position) => {
+    const key = position.join(".");
+    if (positions.has(key)) return true;
 
-  /** queue the update for this entity */
-  getQueue().queueUpdate(updateFn);
-}
+    positions.add(key);
+    return false;
+  };
 
-export function flush() {
-  return getQueue().flush();
-}
+  seen(gridLoc);
+  let queue = [gridLoc];
+  let ring = 0;
 
-function getQueue(entity = "default"){
-  /** if this is a new entity type, create the queue object to manage it */
-  if(!updateQueues.has(entity)) {
-    updateQueues.set(entity, new UpdateQueue(entity));
+  /* include seed point in iterator */
+  yield { x: origin.x, y: origin.y };
+
+  /* if this is off-grid, also check the snap location */
+  const snapped = canvas.grid.getSnappedPosition(origin.x, origin.y);
+  const snappedIndex = canvas.grid.grid.getGridPositionFromPixels(
+    snapped.x,
+    snapped.y
+  );
+  if (!seen(snappedIndex)) {
+    queue = [snappedIndex];
+    yield snapped;
   }
 
-  /** queue the update for this entity */
-  return updateQueues.get(entity);
-}
+  while (queue.length > 0 &amp;&amp; ring &lt; numRings) {
+    const next = queue.flatMap((loc) => canvas.grid.grid.getNeighbors(...loc));
+    queue = next.filter((loc) => !seen(loc));
 
-/** 
- * Helper class to manage database updates that occur from
- * hooks that may fire back to back.
- * @ignore
- */
-class UpdateQueue {
-  constructor(entityType) {
-
-    /** self identification */
-    this.entityType = entityType;
-
-    /** buffer of update functions to run */
-    this.queue = [];
-
-    /** Semaphore for 'batch update in progress' */
-    this.inFlight = false;
-  }
-
-  queueUpdate(fn) {
-    this.queue.push(fn);
-
-    /** only kick off a batch of updates if none are in flight */
-    if (!this.inFlight) {
-      this.runUpdate();
-    }
-  }
-
-  flush() {
-    return MODULE.waitFor( () => !this.inFlight )
-  }
-
-  async runUpdate(){
-
-    this.inFlight = true;
-
-    while(this.queue.length > 0) {
-
-
-      /** grab the last update in the list and hold onto its index
-       *  in case another update pushes onto this array before we
-       *  are finished.
-       */
-      const updateIndex = this.queue.length-1;
-      const updateFn = this.queue[updateIndex];
-
-      /** wait for the update to complete */
-      await updateFn();
-
-      /** remove this entry from the queue */
-      this.queue.splice(updateIndex,1);
+    for (const loc of queue) {
+      const [x, y] = canvas.grid.grid.getPixelsFromGridPosition(...loc);
+      yield { x, y };
     }
 
-    this.inFlight = false;
+    ring += 1;
+  }
 
+  return { x: null, y: null };
+}
+
+/**
+ * Utility class for locating a free area on the grid from
+ * a given initial 'requested' position. Effectively slides
+ * the requested position to a nearby position free of other
+ * tokens (by default, but accepts arbitrary canvas layers with quad trees)
+ *
+ * @export
+ * @class PlaceableFit
+ */
+export class PlaceableFit {
+  /**
+   * Initialize new "fit" search from the provided
+   * bounds.
+   *
+   * @param {{x:Number, y:Number, width:Number, height:Number}} bounds
+   * @param {Object} [options]
+   * @memberof PlaceableFit
+   */
+  constructor(bounds, options = {}) {
+    this.options = {
+      avoidWalls: true,
+      searchRange: 6,
+      visualize: false,
+      collisionLayers: [canvas.tokens],
+    };
+
+    foundry.utils.mergeObject(this.options, options);
+
+    this.bounds = new PIXI.Rectangle(
+      bounds.x,
+      bounds.y,
+      bounds.width,
+      bounds.height
+    );
+
+    if (this.options.visualize) canvas.controls?.debug?.clear?.();
+  }
+
+  /**
+   *
+   *
+   * @param {{x:Number, y:Number}} newOrigin
+   * @returns PIXI.Rectangle bounds for overlap testing (slightly smaller)
+   * @memberof PlaceableFit
+   */
+  _collisionBounds(newOrigin) {
+    const newBounds = new PIXI.Rectangle(
+      newOrigin.x,
+      newOrigin.y,
+      this.bounds.width,
+      this.bounds.height
+    );
+    newBounds.pad(-10);
+    return newBounds.normalize();
+  }
+
+  /**
+   * With the provided origin (top left), can this
+   * placeable fit without overlapping other placeables?
+   *
+   * @param {{x: Number, y: Number}} loc Origin of bounds
+   * @returns boolean Placeable bounds fit without overlap
+   * @memberof PlaceableFit
+   */
+  spaceClear(loc) {
+    const candidateBounds = this._collisionBounds(loc);
+
+    if (this.options.visualize) {
+      canvas.controls.debug
+        .lineStyle(2, 0xff0000, 0.5)
+        .drawShape(candidateBounds);
+    }
+
+    for (const layer of this.options.collisionLayers) {
+      const hits = layer.quadtree.getObjects(candidateBounds);
+      if (hits.size == 0) return true;
+    }
+
+    return false;
+  }
+
+  /**
+   *
+   *
+   * @param {{x:Number, y:Number}} originalCenter
+   * @param {{x:Number, y:Number}} shiftedCenter
+   * @returns Boolean resulting shifted position would collide with a move blocking wall
+   * @memberof PlaceableFit
+   */
+  _offsetCollidesWall(originalCenter, shiftedCenter) {
+    const collision = CONFIG.Canvas.polygonBackends.move.testCollision(
+      originalCenter,
+      shiftedCenter,
+      { mode: "any", type: "move" }
+    );
+
+    return collision;
+  }
+
+  /**
+   * Searches for and returns the bounds origin point at which it does
+   * not overlap other placeables.
+   *
+   * @returns {{x: Number, y: Number}|undefined} Identified bounds origin free of overlap
+   * @memberof PlaceableFit
+   */
+  find() {
+    if (game.release?.generation &lt; 11) {
+      return Propagator.getFreePosition(this.bounds, this.bounds);
+    }
+
+    const locIter = RingGenerator(this.bounds, this.options.searchRange);
+
+    let testLoc = null;
+
+    const newCenter = (x, y) => ({
+      x: x + this.bounds.width / 2,
+      y: y + this.bounds.height / 2,
+    });
+
+    while (!(testLoc = locIter.next()).done) {
+      const { x, y } = testLoc.value;
+
+      let clear = this.spaceClear({ x, y });
+      if (clear &amp;&amp; this.options.avoidWalls) {
+        clear = !this._offsetCollidesWall(this.bounds.center, newCenter(x, y));
+      }
+
+      if (clear) return { x, y };
+    }
+
+    return;
   }
 }
 </code></pre>

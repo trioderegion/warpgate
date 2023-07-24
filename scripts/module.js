@@ -2,7 +2,9 @@
 
 /** @typedef {import('./api.js').NoticeConfig} NoticeConfig */
 
+/** @ignore */
 const NAME = "warpgate";
+/** @ignore */
 const PATH = `/modules/${NAME}`;
 
 export class MODULE {
@@ -664,7 +666,7 @@ export class MODULE {
    * @static
    * @param {object} [prompts]
    * @param {Array<{label: string, type: string, options: any|Array<any>} >} [prompts.inputs=[]] follow the same structure as dialog
-   * @param {Array<{label: string, value: any, default?: any, callback: Function }>} [prompts.buttons=[]] as {@link buttonDialog} with an optional 'default' field where any truthy value sets the button as default for the 'submit' or 'ENTER' event; if none specified, the last button provided will be set as default
+   * @param {Array<{label: string, value: any, default: false, callback: Function }>} [prompts.buttons=[]] as {@link buttonDialog} with an optional 'default' field where any truthy value sets the button as default for the 'submit' or 'ENTER' event; if none specified, the last button provided will be set as default
    * @param {object} [config]
    * @param {string} [config.title='Prompt'] Title of dialog
    * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
@@ -798,6 +800,7 @@ export class MODULE {
   }
 }
 
+/** @ignore */
 export class logger {
   static info(...args) {
     console.log(`${MODULE?.data?.title ?? ""}  | `, ...args);

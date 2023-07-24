@@ -43,7 +43,6 @@
 											<li><a href="global.html#CrosshairsData">CrosshairsData</a></li>
 											<li><a href="global.html#MutationData">MutationData</a></li>
 											<li><a href="global.html#MutationOptions">MutationOptions</a></li>
-											<li><a href="global.html#NAME">NAME</a></li>
 											<li><a href="global.html#NoticeConfig">NoticeConfig</a></li>
 											<li><a href="global.html#ParallelShow">ParallelShow</a></li>
 											<li><a href="global.html#PostDelta">PostDelta</a></li>
@@ -62,7 +61,6 @@
 											<li><a href="warpgate.html">warpgate</a></li>
 											<li><a href="warpgate.abstract.html">warpgate.abstract</a></li>
 											<li><a href="warpgate.crosshairs.html">warpgate.crosshairs</a></li>
-											<li><a href="warpgate.dnd5e.html">warpgate.dnd5e</a></li>
 											<li><a href="warpgate.event.html">warpgate.event</a></li>
 											<li><a href="warpgate.plugin.html">warpgate.plugin</a></li>
 											<li><a href="warpgate.util.html">warpgate.util</a></li>
@@ -156,7 +154,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-184">line 184</a></p>
+									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-185">line 185</a></p>
 								</div>
 							</div>
 			
@@ -182,14 +180,6 @@
 											<dt class="symbol-title namespace public">
 			<h4 id="crosshairs" class="namespace public"><a href="warpgate.crosshairs.html"><span class="name">crosshairs</span></a></h4>
 				<div class="summary"><p>Crosshairs API Functions</p></div></dt>
-<dd class="symbol-details namespace public">
-	<div class="symbol-details-inner">
-	</div>
-</dd>
-											<hr/>
-											<dt class="symbol-title namespace public">
-			<h4 id="dnd5e" class="namespace public"><a href="warpgate.dnd5e.html"><span class="name">dnd5e</span></a></h4>
-				<div class="summary"><p>System specific helpers</p></div></dt>
 <dd class="symbol-details namespace public">
 	<div class="symbol-details-inner">
 	</div>
@@ -278,7 +268,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-285">line 285</a></p>
+									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-289">line 289</a></p>
 								</div>
 							</div>
 			
@@ -395,7 +385,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-328">line 328</a></p>
+									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-332">line 332</a></p>
 								</div>
 							</div>
 			
@@ -481,7 +471,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-299">line 299</a></p>
+									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-303">line 303</a></p>
 								</div>
 							</div>
 			
@@ -595,7 +585,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="module.js.html">module.js</a>, <a href="module.js.html#line-517">line 517</a></p>
+									<p class="form-control-static"><a href="module.js.html">module.js</a>, <a href="module.js.html#line-519">line 519</a></p>
 								</div>
 							</div>
 			
@@ -678,7 +668,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="gateway.js.html">gateway.js</a>, <a href="gateway.js.html#line-234">line 234</a></p>
+									<p class="form-control-static"><a href="gateway.js.html">gateway.js</a>, <a href="gateway.js.html#line-240">line 240</a></p>
 								</div>
 							</div>
 			
@@ -794,11 +784,11 @@
 												</tr>
 												<tr>
 														<td><code>buttons</code></td>
-													<td><span class="param-type">Array.&lt;{label: string, value: any, callback: function()}></span></td>
+													<td><span class="param-type">Array.&lt;{label: string, value: any, default: false, callback: function()}></span></td>
 														<td class="attributes">&lt;optional&gt;<br/></td>
 														<td>[]</td>
 													<td class="last">
-															<p>as buttonDialog</p>
+															<p>as <code>buttonDialog</code> with an optional 'default' field where any truthy value sets the button as default for the 'submit' or 'ENTER' event; if none specified, the last button provided will be set as default</p>
 													</td>
 												</tr>
 											</tbody>
@@ -881,7 +871,7 @@
 							</div>
 					</form>
 			</div>			<div class="callout callout-example"><h5>Examples</h5>		<div class="example-code">
-						<pre class="prettyprint source language-javascript"><code class="language-javascript">await warpgate.menu({ inputs: [{   label: &#x27;My Way&#x27;,   type: &#x27;radio&#x27;,   options: &#x27;group1&#x27; }, {   label: &#x27;The Highway&#x27;,   type: &#x27;radio&#x27;,   options: &#x27;group1&#x27; }], buttons: [{   label: &#x27;Yes&#x27;,   value: 1 }, {   label: &#x27;No&#x27;,   value: 2 }, {   label: &#x27;Maybe&#x27;,   value: 3 }, {   label: &#x27;Eventually&#x27;,   value: 4 }]}, { options: {   width: &#x27;100px&#x27;,   height: &#x27;100%&#x27; }})</code></pre>
+						<pre class="prettyprint source language-javascript"><code class="language-javascript">await warpgate.menu({ inputs: [{   label: &#x27;My Way&#x27;,   type: &#x27;radio&#x27;,   options: &#x27;group1&#x27; }, {   label: &#x27;The Highway&#x27;,   type: &#x27;radio&#x27;,   options: &#x27;group1&#x27; }], buttons: [{   label: &#x27;Yes&#x27;,   value: 1,   default: true }, {   label: &#x27;No&#x27;,   value: 2 }, {   label: &#x27;Maybe&#x27;,   value: 3 }, {   label: &#x27;Eventually&#x27;,   value: 4 }]}, { options: {   width: &#x27;100px&#x27;,   height: &#x27;100%&#x27; }})</code></pre>
 					</div>
 			</div>			<div class="callout callout-default"><h5>Details</h5>		<form class="form-horizontal details">
 			
@@ -903,7 +893,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="module.js.html">module.js</a>, <a href="module.js.html#line-710">line 710</a></p>
+									<p class="form-control-static"><a href="module.js.html">module.js</a>, <a href="module.js.html#line-713">line 713</a></p>
 								</div>
 							</div>
 			
@@ -1089,7 +1079,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-219">line 219</a></p>
+									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-220">line 220</a></p>
 								</div>
 							</div>
 			
@@ -1313,7 +1303,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-407">line 407</a></p>
+									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-413">line 413</a></p>
 								</div>
 							</div>
 			
@@ -1439,7 +1429,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-497">line 497</a></p>
+									<p class="form-control-static"><a href="api.js.html">api.js</a>, <a href="api.js.html#line-503">line 503</a></p>
 								</div>
 							</div>
 			
@@ -1506,7 +1496,7 @@
 							<div class="form-group">
 								<label class="col-sm-3 control-label">Source</label>
 								<div class="col-sm-9">
-									<p class="form-control-static"><a href="module.js.html">module.js</a>, <a href="module.js.html#line-313">line 313</a></p>
+									<p class="form-control-static"><a href="module.js.html">module.js</a>, <a href="module.js.html#line-315">line 315</a></p>
 								</div>
 							</div>
 			
@@ -1527,7 +1517,7 @@
 	</div>
 	<footer>
 				<div class="copyright">Warp Gate <a href="https://github.com/trioderegion/warpgate/blob/master/LICENSE">Copyright © 2021</a> Matthew Haentschke</div>
-			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 10th Jun 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
+			<div class="generated-by">Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on 24th Jul 2023 using the <a href="https://github.com/steveush/foodoc">FooDoc template</a>.</div>
 	</footer>
 	<script src="js/jquery.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>

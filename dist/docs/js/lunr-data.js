@@ -496,6 +496,82 @@ window.lunrData = {
           "mutationstack.filterfn",
           "typedef"
         ],
+        "PlaceableFit.html": [
+          "accept",
+          "arbitrari",
+          "area",
+          "canva",
+          "class",
+          "default",
+          "effect",
+          "free",
+          "given",
+          "grid",
+          "initi",
+          "layer",
+          "locat",
+          "nearbi",
+          "placeablefit",
+          "posit",
+          "quad",
+          "request",
+          "slide",
+          "token",
+          "tree",
+          "util"
+        ],
+        "PlaceableFit.html#_collisionBounds": [
+          "_collisionbound",
+          "function",
+          "neworigin",
+          "placeablefit#_collisionbound"
+        ],
+        "PlaceableFit.html#_offsetCollidesWall": [
+          "_offsetcollideswal",
+          "function",
+          "originalcent",
+          "placeablefit#_offsetcollideswal",
+          "shiftedcent"
+        ],
+        "PlaceableFit.html#find": [
+          "bound",
+          "find",
+          "function",
+          "object|undefin",
+          "origin",
+          "overlap",
+          "placeabl",
+          "placeablefit#find",
+          "point",
+          "return",
+          "search"
+        ],
+        "PlaceableFit.html#spaceClear": [
+          "fit",
+          "function",
+          "left",
+          "loc",
+          "origin",
+          "overlap",
+          "placeabl",
+          "placeablefit#spaceclear",
+          "provid",
+          "spaceclear",
+          "top",
+          "without"
+        ],
+        "PlaceableFit.exports.PlaceableFit.html": [
+          "bound",
+          "class",
+          "exports.placeablefit",
+          "fit",
+          "initi",
+          "new",
+          "placeablefit",
+          "placeablefit.exports.placeablefit",
+          "provid",
+          "search"
+        ],
         "warpgate.html": [
           "access",
           "api",
@@ -846,12 +922,12 @@ window.lunrData = {
           "namespac",
           "warpgate.crosshair"
         ],
-        "warpgate.crosshairs.html#.collectPlaceables": [
+        "warpgate.crosshairs.html#.collect": [
           "center",
-          "collectplac",
+          "collect",
           "containedfilt",
           "crosshair",
-          "crosshairs.collectplac",
+          "crosshairs.collect",
           "crosshairsdata",
           "desir",
           "function",
@@ -863,7 +939,7 @@ window.lunrData = {
           "radiu",
           "return",
           "type",
-          "warpgate.crosshairs.collectplac",
+          "warpgate.crosshairs.collect",
           "whose",
           "within"
         ],
@@ -927,27 +1003,6 @@ window.lunrData = {
           "up",
           "via",
           "warpgate.crosshairs.show"
-        ],
-        "warpgate.dnd5e.html": [
-          "dnd5e",
-          "helper",
-          "namespac",
-          "specif",
-          "system",
-          "warpgate.dnd5"
-        ],
-        "warpgate.dnd5e.html#.rollItem": [
-          "config",
-          "dnd5e",
-          "dnd5e.rollitem",
-          "function",
-          "helper",
-          "item",
-          "lt;async",
-          "option",
-          "rollitem",
-          "static&gt",
-          "warpgate.dnd5e.rollitem"
         ],
         "warpgate.event.html": [
           "addition",
@@ -1214,6 +1269,24 @@ window.lunrData = {
           "util",
           "warpgate.util"
         ],
+        "warpgate.util.html#.RingGenerator": [
+          "connect",
+          "explor",
+          "function",
+          "gener",
+          "grid",
+          "locat",
+          "lt;gener",
+          "member",
+          "outward",
+          "pattern",
+          "ring",
+          "ringgener",
+          "static&gt",
+          "util.ringgener",
+          "vertex",
+          "warpgate.util.ringgener"
+        ],
         "warpgate.util.html#.firstGM": [
           "activ",
           "first",
@@ -1300,7 +1373,7 @@ window.lunrData = {
           "whether"
         ]
       },
-      "length": 73
+      "length": 78
     },
     "tokenStore": {
       "root": {
@@ -1518,6 +1591,17 @@ window.lunrData = {
               },
               "e": {
                 "docs": {},
+                "p": {
+                  "docs": {},
+                  "t": {
+                    "docs": {
+                      "PlaceableFit.html": {
+                        "ref": "PlaceableFit.html",
+                        "tf": 2
+                      }
+                    }
+                  }
+                },
                 "s": {
                   "docs": {},
                   "s": {
@@ -1615,6 +1699,10 @@ window.lunrData = {
                             "Crosshairs.html#tag": {
                               "ref": "Crosshairs.html#tag",
                               "tf": 6.25
+                            },
+                            "PlaceableFit.html": {
+                              "ref": "PlaceableFit.html",
+                              "tf": 2
                             }
                           }
                         }
@@ -1754,6 +1842,17 @@ window.lunrData = {
                         }
                       }
                     }
+                  }
+                }
+              }
+            },
+            "e": {
+              "docs": {},
+              "a": {
+                "docs": {
+                  "PlaceableFit.html": {
+                    "ref": "PlaceableFit.html",
+                    "tf": 2
                   }
                 }
               }
@@ -2201,6 +2300,10 @@ window.lunrData = {
                           "ref": "Crosshairs.html#labelOffset",
                           "tf": 10
                         },
+                        "PlaceableFit.html": {
+                          "ref": "PlaceableFit.html",
+                          "tf": 2
+                        },
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
                           "tf": 1.4851485148514851
@@ -2331,8 +2434,8 @@ window.lunrData = {
                       "ref": "warpgate.html#.mutate",
                       "tf": 1.4285714285714286
                     },
-                    "warpgate.crosshairs.html#.collectPlaceables": {
-                      "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                    "warpgate.crosshairs.html#.collect": {
+                      "ref": "warpgate.crosshairs.html#.collect",
                       "tf": 5
                     },
                     "warpgate.event.html#.watch": {
@@ -2671,59 +2774,6 @@ window.lunrData = {
                 }
               }
             }
-          },
-          "n": {
-            "docs": {},
-            "d": {
-              "5": {
-                "docs": {},
-                "e": {
-                  "docs": {
-                    "warpgate.dnd5e.html": {
-                      "ref": "warpgate.dnd5e.html",
-                      "tf": 650
-                    },
-                    "warpgate.dnd5e.html#.rollItem": {
-                      "ref": "warpgate.dnd5e.html#.rollItem",
-                      "tf": 16.666666666666664
-                    }
-                  },
-                  ".": {
-                    "docs": {},
-                    "r": {
-                      "docs": {},
-                      "o": {
-                        "docs": {},
-                        "l": {
-                          "docs": {},
-                          "l": {
-                            "docs": {},
-                            "i": {
-                              "docs": {},
-                              "t": {
-                                "docs": {},
-                                "e": {
-                                  "docs": {},
-                                  "m": {
-                                    "docs": {
-                                      "warpgate.dnd5e.html#.rollItem": {
-                                        "ref": "warpgate.dnd5e.html#.rollItem",
-                                        "tf": 100
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              "docs": {}
-            }
           }
         },
         "g": {
@@ -2852,6 +2902,10 @@ window.lunrData = {
                     "warpgate.plugin.html#.batchRevert": {
                       "ref": "warpgate.plugin.html#.batchRevert",
                       "tf": 1.4285714285714286
+                    },
+                    "warpgate.util.html#.RingGenerator": {
+                      "ref": "warpgate.util.html#.RingGenerator",
+                      "tf": 5
                     }
                   }
                 }
@@ -2873,6 +2927,10 @@ window.lunrData = {
                     "MutationStack.html#updateAll": {
                       "ref": "MutationStack.html#updateAll",
                       "tf": 5.555555555555555
+                    },
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 2
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
@@ -2905,6 +2963,25 @@ window.lunrData = {
           },
           "r": {
             "docs": {},
+            "i": {
+              "docs": {},
+              "d": {
+                "docs": {
+                  "PlaceableFit.html": {
+                    "ref": "PlaceableFit.html",
+                    "tf": 2
+                  },
+                  "warpgate.crosshairs.html#.show": {
+                    "ref": "warpgate.crosshairs.html#.show",
+                    "tf": 3.75
+                  },
+                  "warpgate.util.html#.RingGenerator": {
+                    "ref": "warpgate.util.html#.RingGenerator",
+                    "tf": 5
+                  }
+                }
+              }
+            },
             "o": {
               "docs": {},
               "u": {
@@ -2915,17 +2992,6 @@ window.lunrData = {
                       "ref": "warpgate.html#.menu",
                       "tf": 0.9900990099009901
                     }
-                  }
-                }
-              }
-            },
-            "i": {
-              "docs": {},
-              "d": {
-                "docs": {
-                  "warpgate.crosshairs.html#.show": {
-                    "ref": "warpgate.crosshairs.html#.show",
-                    "tf": 3.75
                   }
                 }
               }
@@ -3122,6 +3188,14 @@ window.lunrData = {
                   "docs": {
                     "Crosshairs.html#rightX": {
                       "ref": "Crosshairs.html#rightX",
+                      "tf": 8.333333333333332
+                    },
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 2
+                    },
+                    "PlaceableFit.exports.PlaceableFit.html": {
+                      "ref": "PlaceableFit.exports.PlaceableFit.html",
                       "tf": 8.333333333333332
                     },
                     "warpgate.event.html#.notify": {
@@ -3359,20 +3433,6 @@ window.lunrData = {
               }
             }
           },
-          "t": {
-            "docs": {},
-            "e": {
-              "docs": {},
-              "m": {
-                "docs": {
-                  "warpgate.dnd5e.html#.rollItem": {
-                    "ref": "warpgate.dnd5e.html#.rollItem",
-                    "tf": 16.666666666666664
-                  }
-                }
-              }
-            }
-          },
           "s": {
             "docs": {},
             "f": {
@@ -3482,6 +3542,10 @@ window.lunrData = {
                         "ref": "global.html",
                         "tf": 10
                       },
+                      "PlaceableFit.html#find": {
+                        "ref": "PlaceableFit.html#find",
+                        "tf": 7.142857142857142
+                      },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
                         "tf": 0.49504950495049505
@@ -3490,8 +3554,8 @@ window.lunrData = {
                         "ref": "warpgate.html#.spawn",
                         "tf": 1.0869565217391304
                       },
-                      "warpgate.crosshairs.html#.collectPlaceables": {
-                        "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                      "warpgate.crosshairs.html#.collect": {
+                        "ref": "warpgate.crosshairs.html#.collect",
                         "tf": 5
                       },
                       "warpgate.event.html#.notify": {
@@ -3612,6 +3676,26 @@ window.lunrData = {
                       "warpgate.html#.revert": {
                         "ref": "warpgate.html#.revert",
                         "tf": 664.2857142857143
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "q": {
+              "docs": {},
+              "u": {
+                "docs": {},
+                "e": {
+                  "docs": {},
+                  "s": {
+                    "docs": {},
+                    "t": {
+                      "docs": {
+                        "PlaceableFit.html": {
+                          "ref": "PlaceableFit.html",
+                          "tf": 4
+                        }
                       }
                     }
                   }
@@ -3780,6 +3864,37 @@ window.lunrData = {
                   }
                 }
               }
+            },
+            "n": {
+              "docs": {},
+              "g": {
+                "docs": {
+                  "warpgate.util.html#.RingGenerator": {
+                    "ref": "warpgate.util.html#.RingGenerator",
+                    "tf": 5
+                  }
+                },
+                "g": {
+                  "docs": {},
+                  "e": {
+                    "docs": {},
+                    "n": {
+                      "docs": {},
+                      "e": {
+                        "docs": {},
+                        "r": {
+                          "docs": {
+                            "warpgate.util.html#.RingGenerator": {
+                              "ref": "warpgate.util.html#.RingGenerator",
+                              "tf": 633.3333333333334
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           },
           "a": {
@@ -3794,8 +3909,8 @@ window.lunrData = {
                       "ref": "Crosshairs.html#radius",
                       "tf": 700
                     },
-                    "warpgate.crosshairs.html#.collectPlaceables": {
-                      "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                    "warpgate.crosshairs.html#.collect": {
+                      "ref": "warpgate.crosshairs.html#.collect",
                       "tf": 5
                     }
                   }
@@ -3845,23 +3960,6 @@ window.lunrData = {
                       "MutationStack.html": {
                         "ref": "MutationStack.html",
                         "tf": 0.6329113924050633
-                      }
-                    }
-                  }
-                },
-                "i": {
-                  "docs": {},
-                  "t": {
-                    "docs": {},
-                    "e": {
-                      "docs": {},
-                      "m": {
-                        "docs": {
-                          "warpgate.dnd5e.html#.rollItem": {
-                            "ref": "warpgate.dnd5e.html#.rollItem",
-                            "tf": 616.6666666666666
-                          }
-                        }
                       }
                     }
                   }
@@ -4002,22 +4100,10 @@ window.lunrData = {
                                                           "c": {
                                                             "docs": {},
                                                             "t": {
-                                                              "docs": {},
-                                                              "p": {
-                                                                "docs": {},
-                                                                "l": {
-                                                                  "docs": {},
-                                                                  "a": {
-                                                                    "docs": {},
-                                                                    "c": {
-                                                                      "docs": {
-                                                                        "warpgate.crosshairs.html#.collectPlaceables": {
-                                                                          "ref": "warpgate.crosshairs.html#.collectPlaceables",
-                                                                          "tf": 1100
-                                                                        }
-                                                                      }
-                                                                    }
-                                                                  }
+                                                              "docs": {
+                                                                "warpgate.crosshairs.html#.collect": {
+                                                                  "ref": "warpgate.crosshairs.html#.collect",
+                                                                  "tf": 1100
                                                                 }
                                                               }
                                                             }
@@ -4215,6 +4301,38 @@ window.lunrData = {
                                   },
                                   ".": {
                                     "docs": {},
+                                    "r": {
+                                      "docs": {},
+                                      "i": {
+                                        "docs": {},
+                                        "n": {
+                                          "docs": {},
+                                          "g": {
+                                            "docs": {},
+                                            "g": {
+                                              "docs": {},
+                                              "e": {
+                                                "docs": {},
+                                                "n": {
+                                                  "docs": {},
+                                                  "e": {
+                                                    "docs": {},
+                                                    "r": {
+                                                      "docs": {
+                                                        "warpgate.util.html#.RingGenerator": {
+                                                          "ref": "warpgate.util.html#.RingGenerator",
+                                                          "tf": 1100
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
                                     "f": {
                                       "docs": {},
                                       "i": {
@@ -4417,55 +4535,6 @@ window.lunrData = {
                                     }
                                   }
                                 }
-                              }
-                            },
-                            "n": {
-                              "docs": {},
-                              "d": {
-                                "5": {
-                                  "docs": {
-                                    "warpgate.dnd5e.html": {
-                                      "ref": "warpgate.dnd5e.html",
-                                      "tf": 1250
-                                    }
-                                  },
-                                  "e": {
-                                    "docs": {},
-                                    ".": {
-                                      "docs": {},
-                                      "r": {
-                                        "docs": {},
-                                        "o": {
-                                          "docs": {},
-                                          "l": {
-                                            "docs": {},
-                                            "l": {
-                                              "docs": {},
-                                              "i": {
-                                                "docs": {},
-                                                "t": {
-                                                  "docs": {},
-                                                  "e": {
-                                                    "docs": {},
-                                                    "m": {
-                                                      "docs": {
-                                                        "warpgate.dnd5e.html#.rollItem": {
-                                                          "ref": "warpgate.dnd5e.html#.rollItem",
-                                                          "tf": 1100
-                                                        }
-                                                      }
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                },
-                                "docs": {}
                               }
                             }
                           },
@@ -4788,6 +4857,40 @@ window.lunrData = {
               }
             }
           },
+          "i": {
+            "docs": {},
+            "t": {
+              "docs": {},
+              "h": {
+                "docs": {},
+                "o": {
+                  "docs": {},
+                  "u": {
+                    "docs": {},
+                    "t": {
+                      "docs": {
+                        "PlaceableFit.html#spaceClear": {
+                          "ref": "PlaceableFit.html#spaceClear",
+                          "tf": 5.555555555555555
+                        }
+                      }
+                    }
+                  }
+                },
+                "i": {
+                  "docs": {},
+                  "n": {
+                    "docs": {
+                      "warpgate.crosshairs.html#.collect": {
+                        "ref": "warpgate.crosshairs.html#.collect",
+                        "tf": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           "e": {
             "docs": {},
             "l": {
@@ -4827,8 +4930,8 @@ window.lunrData = {
                 "docs": {},
                 "e": {
                   "docs": {
-                    "warpgate.crosshairs.html#.collectPlaceables": {
-                      "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                    "warpgate.crosshairs.html#.collect": {
+                      "ref": "warpgate.crosshairs.html#.collect",
                       "tf": 5
                     }
                   }
@@ -4853,26 +4956,6 @@ window.lunrData = {
                           "ref": "warpgate.util.html#.isFirstOwner",
                           "tf": 2.380952380952381
                         }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "i": {
-            "docs": {},
-            "t": {
-              "docs": {},
-              "h": {
-                "docs": {},
-                "i": {
-                  "docs": {},
-                  "n": {
-                    "docs": {
-                      "warpgate.crosshairs.html#.collectPlaceables": {
-                        "ref": "warpgate.crosshairs.html#.collectPlaceables",
-                        "tf": 5
                       }
                     }
                   }
@@ -4977,22 +5060,10 @@ window.lunrData = {
                   "c": {
                     "docs": {},
                     "t": {
-                      "docs": {},
-                      "p": {
-                        "docs": {},
-                        "l": {
-                          "docs": {},
-                          "a": {
-                            "docs": {},
-                            "c": {
-                              "docs": {
-                                "warpgate.crosshairs.html#.collectPlaceables": {
-                                  "ref": "warpgate.crosshairs.html#.collectPlaceables",
-                                  "tf": 614.2857142857143
-                                }
-                              }
-                            }
-                          }
+                      "docs": {
+                        "warpgate.crosshairs.html#.collect": {
+                          "ref": "warpgate.crosshairs.html#.collect",
+                          "tf": 614.2857142857143
                         }
                       }
                     }
@@ -5053,8 +5124,8 @@ window.lunrData = {
                                 "docs": {},
                                 "t": {
                                   "docs": {
-                                    "warpgate.crosshairs.html#.collectPlaceables": {
-                                      "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                                    "warpgate.crosshairs.html#.collect": {
+                                      "ref": "warpgate.crosshairs.html#.collect",
                                       "tf": 14.285714285714285
                                     }
                                   }
@@ -5123,10 +5194,6 @@ window.lunrData = {
                       },
                       "warpgate.crosshairs.html#.show": {
                         "ref": "warpgate.crosshairs.html#.show",
-                        "tf": 16.666666666666664
-                      },
-                      "warpgate.dnd5e.html#.rollItem": {
-                        "ref": "warpgate.dnd5e.html#.rollItem",
                         "tf": 16.666666666666664
                       },
                       "warpgate.plugin.html#.notice": {
@@ -5208,6 +5275,23 @@ window.lunrData = {
                     }
                   }
                 }
+              },
+              "n": {
+                "docs": {},
+                "e": {
+                  "docs": {},
+                  "c": {
+                    "docs": {},
+                    "t": {
+                      "docs": {
+                        "warpgate.util.html#.RingGenerator": {
+                          "ref": "warpgate.util.html#.RingGenerator",
+                          "tf": 5
+                        }
+                      }
+                    }
+                  }
+                }
               }
             },
             "p": {
@@ -5237,6 +5321,14 @@ window.lunrData = {
                     "MutationStack.html": {
                       "ref": "MutationStack.html",
                       "tf": 111.26582278481013
+                    },
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 112
+                    },
+                    "PlaceableFit.exports.PlaceableFit.html": {
+                      "ref": "PlaceableFit.exports.PlaceableFit.html",
+                      "tf": 110
                     },
                     "warpgate.html#.mutationStack": {
                       "ref": "warpgate.html#.mutationStack",
@@ -5331,8 +5423,8 @@ window.lunrData = {
                               "ref": "warpgate.crosshairs.html",
                               "tf": 673.3333333333334
                             },
-                            "warpgate.crosshairs.html#.collectPlaceables": {
-                              "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                            "warpgate.crosshairs.html#.collect": {
+                              "ref": "warpgate.crosshairs.html#.collect",
                               "tf": 5
                             },
                             "warpgate.crosshairs.html#.getTag": {
@@ -5980,22 +6072,10 @@ window.lunrData = {
                                         "c": {
                                           "docs": {},
                                           "t": {
-                                            "docs": {},
-                                            "p": {
-                                              "docs": {},
-                                              "l": {
-                                                "docs": {},
-                                                "a": {
-                                                  "docs": {},
-                                                  "c": {
-                                                    "docs": {
-                                                      "warpgate.crosshairs.html#.collectPlaceables": {
-                                                        "ref": "warpgate.crosshairs.html#.collectPlaceables",
-                                                        "tf": 100
-                                                      }
-                                                    }
-                                                  }
-                                                }
+                                            "docs": {
+                                              "warpgate.crosshairs.html#.collect": {
+                                                "ref": "warpgate.crosshairs.html#.collect",
+                                                "tf": 100
                                               }
                                             }
                                           }
@@ -6035,8 +6115,8 @@ window.lunrData = {
                                         "ref": "Crosshairs.html#toObject",
                                         "tf": 50
                                       },
-                                      "warpgate.crosshairs.html#.collectPlaceables": {
-                                        "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                                      "warpgate.crosshairs.html#.collect": {
+                                        "ref": "warpgate.crosshairs.html#.collect",
                                         "tf": 14.285714285714285
                                       }
                                     }
@@ -6195,7 +6275,12 @@ window.lunrData = {
               "v": {
                 "docs": {},
                 "a": {
-                  "docs": {},
+                  "docs": {
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 2
+                    }
+                  },
                   "s": {
                     "docs": {},
                     ".": {
@@ -6308,8 +6393,8 @@ window.lunrData = {
                         "ref": "Crosshairs.html#icon",
                         "tf": 7.142857142857142
                       },
-                      "warpgate.crosshairs.html#.collectPlaceables": {
-                        "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                      "warpgate.crosshairs.html#.collect": {
+                        "ref": "warpgate.crosshairs.html#.collect",
                         "tf": 5
                       },
                       "warpgate.crosshairs.html#.show": {
@@ -6622,6 +6707,23 @@ window.lunrData = {
                   "Crosshairs.html#icon": {
                     "ref": "Crosshairs.html#icon",
                     "tf": 7.142857142857142
+                  }
+                }
+              },
+              "t": {
+                "docs": {},
+                "e": {
+                  "docs": {},
+                  "r": {
+                    "docs": {},
+                    "n": {
+                      "docs": {
+                        "warpgate.util.html#.RingGenerator": {
+                          "ref": "warpgate.util.html#.RingGenerator",
+                          "tf": 5
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -7315,6 +7417,14 @@ window.lunrData = {
                         "ref": "MutationStack.html#update",
                         "tf": 6.666666666666667
                       },
+                      "PlaceableFit.html#spaceClear": {
+                        "ref": "PlaceableFit.html#spaceClear",
+                        "tf": 5.555555555555555
+                      },
+                      "PlaceableFit.exports.PlaceableFit.html": {
+                        "ref": "PlaceableFit.exports.PlaceableFit.html",
+                        "tf": 8.333333333333332
+                      },
                       "warpgate.html": {
                         "ref": "warpgate.html",
                         "tf": 7
@@ -7456,13 +7566,268 @@ window.lunrData = {
                       "docs": {},
                       "l": {
                         "docs": {
-                          "warpgate.crosshairs.html#.collectPlaceables": {
-                            "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                          "PlaceableFit.html#find": {
+                            "ref": "PlaceableFit.html#find",
+                            "tf": 7.142857142857142
+                          },
+                          "PlaceableFit.html#spaceClear": {
+                            "ref": "PlaceableFit.html#spaceClear",
+                            "tf": 11.11111111111111
+                          },
+                          "warpgate.crosshairs.html#.collect": {
+                            "ref": "warpgate.crosshairs.html#.collect",
                             "tf": 5
                           }
                         },
                         "e": {
                           "docs": {},
+                          "f": {
+                            "docs": {},
+                            "i": {
+                              "docs": {},
+                              "t": {
+                                "docs": {
+                                  "PlaceableFit.html": {
+                                    "ref": "PlaceableFit.html",
+                                    "tf": 1900
+                                  },
+                                  "PlaceableFit.exports.PlaceableFit.html": {
+                                    "ref": "PlaceableFit.exports.PlaceableFit.html",
+                                    "tf": 100
+                                  }
+                                },
+                                "#": {
+                                  "docs": {},
+                                  "_": {
+                                    "docs": {},
+                                    "c": {
+                                      "docs": {},
+                                      "o": {
+                                        "docs": {},
+                                        "l": {
+                                          "docs": {},
+                                          "l": {
+                                            "docs": {},
+                                            "i": {
+                                              "docs": {},
+                                              "s": {
+                                                "docs": {},
+                                                "i": {
+                                                  "docs": {},
+                                                  "o": {
+                                                    "docs": {},
+                                                    "n": {
+                                                      "docs": {},
+                                                      "b": {
+                                                        "docs": {},
+                                                        "o": {
+                                                          "docs": {},
+                                                          "u": {
+                                                            "docs": {},
+                                                            "n": {
+                                                              "docs": {},
+                                                              "d": {
+                                                                "docs": {
+                                                                  "PlaceableFit.html#_collisionBounds": {
+                                                                    "ref": "PlaceableFit.html#_collisionBounds",
+                                                                    "tf": 1150
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "o": {
+                                      "docs": {},
+                                      "f": {
+                                        "docs": {},
+                                        "f": {
+                                          "docs": {},
+                                          "s": {
+                                            "docs": {},
+                                            "e": {
+                                              "docs": {},
+                                              "t": {
+                                                "docs": {},
+                                                "c": {
+                                                  "docs": {},
+                                                  "o": {
+                                                    "docs": {},
+                                                    "l": {
+                                                      "docs": {},
+                                                      "l": {
+                                                        "docs": {},
+                                                        "i": {
+                                                          "docs": {},
+                                                          "d": {
+                                                            "docs": {},
+                                                            "e": {
+                                                              "docs": {},
+                                                              "s": {
+                                                                "docs": {},
+                                                                "w": {
+                                                                  "docs": {},
+                                                                  "a": {
+                                                                    "docs": {},
+                                                                    "l": {
+                                                                      "docs": {
+                                                                        "PlaceableFit.html#_offsetCollidesWall": {
+                                                                          "ref": "PlaceableFit.html#_offsetCollidesWall",
+                                                                          "tf": 1150
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "f": {
+                                    "docs": {},
+                                    "i": {
+                                      "docs": {},
+                                      "n": {
+                                        "docs": {},
+                                        "d": {
+                                          "docs": {
+                                            "PlaceableFit.html#find": {
+                                              "ref": "PlaceableFit.html#find",
+                                              "tf": 1150
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "s": {
+                                    "docs": {},
+                                    "p": {
+                                      "docs": {},
+                                      "a": {
+                                        "docs": {},
+                                        "c": {
+                                          "docs": {},
+                                          "e": {
+                                            "docs": {},
+                                            "c": {
+                                              "docs": {},
+                                              "l": {
+                                                "docs": {},
+                                                "e": {
+                                                  "docs": {},
+                                                  "a": {
+                                                    "docs": {},
+                                                    "r": {
+                                                      "docs": {
+                                                        "PlaceableFit.html#spaceClear": {
+                                                          "ref": "PlaceableFit.html#spaceClear",
+                                                          "tf": 1150
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                },
+                                ".": {
+                                  "docs": {},
+                                  "e": {
+                                    "docs": {},
+                                    "x": {
+                                      "docs": {},
+                                      "p": {
+                                        "docs": {},
+                                        "o": {
+                                          "docs": {},
+                                          "r": {
+                                            "docs": {},
+                                            "t": {
+                                              "docs": {},
+                                              "s": {
+                                                "docs": {},
+                                                ".": {
+                                                  "docs": {},
+                                                  "p": {
+                                                    "docs": {},
+                                                    "l": {
+                                                      "docs": {},
+                                                      "a": {
+                                                        "docs": {},
+                                                        "c": {
+                                                          "docs": {},
+                                                          "e": {
+                                                            "docs": {},
+                                                            "a": {
+                                                              "docs": {},
+                                                              "b": {
+                                                                "docs": {},
+                                                                "l": {
+                                                                  "docs": {},
+                                                                  "e": {
+                                                                    "docs": {},
+                                                                    "f": {
+                                                                      "docs": {},
+                                                                      "i": {
+                                                                        "docs": {},
+                                                                        "t": {
+                                                                          "docs": {
+                                                                            "PlaceableFit.exports.PlaceableFit.html": {
+                                                                              "ref": "PlaceableFit.exports.PlaceableFit.html",
+                                                                              "tf": 1200
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  }
+                                                                }
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
                           "o": {
                             "docs": {},
                             "b": {
@@ -7481,8 +7846,8 @@ window.lunrData = {
                                           "docs": {},
                                           "t": {
                                             "docs": {
-                                              "warpgate.crosshairs.html#.collectPlaceables": {
-                                                "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                                              "warpgate.crosshairs.html#.collect": {
+                                                "ref": "warpgate.crosshairs.html#.collect",
                                                 "tf": 14.285714285714285
                                               }
                                             }
@@ -7662,6 +8027,10 @@ window.lunrData = {
                       "ref": "Crosshairs.html#lockPosition",
                       "tf": 16.666666666666664
                     },
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 6
+                    },
                     "warpgate.crosshairs.html#.show": {
                       "ref": "warpgate.crosshairs.html#.show",
                       "tf": 1.25
@@ -7684,8 +8053,12 @@ window.lunrData = {
                       "ref": "MutationStack.html",
                       "tf": 1.2658227848101267
                     },
-                    "warpgate.crosshairs.html#.collectPlaceables": {
-                      "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                    "PlaceableFit.html#find": {
+                      "ref": "PlaceableFit.html#find",
+                      "tf": 7.142857142857142
+                    },
+                    "warpgate.crosshairs.html#.collect": {
+                      "ref": "warpgate.crosshairs.html#.collect",
                       "tf": 5
                     }
                   }
@@ -7923,8 +8296,8 @@ window.lunrData = {
                     "ref": "warpgate.html#.menu",
                     "tf": 0.9900990099009901
                   },
-                  "warpgate.crosshairs.html#.collectPlaceables": {
-                    "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                  "warpgate.crosshairs.html#.collect": {
+                    "ref": "warpgate.crosshairs.html#.collect",
                     "tf": 19.285714285714285
                   },
                   "warpgate.plugin.html#.queueUpdate": {
@@ -8073,6 +8446,17 @@ window.lunrData = {
                 }
               }
             },
+            "e": {
+              "docs": {},
+              "e": {
+                "docs": {
+                  "PlaceableFit.html": {
+                    "ref": "PlaceableFit.html",
+                    "tf": 2
+                  }
+                }
+              }
+            },
             "i": {
               "docs": {},
               "g": {
@@ -8209,6 +8593,10 @@ window.lunrData = {
                 "docs": {},
                 "n": {
                   "docs": {
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 2
+                    },
                     "warpgate.html#.dismiss": {
                       "ref": "warpgate.html#.dismiss",
                       "tf": 5.172413793103448
@@ -8308,6 +8696,10 @@ window.lunrData = {
             },
             "p": {
               "docs": {
+                "PlaceableFit.html#spaceClear": {
+                  "ref": "PlaceableFit.html#spaceClear",
+                  "tf": 5.555555555555555
+                },
                 "warpgate.html": {
                   "ref": "warpgate.html",
                   "tf": 7
@@ -8717,6 +9109,10 @@ window.lunrData = {
                     "ref": "MutationStack.html",
                     "tf": 0.6329113924050633
                   },
+                  "PlaceableFit.html": {
+                    "ref": "PlaceableFit.html",
+                    "tf": 2
+                  },
                   "warpgate.util.html": {
                     "ref": "warpgate.util.html",
                     "tf": 664
@@ -8724,6 +9120,38 @@ window.lunrData = {
                 },
                 ".": {
                   "docs": {},
+                  "r": {
+                    "docs": {},
+                    "i": {
+                      "docs": {},
+                      "n": {
+                        "docs": {},
+                        "g": {
+                          "docs": {},
+                          "g": {
+                            "docs": {},
+                            "e": {
+                              "docs": {},
+                              "n": {
+                                "docs": {},
+                                "e": {
+                                  "docs": {},
+                                  "r": {
+                                    "docs": {
+                                      "warpgate.util.html#.RingGenerator": {
+                                        "ref": "warpgate.util.html#.RingGenerator",
+                                        "tf": 100
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                   "f": {
                     "docs": {},
                     "i": {
@@ -8857,6 +9285,26 @@ window.lunrData = {
                 }
               }
             }
+          },
+          "e": {
+            "docs": {},
+            "r": {
+              "docs": {},
+              "t": {
+                "docs": {},
+                "e": {
+                  "docs": {},
+                  "x": {
+                    "docs": {
+                      "warpgate.util.html#.RingGenerator": {
+                        "ref": "warpgate.util.html#.RingGenerator",
+                        "tf": 5
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "l": {
@@ -8944,7 +9392,12 @@ window.lunrData = {
           "o": {
             "docs": {},
             "c": {
-              "docs": {},
+              "docs": {
+                "PlaceableFit.html#spaceClear": {
+                  "ref": "PlaceableFit.html#spaceClear",
+                  "tf": 50
+                }
+              },
               "a": {
                 "docs": {},
                 "t": {
@@ -8953,9 +9406,17 @@ window.lunrData = {
                       "ref": "Crosshairs.html#inFlight",
                       "tf": 2.941176470588235
                     },
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 2
+                    },
                     "warpgate.html#.spawnAt": {
                       "ref": "warpgate.html#.spawnAt",
                       "tf": 3.571428571428571
+                    },
+                    "warpgate.util.html#.RingGenerator": {
+                      "ref": "warpgate.util.html#.RingGenerator",
+                      "tf": 5
                     }
                   }
                 },
@@ -9136,6 +9597,20 @@ window.lunrData = {
                   }
                 }
               }
+            },
+            "y": {
+              "docs": {},
+              "e": {
+                "docs": {},
+                "r": {
+                  "docs": {
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 2
+                    }
+                  }
+                }
+              }
             }
           },
           "t": {
@@ -9181,8 +9656,8 @@ window.lunrData = {
                                     "ref": "warpgate.html#.mutationStack",
                                     "tf": 25
                                   },
-                                  "warpgate.crosshairs.html#.collectPlaceables": {
-                                    "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                                  "warpgate.crosshairs.html#.collect": {
+                                    "ref": "warpgate.crosshairs.html#.collect",
                                     "tf": 14.285714285714285
                                   },
                                   "warpgate.crosshairs.html#.getTag": {
@@ -9330,10 +9805,6 @@ window.lunrData = {
                             "ref": "warpgate.crosshairs.html#.show",
                             "tf": 16.666666666666664
                           },
-                          "warpgate.dnd5e.html#.rollItem": {
-                            "ref": "warpgate.dnd5e.html#.rollItem",
-                            "tf": 16.666666666666664
-                          },
                           "warpgate.plugin.html#.batchMutate": {
                             "ref": "warpgate.plugin.html#.batchMutate",
                             "tf": 16.666666666666664
@@ -9369,11 +9840,42 @@ window.lunrData = {
                     }
                   }
                 }
+              },
+              "g": {
+                "docs": {},
+                "e": {
+                  "docs": {},
+                  "n": {
+                    "docs": {},
+                    "e": {
+                      "docs": {},
+                      "r": {
+                        "docs": {
+                          "warpgate.util.html#.RingGenerator": {
+                            "ref": "warpgate.util.html#.RingGenerator",
+                            "tf": 33.33333333333333
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
               }
             }
           },
           "e": {
             "docs": {},
+            "f": {
+              "docs": {},
+              "t": {
+                "docs": {
+                  "PlaceableFit.html#spaceClear": {
+                    "ref": "PlaceableFit.html#spaceClear",
+                    "tf": 5.555555555555555
+                  }
+                }
+              }
+            },
             "v": {
               "docs": {},
               "e": {
@@ -9460,10 +9962,6 @@ window.lunrData = {
                         "ref": "warpgate.html#.spawnAt",
                         "tf": 11.11111111111111
                       },
-                      "warpgate.dnd5e.html#.rollItem": {
-                        "ref": "warpgate.dnd5e.html#.rollItem",
-                        "tf": 16.666666666666664
-                      },
                       "warpgate.event.html#.watch": {
                         "ref": "warpgate.event.html#.watch",
                         "tf": 2.083333333333333
@@ -9506,6 +10004,23 @@ window.lunrData = {
                       "warpgate.crosshairs.html#.show": {
                         "ref": "warpgate.crosshairs.html#.show",
                         "tf": 1.25
+                      }
+                    }
+                  }
+                }
+              },
+              "w": {
+                "docs": {},
+                "a": {
+                  "docs": {},
+                  "r": {
+                    "docs": {},
+                    "d": {
+                      "docs": {
+                        "warpgate.util.html#.RingGenerator": {
+                          "ref": "warpgate.util.html#.RingGenerator",
+                          "tf": 5
+                        }
                       }
                     }
                   }
@@ -9580,6 +10095,35 @@ window.lunrData = {
                         "tf": 1.9230769230769231
                       }
                     },
+                    "|": {
+                      "docs": {},
+                      "u": {
+                        "docs": {},
+                        "n": {
+                          "docs": {},
+                          "d": {
+                            "docs": {},
+                            "e": {
+                              "docs": {},
+                              "f": {
+                                "docs": {},
+                                "i": {
+                                  "docs": {},
+                                  "n": {
+                                    "docs": {
+                                      "PlaceableFit.html#find": {
+                                        "ref": "PlaceableFit.html#find",
+                                        "tf": 50
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
                     ".": {
                       "docs": {},
                       "&": {
@@ -9596,8 +10140,8 @@ window.lunrData = {
                                   "docs": {},
                                   "r": {
                                     "docs": {
-                                      "warpgate.crosshairs.html#.collectPlaceables": {
-                                        "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                                      "warpgate.crosshairs.html#.collect": {
+                                        "ref": "warpgate.crosshairs.html#.collect",
                                         "tf": 14.285714285714285
                                       }
                                     }
@@ -9772,6 +10316,24 @@ window.lunrData = {
                       }
                     }
                   }
+                },
+                "l": {
+                  "docs": {},
+                  "a": {
+                    "docs": {},
+                    "p": {
+                      "docs": {
+                        "PlaceableFit.html#find": {
+                          "ref": "PlaceableFit.html#find",
+                          "tf": 7.142857142857142
+                        },
+                        "PlaceableFit.html#spaceClear": {
+                          "ref": "PlaceableFit.html#spaceClear",
+                          "tf": 5.555555555555555
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -9786,9 +10348,40 @@ window.lunrData = {
                   "docs": {},
                   "n": {
                     "docs": {
+                      "PlaceableFit.html#find": {
+                        "ref": "PlaceableFit.html#find",
+                        "tf": 7.142857142857142
+                      },
+                      "PlaceableFit.html#spaceClear": {
+                        "ref": "PlaceableFit.html#spaceClear",
+                        "tf": 5.555555555555555
+                      },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
                         "tf": 0.49504950495049505
+                      }
+                    },
+                    "a": {
+                      "docs": {},
+                      "l": {
+                        "docs": {},
+                        "c": {
+                          "docs": {},
+                          "e": {
+                            "docs": {},
+                            "n": {
+                              "docs": {},
+                              "t": {
+                                "docs": {
+                                  "PlaceableFit.html#_offsetCollidesWall": {
+                                    "ref": "PlaceableFit.html#_offsetCollidesWall",
+                                    "tf": 33.33333333333333
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -9861,6 +10454,87 @@ window.lunrData = {
                 }
               }
             },
+            "p": {
+              "docs": {},
+              "o": {
+                "docs": {},
+                "r": {
+                  "docs": {},
+                  "t": {
+                    "docs": {},
+                    "s": {
+                      "docs": {},
+                      ".": {
+                        "docs": {},
+                        "p": {
+                          "docs": {},
+                          "l": {
+                            "docs": {},
+                            "a": {
+                              "docs": {},
+                              "c": {
+                                "docs": {},
+                                "e": {
+                                  "docs": {},
+                                  "a": {
+                                    "docs": {},
+                                    "b": {
+                                      "docs": {},
+                                      "l": {
+                                        "docs": {},
+                                        "e": {
+                                          "docs": {},
+                                          "f": {
+                                            "docs": {},
+                                            "i": {
+                                              "docs": {},
+                                              "t": {
+                                                "docs": {
+                                                  "PlaceableFit.exports.PlaceableFit.html": {
+                                                    "ref": "PlaceableFit.exports.PlaceableFit.html",
+                                                    "tf": 600
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "s": {
+                  "docs": {
+                    "warpgate.event.html": {
+                      "ref": "warpgate.event.html",
+                      "tf": 2.1739130434782608
+                    }
+                  }
+                }
+              },
+              "l": {
+                "docs": {},
+                "o": {
+                  "docs": {},
+                  "r": {
+                    "docs": {
+                      "warpgate.util.html#.RingGenerator": {
+                        "ref": "warpgate.util.html#.RingGenerator",
+                        "tf": 5
+                      }
+                    }
+                  }
+                }
+              }
+            },
             "t": {
               "docs": {},
               "e": {
@@ -9873,20 +10547,6 @@ window.lunrData = {
                         "ref": "warpgate.abstract.html",
                         "tf": 14
                       }
-                    }
-                  }
-                }
-              }
-            },
-            "p": {
-              "docs": {},
-              "o": {
-                "docs": {},
-                "s": {
-                  "docs": {
-                    "warpgate.event.html": {
-                      "ref": "warpgate.event.html",
-                      "tf": 2.1739130434782608
                     }
                   }
                 }
@@ -10010,6 +10670,10 @@ window.lunrData = {
                       "MutationStack.html#deleteAll": {
                         "ref": "MutationStack.html#deleteAll",
                         "tf": 5.555555555555555
+                      },
+                      "PlaceableFit.html": {
+                        "ref": "PlaceableFit.html",
+                        "tf": 2
                       }
                     }
                   }
@@ -10286,6 +10950,22 @@ window.lunrData = {
                             "ref": "MutationStack.html#updateAll",
                             "tf": 115.55555555555556
                           },
+                          "PlaceableFit.html#_collisionBounds": {
+                            "ref": "PlaceableFit.html#_collisionBounds",
+                            "tf": 110
+                          },
+                          "PlaceableFit.html#_offsetCollidesWall": {
+                            "ref": "PlaceableFit.html#_offsetCollidesWall",
+                            "tf": 110
+                          },
+                          "PlaceableFit.html#find": {
+                            "ref": "PlaceableFit.html#find",
+                            "tf": 110
+                          },
+                          "PlaceableFit.html#spaceClear": {
+                            "ref": "PlaceableFit.html#spaceClear",
+                            "tf": 110
+                          },
                           "warpgate.html": {
                             "ref": "warpgate.html",
                             "tf": 7
@@ -10330,8 +11010,8 @@ window.lunrData = {
                             "ref": "warpgate.crosshairs.html",
                             "tf": 23.333333333333332
                           },
-                          "warpgate.crosshairs.html#.collectPlaceables": {
-                            "ref": "warpgate.crosshairs.html#.collectPlaceables",
+                          "warpgate.crosshairs.html#.collect": {
+                            "ref": "warpgate.crosshairs.html#.collect",
                             "tf": 110
                           },
                           "warpgate.crosshairs.html#.getTag": {
@@ -10341,10 +11021,6 @@ window.lunrData = {
                           "warpgate.crosshairs.html#.show": {
                             "ref": "warpgate.crosshairs.html#.show",
                             "tf": 110
-                          },
-                          "warpgate.dnd5e.html#.rollItem": {
-                            "ref": "warpgate.dnd5e.html#.rollItem",
-                            "tf": 126.66666666666666
                           },
                           "warpgate.event.html": {
                             "ref": "warpgate.event.html",
@@ -10385,6 +11061,10 @@ window.lunrData = {
                           "warpgate.util.html": {
                             "ref": "warpgate.util.html",
                             "tf": 14
+                          },
+                          "warpgate.util.html#.RingGenerator": {
+                            "ref": "warpgate.util.html#.RingGenerator",
+                            "tf": 5
                           },
                           "warpgate.util.html#.firstGM": {
                             "ref": "warpgate.util.html#.firstGM",
@@ -10582,6 +11262,10 @@ window.lunrData = {
                   "MutationStack.html#find": {
                     "ref": "MutationStack.html#find",
                     "tf": 683.3333333333334
+                  },
+                  "PlaceableFit.html#find": {
+                    "ref": "PlaceableFit.html#find",
+                    "tf": 700
                   }
                 }
               },
@@ -10598,6 +11282,18 @@ window.lunrData = {
                       "tf": 1.25
                     }
                   }
+                }
+              }
+            },
+            "t": {
+              "docs": {
+                "PlaceableFit.html#spaceClear": {
+                  "ref": "PlaceableFit.html#spaceClear",
+                  "tf": 5.555555555555555
+                },
+                "PlaceableFit.exports.PlaceableFit.html": {
+                  "ref": "PlaceableFit.exports.PlaceableFit.html",
+                  "tf": 8.333333333333332
                 }
               }
             }
@@ -10704,6 +11400,17 @@ window.lunrData = {
           },
           "r": {
             "docs": {},
+            "e": {
+              "docs": {},
+              "e": {
+                "docs": {
+                  "PlaceableFit.html": {
+                    "ref": "PlaceableFit.html",
+                    "tf": 4
+                  }
+                }
+              }
+            },
             "i": {
               "docs": {},
               "e": {
@@ -10831,6 +11538,10 @@ window.lunrData = {
                       },
                       "warpgate.html#.USERS": {
                         "ref": "warpgate.html#.USERS",
+                        "tf": 110
+                      },
+                      "warpgate.util.html#.RingGenerator": {
+                        "ref": "warpgate.util.html#.RingGenerator",
                         "tf": 110
                       }
                     }
@@ -11677,6 +12388,29 @@ window.lunrData = {
                         }
                       }
                     }
+                  },
+                  "e": {
+                    "docs": {},
+                    "d": {
+                      "docs": {},
+                      "c": {
+                        "docs": {},
+                        "e": {
+                          "docs": {},
+                          "n": {
+                            "docs": {},
+                            "t": {
+                              "docs": {
+                                "PlaceableFit.html#_offsetCollidesWall": {
+                                  "ref": "PlaceableFit.html#_offsetCollidesWall",
+                                  "tf": 33.33333333333333
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -11725,6 +12459,14 @@ window.lunrData = {
                       "MutationStack.html#find": {
                         "ref": "MutationStack.html#find",
                         "tf": 7.142857142857142
+                      },
+                      "PlaceableFit.html#find": {
+                        "ref": "PlaceableFit.html#find",
+                        "tf": 7.142857142857142
+                      },
+                      "PlaceableFit.exports.PlaceableFit.html": {
+                        "ref": "PlaceableFit.exports.PlaceableFit.html",
+                        "tf": 8.333333333333332
                       }
                     }
                   }
@@ -11942,10 +12684,6 @@ window.lunrData = {
                               "ref": "warpgate.crosshairs.html#.show",
                               "tf": 16.666666666666664
                             },
-                            "warpgate.dnd5e.html#.rollItem": {
-                              "ref": "warpgate.dnd5e.html#.rollItem",
-                              "tf": 16.666666666666664
-                            },
                             "warpgate.plugin.html#.batchMutate": {
                               "ref": "warpgate.plugin.html#.batchMutate",
                               "tf": 16.666666666666664
@@ -11953,6 +12691,10 @@ window.lunrData = {
                             "warpgate.plugin.html#.batchRevert": {
                               "ref": "warpgate.plugin.html#.batchRevert",
                               "tf": 16.666666666666664
+                            },
+                            "warpgate.util.html#.RingGenerator": {
+                              "ref": "warpgate.util.html#.RingGenerator",
+                              "tf": 33.33333333333333
                             }
                           }
                         }
@@ -12219,10 +12961,6 @@ window.lunrData = {
                         "ref": "warpgate.html#.spawn",
                         "tf": 1.0869565217391304
                       },
-                      "warpgate.dnd5e.html": {
-                        "ref": "warpgate.dnd5e.html",
-                        "tf": 23.333333333333332
-                      },
                       "warpgate.plugin.html#.batchMutate": {
                         "ref": "warpgate.plugin.html#.batchMutate",
                         "tf": 1.4285714285714286
@@ -12254,6 +12992,32 @@ window.lunrData = {
             },
             "a": {
               "docs": {},
+              "c": {
+                "docs": {},
+                "e": {
+                  "docs": {},
+                  "c": {
+                    "docs": {},
+                    "l": {
+                      "docs": {},
+                      "e": {
+                        "docs": {},
+                        "a": {
+                          "docs": {},
+                          "r": {
+                            "docs": {
+                              "PlaceableFit.html#spaceClear": {
+                                "ref": "PlaceableFit.html#spaceClear",
+                                "tf": 700
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
               "w": {
                 "docs": {},
                 "n": {
@@ -12483,6 +13247,23 @@ window.lunrData = {
               }
             }
           },
+          "l": {
+            "docs": {},
+            "i": {
+              "docs": {},
+              "d": {
+                "docs": {},
+                "e": {
+                  "docs": {
+                    "PlaceableFit.html": {
+                      "ref": "PlaceableFit.html",
+                      "tf": 2
+                    }
+                  }
+                }
+              }
+            }
+          },
           "y": {
             "docs": {},
             "m": {
@@ -12513,10 +13294,6 @@ window.lunrData = {
                       "warpgate.html#.EVENT": {
                         "ref": "warpgate.html#.EVENT",
                         "tf": 8.333333333333332
-                      },
-                      "warpgate.dnd5e.html": {
-                        "ref": "warpgate.dnd5e.html",
-                        "tf": 23.333333333333332
                       },
                       "warpgate.event.html": {
                         "ref": "warpgate.event.html",
@@ -12624,6 +13401,10 @@ window.lunrData = {
             },
             "w": {
               "docs": {
+                "PlaceableFit.exports.PlaceableFit.html": {
+                  "ref": "PlaceableFit.exports.PlaceableFit.html",
+                  "tf": 8.333333333333332
+                },
                 "warpgate.html#.mutationStack": {
                   "ref": "warpgate.html#.mutationStack",
                   "tf": 5
@@ -12649,6 +13430,46 @@ window.lunrData = {
                       "MutationStack.html#last": {
                         "ref": "MutationStack.html#last",
                         "tf": 4.545454545454546
+                      }
+                    }
+                  }
+                }
+              },
+              "o": {
+                "docs": {},
+                "r": {
+                  "docs": {},
+                  "i": {
+                    "docs": {},
+                    "g": {
+                      "docs": {},
+                      "i": {
+                        "docs": {},
+                        "n": {
+                          "docs": {
+                            "PlaceableFit.html#_collisionBounds": {
+                              "ref": "PlaceableFit.html#_collisionBounds",
+                              "tf": 50
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "a": {
+              "docs": {},
+              "r": {
+                "docs": {},
+                "b": {
+                  "docs": {},
+                  "i": {
+                    "docs": {
+                      "PlaceableFit.html": {
+                        "ref": "PlaceableFit.html",
+                        "tf": 2
                       }
                     }
                   }
@@ -12778,10 +13599,6 @@ window.lunrData = {
                             "ref": "warpgate.crosshairs.html",
                             "tf": 110
                           },
-                          "warpgate.dnd5e.html": {
-                            "ref": "warpgate.dnd5e.html",
-                            "tf": 110
-                          },
                           "warpgate.event.html": {
                             "ref": "warpgate.event.html",
                             "tf": 110
@@ -12823,6 +13640,14 @@ window.lunrData = {
                         }
                       }
                     }
+                  }
+                }
+              },
+              "d": {
+                "docs": {
+                  "PlaceableFit.html": {
+                    "ref": "PlaceableFit.html",
+                    "tf": 2
                   }
                 }
               }
@@ -13125,6 +13950,24 @@ window.lunrData = {
                   }
                 }
               }
+            },
+            "u": {
+              "docs": {},
+              "n": {
+                "docs": {},
+                "d": {
+                  "docs": {
+                    "PlaceableFit.html#find": {
+                      "ref": "PlaceableFit.html#find",
+                      "tf": 7.142857142857142
+                    },
+                    "PlaceableFit.exports.PlaceableFit.html": {
+                      "ref": "PlaceableFit.exports.PlaceableFit.html",
+                      "tf": 8.333333333333332
+                    }
+                  }
+                }
+              }
             }
           },
           "r": {
@@ -13272,6 +14115,109 @@ window.lunrData = {
                 }
               }
             }
+          },
+          "c": {
+            "docs": {},
+            "o": {
+              "docs": {},
+              "l": {
+                "docs": {},
+                "l": {
+                  "docs": {},
+                  "i": {
+                    "docs": {},
+                    "s": {
+                      "docs": {},
+                      "i": {
+                        "docs": {},
+                        "o": {
+                          "docs": {},
+                          "n": {
+                            "docs": {},
+                            "b": {
+                              "docs": {},
+                              "o": {
+                                "docs": {},
+                                "u": {
+                                  "docs": {},
+                                  "n": {
+                                    "docs": {},
+                                    "d": {
+                                      "docs": {
+                                        "PlaceableFit.html#_collisionBounds": {
+                                          "ref": "PlaceableFit.html#_collisionBounds",
+                                          "tf": 700
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "o": {
+            "docs": {},
+            "f": {
+              "docs": {},
+              "f": {
+                "docs": {},
+                "s": {
+                  "docs": {},
+                  "e": {
+                    "docs": {},
+                    "t": {
+                      "docs": {},
+                      "c": {
+                        "docs": {},
+                        "o": {
+                          "docs": {},
+                          "l": {
+                            "docs": {},
+                            "l": {
+                              "docs": {},
+                              "i": {
+                                "docs": {},
+                                "d": {
+                                  "docs": {},
+                                  "e": {
+                                    "docs": {},
+                                    "s": {
+                                      "docs": {},
+                                      "w": {
+                                        "docs": {},
+                                        "a": {
+                                          "docs": {},
+                                          "l": {
+                                            "docs": {
+                                              "PlaceableFit.html#_offsetCollidesWall": {
+                                                "ref": "PlaceableFit.html#_offsetCollidesWall",
+                                                "tf": 683.3333333333334
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "h": {
@@ -13334,14 +14280,6 @@ window.lunrData = {
                       "warpgate.html#.wait": {
                         "ref": "warpgate.html#.wait",
                         "tf": 3.571428571428571
-                      },
-                      "warpgate.dnd5e.html": {
-                        "ref": "warpgate.dnd5e.html",
-                        "tf": 23.333333333333332
-                      },
-                      "warpgate.dnd5e.html#.rollItem": {
-                        "ref": "warpgate.dnd5e.html#.rollItem",
-                        "tf": 16.666666666666664
                       },
                       "warpgate.plugin.html#.notice": {
                         "ref": "warpgate.plugin.html#.notice",
@@ -13476,12 +14414,15 @@ window.lunrData = {
           }
         }
       },
-      "length": 1114
+      "length": 1177
     },
     "corpusTokens": [
+      "_collisionbound",
       "_drawcontrolicon",
       "_drawrulertext",
+      "_offsetcollideswal",
       "abstract",
+      "accept",
       "access",
       "accord",
       "activ",
@@ -13502,6 +14443,7 @@ window.lunrData = {
       "api",
       "appli",
       "arbitrari",
+      "area",
       "argument",
       "array",
       "array.&lt;any&gt",
@@ -13524,6 +14466,7 @@ window.lunrData = {
       "bias",
       "bool",
       "boolean",
+      "bound",
       "broadcast",
       "buffer",
       "button",
@@ -13532,6 +14475,7 @@ window.lunrData = {
       "callback",
       "camera",
       "cancel",
+      "canva",
       "canvas.templates.preview",
       "case",
       "center",
@@ -13546,7 +14490,7 @@ window.lunrData = {
       "class",
       "click",
       "client",
-      "collectplac",
+      "collect",
       "color",
       "commit",
       "common",
@@ -13556,6 +14500,7 @@ window.lunrData = {
       "condit",
       "conditionfn",
       "config",
+      "connect",
       "const",
       "constant",
       "cont",
@@ -13590,7 +14535,7 @@ window.lunrData = {
       "crosshairs#tag",
       "crosshairs#tiletextur",
       "crosshairs#toobject",
-      "crosshairs.collectplac",
+      "crosshairs.collect",
       "crosshairs.gettag",
       "crosshairs.show",
       "crosshairsdata",
@@ -13618,8 +14563,6 @@ window.lunrData = {
       "dismiss",
       "display",
       "display/inform",
-      "dnd5e",
-      "dnd5e.rollitem",
       "doc",
       "document",
       "down",
@@ -13648,6 +14591,8 @@ window.lunrData = {
       "exampl",
       "except",
       "execut",
+      "explor",
+      "exports.placeablefit",
       "expos",
       "extens",
       "factori",
@@ -13665,8 +14610,10 @@ window.lunrData = {
       "first",
       "firstgm",
       "firstown",
+      "fit",
       "fn",
       "follow",
+      "free",
       "friendli",
       "full",
       "function",
@@ -13715,16 +14662,18 @@ window.lunrData = {
       "interv",
       "isfirstgm",
       "isfirstown",
-      "item",
       "key",
       "label",
       "labeloffset",
       "last",
+      "layer",
+      "left",
       "level",
       "line",
       "list",
       "list:namespac",
       "listen",
+      "loc",
       "local",
       "locat",
       "lock",
@@ -13735,6 +14684,7 @@ window.lunrData = {
       "lower",
       "lt;async",
       "lt;async&gt",
+      "lt;gener",
       "lt;protected&gt",
       "lt;static",
       "lt;static&gt",
@@ -13774,10 +14724,12 @@ window.lunrData = {
       "n+1",
       "name",
       "namespac",
+      "nearbi",
       "need",
       "new",
       "newest",
       "newli",
+      "neworigin",
       "none",
       "note",
       "notic",
@@ -13786,6 +14738,7 @@ window.lunrData = {
       "numer",
       "object",
       "object.&lt;str",
+      "object|undefin",
       "obscur",
       "obtain",
       "offset",
@@ -13797,8 +14750,11 @@ window.lunrData = {
       "option",
       "order",
       "origin",
+      "originalcent",
       "outer",
       "outlin",
+      "outward",
+      "overlap",
       "overwrit",
       "own",
       "owner",
@@ -13809,6 +14765,7 @@ window.lunrData = {
       "pass",
       "password",
       "path",
+      "pattern",
       "payload",
       "peel",
       "perform",
@@ -13819,6 +14776,12 @@ window.lunrData = {
       "pixi.displayobject|undefin",
       "place",
       "placeabl",
+      "placeablefit",
+      "placeablefit#_collisionbound",
+      "placeablefit#_offsetcollideswal",
+      "placeablefit#find",
+      "placeablefit#spaceclear",
+      "placeablefit.exports.placeablefit",
       "placeableobject&gt",
       "placement",
       "player",
@@ -13852,6 +14815,7 @@ window.lunrData = {
       "provid",
       "purpos",
       "pylon",
+      "quad",
       "quantiz",
       "queri",
       "queueupdat",
@@ -13868,6 +14832,7 @@ window.lunrData = {
       "remot",
       "remov",
       "report",
+      "request",
       "respect",
       "respond",
       "respons",
@@ -13878,7 +14843,8 @@ window.lunrData = {
       "revert",
       "right",
       "rightx",
-      "rollitem",
+      "ring",
+      "ringgener",
       "rollov",
       "rout",
       "safe",
@@ -13898,6 +14864,7 @@ window.lunrData = {
       "sheet",
       "shift+mous",
       "shift+scrol",
+      "shiftedcent",
       "shortcut",
       "shorthand",
       "show",
@@ -13906,8 +14873,10 @@ window.lunrData = {
       "simpl",
       "singl",
       "size",
+      "slide",
       "snap",
       "sourc",
+      "spaceclear",
       "spawn",
       "spawnat",
       "spawnloc",
@@ -13949,6 +14918,7 @@ window.lunrData = {
       "toward",
       "tranform",
       "transform",
+      "tree",
       "trigger",
       "true",
       "two",
@@ -13972,7 +14942,9 @@ window.lunrData = {
       "util.firstown",
       "util.isfirstgm",
       "util.isfirstown",
+      "util.ringgener",
       "valu",
+      "vertex",
       "via",
       "wait",
       "warp",
@@ -13982,12 +14954,10 @@ window.lunrData = {
       "warpgate.buttondialog",
       "warpgate.const",
       "warpgate.crosshair",
-      "warpgate.crosshairs.collectplac",
+      "warpgate.crosshairs.collect",
       "warpgate.crosshairs.gettag",
       "warpgate.crosshairs.show",
       "warpgate.dismiss",
-      "warpgate.dnd5",
-      "warpgate.dnd5e.rollitem",
       "warpgate.ev",
       "warpgate.event.notifi",
       "warpgate.event.remov",
@@ -14010,12 +14980,14 @@ window.lunrData = {
       "warpgate.util.firstown",
       "warpgate.util.isfirstgm",
       "warpgate.util.isfirstown",
+      "warpgate.util.ringgener",
       "warpgate.wait",
       "watch",
       "well",
       "whether",
       "whose",
       "within",
+      "without",
       "world"
     ],
     "pipeline": [
@@ -14410,6 +15382,68 @@ window.lunrData = {
       "summary": "",
       "description": ""
     },
+    "PlaceableFit.html": {
+      "id": "PlaceableFit.html",
+      "kind": "class",
+      "title": "PlaceableFit",
+      "longname": "PlaceableFit",
+      "name": "PlaceableFit",
+      "tags": "PlaceableFit",
+      "summary": "",
+      "description": "Utility class for locating a free area on the grid from a given initial 'requested' position. Effectively slides the requested position to a nearby position free of other tokens (by default, but accepts arbitrary canvas layers with quad trees)",
+      "body": ""
+    },
+    "PlaceableFit.html#_collisionBounds": {
+      "id": "PlaceableFit.html#_collisionBounds",
+      "kind": "function",
+      "title": "_collisionBounds( newOrigin )",
+      "longname": "PlaceableFit#_collisionBounds",
+      "name": "_collisionBounds",
+      "tags": "PlaceableFit#_collisionBounds _collisionBounds",
+      "summary": "",
+      "description": ""
+    },
+    "PlaceableFit.html#_offsetCollidesWall": {
+      "id": "PlaceableFit.html#_offsetCollidesWall",
+      "kind": "function",
+      "title": "_offsetCollidesWall( originalCenter, shiftedCenter )",
+      "longname": "PlaceableFit#_offsetCollidesWall",
+      "name": "_offsetCollidesWall",
+      "tags": "PlaceableFit#_offsetCollidesWall _offsetCollidesWall",
+      "summary": "",
+      "description": ""
+    },
+    "PlaceableFit.html#find": {
+      "id": "PlaceableFit.html#find",
+      "kind": "function",
+      "title": "find() → {Object|undefined}",
+      "longname": "PlaceableFit#find",
+      "name": "find",
+      "tags": "PlaceableFit#find find",
+      "summary": "",
+      "description": "Searches for and returns the bounds origin point at which it does not overlap other placeables."
+    },
+    "PlaceableFit.html#spaceClear": {
+      "id": "PlaceableFit.html#spaceClear",
+      "kind": "function",
+      "title": "spaceClear( loc )",
+      "longname": "PlaceableFit#spaceClear",
+      "name": "spaceClear",
+      "tags": "PlaceableFit#spaceClear spaceClear",
+      "summary": "",
+      "description": "With the provided origin (top left), can this placeable fit without overlapping other placeables?"
+    },
+    "PlaceableFit.exports.PlaceableFit.html": {
+      "id": "PlaceableFit.exports.PlaceableFit.html",
+      "kind": "class",
+      "title": "PlaceableFit.exports.PlaceableFit",
+      "longname": "PlaceableFit.exports.PlaceableFit",
+      "name": "exports.PlaceableFit",
+      "tags": "PlaceableFit.exports.PlaceableFit exports.PlaceableFit PlaceableFit",
+      "summary": "",
+      "description": "Initialize new \"fit\" search from the provided bounds.",
+      "body": ""
+    },
     "warpgate.html": {
       "id": "warpgate.html",
       "kind": "namespace",
@@ -14563,13 +15597,13 @@ window.lunrData = {
       "description": "",
       "body": ""
     },
-    "warpgate.crosshairs.html#.collectPlaceables": {
-      "id": "warpgate.crosshairs.html#.collectPlaceables",
+    "warpgate.crosshairs.html#.collect": {
+      "id": "warpgate.crosshairs.html#.collect",
       "kind": "function",
-      "title": "&lt;static&gt; collectPlaceables( crosshairsData [, types [, containedFilter ] ] ) → {Object.&lt;String, PlaceableObject&gt;}",
-      "longname": "warpgate.crosshairs.collectPlaceables",
-      "name": "collectPlaceables",
-      "tags": "warpgate.crosshairs.collectPlaceables crosshairs.collectPlaceables collectPlaceables",
+      "title": "&lt;static&gt; collect( crosshairsData [, types [, containedFilter ] ] ) → {Object.&lt;String, PlaceableObject&gt;}",
+      "longname": "warpgate.crosshairs.collect",
+      "name": "collect",
+      "tags": "warpgate.crosshairs.collect crosshairs.collect collect",
       "summary": "",
       "description": "Returns desired types of placeables whose center point is within the crosshairs radius."
     },
@@ -14592,27 +15626,6 @@ window.lunrData = {
       "tags": "warpgate.crosshairs.show crosshairs.show show",
       "summary": "",
       "description": "Displays a circular template attached to the mouse cursor that snaps to grid centers and grid intersections. Its size is in grid squares/hexes and can be scaled up and down via shift+mouse scroll. Resulting data indicates the final position and size of the template. Note: Shift+Scroll will increase/decrease the size of the crosshairs outline, which increases or decreases the size of the token spawned, independent of other modifications."
-    },
-    "warpgate.dnd5e.html": {
-      "id": "warpgate.dnd5e.html",
-      "kind": "namespace",
-      "title": ".warpgate.dnd5e",
-      "longname": "warpgate.dnd5e",
-      "name": "dnd5e",
-      "tags": "warpgate.dnd5e dnd5e",
-      "summary": "System specific helpers",
-      "description": "",
-      "body": ""
-    },
-    "warpgate.dnd5e.html#.rollItem": {
-      "id": "warpgate.dnd5e.html#.rollItem",
-      "kind": "function",
-      "title": "&lt;async, static&gt; rollItem( item [, options [, config ] ] )",
-      "longname": "warpgate.dnd5e.rollItem",
-      "name": "rollItem",
-      "tags": "warpgate.dnd5e.rollItem dnd5e.rollItem rollItem",
-      "summary": "",
-      "description": "dnd5e helper function"
     },
     "warpgate.event.html": {
       "id": "warpgate.event.html",
@@ -14726,6 +15739,16 @@ window.lunrData = {
       "summary": "Utility functions for common queries and operations",
       "description": "",
       "body": ""
+    },
+    "warpgate.util.html#.RingGenerator": {
+      "id": "warpgate.util.html#.RingGenerator",
+      "kind": "member",
+      "title": "&lt;generator, static&gt; RingGenerator",
+      "longname": "warpgate.util.RingGenerator",
+      "name": "RingGenerator",
+      "tags": "warpgate.util.RingGenerator util.RingGenerator RingGenerator",
+      "summary": "",
+      "description": "Generator function for exploring vertex-connected grid locations in an outward \"ring\" pattern."
     },
     "warpgate.util.html#.firstGM": {
       "id": "warpgate.util.html#.firstGM",

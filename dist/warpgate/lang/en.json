@@ -51,10 +51,10 @@
       },
       "option": {
         "disabled": "Disabled",
-        "spawnedOnly": "Spawned tokens only",
-        "all": "All owned tokens",
-        "showMutationList": "Show mutation stack dialog",
-        "popLatestMutation": "Revert last mutation",
+        "spawnedOnly": "Only Spawned",
+        "all": "All Owned",
+        "showMutationList": "Show Mutation List",
+        "popLatestMutation": "Revert Last Mutation",
         "useWorld": "(use world setting)",
         "overrideTrue": "Override: True",
         "overrideFalse": "Override: False"

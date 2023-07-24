@@ -230,7 +230,6 @@ export class api {
        * @borrows MODULE.isFirstGM as isFirstGM
        * @borrows MODULE.firstOwner as firstOwner
        * @borrows MODULE.isFirstOwner as isFirstOwner
-       * @borrows RingGenerator as RingGenerator
        */
       util: {
         firstGM : MODULE.firstGM,
@@ -246,7 +245,7 @@ export class api {
        * @alias warpgate.crosshairs
        * @borrows Gateway.showCrosshairs as show
        * @borrows Crosshairs.getTag as getTag
-       * @borrows Gateway.collectPlaceables as collectPlaceables
+       * @borrows Gateway.collectPlaceables as collect
        */
       crosshairs: {
         show: showCrosshairs,
@@ -271,6 +270,7 @@ export class api {
       /**
        * @summary System specific helpers
        * @namespace 
+       * @private
        * @alias warpgate.dnd5e
        * @prop {Function} rollItem
        * @borrows Gateway._rollItemGetLevel as rollItem

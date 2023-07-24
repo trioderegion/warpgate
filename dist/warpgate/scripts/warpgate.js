@@ -2,7 +2,9 @@
 
 /** @typedef {import('./api.js').NoticeConfig} NoticeConfig */
 
+/** @ignore */
 const NAME$3 = "warpgate";
+/** @ignore */
 const PATH = `/modules/${NAME$3}`;
 
 class MODULE {
@@ -28,14 +30,14 @@ class MODULE {
         return (
           {
             10: root.canvas.app.renderer.plugins.interaction.mouse,
-          }[gen] ?? canvas.app.renderer.plugins.interaction.pointer
+          }[gen] ?? canvas.app.renderer.events.pointer
         );
       case "crosshairs.computeShape":
         return (
           {
             10: () => {
               if (root.document.t != "circle") {
-                logger.error("Non-circular Crosshairs is unsupported!");
+                logger$1.error("Non-circular Crosshairs is unsupported!");
               }
               return root._getCircleShape(root.ray.distance);
             },
@@ -53,7 +55,7 @@ class MODULE {
   }
 
   static async register() {
-    logger.info("Initializing Module");
+    logger$1.info("Initializing Module");
     MODULE.settings();
   }
 
@@ -210,7 +212,7 @@ class MODULE {
     try {
       return foundry.utils.deepClone(source, { strict: true });
     } catch (err) {
-      logger.catchThrow(err, MODULE.localize(errorString));
+      logger$1.catchThrow(err, MODULE.localize(errorString));
     }
 
     return;
@@ -367,7 +369,7 @@ class MODULE {
 
     //get source actor
     if (!sourceActor) {
-      logger.error(
+      logger$1.error(
         `Could not find world actor named "${actorNameDoc}" or no souce actor document provided.`
       );
       return false;
@@ -376,7 +378,7 @@ class MODULE {
     //get prototoken data -- need to prepare potential wild cards for the template preview
     let protoData = await sourceActor.getTokenDocument(tokenUpdates);
     if (!protoData) {
-      logger.error(`Could not find proto token data for ${sourceActor.name}`);
+      logger$1.error(`Could not find proto token data for ${sourceActor.name}`);
       return false;
     }
 
@@ -577,7 +579,7 @@ class MODULE {
               const emsg = MODULE.format("error.badSelectOpts", {
                 fnName: "menu",
               });
-              logger.error(emsg);
+              logger$1.error(emsg);
               throw new Error(emsg);
             }
           }
@@ -635,7 +637,7 @@ class MODULE {
   };
 
   static async dialog(data = {}, title = "Prompt", submitLabel = "Ok") {
-    logger.warn(
+    logger$1.warn(
       `'warpgate.dialog' is deprecated and will be removed in version 1.17.0. See 'warpgate.menu' as a replacement.`
     );
     data = data instanceof Array ? data : [data];
@@ -664,7 +666,7 @@ class MODULE {
    * @static
    * @param {object} [prompts]
    * @param {Array<{label: string, type: string, options: any|Array<any>} >} [prompts.inputs=[]] follow the same structure as dialog
-   * @param {Array<{label: string, value: any, callback: Function }>} [prompts.buttons=[]] as buttonDialog
+   * @param {Array<{label: string, value: any, default: false, callback: Function }>} [prompts.buttons=[]] as {@link buttonDialog} with an optional 'default' field where any truthy value sets the button as default for the 'submit' or 'ENTER' event; if none specified, the last button provided will be set as default
    * @param {object} [config]
    * @param {string} [config.title='Prompt'] Title of dialog
    * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
@@ -688,7 +690,8 @@ class MODULE {
    *  }],
    *  buttons: [{
    *    label: 'Yes',
-   *    value: 1
+   *    value: 1,
+   *    default: true
    *  }, {
    *    label: 'No',
    *    value: 2
@@ -728,8 +731,9 @@ class MODULE {
       let content = MODULE.dialogInputs(inputs);
       /** @type Object<string, object> */
       let buttonData = {};
-
+      let def = buttons.at(-1)?.label;
       buttons.forEach((button) => {
+        if ("default" in button) def = button.label;
         buttonData[button.label] = {
           label: button.label,
           callback: async (html) => {
@@ -746,8 +750,9 @@ class MODULE {
 
       /* insert standard submit button if none provided */
       if (buttons.length < 1) {
+        def = defaultButton;
         buttonData = {
-          Ok: {
+          [defaultButton]: {
             label: defaultButton,
             callback: (html) =>
               resolve({
@@ -762,6 +767,7 @@ class MODULE {
         {
           title,
           content,
+          default: def,
           close: (...args) => close(resolve, ...args),
           buttons: buttonData,
           render,
@@ -794,7 +800,8 @@ class MODULE {
   }
 }
 
-class logger {
+/** @ignore */
+let logger$1 = class logger {
   static info(...args) {
     console.log(`${MODULE?.data?.title ?? ""}  | `, ...args);
   }
@@ -837,7 +844,7 @@ class logger {
 
     MODULE.applySettings(settingsData);
   }
-}
+};
 
 /* 
  * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
@@ -1230,7 +1237,11 @@ class Crosshairs extends MeasuredTemplate {
     this.document.updateSource({x, y});
     this.refresh();
     this.moveTime = now;
-    canvas._onDragCanvasPan(event.data.originalEvent);
+
+    if(now - this.initTime > 1000){
+      logger.debug(`1 sec passed (${now} - ${this.initTime}) - panning`);
+      canvas._onDragCanvasPan(event.data.originalEvent);
+    }
   }
 
   _leftClickHandler(event) {
@@ -1295,17 +1306,25 @@ class Crosshairs extends MeasuredTemplate {
 
   _clearHandlers(event) {
     //WARPGATE BEGIN
-    /* remove only ourselves, in case of multiple */
+    /* destroy ourselves */
+    this.document.object.destroy();
+    this.template.destroy();
     this.layer.preview.removeChild(this);
+    this._destroyed = true;
     
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.onmousedown = null;
     canvas.app.view.onmouseup = null;
     canvas.app.view.onwheel = null;
-		//WARPGATE END
+
+    // Show the sheet that originated the preview
+    if (this.actorSheet) this.actorSheet.maximize();
+    this.activeHandlers = false;
+    this.inFlight = false;
+	//WARPGATE END
     
-		/* re-enable interactivity on this layer */
+    /* re-enable interactivity on this layer */
     this.layer.interactiveChildren = true;
 
     /* moving off this layer also deletes ALL active previews?
@@ -1314,23 +1333,14 @@ class Crosshairs extends MeasuredTemplate {
     if (this.layer.preview.children.length == 0) {
       this.initialLayer.activate();
     }
-
-    //BEGIN WARPGATE
-    // Show the sheet that originated the preview
-    if (this.actorSheet) this.actorSheet.maximize();
-    this.activeHandlers = false;
-    this.inFlight = false;
-
-    /* mark this pixi element as destroyed */
-    this._destroyed = true;
-    //END WARPGATE
   }
 
   /**
    * Activate listeners for the template preview
    */
   activatePreviewListeners() {
-    this.moveTime = 0;
+    this.moveTime =  0;
+    this.initTime = Date.now();
     //BEGIN WARPGATE
     this.activeHandlers = true;
 
@@ -1435,13 +1445,13 @@ class Events {
       } of watches[name] ?? []) {
       try {
         if (condition(data)) {
-          logger.debug(`${name} | ${id} passes watch condition`);
+          logger$1.debug(`${name} | ${id} passes watch condition`);
           await fn(data);
         } else {
-          logger.debug(`${name} | ${id} fails watch condition`);
+          logger$1.debug(`${name} | ${id} fails watch condition`);
         }
       } catch (e) {
-        logger.error(`${NAME$2} | error`, e, `\n \nIn watch function (${name})\n`, fn);
+        logger$1.error(`${NAME$2} | error`, e, `\n \nIn watch function (${name})\n`, fn);
       }
     }
 
@@ -1452,14 +1462,14 @@ class Events {
       try {
         const passed = elem.condition(data);
         if (passed) {
-          logger.debug(`${name} | ${elem.id} passes trigger condition`);
+          logger$1.debug(`${name} | ${elem.id} passes trigger condition`);
           acum.run.push(elem);
         } else {
-          logger.debug(`${name} | ${elem.id} fails trigger condition`);
+          logger$1.debug(`${name} | ${elem.id} fails trigger condition`);
           acum.keep.push(elem);
         }
       } catch (e) {
-        logger.error(`${NAME$2} | error`, e, `\n \nIn trigger condition function (${name})\n`, elem.condition);
+        logger$1.error(`${NAME$2} | error`, e, `\n \nIn trigger condition function (${name})\n`, elem.condition);
         return acum;
       } finally {
         return acum;
@@ -1473,11 +1483,11 @@ class Events {
         fn,
         id
       } of run) {
-      logger.debug(`${name} | calling trigger ${id}`);
+      logger$1.debug(`${name} | calling trigger ${id}`);
       try {
         await fn(data);
       } catch (e) {
-        logger.error(`${NAME$2} | error`, e, `\n \nIn trigger function (${name})\n`, fn);
+        logger$1.error(`${NAME$2} | error`, e, `\n \nIn trigger function (${name})\n`, fn);
       }
     }
 
@@ -1680,7 +1690,7 @@ class Mutator {
 
         /* hopefully we found something */
         if(currentData) setProperty(inverted, key, currentData.toObject());
-        else logger.debug('Delta Creation: Could not locate shorthand identified document for deletion.', collection, key, updates[key]);
+        else logger$1.debug('Delta Creation: Could not locate shorthand identified document for deletion.', collection, key, updates[key]);
 
         return;
       }
@@ -1717,7 +1727,7 @@ class Mutator {
       const badItemAdd = (updates.add ?? []).find( add => !add.type );
 
       if (badItemAdd) {
-        logger.info(badItemAdd);
+        logger$1.info(badItemAdd);
         const message = MODULE.format('error.badMutate.missing.type', {embeddedName});
 
         return {error: true, message}
@@ -1736,30 +1746,30 @@ class Mutator {
     const parsedUpdates = Mutator._parseUpdateShorthand(collection, updates, comparisonKey); 
     const parsedDeletes = Mutator._parseDeleteShorthand(collection, updates, comparisonKey);
 
-    logger.debug(`Modify embedded ${embeddedName} of ${owner.name} from`, {adds: parsedAdds, updates: parsedUpdates, deletes: parsedDeletes});
+    logger$1.debug(`Modify embedded ${embeddedName} of ${owner.name} from`, {adds: parsedAdds, updates: parsedUpdates, deletes: parsedDeletes});
 
     const {error, message} = Mutator._errorCheckEmbeddedUpdates( embeddedName, {add: parsedAdds, update: parsedUpdates, delete: parsedDeletes} );
     if(error) {
-      logger.error(message);
+      logger$1.error(message);
       return false;
     }
 
     try {
       if (parsedAdds.length > 0) await owner.createEmbeddedDocuments(embeddedName, parsedAdds, updateOpts);
     } catch (e) {
-      logger.error(e);
+      logger$1.error(e);
     } 
 
     try {
       if (parsedUpdates.length > 0) await owner.updateEmbeddedDocuments(embeddedName, parsedUpdates, updateOpts);
     } catch (e) {
-      logger.error(e);
+      logger$1.error(e);
     }
 
     try {
       if (parsedDeletes.length > 0) await owner.deleteEmbeddedDocuments(embeddedName, parsedDeletes, updateOpts);
     } catch (e) {
-      logger.error(e);
+      logger$1.error(e);
     }
 
     return true;
@@ -1783,7 +1793,7 @@ class Mutator {
   /* @TODO support embedded documents within embedded documents */
   static async _updateActor(actor, updates = {}, comparisonKeys = {}, updateOpts = {}) {
 
-    logger.debug('Performing update on (actor/updates)',actor, updates, comparisonKeys, updateOpts);
+    logger$1.debug('Performing update on (actor/updates)',actor, updates, comparisonKeys, updateOpts);
     await warpgate.wait(MODULE.setting('updateDelay')); // @workaround for semaphore bug
 
     /** perform the updates */
@@ -1814,7 +1824,7 @@ class Mutator {
     
     const neededPerms = MODULE.canMutate(game.user);
     if(neededPerms.length > 0) {
-      logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
+      logger$1.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
       return false;
     }
 
@@ -1842,7 +1852,7 @@ class Mutator {
     /* check that this mutation name is unique */
     const present = warpgate.mutationStack(tokenDoc).getName(mutateInfo.name);
     if(!!present) {
-      logger.warn(MODULE.format('error.badMutate.duplicate', {name: mutateInfo.name}));
+      logger$1.warn(MODULE.format('error.badMutate.duplicate', {name: mutateInfo.name}));
       return false;
     }
 
@@ -1938,8 +1948,8 @@ class Mutator {
     const tokenLists = MODULE.ownerSublist(tokenDocs);
 
     if((tokenLists['none'] ?? []).length > 0) {
-      logger.warn(MODULE.localize('error.offlineOwnerBatch'));
-      logger.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
+      logger$1.warn(MODULE.localize('error.offlineOwnerBatch'));
+      logger$1.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
       delete tokenLists['none'];
     }
 
@@ -1991,8 +2001,8 @@ class Mutator {
     const tokenLists = MODULE.ownerSublist(tokenDocs);
 
     if((tokenLists['none'] ?? []).length > 0) {
-      logger.warn(MODULE.localize('error.offlineOwnerBatch'));
-      logger.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
+      logger$1.warn(MODULE.localize('error.offlineOwnerBatch'));
+      logger$1.debug('Affected UUIDs:', tokenLists['none'].map( t => t.uuid ));
       delete tokenLists['none'];
     }
 
@@ -2073,7 +2083,7 @@ class Mutator {
       try {
         !!source ? await loadTexture(source) : null;
       } catch (err) {
-        logger.debug(err);
+        logger$1.debug(err);
       }
     }
 
@@ -2209,7 +2219,7 @@ class Mutator {
     let mutateStack = actor?.getFlag(MODULE.data.name, 'mutate') ?? [];
 
     if (mutateStack.length == 0 || !actor){
-      logger.debug(`Provided actor is undefined or has no mutation stack. Cannot pop.`);
+      logger$1.debug(`Provided actor is undefined or has no mutation stack. Cannot pop.`);
       return undefined;
     }
 
@@ -2221,7 +2231,7 @@ class Mutator {
 
       /* check for no result and log */
       if ( index < 0 ) {
-        logger.debug(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
+        logger$1.debug(`Could not locate mutation named ${mutationName} in actor ${actor.name}`);
         return undefined;
       }
 
@@ -2252,7 +2262,7 @@ class Mutator {
     /* set the current mutation stack in the mutation data */
     foundry.utils.mergeObject(mutateData.delta, {actor: {flags: newFlags}});
 
-    logger.debug(MODULE.localize('debug.finalRevertUpdate'), mutateData);
+    logger$1.debug(MODULE.localize('debug.finalRevertUpdate'), mutateData);
 
     return mutateData;
   }
@@ -2284,7 +2294,7 @@ class Mutator {
       }
     }
 
-    logger.debug(MODULE.localize('debug.tokenDelta'), tokenDelta, MODULE.localize('debug.actorDelta'), actorDelta, MODULE.localize('debug.embeddedDelta'), embeddedDelta);
+    logger$1.debug(MODULE.localize('debug.tokenDelta'), tokenDelta, MODULE.localize('debug.actorDelta'), actorDelta, MODULE.localize('debug.embeddedDelta'), embeddedDelta);
 
     return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta}
   }
@@ -2448,7 +2458,7 @@ class RemoteMutator {
   static remoteMutate( tokenDoc, {updates, callbacks = {}, options = {}} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {
-      logger.error(MODULE.localize('error.noOwningUserMutate'));
+      logger$1.error(MODULE.localize('error.noOwningUserMutate'));
       return false;
     }
 
@@ -2494,7 +2504,7 @@ class RemoteMutator {
   static remoteRevert( tokenDoc, {mutationId = null, callbacks={}, options = {}} = {} ) {
     /* we need to make sure there is a user that can handle our resquest */
     if (!MODULE.firstOwner(tokenDoc)) {
-      logger.error(MODULE.format('error.noOwningUserRevert'));
+      logger$1.error(MODULE.format('error.noOwningUserRevert'));
       return false;
     }
 
@@ -2812,13 +2822,13 @@ class Comms {
   }
 
   static _ready() {
-    logger.info("Registering sockets");
+    logger$1.info("Registering sockets");
 
     game.socket.on(`module.${MODULE.data.name}`, Comms._receiveSocket);
   }
 
   static _receiveSocket(socketData) {
-    logger.debug("Received socket data => ", socketData);
+    logger$1.debug("Received socket data => ", socketData);
 
     /* all users should immediately respond to notices */
     if (socketData.op == ops.NOTICE) {
@@ -2831,7 +2841,7 @@ class Comms {
     }
 
     queueUpdate(async () => {
-      logger.debug("Routing operation: ", socketData.op);
+      logger$1.debug("Routing operation: ", socketData.op);
       switch (socketData.op) {
         case ops.DISMISS_SPAWN:
           await handleDismissSpawn(socketData.payload);
@@ -2849,7 +2859,7 @@ class Comms {
           await handleRevertRequest(socketData.payload);
           break;
         default:
-          logger.error("Unrecognized socket request", socketData);
+          logger$1.error("Unrecognized socket request", socketData);
           break;
       }
     });
@@ -2987,100 +2997,20 @@ const register$1 = Comms.register,
   notifyEvent = Comms.notifyEvent,
   requestNotice = Comms.requestNotice;
 
-/* theripper93
- * Copyright (C) 2021 dnd-randomizer
+/*
+ * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
+ * Copyright (c) 2021 Matthew Haentschke.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * Original License: 
- * https://github.com/theripper93/dnd-randomizer/blob/master/LICENSE
- */
-
-/* WARPGATE CHANGES
- * exporting propagator class
- * removed test function from original code
- */
-
-class Propagator{
-  // Find a non-occupied cell in the grid that matches the size of the token given an origin
-  static getFreePosition(tokenData,origin, collision = true){
-    const center = canvas.grid.getCenter(origin.x,origin.y);
-    origin = {x:center[0],y:center[1]};
-    const positions = Propagator.generatePositions(origin);
-    for(let position of positions){
-      if(Propagator.canFit(tokenData, position, positions[0], collision)){
-        return position;
-      }
-    }
-
-  }
-  //generate positions radiantially from the origin
-  static generatePositions(origin){
-    let positions = [canvas.grid.getSnappedPosition(origin.x-1,origin.y-1)];
-    for(let r = canvas.scene.dimensions.size; r < canvas.scene.dimensions.size*10; r+=canvas.scene.dimensions.size){
-
-      for(let theta = 0; theta < 2*Math.PI; theta+=Math.PI/(4*r/canvas.scene.dimensions.size)){
-        const newPos = canvas.grid.getTopLeft(origin.x + r*Math.cos(theta),origin.y + r*Math.sin(theta));
-        positions.push({x:newPos[0],y:newPos[1]});
-      }
-    }
-    return positions;
-  }
-  //check if a position is free
-  static isFree(position){
-    for(let token of canvas.tokens.placeables){
-      const hitBox = new PIXI.Rectangle(token.x,token.y,token.w,token.h);
-      if(hitBox.contains(position.x,position.y)){
-        return false;
-      }
-    }
-    return true;
-  }
-  //check if a token can fit in a position
-  static canFit(tokenData, position, origin, collision){
-    for(let i = 0; i < tokenData.width; i++){
-      for(let j = 0; j < tokenData.height; j++){
-        const x = position.x + j*canvas.scene.dimensions.size;
-        const y = position.y + i*canvas.scene.dimensions.size;
-        if(!Propagator.isFree({x,y})){
-          return false;
-        }
-      }
-    }
-    const wallCollisions = canvas.walls.checkCollision(
-      new Ray(origin, {
-        x:position.x+tokenData.width*canvas.scene.dimensions.size/2,
-        y:position.y+tokenData.height*canvas.scene.dimensions.size/2
-      }),{ type: "move" }
-    )?.length ?? 0;
-
-
-    return !collision || !wallCollisions
-  }
-}
-
-/* 
- * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
- * Copyright (c) 2021 Matthew Haentschke.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -3089,14 +3019,15 @@ const NAME = "Gateway";
 
 /** @typedef {import('./api.js').CrosshairsConfig} CrosshairsConfig */
 /** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
+/** @typedef {import('./lib/PlaceableFit.mjs').PlaceableFit} PlaceableFit */
 
 /**
  * Callback started just prior to the crosshairs template being drawn. Is not awaited. Used for modifying
  * how the crosshairs is displayed and for responding to its displayed position
- * 
- * All of the fields in the {@link CrosshairsConfig} object can be modified directly. Any fields owned by 
- * MeasuredTemplate must be changed via `update|updateSource` as other DocumentData|DataModel classes. 
- * Async functions will run in parallel while the user is moving the crosshairs. Serial functions will 
+ *
+ * All of the fields in the {@link CrosshairsConfig} object can be modified directly. Any fields owned by
+ * MeasuredTemplate must be changed via `update|updateSource` as other DocumentData|DataModel classes.
+ * Async functions will run in parallel while the user is moving the crosshairs. Serial functions will
  * block detection of the left and right click operations until return.
  *
  * @typedef {function(Crosshairs):any} ParallelShow
@@ -3105,13 +3036,11 @@ const NAME = "Gateway";
  * @returns {any}
  */
 
-
 /**
  * @class
  * @private
  */
 class Gateway {
-
   static register() {
     Gateway.settings();
     Gateway.defaults();
@@ -3120,12 +3049,18 @@ class Gateway {
   static settings() {
     const config = true;
     const settingsData = {
-      openDelete : {
-        scope: "world", config, default: false, type: Boolean,
+      openDelete: {
+        scope: "world",
+        config,
+        default: false,
+        type: Boolean,
       },
-      updateDelay : {
-        scope: "client", config, default: 0, type: Number
-      }
+      updateDelay: {
+        scope: "client",
+        config,
+        default: 0,
+        type: Number,
+      },
     };
 
     MODULE.applySettings(settingsData);
@@ -3133,20 +3068,20 @@ class Gateway {
 
   static defaults() {
     MODULE[NAME] = {
-      /** 
+      /**
        * type {CrosshairsConfig}
        * @const
        */
       get crosshairsConfig() {
         return {
           size: 1,
-          icon: 'icons/svg/dice-target.svg',
-          label: '',
+          icon: "icons/svg/dice-target.svg",
+          label: "",
           labelOffset: {
             x: 0,
-            y: 0
+            y: 0,
           },
-          tag: 'crosshairs',
+          tag: "crosshairs",
           drawIcon: true,
           drawOutline: true,
           interval: 2,
@@ -3162,12 +3097,12 @@ class Gateway {
           //y: 0,
           direction: 0,
           fillColor: game.user.color,
-        }
-      }
+        };
+      },
     };
   }
 
-  /** 
+  /**
    * dnd5e helper function
    * @param { Item5e } item
    * @param {Object} [options={}]
@@ -3175,7 +3110,6 @@ class Gateway {
    * @todo abstract further out of core code
    */
   static async _rollItemGetLevel(item, options = {}, config = {}) {
-
     const result = await item.use(config, options);
     // extract the level at which the spell was cast
     if (!result) return 0;
@@ -3192,28 +3126,27 @@ class Gateway {
    * Resulting data indicates the final position and size of the template. Note: Shift+Scroll
    * will increase/decrease the size of the crosshairs outline, which increases or decreases
    * the size of the token spawned, independent of other modifications.
-   * 
-   * @param {CrosshairsConfig} [config] Configuration settings for how the crosshairs template should be displayed. 
+   *
+   * @param {CrosshairsConfig} [config] Configuration settings for how the crosshairs template should be displayed.
    * @param {Object} [callbacks] Functions executed at certain stages of the crosshair display process.
    * @param {ParallelShow} [callbacks.show]
    *
-   * @returns {Promise<CrosshairsData>} All fields contained by `MeasuredTemplateDocument#toObject`. Notably `x`, `y`, 
+   * @returns {Promise<CrosshairsData>} All fields contained by `MeasuredTemplateDocument#toObject`. Notably `x`, `y`,
    * `width` (in pixels), and the addition of `size` (final size, in grid units, e.g. "2" for a final diameter of 2 squares).
    *
-   */ 
+   */
   static async showCrosshairs(config = {}, callbacks = {}) {
-
     /* add in defaults */
-    mergeObject(config, MODULE[NAME].crosshairsConfig, {overwrite: false});
+    mergeObject(config, MODULE[NAME].crosshairsConfig, { overwrite: false });
 
     /* store currently controlled tokens */
     let controlled = [];
     if (config.rememberControlled) {
-      controlled = canvas.tokens.controlled; 
+      controlled = canvas.tokens.controlled;
     }
 
     /* if a specific initial location is not provided, grab the current mouse location */
-    if(!config.hasOwnProperty('x') && !config.hasOwnProperty('y')) {
+    if (!config.hasOwnProperty("x") && !config.hasOwnProperty("y")) {
       let mouseLoc = MODULE.getMouseStagePos();
       mouseLoc = Crosshairs.getSnappedPosition(mouseLoc, config.interval);
       config.x = mouseLoc.x;
@@ -3228,8 +3161,8 @@ class Gateway {
     /* if we have stored any controlled tokens,
      * restore that control now
      */
-    for( const token of controlled ){
-      token.control({releaseOthers: false});
+    for (const token of controlled) {
+      token.control({ releaseOthers: false });
     }
 
     return dataObj;
@@ -3239,7 +3172,9 @@ class Gateway {
    * the radius of the crosshairs
    */
   static _containsCenter(placeable, crosshairsData) {
-    const calcDistance = (A, B) => { return Math.hypot(A.x-B.x, A.y-B.y) };
+    const calcDistance = (A, B) => {
+      return Math.hypot(A.x - B.x, A.y - B.y);
+    };
 
     const distance = calcDistance(placeable.center, crosshairsData);
     return distance <= crosshairsData.radius;
@@ -3256,16 +3191,20 @@ class Gateway {
    *
    * @return {Object<String,PlaceableObject>} List of collected placeables keyed by embeddedName
    */
-  static collectPlaceables( crosshairsData, types = 'Token', containedFilter = Gateway._containsCenter ) {
-
+  static collectPlaceables(
+    crosshairsData,
+    types = "Token",
+    containedFilter = Gateway._containsCenter
+  ) {
     const isArray = types instanceof Array;
 
     types = isArray ? types : [types];
 
-    const result = types.reduce( (acc, embeddedName) => {
-      const collection = crosshairsData.scene.getEmbeddedCollection(embeddedName);
+    const result = types.reduce((acc, embeddedName) => {
+      const collection =
+        crosshairsData.scene.getEmbeddedCollection(embeddedName);
 
-      let contained = collection.filter( (document) => {
+      let contained = collection.filter((document) => {
         return containedFilter(document.object, crosshairsData);
       });
 
@@ -3277,18 +3216,16 @@ class Gateway {
     return isArray ? result : result[types[0]];
   }
 
-  static async handleDismissSpawn({tokenId, sceneId, userId, ...rest}) {
+  static async handleDismissSpawn({ tokenId, sceneId, userId, ...rest }) {
     /* let the first GM handle all dismissals */
     if (MODULE.isFirstGM())
-      await Gateway.dismissSpawn(
-        tokenId, sceneId, userId
-      );
+      await Gateway.dismissSpawn(tokenId, sceneId, userId);
   }
 
   /**
    * Deletes the specified token from the specified scene. This function allows anyone
-   * to delete any specified token unless this functionality is restricted to only 
-   * owned tokens in Warp Gate's module settings. This is the same function called 
+   * to delete any specified token unless this functionality is restricted to only
+   * owned tokens in Warp Gate's module settings. This is the same function called
    * by the "Dismiss" header button on owned actor sheets.
    *
    * @param {string} tokenId
@@ -3296,82 +3233,111 @@ class Gateway {
    *  on the currently viewed scene
    * @param {string} [onBehalf = game.user.id] Impersonate another user making this request
    */
-  static async dismissSpawn(tokenId, sceneId = canvas.scene?.id, onBehalf = game.user.id) {
-
-    if (!tokenId || !sceneId){
-      logger.debug("Cannot dismiss null token or from a null scene.", tokenId, sceneId);
+  static async dismissSpawn(
+    tokenId,
+    sceneId = canvas.scene?.id,
+    onBehalf = game.user.id
+  ) {
+    if (!tokenId || !sceneId) {
+      logger$1.debug(
+        "Cannot dismiss null token or from a null scene.",
+        tokenId,
+        sceneId
+      );
       return;
     }
 
-    const tokenData = game.scenes.get(sceneId)?.getEmbeddedDocument("Token",tokenId);
-    if(!tokenData){
-      logger.debug(`Token [${tokenId}] no longer exists on scene [${sceneId}]`);
+    const tokenData = game.scenes
+      .get(sceneId)
+      ?.getEmbeddedDocument("Token", tokenId);
+    if (!tokenData) {
+      logger$1.debug(`Token [${tokenId}] no longer exists on scene [${sceneId}]`);
       return;
     }
-
 
     /* check for permission to delete freely */
-    if (!MODULE.setting('openDelete')) {
+    if (!MODULE.setting("openDelete")) {
       /* check permissions on token */
       if (!tokenData.isOwner) {
-        logger.error(MODULE.localize('error.unownedDelete'));
+        logger$1.error(MODULE.localize("error.unownedDelete"));
         return;
       }
     }
 
-    
-    logger.debug("Deleting token =>", tokenId, "from scene =>", sceneId);
+    logger$1.debug(`Deleting ${tokenData.uuid}`);
 
-    if (!MODULE.firstGM()){
-      logger.error(MODULE.localize('error.noGm'));
+    if (!MODULE.firstGM()) {
+      logger$1.error(MODULE.localize("error.noGm"));
       return;
     }
 
     /** first gm drives */
     if (MODULE.isFirstGM()) {
-      const tokenDocs = await game.scenes.get(sceneId).deleteEmbeddedDocuments("Token",[tokenId]);
+      
+      if( tokenData.isLinked ) {
+        logger$1.debug('...and removing control flag from linked token actor');
+        await tokenData.actor?.unsetFlag(MODULE.data.name, 'control');
+      }
+      const tokenDocs = await game.scenes
+        .get(sceneId)
+        .deleteEmbeddedDocuments("Token", [tokenId]);
+
       const actorData = packToken(tokenDocs[0]);
-      await warpgate.event.notify(warpgate.EVENT.DISMISS, {actorData}, onBehalf);
+      await warpgate.event.notify(
+        warpgate.EVENT.DISMISS,
+        { actorData },
+        onBehalf
+      );
     } else {
       /** otherwise, we need to send a request for deletion */
       requestDismissSpawn(tokenId, sceneId);
     }
-    
+
     return;
   }
 
   /**
    * returns promise of token creation
-   * @param {PrototypeTokenDocument} protoToken
+   * @param {TokenData} protoToken
    * @param {{ x: number, y: number }} spawnPoint
    * @param {boolean} collision
    */
   static async _spawnTokenAtLocation(protoToken, spawnPoint, collision) {
-
     // Increase this offset for larger summons
     const gridSize = canvas.scene.grid.size;
-    let internalSpawnPoint = {x: spawnPoint.x - (gridSize  * (protoToken.width/2)),
-        y:spawnPoint.y - (gridSize  * (protoToken.height/2))};
-    
+    let loc = {
+      x: spawnPoint.x - gridSize * (protoToken.width / 2),
+      y: spawnPoint.y - gridSize * (protoToken.height / 2),
+    };
+
     /* call ripper's placement algorithm for collision checks
      * which will try to avoid tokens and walls
      */
     if (collision) {
-      const openPosition = Propagator.getFreePosition(protoToken, internalSpawnPoint);  
-      if(!openPosition) {
-        logger.info(MODULE.localize('error.noOpenLocation'));
+      /** @type PlaceableFit */
+      const PFit = warpgate.abstract.PlaceableFit;
+      const fitter = new PFit({...loc, width: gridSize * protoToken.width, height: gridSize * protoToken.height});
+      const openPosition = fitter.find();
+      if (!openPosition) {
+        logger$1.info(MODULE.localize("error.noOpenLocation"));
       } else {
-        internalSpawnPoint = openPosition;
+        loc = openPosition;
       }
     }
 
-    protoToken.updateSource(internalSpawnPoint);
+    protoToken.updateSource(loc);
 
-    return canvas.scene.createEmbeddedDocuments("Token", [protoToken])
+    return canvas.scene.createEmbeddedDocuments("Token", [protoToken]);
   }
 }
 
-const register = Gateway.register, dismissSpawn = Gateway.dismissSpawn, showCrosshairs = Gateway.showCrosshairs, collectPlaceables = Gateway.collectPlaceables, _rollItemGetLevel = Gateway._rollItemGetLevel, handleDismissSpawn = Gateway.handleDismissSpawn, _spawnTokenAtLocation = Gateway._spawnTokenAtLocation;
+const register = Gateway.register,
+  dismissSpawn = Gateway.dismissSpawn,
+  showCrosshairs = Gateway.showCrosshairs,
+  collectPlaceables = Gateway.collectPlaceables,
+  _rollItemGetLevel = Gateway._rollItemGetLevel,
+  handleDismissSpawn = Gateway.handleDismissSpawn,
+  _spawnTokenAtLocation = Gateway._spawnTokenAtLocation;
 
 /* 
  * This file is part of the warpgate module (https://github.com/trioderegion/warpgate)
@@ -3539,7 +3505,7 @@ class MutationStack {
 
       /* we need at LEAST a name to identify by */
       if (!data.name) {
-        logger.error(MODULE.localize('error.incompleteMutateInfo'));
+        logger$1.error(MODULE.localize('error.incompleteMutateInfo'));
         this.#locked=true; 
         return this;
       }
@@ -3612,7 +3578,7 @@ class MutationStack {
   async commit() {
 
     if(this.#locked) {
-      logger.error(MODULE.localize('error.stackLockedOrEmpty'));
+      logger$1.error(MODULE.localize('error.stackLockedOrEmpty'));
     }
 
     await this.actor.update({
@@ -3646,6 +3612,293 @@ class MutationStack {
     return true;
   }
 
+}
+
+/* theripper93
+ * Copyright (C) 2021 dnd-randomizer
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * Original License:
+ * https://github.com/theripper93/dnd-randomizer/blob/master/LICENSE
+ */
+
+/* WARPGATE CHANGES
+ * exporting propagator class
+ * removed test function from original code
+ */
+
+class Propagator {
+  // Find a non-occupied cell in the grid that matches the size of the token given an origin
+  static getFreePosition(tokenData, origin, collision = true) {
+    const center = canvas.grid.getCenter(origin.x, origin.y);
+    origin = { x: center[0], y: center[1] };
+    const positions = Propagator.generatePositions(origin);
+    for (let position of positions) {
+      if (Propagator.canFit(tokenData, position, positions[0], collision)) {
+        return position;
+      }
+    }
+  }
+  //generate positions radiantially from the origin
+  static generatePositions(origin) {
+    let positions = [
+      canvas.grid.getSnappedPosition(origin.x - 1, origin.y - 1),
+    ];
+    for (
+      let r = canvas.scene.dimensions.size;
+      r < canvas.scene.dimensions.size * 10;
+      r += canvas.scene.dimensions.size
+    ) {
+      for (
+        let theta = 0;
+        theta < 2 * Math.PI;
+        theta += Math.PI / ((4 * r) / canvas.scene.dimensions.size)
+      ) {
+        const newPos = canvas.grid.getTopLeft(
+          origin.x + r * Math.cos(theta),
+          origin.y + r * Math.sin(theta)
+        );
+        positions.push({ x: newPos[0], y: newPos[1] });
+      }
+    }
+    return positions;
+  }
+  //check if a position is free
+  static isFree(position) {
+    for (let token of canvas.tokens.placeables) {
+      const hitBox = new PIXI.Rectangle(token.x, token.y, token.w, token.h);
+      if (hitBox.contains(position.x, position.y)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  //check if a token can fit in a position
+  static canFit(tokenData, position, origin, collision) {
+    for (let i = 0; i < tokenData.width; i++) {
+      for (let j = 0; j < tokenData.height; j++) {
+        const x = position.x + j;
+        const y = position.y + i;
+        if (!Propagator.isFree({ x, y })) {
+          return false;
+        }
+      }
+    }
+    const wallCollisions =
+      canvas.walls.checkCollision(
+        new Ray(origin, {
+          x: position.x + tokenData.width / 2,
+          y: position.y + tokenData.height / 2,
+        }),
+        { type: "move" }
+      )?.length ?? 0;
+
+    return !collision || !wallCollisions;
+  }
+}
+
+/**
+ * Generator function for exploring vertex-connected grid locations in an
+ * outward "ring" pattern.
+ *
+ * @export
+ * @generator
+ * @name warpgate.util.RingGenerator
+ * @param {{x:Number, y:Number}} origin Staring location (pixels) for search
+ * @param {Number} numRings
+ * @yields {{x: Number, y: Number}} pixel location of next grid-ring-connected origin
+ */
+function* RingGenerator(origin, numRings) {
+  const gridLoc = canvas.grid.grid.getGridPositionFromPixels(
+    origin.x,
+    origin.y
+  );
+
+  const positions = new Set();
+
+  const seen = (position) => {
+    const key = position.join(".");
+    if (positions.has(key)) return true;
+
+    positions.add(key);
+    return false;
+  };
+
+  seen(gridLoc);
+  let queue = [gridLoc];
+  let ring = 0;
+
+  /* include seed point in iterator */
+  yield { x: origin.x, y: origin.y };
+
+  /* if this is off-grid, also check the snap location */
+  const snapped = canvas.grid.getSnappedPosition(origin.x, origin.y);
+  const snappedIndex = canvas.grid.grid.getGridPositionFromPixels(
+    snapped.x,
+    snapped.y
+  );
+  if (!seen(snappedIndex)) {
+    queue = [snappedIndex];
+    yield snapped;
+  }
+
+  while (queue.length > 0 && ring < numRings) {
+    const next = queue.flatMap((loc) => canvas.grid.grid.getNeighbors(...loc));
+    queue = next.filter((loc) => !seen(loc));
+
+    for (const loc of queue) {
+      const [x, y] = canvas.grid.grid.getPixelsFromGridPosition(...loc);
+      yield { x, y };
+    }
+
+    ring += 1;
+  }
+
+  return { x: null, y: null };
+}
+
+/**
+ * Utility class for locating a free area on the grid from
+ * a given initial 'requested' position. Effectively slides
+ * the requested position to a nearby position free of other
+ * tokens (by default, but accepts arbitrary canvas layers with quad trees)
+ *
+ * @export
+ * @class PlaceableFit
+ */
+class PlaceableFit {
+  /**
+   * Initialize new "fit" search from the provided
+   * bounds.
+   *
+   * @param {{x:Number, y:Number, width:Number, height:Number}} bounds
+   * @param {Object} [options]
+   * @memberof PlaceableFit
+   */
+  constructor(bounds, options = {}) {
+    this.options = {
+      avoidWalls: true,
+      searchRange: 6,
+      visualize: false,
+      collisionLayers: [canvas.tokens],
+    };
+
+    foundry.utils.mergeObject(this.options, options);
+
+    this.bounds = new PIXI.Rectangle(
+      bounds.x,
+      bounds.y,
+      bounds.width,
+      bounds.height
+    );
+
+    if (this.options.visualize) canvas.controls?.debug?.clear?.();
+  }
+
+  /**
+   *
+   *
+   * @param {{x:Number, y:Number}} newOrigin
+   * @returns PIXI.Rectangle bounds for overlap testing (slightly smaller)
+   * @memberof PlaceableFit
+   */
+  _collisionBounds(newOrigin) {
+    const newBounds = new PIXI.Rectangle(
+      newOrigin.x,
+      newOrigin.y,
+      this.bounds.width,
+      this.bounds.height
+    );
+    newBounds.pad(-10);
+    return newBounds.normalize();
+  }
+
+  /**
+   * With the provided origin (top left), can this
+   * placeable fit without overlapping other placeables?
+   *
+   * @param {{x: Number, y: Number}} loc Origin of bounds
+   * @returns boolean Placeable bounds fit without overlap
+   * @memberof PlaceableFit
+   */
+  spaceClear(loc) {
+    const candidateBounds = this._collisionBounds(loc);
+
+    if (this.options.visualize) {
+      canvas.controls.debug
+        .lineStyle(2, 0xff0000, 0.5)
+        .drawShape(candidateBounds);
+    }
+
+    for (const layer of this.options.collisionLayers) {
+      const hits = layer.quadtree.getObjects(candidateBounds);
+      if (hits.size == 0) return true;
+    }
+
+    return false;
+  }
+
+  /**
+   *
+   *
+   * @param {{x:Number, y:Number}} originalCenter
+   * @param {{x:Number, y:Number}} shiftedCenter
+   * @returns Boolean resulting shifted position would collide with a move blocking wall
+   * @memberof PlaceableFit
+   */
+  _offsetCollidesWall(originalCenter, shiftedCenter) {
+    const collision = CONFIG.Canvas.polygonBackends.move.testCollision(
+      originalCenter,
+      shiftedCenter,
+      { mode: "any", type: "move" }
+    );
+
+    return collision;
+  }
+
+  /**
+   * Searches for and returns the bounds origin point at which it does
+   * not overlap other placeables.
+   *
+   * @returns {{x: Number, y: Number}|undefined} Identified bounds origin free of overlap
+   * @memberof PlaceableFit
+   */
+  find() {
+    if (game.release?.generation < 11) {
+      return Propagator.getFreePosition(this.bounds, this.bounds);
+    }
+
+    const locIter = RingGenerator(this.bounds, this.options.searchRange);
+
+    let testLoc = null;
+
+    const newCenter = (x, y) => ({
+      x: x + this.bounds.width / 2,
+      y: y + this.bounds.height / 2,
+    });
+
+    while (!(testLoc = locIter.next()).done) {
+      const { x, y } = testLoc.value;
+
+      let clear = this.spaceClear({ x, y });
+      if (clear && this.options.avoidWalls) {
+        clear = !this._offsetCollidesWall(this.bounds.center, newCenter(x, y));
+      }
+
+      if (clear) return { x, y };
+    }
+
+    return;
+  }
 }
 
 /** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
@@ -3858,6 +4111,7 @@ class api {
         isFirstGM : MODULE.isFirstGM,
         firstOwner : MODULE.firstOwner,
         isFirstOwner : MODULE.isFirstOwner,
+        RingGenerator,
       },
 
       /**
@@ -3866,7 +4120,7 @@ class api {
        * @alias warpgate.crosshairs
        * @borrows Gateway.showCrosshairs as show
        * @borrows Crosshairs.getTag as getTag
-       * @borrows Gateway.collectPlaceables as collectPlaceables
+       * @borrows Gateway.collectPlaceables as collect
        */
       crosshairs: {
         show: showCrosshairs,
@@ -3886,10 +4140,12 @@ class api {
         notice: api._notice,
         batchMutate,
         batchRevert,
+        RingGenerator,
       },
       /**
        * @summary System specific helpers
        * @namespace 
+       * @private
        * @alias warpgate.dnd5e
        * @prop {Function} rollItem
        * @borrows Gateway._rollItemGetLevel as rollItem
@@ -3996,10 +4252,12 @@ class api {
        * @alias warpgate.abstract
        * @property {Crosshairs} Crosshairs
        * @property {MutationStack} MutationStack
+       * @property {PlaceableFit} PlaceableFit
        */
       abstract : {
         Crosshairs,
-        MutationStack
+        MutationStack,
+        PlaceableFit,
       }
     };
   }
@@ -4032,7 +4290,7 @@ class api {
     /* check for needed spawning permissions */
     const neededPerms = MODULE.canSpawn(game.user);
     if(neededPerms.length > 0) {
-      logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
+      logger$1.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
       return [];
     }
 
@@ -4122,7 +4380,7 @@ class api {
     /* check for needed spawning permissions */
     const neededPerms = MODULE.canSpawn(game.user);
     if(neededPerms.length > 0) {
-      logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
+      logger$1.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
       return [];
     }
 
@@ -4188,7 +4446,7 @@ class api {
         protoData = await MODULE.getTokenData(game.actors.get(protoData.actorId), updates.token);
       }
 
-      logger.debug(`Spawn iteration ${iteration} using`, protoData, updates);
+      logger$1.debug(`Spawn iteration ${iteration} using`, protoData, updates);
 
       /* pan to token if first iteration */
       //TODO integrate into stock event data instead of hijacking mutate events
@@ -4200,7 +4458,7 @@ class api {
 
       createdIds.push(spawnedTokenDoc.id);
 
-      logger.debug('Spawned token with data: ', spawnedTokenDoc);
+      logger$1.debug('Spawned token with data: ', spawnedTokenDoc);
 
       await _updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
 
@@ -4300,7 +4558,7 @@ class UserInterface {
     MODULE.applySettings(settingsData);
   }
 
-  static _renderActorSheet(app, html, data) {
+  static _renderActorSheet(app, html) {
     
     UserInterface.addDismissButton(app, html);
     UserInterface.addRevertMutation(app, html);
@@ -4318,8 +4576,7 @@ class UserInterface {
         const controlData = token?.actor.getFlag(MODULE.data.name, 'control');
 
         /** do not add the button if we are not the controlling actor AND we aren't the GM */
-        if ( !(controlData?.user === game.user.id) &&
-          !game.user.isGM) return false;
+        if ( controlData?.user !== game.user.id ) return false;
 
         return !!controlData;
       case 'all':
@@ -4336,7 +4593,7 @@ class UserInterface {
 
     /* do not add duplicate buttons! */
     if(html.closest('.app').find('.dismiss-warpgate').length !== 0) {
-      logger.debug(MODULE.localize('debug.dismissPresent'));  
+      logger$1.debug(MODULE.localize('debug.dismissPresent'));  
       return;
     }
 
@@ -4345,7 +4602,7 @@ class UserInterface {
 
     dismissButton.click( (/*event*/) => {
       if (!token) {
-        logger.error(MODULE.localize('error.sheetNoToken'));
+        logger$1.error(MODULE.localize('error.sheetNoToken'));
         return;
       }
       const {id, parent} = token;
@@ -4476,7 +4733,7 @@ class UserInterface {
 
 const SUB_MODULES = {
   MODULE,
-  logger,
+  logger: logger$1,
   api,
   Gateway: {register: register},
   Mutator: {register: register$3},

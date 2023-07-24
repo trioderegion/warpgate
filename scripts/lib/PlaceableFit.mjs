@@ -5,6 +5,8 @@ import { Propagator } from "./propagator.js";
  * outward "ring" pattern.
  *
  * @export
+ * @generator
+ * @name warpgate.util.RingGenerator
  * @param {{x:Number, y:Number}} origin Staring location (pixels) for search
  * @param {Number} numRings
  * @yields {{x: Number, y: Number}} pixel location of next grid-ring-connected origin
