@@ -664,7 +664,7 @@ export class MODULE {
    * @static
    * @param {object} [prompts]
    * @param {Array<{label: string, type: string, options: any|Array<any>} >} [prompts.inputs=[]] follow the same structure as dialog
-   * @param {Array<{label: string, value: any, callback: Function }>} [prompts.buttons=[]] as buttonDialog
+   * @param {Array<{label: string, value: any, default?: any, callback: Function }>} [prompts.buttons=[]] as {@link buttonDialog} with an optional 'default' field where any truthy value sets the button as default for the 'submit' or 'ENTER' event; if none specified, the last button provided will be set as default
    * @param {object} [config]
    * @param {string} [config.title='Prompt'] Title of dialog
    * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
@@ -688,7 +688,8 @@ export class MODULE {
    *  }],
    *  buttons: [{
    *    label: 'Yes',
-   *    value: 1
+   *    value: 1,
+   *    default: true
    *  }, {
    *    label: 'No',
    *    value: 2
@@ -728,8 +729,9 @@ export class MODULE {
       let content = MODULE.dialogInputs(inputs);
       /** @type Object<string, object> */
       let buttonData = {};
-
+      let def = buttons.at(-1)?.label;
       buttons.forEach((button) => {
+        if ("default" in button) def = button.label;
         buttonData[button.label] = {
           label: button.label,
           callback: async (html) => {
@@ -746,8 +748,9 @@ export class MODULE {
 
       /* insert standard submit button if none provided */
       if (buttons.length < 1) {
+        def = defaultButton;
         buttonData = {
-          Ok: {
+          [defaultButton]: {
             label: defaultButton,
             callback: (html) =>
               resolve({
@@ -762,6 +765,7 @@ export class MODULE {
         {
           title,
           content,
+          default: def,
           close: (...args) => close(resolve, ...args),
           buttons: buttonData,
           render,
