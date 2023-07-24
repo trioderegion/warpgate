@@ -390,7 +390,11 @@ export class Crosshairs extends MeasuredTemplate {
     this.document.updateSource({x, y});
     this.refresh();
     this.moveTime = now;
-    canvas._onDragCanvasPan(event.data.originalEvent);
+
+    if(now - this.initTime > 1000){
+      logger.debug(`1 sec passed (${now} - ${this.initTime}) - panning`);
+      canvas._onDragCanvasPan(event.data.originalEvent);
+    }
   }
 
   _leftClickHandler(event) {
@@ -488,7 +492,8 @@ export class Crosshairs extends MeasuredTemplate {
    * Activate listeners for the template preview
    */
   activatePreviewListeners() {
-    this.moveTime = 0;
+    this.moveTime =  0;
+    this.initTime = Date.now();
     //BEGIN WARPGATE
     this.activeHandlers = true;
 
