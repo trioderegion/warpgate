@@ -196,7 +196,6 @@ export class api {
      * @borrows Mutator.mutate as mutate
      * @borrows Mutator.revertMutation as revert
      * @borrows MODULE.wait as wait
-     * @borrows MODULE.dialog as dialog
      * @borrows MODULE.buttonDialog as buttonDialog
      * @borrows MODULE.menu as menu
      */
@@ -219,7 +218,6 @@ export class api {
        */
       mutationStack : (tokenDoc) => new MutationStack(tokenDoc),
       wait : MODULE.wait,
-      dialog : MODULE.dialog,
       menu: MODULE.menu,
       buttonDialog : MODULE.buttonDialog,
       /**
