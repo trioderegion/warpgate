@@ -611,7 +611,7 @@ export class MODULE {
               (options instanceof Array ? options[1] : false ?? false)
                 ? "checked"
                 : ""
-            } value="${value ?? label}" name="${
+            } value="${i}" name="${
               options instanceof Array ? options[0] : options ?? "radio"
             }"/></td></tr>`;
           case "checkbox":
@@ -619,7 +619,7 @@ export class MODULE {
               (options instanceof Array ? options[0] : options ?? false)
                 ? "checked"
                 : ""
-            } value="${value ?? label}"/></td></tr>`;
+            } value="${i}"/></td></tr>`;
           default:
             return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${
               options instanceof Array ? options[0] : options
@@ -635,20 +635,6 @@ export class MODULE {
 
     return content;
   };
-
-  static async dialog(data = {}, title = "Prompt", submitLabel = "Ok") {
-    logger.warn(
-      `'warpgate.dialog' is deprecated and will be removed in version 1.17.0. See 'warpgate.menu' as a replacement.`
-    );
-    data = data instanceof Array ? data : [data];
-
-    const results = await warpgate.menu(
-      { inputs: data },
-      { title, defaultButton: submitLabel }
-    );
-    if (results.buttons === false) return false;
-    return results.inputs;
-  }
 
   /**
    * Advanced dialog helper providing multiple input type options as well as user defined buttons.
