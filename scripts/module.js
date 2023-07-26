@@ -1,6 +1,56 @@
-/** MIT (c) 2021 DnD5e Helpers */
-
 /** @typedef {import('./api.js').NoticeConfig} NoticeConfig */
+
+
+/**
+ * __`options` property details__
+ * | Input Type | Options Type | Default Value | Description |
+ * |--|--|--|--|
+ * | header, info | `none` | `undefined` | Ignored
+ * | text, password, number | `string` | `''` | Initial value of input |
+ * | checkbox | `boolean`| `false` | Initial checked state |
+ * | radio | `[string, boolean]` | `['radio', false]` | Group name and initial checked state, respectively |
+ * | select | `{html: string, value: any}[]` or `string[]` | `[]` | HTML string for select option element and the value to be return if selected. If only a string is provided, it will be used as both the HTML and return value. |
+ * 
+ * @typedef {Object} MenuInput
+ * @prop {string} type Type of input, controlling display and return values. See "options property details," above, and {@link MenuResult MenuResult.button}.
+ * @prop {string} label Display text for this inputs label element. Accepts HTML.
+ * @prop {boolean|string|Array<string|boolean>} [options] See "options property details," above.
+ */
+
+/**
+ * @typedef {object} MenuButton
+ * @prop {string} label Display text for this button, accepts HTML.
+ * @prop {*} value Arbitrary object to return if selected.
+ * @prop {function(Function, HTMLElement):void} [callback] Override default callback 
+ *   behavior of returning this button's `value`.
+ * @prop {boolean} [default] Any truthy value sets this button as 
+ *  default for the 'submit' or 'ENTER' dialog event.
+ */
+
+/**
+ * @typedef {object} MenuConfig
+ * @prop {string} title='Prompt' Title of dialog
+ * @prop {string} defaultButton='Ok' Button label if no buttons otherwise provided
+ * @prop {boolean} checkedText=false Return the associated label's `innerText` (no html) of `'checkbox'` or `'radio'` type inputs as opposed to its checked state.
+ * @prop {Function} close=((resolve)=>resolve({buttons:false})) Override default behavior and return value if the menu is closed without a button selected.
+ * @prop {function(HTMLElement):void} render=()=>{} 
+ * @prop {object} options Passed to the Dialog options argument.
+ */
+
+/**
+ * __`inputs` return details__
+ * | Input Type | Return Type | Description |
+ * |--|--|--|
+ * | header, info | `undefined` | |
+ * | text, password, number | `string` | Final input value
+ * | checkbox, radio | `boolean`| Final checked state |
+ * | select | `any` | `value` of the chosen select option, as provided by {@link MenuInput MenuInput.options[i].value} |
+ *
+ * @typedef {object} MenuResult
+ * @prop {Array} inputs See "inputs return details," above.
+ * @prop {*} buttons `value` of the selected menu button, as provided by {@link MenuButton MenuButton.value}
+ */
+
 
 /** @ignore */
 const NAME = "warpgate";
@@ -588,7 +638,7 @@ export class MODULE {
     });
 
     const mapped = data
-      .map(({ type, label, value, options }, i) => {
+      .map(({ type, label, options }, i) => {
         type = type.toLowerCase();
         switch (type) {
           case "header":
@@ -604,10 +654,10 @@ export class MODULE {
               })
               .join("");
 
-            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><select id="${i}qd">${optionString}</select></td></tr>`;
+            return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><select id="${i}qd">${optionString}</select></td></tr>`;
           }
           case "radio":
-            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
+            return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
               (options instanceof Array ? options[1] : false ?? false)
                 ? "checked"
                 : ""
@@ -615,13 +665,13 @@ export class MODULE {
               options instanceof Array ? options[0] : options ?? "radio"
             }"/></td></tr>`;
           case "checkbox":
-            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
+            return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
               (options instanceof Array ? options[0] : options ?? false)
                 ? "checked"
                 : ""
             } value="${i}"/></td></tr>`;
           default:
-            return `<tr><th style="width:50%"><label>${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${
+            return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${
               options instanceof Array ? options[0] : options
             }"/></td></tr>`;
         }
@@ -639,29 +689,14 @@ export class MODULE {
   /**
    * Advanced dialog helper providing multiple input type options as well as user defined buttons.
    *
-   * | `type` | `options` | Return Value | Notes |
-   * |--|--|--|--|
-   * | header | none | undefined | Shortcut for `info | <h2>text</h2>`. |
-   * | info   | none | undefined | Inserts a line of text for display/informational purposes. |
-   * | text | default value | {String} final value of text field | |
-   * | password | (as `text`) | (as `text`) | Characters are obscured for security. |
-   * | radio | [group name, default state (`false`)] {Array of Bool} | {Boolean} selected | For a given group name, only one radio button can be selected. |
-   * | checkbox | default state (`false`) {Boolean} | {Boolean} checked | `label` is used for the HTML element's `name` property |
-   * | number | (as `text`) | {Number} final value of text field converted to a number |
-   * | select | array of option labels or objects {value, html} | `value` property of selected option. If values not provided, numeric index of option in original list | |
    * @static
-   * @param {object} [prompts]
-   * @param {Array<{label: string, type: string, options: any|Array<any>} >} [prompts.inputs=[]] follow the same structure as dialog
-   * @param {Array<{label: string, value: any, default: false, callback: Function }>} [prompts.buttons=[]] as {@link buttonDialog} with an optional 'default' field where any truthy value sets the button as default for the 'submit' or 'ENTER' event; if none specified, the last button provided will be set as default
-   * @param {object} [config]
-   * @param {string} [config.title='Prompt'] Title of dialog
-   * @param {string} [config.defaultButton='Ok'] default button label if no buttons provided
-   * @param {function(HTMLElement) : void} [config.render=undefined]
-   * @param {Function} [config.close = (resolve) => resolve({buttons: false})]
-   * @param {object} [config.options = {}] Options passed to the Dialog constructor
+   * @param {Object} [prompts]
+   * @param {Array<MenuInput>} [prompts.inputs]
+   * @param {Array<MenuButton>} [prompts.buttons] If no default button is specified, the last 
+   *  button provided will be set as default
+   * @param {MenuConfig} [config]
    *
-   * @return {Promise<{ inputs: Array<any>, buttons: any}>} Object with `inputs` containing the chosen values for each provided input,
-   *   in order, and the provided `value` of the pressed button, or `false` if closed.
+   * @return {Promise<MenuResult>} Object with `inputs` containing the chosen values for each provided input, in order, and the provided `value` of the pressed button or `false`, if closed.
    *
    * @example
    * await warpgate.menu({
@@ -706,7 +741,7 @@ export class MODULE {
       options: {},
     };
 
-    const { title, defaultButton, render, close, options } =
+    const { title, defaultButton, render, close, checkedText, options } =
       foundry.utils.mergeObject(configDefaults, config);
     const { inputs, buttons } = foundry.utils.mergeObject(
       { inputs: [], buttons: [] },
@@ -724,7 +759,7 @@ export class MODULE {
           label: button.label,
           callback: async (html) => {
             const results = {
-              inputs: MODULE._innerValueParse(inputs, html),
+              inputs: MODULE._innerValueParse(inputs, html, {checkedText}),
               buttons: button.value,
             };
             if (button.callback instanceof Function)
@@ -742,7 +777,7 @@ export class MODULE {
             label: defaultButton,
             callback: (html) =>
               resolve({
-                inputs: MODULE._innerValueParse(inputs, html),
+                inputs: MODULE._innerValueParse(inputs, html, {checkedText}),
                 buttons: true,
               }),
           },
@@ -763,7 +798,7 @@ export class MODULE {
     });
   }
 
-  static _innerValueParse(data, html) {
+  static _innerValueParse(data, html, {checkedText = false}) {
     return Array(data.length)
       .fill()
       .map((e, i) => {
@@ -776,8 +811,16 @@ export class MODULE {
             case `password`:
               return html.find(`input#${i}qd`)[0].value;
             case `radio`:
-            case `checkbox`:
-              return html.find(`input#${i}qd`)[0].checked;
+            case `checkbox`: {
+              const ele = html.find(`input#${i}qd`)[0];
+              
+              if (checkedText) {
+                const label = html.find(`[for="${i}qd"]`)[0];
+                return ele.checked ? label.innerText : '';
+              }
+
+              return ele.checked;
+            }
             case `number`:
               return html.find(`input#${i}qd`)[0].valueAsNumber;
           }

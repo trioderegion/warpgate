@@ -21,7 +21,7 @@
       "systemLogo": "./.github/assets/hb-icon.bmp",
       "copyright": "Warp Gate <a href=\"https://github.com/trioderegion/warpgate/blob/master/LICENSE\">Copyright © 2021</a> Matthew Haentschke",
       "sort": "longname, linenum, version, since",
-      "stylesheets": ["../../.github/css/foodoc-overrides.css"],
+      "stylesheets": ["css/overrides.css"],
       "navMembers": [
         {"kind": "global", "title": "Types", "summary": "Definitions for commonly used api parameters and return values."},
         {"kind": "namespace", "title": "API", "summary": "Primary API for warp gate operations."}

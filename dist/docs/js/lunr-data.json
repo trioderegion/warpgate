@@ -677,71 +677,23 @@
         ],
         "warpgate.html#.menu": [
           "advanc",
-          "any}&gt",
-          "array",
-          "array.&lt;any&gt",
-          "bool",
-          "boolean",
           "button",
-          "charact",
-          "check",
-          "checkbox",
           "config",
-          "convert",
-          "default",
           "defin",
           "dialog",
-          "display/inform",
-          "element'",
-          "fals",
-          "field",
-          "final",
           "function",
-          "given",
-          "group",
-          "header",
           "helper",
-          "html",
-          "index",
-          "info",
           "input",
-          "insert",
-          "label",
-          "line",
-          "list",
           "lt;async",
           "menu",
           "multipl",
-          "name",
-          "none",
-          "note",
-          "number",
-          "numer",
-          "object",
-          "obscur",
-          "on",
           "option",
-          "origin",
-          "password",
-          "promise.&lt;{input",
+          "promise.&lt;menuresult&gt",
           "prompt",
-          "properti",
           "provid",
-          "purpos",
-          "radio",
-          "return",
-          "secur",
-          "select",
-          "shortcut",
-          "state",
           "static&gt",
-          "string",
-          "text",
           "type",
-          "undefin",
-          "us",
           "user",
-          "valu",
           "warpgate.menu",
           "well"
         ],
@@ -1716,12 +1668,7 @@
               "a": {
                 "docs": {},
                 "y": {
-                  "docs": {
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.9900990099009901
-                    }
-                  },
+                  "docs": {},
                   ".": {
                     "docs": {},
                     "&": {
@@ -1813,29 +1760,6 @@
                                   }
                                 }
                               }
-                            },
-                            "a": {
-                              "docs": {},
-                              "n": {
-                                "docs": {},
-                                "y": {
-                                  "docs": {},
-                                  "&": {
-                                    "docs": {},
-                                    "g": {
-                                      "docs": {},
-                                      "t": {
-                                        "docs": {
-                                          "warpgate.html#.menu": {
-                                            "ref": "warpgate.html#.menu",
-                                            "tf": 11.11111111111111
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
                             }
                           }
                         }
@@ -1901,7 +1825,7 @@
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
+                        "tf": 4.166666666666666
                       }
                     }
                   }
@@ -2000,23 +1924,6 @@
                     "warpgate.html#.dismiss": {
                       "ref": "warpgate.html#.dismiss",
                       "tf": 1.7241379310344827
-                    }
-                  }
-                }
-              },
-              "}": {
-                "docs": {},
-                "&": {
-                  "docs": {},
-                  "g": {
-                    "docs": {},
-                    "t": {
-                      "docs": {
-                        "warpgate.html#.menu": {
-                          "ref": "warpgate.html#.menu",
-                          "tf": 11.11111111111111
-                        }
-                      }
                     }
                   }
                 }
@@ -2267,7 +2174,7 @@
                     },
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.49504950495049505
+                      "tf": 4.166666666666666
                     },
                     "warpgate.crosshairs.html#.getTag": {
                       "ref": "warpgate.crosshairs.html#.getTag",
@@ -2302,10 +2209,6 @@
                         "PlaceableFit.html": {
                           "ref": "PlaceableFit.html",
                           "tf": 2
-                        },
-                        "warpgate.html#.menu": {
-                          "ref": "warpgate.html#.menu",
-                          "tf": 1.4851485148514851
                         },
                         "warpgate.html#.mutate": {
                           "ref": "warpgate.html#.mutate",
@@ -2618,32 +2521,6 @@
                           "ref": "warpgate.plugin.html#.notice",
                           "tf": 3.8461538461538463
                         }
-                      },
-                      "/": {
-                        "docs": {},
-                        "i": {
-                          "docs": {},
-                          "n": {
-                            "docs": {},
-                            "f": {
-                              "docs": {},
-                              "o": {
-                                "docs": {},
-                                "r": {
-                                  "docs": {},
-                                  "m": {
-                                    "docs": {
-                                      "warpgate.html#.menu": {
-                                        "ref": "warpgate.html#.menu",
-                                        "tf": 0.49504950495049505
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
                       }
                     }
                   }
@@ -2702,7 +2579,7 @@
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
+                        "tf": 4.166666666666666
                       }
                     }
                   }
@@ -2931,10 +2808,6 @@
                       "ref": "PlaceableFit.html",
                       "tf": 2
                     },
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.49504950495049505
-                    },
                     "warpgate.html#.mutate": {
                       "ref": "warpgate.html#.mutate",
                       "tf": 1.4285714285714286
@@ -2980,20 +2853,6 @@
                   }
                 }
               }
-            },
-            "o": {
-              "docs": {},
-              "u": {
-                "docs": {},
-                "p": {
-                  "docs": {
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.9900990099009901
-                    }
-                  }
-                }
-              }
             }
           },
           "m": {
@@ -3018,10 +2877,6 @@
                     "index.html": {
                       "ref": "index.html",
                       "tf": 1300
-                    },
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.49504950495049505
                     }
                   }
                 },
@@ -3115,10 +2970,6 @@
                   "MutationStack.html#update": {
                     "ref": "MutationStack.html#update",
                     "tf": 6.666666666666667
-                  },
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.9900990099009901
                   }
                 },
                 "r": {
@@ -3231,20 +3082,6 @@
                     }
                   }
                 }
-              },
-              "e": {
-                "docs": {},
-                "r": {
-                  "docs": {},
-                  "t": {
-                    "docs": {
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
-                      }
-                    }
-                  }
-                }
               }
             },
             "p": {
@@ -3255,7 +3092,7 @@
                   "docs": {
                     "warpgate.html#.menu": {
                       "ref": "warpgate.html#.menu",
-                      "tf": 0.49504950495049505
+                      "tf": 4.166666666666666
                     }
                   }
                 }
@@ -3544,10 +3381,6 @@
                       "PlaceableFit.html#find": {
                         "ref": "PlaceableFit.html#find",
                         "tf": 7.142857142857142
-                      },
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
                       },
                       "warpgate.html#.spawn": {
                         "ref": "warpgate.html#.spawn",
@@ -3911,14 +3744,6 @@
                     "warpgate.crosshairs.html#.collect": {
                       "ref": "warpgate.crosshairs.html#.collect",
                       "tf": 5
-                    }
-                  }
-                },
-                "o": {
-                  "docs": {
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.9900990099009901
                     }
                   }
                 }
@@ -4898,7 +4723,7 @@
                 "docs": {
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.49504950495049505
+                    "tf": 4.166666666666666
                   }
                 }
               }
@@ -5189,7 +5014,7 @@
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 11.11111111111111
+                        "tf": 16.666666666666664
                       },
                       "warpgate.crosshairs.html#.show": {
                         "ref": "warpgate.crosshairs.html#.show",
@@ -5198,23 +5023,6 @@
                       "warpgate.plugin.html#.notice": {
                         "ref": "warpgate.plugin.html#.notice",
                         "tf": 25
-                      }
-                    }
-                  }
-                }
-              },
-              "v": {
-                "docs": {},
-                "e": {
-                  "docs": {},
-                  "r": {
-                    "docs": {},
-                    "t": {
-                      "docs": {
-                        "warpgate.html#.menu": {
-                          "ref": "warpgate.html#.menu",
-                          "tf": 0.49504950495049505
-                        }
                       }
                     }
                   }
@@ -6584,23 +6392,6 @@
                     }
                   }
                 }
-              },
-              "r": {
-                "docs": {},
-                "a": {
-                  "docs": {},
-                  "c": {
-                    "docs": {},
-                    "t": {
-                      "docs": {
-                        "warpgate.html#.menu": {
-                          "ref": "warpgate.html#.menu",
-                          "tf": 0.49504950495049505
-                        }
-                      }
-                    }
-                  }
-                }
               }
             },
             "e": {
@@ -6609,10 +6400,6 @@
                 "docs": {},
                 "k": {
                   "docs": {
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.49504950495049505
-                    },
                     "warpgate.util.html#.firstOwner": {
                       "ref": "warpgate.util.html#.firstOwner",
                       "tf": 1.9230769230769231
@@ -6624,20 +6411,6 @@
                     "warpgate.util.html#.isFirstOwner": {
                       "ref": "warpgate.util.html#.isFirstOwner",
                       "tf": 2.380952380952381
-                    }
-                  },
-                  "b": {
-                    "docs": {},
-                    "o": {
-                      "docs": {},
-                      "x": {
-                        "docs": {
-                          "warpgate.html#.menu": {
-                            "ref": "warpgate.html#.menu",
-                            "tf": 0.49504950495049505
-                          }
-                        }
-                      }
                     }
                   }
                 }
@@ -6727,34 +6500,6 @@
                 }
               }
             },
-            "s": {
-              "docs": {},
-              "s": {
-                "docs": {
-                  "warpgate.util.html#.isFirstOwner": {
-                    "ref": "warpgate.util.html#.isFirstOwner",
-                    "tf": 2.380952380952381
-                  }
-                },
-                "w": {
-                  "docs": {},
-                  "o": {
-                    "docs": {},
-                    "r": {
-                      "docs": {},
-                      "d": {
-                        "docs": {
-                          "warpgate.html#.menu": {
-                            "ref": "warpgate.html#.menu",
-                            "tf": 0.49504950495049505
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
             "y": {
               "docs": {},
               "l": {
@@ -6780,6 +6525,17 @@
                 "warpgate.plugin.html#.notice": {
                   "ref": "warpgate.plugin.html#.notice",
                   "tf": 3.8461538461538463
+                }
+              }
+            },
+            "s": {
+              "docs": {},
+              "s": {
+                "docs": {
+                  "warpgate.util.html#.isFirstOwner": {
+                    "ref": "warpgate.util.html#.isFirstOwner",
+                    "tf": 2.380952380952381
+                  }
                 }
               }
             }
@@ -7041,23 +6797,41 @@
                                         }
                                       }
                                     }
-                                  }
-                                },
-                                "{": {
-                                  "docs": {},
-                                  "i": {
+                                  },
+                                  "e": {
                                     "docs": {},
                                     "n": {
                                       "docs": {},
-                                      "p": {
+                                      "u": {
                                         "docs": {},
-                                        "u": {
+                                        "r": {
                                           "docs": {},
-                                          "t": {
-                                            "docs": {
-                                              "warpgate.html#.menu": {
-                                                "ref": "warpgate.html#.menu",
-                                                "tf": 11.11111111111111
+                                          "e": {
+                                            "docs": {},
+                                            "s": {
+                                              "docs": {},
+                                              "u": {
+                                                "docs": {},
+                                                "l": {
+                                                  "docs": {},
+                                                  "t": {
+                                                    "docs": {},
+                                                    "&": {
+                                                      "docs": {},
+                                                      "g": {
+                                                        "docs": {},
+                                                        "t": {
+                                                          "docs": {
+                                                            "warpgate.html#.menu": {
+                                                              "ref": "warpgate.html#.menu",
+                                                              "tf": 16.666666666666664
+                                                            }
+                                                          }
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                }
                                               }
                                             }
                                           }
@@ -7392,7 +7166,7 @@
                     "docs": {
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 11.11111111111111
+                        "tf": 16.666666666666664
                       }
                     }
                   }
@@ -7430,7 +7204,7 @@
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.9900990099009901
+                        "tf": 4.166666666666666
                       },
                       "warpgate.html#.mutationStack": {
                         "ref": "warpgate.html#.mutationStack",
@@ -7471,26 +7245,6 @@
                       "warpgate.plugin.html#.queueUpdate": {
                         "ref": "warpgate.plugin.html#.queueUpdate",
                         "tf": 7.142857142857142
-                      }
-                    }
-                  }
-                }
-              },
-              "p": {
-                "docs": {},
-                "e": {
-                  "docs": {},
-                  "r": {
-                    "docs": {},
-                    "t": {
-                      "docs": {},
-                      "i": {
-                        "docs": {
-                          "warpgate.html#.menu": {
-                            "ref": "warpgate.html#.menu",
-                            "tf": 0.9900990099009901
-                          }
-                        }
                       }
                     }
                   }
@@ -8214,26 +7968,6 @@
               }
             }
           },
-          "u": {
-            "docs": {},
-            "r": {
-              "docs": {},
-              "p": {
-                "docs": {},
-                "o": {
-                  "docs": {},
-                  "s": {
-                    "docs": {
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
           "y": {
             "docs": {},
             "l": {
@@ -8266,7 +8000,7 @@
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.9900990099009901
+                    "tf": 4.166666666666666
                   },
                   "warpgate.crosshairs.html#.collect": {
                     "ref": "warpgate.crosshairs.html#.collect",
@@ -8467,10 +8201,6 @@
                   "Crosshairs.html#_drawRulerText": {
                     "ref": "Crosshairs.html#_drawRulerText",
                     "tf": 10
-                  },
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 3.4653465346534658
                   }
                 },
                 "u": {
@@ -8790,10 +8520,6 @@
                 "ref": "warpgate.html#.buttonDialog",
                 "tf": 2.941176470588235
               },
-              "warpgate.html#.menu": {
-                "ref": "warpgate.html#.menu",
-                "tf": 0.49504950495049505
-              },
               "warpgate.html#.spawn": {
                 "ref": "warpgate.html#.spawn",
                 "tf": 3.260869565217391
@@ -8833,7 +8559,7 @@
                   },
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 0.49504950495049505
+                    "tf": 4.166666666666666
                   },
                   "warpgate.html#.mutate": {
                     "ref": "warpgate.html#.mutate",
@@ -8935,10 +8661,6 @@
                         "MutationStack.html#last": {
                           "ref": "MutationStack.html#last",
                           "tf": 4.545454545454546
-                        },
-                        "warpgate.html#.menu": {
-                          "ref": "warpgate.html#.menu",
-                          "tf": 0.9900990099009901
                         }
                       }
                     }
@@ -9231,10 +8953,6 @@
                     "ref": "MutationStack.html",
                     "tf": 0.6329113924050633
                   },
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 3.4653465346534658
-                  },
                   "warpgate.event.html#.remove": {
                     "ref": "warpgate.event.html#.remove",
                     "tf": 5
@@ -9295,10 +9013,6 @@
                     "ref": "Crosshairs.html#tag",
                     "tf": 6.25
                   },
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.49504950495049505
-                  },
                   "warpgate.html#.mutate": {
                     "ref": "warpgate.html#.mutate",
                     "tf": 1.4285714285714286
@@ -9345,17 +9059,6 @@
                         "tf": 12.5
                       }
                     }
-                  }
-                }
-              }
-            },
-            "n": {
-              "docs": {},
-              "e": {
-                "docs": {
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.49504950495049505
                   }
                 }
               }
@@ -9523,10 +9226,6 @@
                     "warpgate.html#.buttonDialog": {
                       "ref": "warpgate.html#.buttonDialog",
                       "tf": 2.941176470588235
-                    },
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.9900990099009901
                     }
                   },
                   "o": {
@@ -9751,7 +9450,7 @@
                           },
                           "warpgate.html#.menu": {
                             "ref": "warpgate.html#.menu",
-                            "tf": 11.11111111111111
+                            "tf": 16.666666666666664
                           },
                           "warpgate.html#.mutate": {
                             "ref": "warpgate.html#.mutate",
@@ -9916,7 +9615,7 @@
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 2.4752475247524752
+                        "tf": 4.166666666666666
                       },
                       "warpgate.html#.mutate": {
                         "ref": "warpgate.html#.mutate",
@@ -10042,10 +9741,6 @@
                         "ref": "MutationStack.html#update",
                         "tf": 3.3333333333333335
                       },
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
-                      },
                       "warpgate.html#.spawn": {
                         "ref": "warpgate.html#.spawn",
                         "tf": 1.0869565217391304
@@ -10129,23 +9824,6 @@
                 }
               }
             },
-            "s": {
-              "docs": {},
-              "c": {
-                "docs": {},
-                "u": {
-                  "docs": {},
-                  "r": {
-                    "docs": {
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
-                      }
-                    }
-                  }
-                }
-              }
-            },
             "t": {
               "docs": {},
               "a": {
@@ -10169,10 +9847,6 @@
               "MutationStack.html": {
                 "ref": "MutationStack.html",
                 "tf": 0.6329113924050633
-              },
-              "warpgate.html#.menu": {
-                "ref": "warpgate.html#.menu",
-                "tf": 0.49504950495049505
               },
               "warpgate.html#.spawn": {
                 "ref": "warpgate.html#.spawn",
@@ -10327,10 +10001,6 @@
                       "PlaceableFit.html#spaceClear": {
                         "ref": "PlaceableFit.html#spaceClear",
                         "tf": 5.555555555555555
-                      },
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
                       }
                     },
                     "a": {
@@ -10619,14 +10289,6 @@
                         "MutationStack.html#getName": {
                           "ref": "MutationStack.html#getName",
                           "tf": 7.142857142857142
-                        }
-                      },
-                      "'": {
-                        "docs": {
-                          "warpgate.html#.menu": {
-                            "ref": "warpgate.html#.menu",
-                            "tf": 0.49504950495049505
-                          }
                         }
                       }
                     }
@@ -11094,10 +10756,6 @@
                     "warpgate.html#.CONST": {
                       "ref": "warpgate.html#.CONST",
                       "tf": 8.333333333333332
-                    },
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.9900990099009901
                     }
                   }
                 }
@@ -11192,10 +10850,6 @@
                 "docs": {},
                 "l": {
                   "docs": {
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.9900990099009901
-                    },
                     "warpgate.crosshairs.html#.show": {
                       "ref": "warpgate.crosshairs.html#.show",
                       "tf": 1.25
@@ -11237,10 +10891,6 @@
                   "MutationStack.html#update": {
                     "ref": "MutationStack.html#update",
                     "tf": 3.3333333333333335
-                  },
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.9900990099009901
                   },
                   "warpgate.util.html#.firstOwner": {
                     "ref": "warpgate.util.html#.firstOwner",
@@ -11554,7 +11204,7 @@
                 "docs": {
                   "warpgate.html#.menu": {
                     "ref": "warpgate.html#.menu",
-                    "tf": 661.1111111111111
+                    "tf": 666.6666666666666
                   }
                 }
               }
@@ -12114,7 +11764,7 @@
                       "docs": {
                         "warpgate.html#.menu": {
                           "ref": "warpgate.html#.menu",
-                          "tf": 0.49504950495049505
+                          "tf": 4.166666666666666
                         },
                         "warpgate.html#.mutate": {
                           "ref": "warpgate.html#.mutate",
@@ -12236,20 +11886,6 @@
                               "ref": "warpgate.html#.CONST",
                               "tf": 8.333333333333332
                             }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "c": {
-                    "docs": {},
-                    "u": {
-                      "docs": {},
-                      "t": {
-                        "docs": {
-                          "warpgate.html#.menu": {
-                            "ref": "warpgate.html#.menu",
-                            "tf": 0.49504950495049505
                           }
                         }
                       }
@@ -12411,17 +12047,6 @@
             },
             "c": {
               "docs": {},
-              "u": {
-                "docs": {},
-                "r": {
-                  "docs": {
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.49504950495049505
-                    }
-                  }
-                }
-              },
               "o": {
                 "docs": {},
                 "n": {
@@ -12431,23 +12056,6 @@
                       "warpgate.event.html#.watch": {
                         "ref": "warpgate.event.html#.watch",
                         "tf": 2.083333333333333
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "l": {
-              "docs": {},
-              "e": {
-                "docs": {},
-                "c": {
-                  "docs": {},
-                  "t": {
-                    "docs": {
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 1.9801980198019802
                       }
                     }
                   }
@@ -12550,10 +12158,6 @@
                     "MutationStack.html#stack": {
                       "ref": "MutationStack.html#stack",
                       "tf": 10
-                    },
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.9900990099009901
                     }
                   }
                 },
@@ -12577,7 +12181,7 @@
                             },
                             "warpgate.html#.menu": {
                               "ref": "warpgate.html#.menu",
-                              "tf": 11.11111111111111
+                              "tf": 16.666666666666664
                             },
                             "warpgate.html#.mutate": {
                               "ref": "warpgate.html#.mutate",
@@ -12649,10 +12253,6 @@
                       "warpgate.html#.EVENT": {
                         "ref": "warpgate.html#.EVENT",
                         "tf": 33.33333333333333
-                      },
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -13268,25 +12868,10 @@
                         "ref": "Crosshairs.html#radius",
                         "tf": 50
                       },
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 1.4851485148514851
-                      },
                       "warpgate.event.html#.watch": {
                         "ref": "warpgate.event.html#.watch",
                         "tf": 16.666666666666664
                       }
-                    }
-                  }
-                }
-              },
-              "e": {
-                "docs": {},
-                "r": {
-                  "docs": {
-                    "warpgate.html#.menu": {
-                      "ref": "warpgate.html#.menu",
-                      "tf": 0.49504950495049505
                     }
                   }
                 }
@@ -13405,10 +12990,6 @@
                   "MutationStack.html#last": {
                     "ref": "MutationStack.html#last",
                     "tf": 4.545454545454546
-                  },
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.9900990099009901
                   }
                 }
               }
@@ -13417,10 +12998,6 @@
               "docs": {},
               "e": {
                 "docs": {
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.49504950495049505
-                  },
                   "warpgate.crosshairs.html#.show": {
                     "ref": "warpgate.crosshairs.html#.show",
                     "tf": 1.25
@@ -13476,10 +13053,6 @@
                   "warpgate.html#.EVENT": {
                     "ref": "warpgate.html#.EVENT",
                     "tf": 8.333333333333332
-                  },
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 1.4851485148514851
                   },
                   "warpgate.event.html#.notify": {
                     "ref": "warpgate.event.html#.notify",
@@ -13800,7 +13373,7 @@
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 12.101210121012102
+                        "tf": 4.166666666666666
                       }
                     },
                     "d": {
@@ -13836,12 +13409,7 @@
             "o": {
               "docs": {},
               "l": {
-                "docs": {
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.49504950495049505
-                  }
-                },
+                "docs": {},
                 "e": {
                   "docs": {},
                   "a": {
@@ -13851,10 +13419,6 @@
                         "MutationStack.html#.FilterFn": {
                           "ref": "MutationStack.html#.FilterFn",
                           "tf": 33.33333333333333
-                        },
-                        "warpgate.html#.menu": {
-                          "ref": "warpgate.html#.menu",
-                          "tf": 1.4851485148514851
                         },
                         "warpgate.util.html#.isFirstGM": {
                           "ref": "warpgate.util.html#.isFirstGM",
@@ -14194,7 +13758,7 @@
                       },
                       "warpgate.html#.menu": {
                         "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
+                        "tf": 4.166666666666666
                       },
                       "warpgate.html#.wait": {
                         "ref": "warpgate.html#.wait",
@@ -14224,10 +13788,6 @@
                       "warpgate.html#.dismiss": {
                         "ref": "warpgate.html#.dismiss",
                         "tf": 1.7241379310344827
-                      },
-                      "warpgate.html#.menu": {
-                        "ref": "warpgate.html#.menu",
-                        "tf": 0.49504950495049505
                       }
                     }
                   }
@@ -14260,20 +13820,6 @@
                         }
                       }
                     }
-                  }
-                }
-              }
-            }
-          },
-          "t": {
-            "docs": {},
-            "m": {
-              "docs": {},
-              "l": {
-                "docs": {
-                  "warpgate.html#.menu": {
-                    "ref": "warpgate.html#.menu",
-                    "tf": 0.9900990099009901
                   }
                 }
               }
@@ -14333,7 +13879,7 @@
           }
         }
       },
-      "length": 1176
+      "length": 1128
     },
     "corpusTokens": [
       "_collisionbound",
@@ -14358,14 +13904,11 @@
       "anim",
       "anoth",
       "anyon",
-      "any}&gt",
       "api",
       "appli",
       "arbitrari",
       "area",
       "argument",
-      "array",
-      "array.&lt;any&gt",
       "array.&lt;mutationdata&gt",
       "array.&lt;string&gt",
       "associ",
@@ -14383,7 +13926,6 @@
       "below",
       "between",
       "bias",
-      "bool",
       "boolean",
       "bound",
       "broadcast",
@@ -14399,9 +13941,7 @@
       "case",
       "center",
       "chang",
-      "charact",
       "check",
-      "checkbox",
       "choic",
       "chosen",
       "circl",
@@ -14426,7 +13966,6 @@
       "containedfilt",
       "context",
       "controlicon",
-      "convert",
       "copi",
       "creat",
       "creatur",
@@ -14481,7 +14020,6 @@
       "direct",
       "dismiss",
       "display",
-      "display/inform",
       "doc",
       "document",
       "down",
@@ -14496,7 +14034,6 @@
       "edg",
       "effect",
       "element",
-      "element'",
       "embed",
       "endpoint",
       "entiti",
@@ -14544,7 +14081,6 @@
       "global",
       "gm",
       "grid",
-      "group",
       "handl",
       "header",
       "help",
@@ -14554,7 +14090,6 @@
       "hit",
       "hook",
       "hooks.on",
-      "html",
       "i.",
       "icon",
       "id",
@@ -14573,7 +14108,6 @@
       "inform",
       "initi",
       "input",
-      "insert",
       "instanc",
       "intend",
       "intersect",
@@ -14587,7 +14121,6 @@
       "layer",
       "left",
       "level",
-      "line",
       "list",
       "list:namespac",
       "listen",
@@ -14653,11 +14186,9 @@
       "notic",
       "notifi",
       "number",
-      "numer",
       "object",
       "object.&lt;str",
       "object|undefin",
-      "obscur",
       "obtain",
       "offset",
       "on",
@@ -14681,7 +14212,6 @@
       "paramet",
       "particular",
       "pass",
-      "password",
       "path",
       "pattern",
       "payload",
@@ -14725,13 +14255,11 @@
       "promise.&lt;array.&lt;mutateinfo&gt;&gt",
       "promise.&lt;array.&lt;string&gt;&gt",
       "promise.&lt;crosshairsdata&gt",
+      "promise.&lt;menuresult&gt",
       "promise.&lt;mutationstack&gt",
-      "promise.&lt;{input",
       "prompt",
-      "properti",
       "protodata",
       "provid",
-      "purpos",
       "pylon",
       "quad",
       "quantiz",
@@ -14739,7 +14267,6 @@
       "queueupdat",
       "quick",
       "quickli",
-      "radio",
       "radiu",
       "random",
       "read",
@@ -14775,15 +14302,12 @@
       "scroll",
       "search",
       "second",
-      "secur",
-      "select",
       "serial",
       "set",
       "sheet",
       "shift+mous",
       "shift+scrol",
       "shiftedcent",
-      "shortcut",
       "shorthand",
       "show",
       "shown",
@@ -15426,12 +14950,12 @@
     "warpgate.html#.menu": {
       "id": "warpgate.html#.menu",
       "kind": "function",
-      "title": "&lt;async, static&gt; menu( [ prompts [, config ] ] ) → {Promise.&lt;{inputs: Array.&lt;any&gt;, buttons: any}&gt;}",
+      "title": "&lt;async, static&gt; menu( [ prompts [, config ] ] ) → {Promise.&lt;MenuResult&gt;}",
       "longname": "warpgate.menu",
       "name": "menu",
       "tags": "warpgate.menu menu",
       "summary": "",
-      "description": "Advanced dialog helper providing multiple input type options as well as user defined buttons. type options Return Value Notes header none undefined Shortcut for `info info none undefined Inserts a line of text for display/informational purposes. text default value {String} final value of text field password (as text) (as text) Characters are obscured for security. radio [group name, default state (false)] {Array of Bool} {Boolean} selected For a given group name, only one radio button can be selected. checkbox default state (false) {Boolean} {Boolean} checked label is used for the HTML element's name property number (as text) {Number} final value of text field converted to a number select array of option labels or objects {value, html} value property of selected option. If values not provided, numeric index of option in original list"
+      "description": "Advanced dialog helper providing multiple input type options as well as user defined buttons."
     },
     "warpgate.html#.mutate": {
       "id": "warpgate.html#.mutate",
