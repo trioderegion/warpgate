@@ -583,7 +583,7 @@ export class api {
 
       logger.debug('Spawned token with data: ', spawnedTokenDoc);
 
-      await _updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {});
+      await _updateActor(spawnedTokenDoc.actor, updates, options.comparisonKeys ?? {}, options.updateOpts ?? {});
 
       const eventPayload = {
         uuid: spawnedTokenDoc.uuid,
