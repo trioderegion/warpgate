@@ -27,7 +27,7 @@
     "dev": "rollup -c node:rollup-config-badger-den --config-den warpgate:dev",
     "dev10": "rollup -c node:rollup-config-badger-den --config-den warpgate:dev10",
     "build:module": "rollup --config node:rollup-config-badger-den --config-den warpgate:release",
-    "build:docs": "jsdoc --configure jsdoc.config.json && cp .\\foodoc-overrides.css .\\dist\\docs\\css\\overrides.css",
+    "build:docs": "jsdoc --configure jsdoc.config.json && cp ./foodoc-overrides.css ./dist/docs/css/overrides.css",
     "build": "npm run build:module && npm run build:docs"
   }
 }
