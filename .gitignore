@@ -5,3 +5,4 @@
 *.lock
 *.sw*
 node_modules/*
+dist
