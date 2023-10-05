@@ -9,7 +9,7 @@
  * | text, password, number | `string` | `''` | Initial value of input |
  * | checkbox | `boolean`| `false` | Initial checked state |
  * | radio | `[string, boolean]` | `['radio', false]` | Group name and initial checked state, respectively |
- * | select | `{html: string, value: any}[]` or `string[]` | `[]` | HTML string for select option element and the value to be return if selected. If only a string is provided, it will be used as both the HTML and return value. |
+ * | select | `{html: string, value: any, selected: boolean}[]` or `string[]` | `[]` | HTML string for select option element, the value to be return if selected, and initial state. If only a string is provided, it will be used as both the HTML and return value. |
  * 
  * @typedef {Object} MenuInput
  * @prop {string} type Type of input, controlling display and return values. See "options property details," above, and {@link MenuResult MenuResult.button}.
@@ -650,7 +650,7 @@ export class MODULE {
           case "select": {
             const optionString = options
               .map((e, i) => {
-                return `<option value="${i}">${e.html}</option>`;
+                return `<option value="${i}" ${e.selected ? 'selected' : ''}>${e.html}</option>`;
               })
               .join("");
 
