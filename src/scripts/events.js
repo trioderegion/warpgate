@@ -8,10 +8,10 @@ let watches = {};
 let triggers = {};
 let id = 0;
 
-Array.prototype.removeIf = function (callback) {
-  let i = this.length;
+const removeIf = function (array, condition) {
+  let i = array.length;
   while (i--) {
-    if (callback(this[i], i)) {
+    if (condition(this[i], i)) {
       this.splice(i, 1);
       return true;
     }
@@ -137,7 +137,7 @@ export class Events {
       return elem.id === id
     };
 
-    const tryRemove = (page) => page.removeIf(searchFn);
+    const tryRemove = (page) => removeIf(page, searchFn);
 
     const hookRemove = Object.values(watches).map(tryRemove).reduce((sum, current) => {
       return sum || current

@@ -77,11 +77,7 @@ export class MODULE {
     const gen = game.release?.generation;
     switch (shimId) {
       case "interaction.pointer":
-        return (
-          {
-            10: root.canvas.app.renderer.plugins.interaction.mouse,
-          }[gen] ?? canvas.app.renderer.events.pointer
-        );
+        return gen < 11 ? root.canvas.app.renderer.plugins.interaction.mouse : canvas.app.renderer.events.pointer;
       case "crosshairs.computeShape":
         return (
           {

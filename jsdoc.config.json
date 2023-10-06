@@ -4,9 +4,9 @@
       "dictionaries": ["jsdoc","closure"]
   },
     "source": {
-      "include": ["scripts"],
+      "include": ["src/scripts"],
       "includePattern": ".+\\.(js(doc|x)?|mjs|ts)$",
-      "excludePattern": "(node_modules/|docs)"
+      "excludePattern": "(node_modules/|dist)"
     },
     "plugins": [
       "plugins/markdown",
