@@ -24,10 +24,12 @@
     "rollup-config-badger-den": ">=0.9.2"
   },
   "scripts": {
-    "dev": "rollup -c node:rollup-config-badger-den --config-den warpgate:dev",
-    "dev10": "rollup -c node:rollup-config-badger-den --config-den warpgate:dev10",
-    "build:module": "rollup --config node:rollup-config-badger-den --config-den warpgate:release",
+    "dev": "rollup -c node:rollup-config-badger-den --config-den src/warpgate:dev",
+    "dev10": "rollup -c node:rollup-config-badger-den --config-den src/warpgate:dev10",
+    "build:module": "rollup --config node:rollup-config-badger-den --config-den src/warpgate:release",
     "build:docs": "jsdoc --configure jsdoc.config.json && cp ./foodoc-overrides.css ./dist/docs/css/overrides.css",
-    "build": "npm run build:module && npm run build:docs"
+    "build:windocs": "jsdoc --configure jsdoc.config.json && copy .\\foodoc-overrides.css .\\dist\\docs\\css\\overrides.css",
+    "build": "npm run build:module && npm run build:docs",
+    "winbuild": "npm run build:module && npm run build:windocs"
   }
 }

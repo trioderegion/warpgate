@@ -21,7 +21,7 @@
       "clean": true
     },
     "release":{
-      "dest":"dist",
+      "dest":"../dist",
       "compress":false,
       "sourcemaps": false,
       "clean": true
