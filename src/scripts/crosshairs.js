@@ -349,7 +349,7 @@ export class Crosshairs extends MeasuredTemplate {
     // Draw the template and switch to the template layer
     this.initialLayer = canvas.activeLayer;
     this.layer.activate();
-    this.draw();
+    await this.draw();
     this.layer.preview.addChild(this);
     this.layer.interactiveChildren = false;
 
