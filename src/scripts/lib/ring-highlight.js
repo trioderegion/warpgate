@@ -34,6 +34,22 @@
  *   cleared. A negative value or zero indicates "indefinitely". Ignored if `config.rings` is less than 1.
  *
  * @returns {Array<{x: Number, y: Number, ring: Number}>} Highlighted grid locations (in pixels) and their corresponding ring index
+ *
+ * @example
+ * const name = 'rangefinder';
+ * const size = 2;
+ * const rings = 3;
+ * const colors = [0xFF0000, 0x00FF00, 0x0000FF];
+ * 
+ * // Draw a simple ring on the default layer
+ * warpgate.grid.highlightRing({x: token.x, y:token.y, rings:1});
+ * 
+ * // Draw a larger temporary ring on the rangerfinder layer
+ * const highlights = warpgate.grid.highlightRing(
+ *     {x: token.x, y:token.y, rings, name}, 
+ *     {size, colors, clear: true, lifetime:2000});
+ *     
+ * ui.notifications.info(`Highlighted ${highlights.length} grid positions.`);
  */
 export function highlightRing(
   config = { x: 0, y: 0, rings: 0, name: 'warpgate-ring' },
