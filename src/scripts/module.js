@@ -9,7 +9,7 @@
  * | text, password, number | `string` | `''` | Initial value of input |
  * | checkbox | `boolean`| `false` | Initial checked state |
  * | radio | `[string, boolean]` | `['radio', false]` | Group name and initial checked state, respectively |
- * | select | `{html: string, value: any}[]` or `string[]` | `[]` | HTML string for select option element and the value to be return if selected. If only a string is provided, it will be used as both the HTML and return value. |
+ * | select | `{html: string, value: any, selected: boolean}[]` or `string[]` | `[]` | HTML string for select option element, the value to be return if selected, and initial state. If only a string is provided, it will be used as both the HTML and return value. |
  * 
  * @typedef {Object} MenuInput
  * @prop {string} type Type of input, controlling display and return values. See "options property details," above, and {@link MenuResult MenuResult.button}.
@@ -18,13 +18,20 @@
  */
 
 /**
+ * @callback MenuCallback
+ * @param {MenuResult} result User's chosen values (by reference) for this menu. Can modify or expand return value.
+ * @param {HTMLElement} html Menu DOM element.
+ */
+
+/**
  * @typedef {object} MenuButton
  * @prop {string} label Display text for this button, accepts HTML.
  * @prop {*} value Arbitrary object to return if selected.
- * @prop {function(Function, HTMLElement):void} [callback] Override default callback 
- *   behavior of returning this button's `value`.
+ * @prop {MenuCallback} [callback] Additional callback to be executed
+ *   when this button is selected. Can be used to modify the menu's results object.
  * @prop {boolean} [default] Any truthy value sets this button as 
- *  default for the 'submit' or 'ENTER' dialog event.
+ *  default for the 'submit' or 'ENTER' dialog event. If none provided, the last button provided
+ *  will be used.
  */
 
 /**
@@ -43,7 +50,7 @@
  * |--|--|--|
  * | header, info | `undefined` | |
  * | text, password, number | `string` | Final input value
- * | checkbox, radio | `boolean`| Final checked state |
+ * | checkbox, radio | `boolean\|string`| Final checked state. Using `checkedText` results in `""` for unchecked and `label` for checked. |
  * | select | `any` | `value` of the chosen select option, as provided by {@link MenuInput MenuInput.options[i].value} |
  *
  * @typedef {object} MenuResult
@@ -646,7 +653,7 @@ export class MODULE {
           case "select": {
             const optionString = options
               .map((e, i) => {
-                return `<option value="${i}">${e.html}</option>`;
+                return `<option value="${i}" ${e.selected ? 'selected' : ''}>${e.html}</option>`;
               })
               .join("");
 
@@ -695,37 +702,99 @@ export class MODULE {
    * @return {Promise<MenuResult>} Object with `inputs` containing the chosen values for each provided input, in order, and the provided `value` of the pressed button or `false`, if closed.
    *
    * @example
-   * await warpgate.menu({
-   *  inputs: [{
-   *    label: 'My Way',
-   *    type: 'radio',
-   *    options: 'group1'
-   *  }, {
-   *    label: 'The Highway',
-   *    type: 'radio',
-   *    options: 'group1'
-   *  }],
-   *  buttons: [{
-   *    label: 'Yes',
-   *    value: 1,
-   *    default: true
-   *  }, {
-   *    label: 'No',
-   *    value: 2
-   *  }, {
-   *    label: 'Maybe',
-   *    value: 3
-   *  }, {
-   *    label: 'Eventually',
-   *    value: 4
-   *  }]
+   * const results = await warpgate.menu({
+   * inputs: [{
+   *   label: 'My Way',
+   *   type: 'radio',
+   *   options: 'group1',  
    * }, {
+   *   label: 'The Highway',
+   *   type: 'radio',
+   *   options: 'group1',
+   * },{
+   *   label: 'Agree to ToS 😈',
+   *   type: 'checkbox',
+   *   options: true,
+   * },{
+   *   type: 'select',
+   *   label: 'Make it a combo?',
+   *   options: [
+   *       {html: 'Yes ✅', value: {combo: true, size: 'med'}},
+   *       {html: 'No ❌', value: {combo: false}, selected:true},
+   *       {html: 'Super Size Me!', value: {combo: true, size: 'lg'}}
+   *   ],
+   * }],
+   * buttons: [{
+   *   label: 'Yes',
+   *   value: 1,
+   *   callback: () => ui.notifications.info('Yes was clicked'),
+   * }, {
+   *   label: 'No',
+   *   value: 2
+   * }, {
+   *   label: '<strong>Maybe</strong>',
+   *   value: 3,
+   *   default: true,
+   *   callback: (results) => {
+   *       results.inputs[3].freebies = true;
+   *       ui.notifications.info('Let us help make your decision easier.')
+   *   },
+   * }, {
+   *   label: 'Eventually',
+   *   value: 4
+   * }]
+   * },{
+   *  title: 'Choose Wisely...',
+   *  //checkedText: true, //Swap true/false output to label/empty string
+   *  render: (...args) => { console.log(...args); ui.notifications.info('render!')},
    *  options: {
    *    width: '100px',
-   *    height: '100%'
+   *    height: '100%',    
    *  }
    * })
-   *
+   * 
+   * console.log('results', results)
+   *  
+   * // EXAMPLE OUTPUT
+   * 
+   * // Ex1: Default state (Press enter when displayed)
+   * // -------------------------------
+   * // Foundry VTT | Rendering Dialog
+   * // S.fn.init(3) [div.dialog-content, text, div.dialog-buttons]
+   * // render!
+   * // Let us help make your decision easier.
+   * // results {
+   * //             "inputs": [
+   * //                 false,
+   * //                 false,
+   * //                 true,
+   * //                 {
+   * //                     "combo": false,
+   * //                     "freebies": true
+   * //                 }
+   * //             ],
+   * //             "buttons": 3
+   * //         }
+   * // 
+   * // Ex 2: Output for selecting 'My Way', super sizing
+   * //       the combo, and clicking 'Yes' 
+   * // -------------------------------
+   * // Foundry VTT | Rendering Dialog
+   * // S.fn.init(3) [div.dialog-content, text, div.dialog-buttons]
+   * // render!
+   * // Yes was clicked
+   * // results {
+   * //             "inputs": [
+   * //                 true,
+   * //                 false,
+   * //                 true,
+   * //                 {
+   * //                     "combo": true,
+   * //                     "size": "lg"
+   * //                 }
+   * //             ],
+   * //             "buttons": 1
+   * //         }       
    */
   static async menu(prompts = {}, config = {}) {
     /* apply defaults to optional params */
@@ -753,14 +822,14 @@ export class MODULE {
         if ("default" in button) def = button.label;
         buttonData[button.label] = {
           label: button.label,
-          callback: async (html) => {
+          callback: (html) => {
             const results = {
               inputs: MODULE._innerValueParse(inputs, html, {checkedText}),
               buttons: button.value,
             };
             if (button.callback instanceof Function)
-              await button.callback(results, button, html);
-            resolve(results);
+              button.callback(results, html);
+            return resolve(results);
           },
         };
       });
