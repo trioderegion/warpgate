@@ -6,7 +6,7 @@ import { Propagator } from "./propagator.js";
  *
  * @export
  * @generator
- * @name warpgate.util.RingGenerator
+ * @name warpgate.plugin.RingGenerator
  * @param {{x:Number, y:Number}} origin Staring location (pixels) for search
  * @param {Number} numRings
  * @yields {{x: Number, y: Number}} pixel location of next grid-ring-connected origin
@@ -32,7 +32,7 @@ export function* RingGenerator(origin, numRings) {
   let ring = 0;
 
   /* include seed point in iterator */
-  yield { x: origin.x, y: origin.y };
+  yield { x: origin.x, y: origin.y, ring: -1 };
 
   /* if this is off-grid, also check the snap location */
   const snapped = canvas.grid.getSnappedPosition(origin.x, origin.y);
@@ -42,7 +42,7 @@ export function* RingGenerator(origin, numRings) {
   );
   if (!seen(snappedIndex)) {
     queue = [snappedIndex];
-    yield snapped;
+    yield {...snapped, ring: -1};
   }
 
   while (queue.length > 0 && ring < numRings) {
@@ -51,13 +51,13 @@ export function* RingGenerator(origin, numRings) {
 
     for (const loc of queue) {
       const [x, y] = canvas.grid.grid.getPixelsFromGridPosition(...loc);
-      yield { x, y };
+      yield { x, y, ring };
     }
 
     ring += 1;
   }
 
-  return { x: null, y: null };
+  return { x: null, y: null, ring: null };
 }
 
 /**

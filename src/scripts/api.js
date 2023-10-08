@@ -25,6 +25,7 @@ import { queueUpdate } from './update-queue.js';
 import { Crosshairs } from './crosshairs.js';
 import { MutationStack } from './mutation-stack.js';
 import {PlaceableFit, RingGenerator} from './lib/PlaceableFit.mjs'
+import {highlightRing} from './lib/ring-highlight.js';
 
 /** @typedef {import('./crosshairs.js').CrosshairsData} CrosshairsData */
 /** @typedef {import('./mutator.js').WorkflowOptions} WorkflowOptions */
@@ -234,11 +235,10 @@ export class api {
         isFirstGM : MODULE.isFirstGM,
         firstOwner : MODULE.firstOwner,
         isFirstOwner : MODULE.isFirstOwner,
-        RingGenerator,
       },
 
       /**
-       * @summary Crosshairs API Functions
+       * @summary Crosshairs methods
        * @namespace 
        * @alias warpgate.crosshairs
        * @borrows Gateway.showCrosshairs as show
@@ -251,12 +251,13 @@ export class api {
         collect: collectPlaceables,
       },
       /**
-       * @summary APIs intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
+       * @summary Methods intended for warp gate "pylons" (e.g. Warp Gate-dependent modules)
        * @namespace 
        * @alias warpgate.plugin
        * @borrows api._notice as notice
        * @borrows Mutator.batchMutate as batchMutate
        * @borrows Mutator.batchRevert as batchRevert
+       * @borrows RingGenerator as RingGenerator
        */
       plugin: {
         queueUpdate,
@@ -264,6 +265,15 @@ export class api {
         batchMutate,
         batchRevert,
         RingGenerator,
+      },
+      /**
+       * @summary Helper functions related to grid-centric canvas operations
+       * @namespace
+       * @alias warpgate.grid
+       * @borrows highlightRing as highlightRing
+       */
+      grid: {
+        highlightRing,
       },
       /**
        * @summary System specific helpers
