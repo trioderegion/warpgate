@@ -22,6 +22,7 @@ Warp Gate is a system-agnostic library module for Foundry VTT that provides a gr
 * Wasp for pushing me to make Crosshairs more full featured.
 * Arbron for the initial v9+v10 conversion updates.
 * Mr. Vaux for stretching warpgate's malleability to its limit.
+* Devioushearts for the wonderful branding badges.
 
 <p align="center">
 <em>Bundled with care by</em>
