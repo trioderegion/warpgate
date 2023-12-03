@@ -229,12 +229,14 @@ export class api {
        * @borrows MODULE.isFirstGM as isFirstGM
        * @borrows MODULE.firstOwner as firstOwner
        * @borrows MODULE.isFirstOwner as isFirstOwner
+       * @borrows MODULE.waitFor as waitFor
        */
       util: {
         firstGM : MODULE.firstGM,
         isFirstGM : MODULE.isFirstGM,
         firstOwner : MODULE.firstOwner,
         isFirstOwner : MODULE.isFirstOwner,
+        waitFor : MODULE.waitFor,
       },
 
       /**
@@ -274,19 +276,6 @@ export class api {
        */
       grid: {
         highlightRing,
-      },
-      /**
-       * @summary System specific helpers
-       * @namespace 
-       * @private
-       * @alias warpgate.dnd5e
-       * @prop {Function} rollItem
-       * @borrows Gateway._rollItemGetLevel as rollItem
-       */
-      get dnd5e() {
-        foundry.utils.logCompatibilityWarning(`[${MODULE.data.name}] System-specific namespaces and helper functions have been deprecated. Please convert to system provided functions.`, {since: 1.16, until: 2, details:`Migration details:\nrollItem(Item) to Item#use()`});
-
-        return {rollItem : _rollItemGetLevel}
       },
       /**
        * @description Constants and enums for use in embedded shorthand fields

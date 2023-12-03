@@ -369,7 +369,16 @@ export class MODULE {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  static async waitFor(fn, maxIter = 600, iterWaitTime = 100, i = 0) {
+  /**
+   * Advanced helper function similar to `warpgate.wait` that allows for non-deterministic waits based on the predicate function, `fn`, provided.
+   *
+   * @param {function(iteration, currentTime):Boolean} fn Given the current wait iteration number and the time spent waiting as parameters, return a boolean indicating if we should continue to wait.
+   * @param {number} [maxIter=600] Negative value will allow unbounded wait based on `fn`. Positive values act as a timeout. Defaults will cause a timeout after 1 minute.
+   * @param {number} [iterWaitTime=100] Time (in ms) between each predicate function check for continued waiting
+   * @returns {Boolean} Indicates if the function return was caused by timeout during waiting
+   */
+  static async waitFor(fn, maxIter = 600, iterWaitTime = 100) {
+    let i = 0;
     const continueWait = (current, max) => {
       /* negative max iter means wait forever */
       if (maxIter < 0) return true;
@@ -377,7 +386,7 @@ export class MODULE {
       return current < max;
     };
 
-    while (!fn(i, (i * iterWaitTime) / 100) && continueWait(i, maxIter)) {
+    while (!fn(i, (i * iterWaitTime)) && continueWait(i, maxIter)) {
       i++;
       await MODULE.wait(iterWaitTime);
     }
