@@ -100,14 +100,21 @@ export class PlaceableFit {
   /**
    *
    *
-   * @param {{x:Number, y:Number}} newOrigin
+   * @param {{x:Number, y:Number}} loc `{x,y}` location value (in pixels) defining the testing bound's origin (top left)
+   * @param {Boolean} isCenter provided location defines the bounds new center, rather than origin
    * @returns PIXI.Rectangle bounds for overlap testing (slightly smaller)
    * @memberof PlaceableFit
    */
-  _collisionBounds(newOrigin) {
+  _collisionBounds(loc, isCenter = false) {
+
+    const origin = isCenter ? {
+      x: loc.x - this.bounds.width / 2,
+      y: loc.y - this.bounds.height / 2,
+    } : loc;
+
     const newBounds = new PIXI.Rectangle(
-      newOrigin.x,
-      newOrigin.y,
+      origin.x,
+      origin.y,
       this.bounds.width,
       this.bounds.height
     );
@@ -120,16 +127,21 @@ export class PlaceableFit {
    * placeable fit without overlapping other placeables?
    *
    * @param {{x: Number, y: Number}} loc Origin of bounds
+   * @param {Boolean} isCenter Provided origin instead defines the bounds' centerpoint
    * @returns boolean Placeable bounds fit without overlap
    * @memberof PlaceableFit
    */
-  spaceClear(loc) {
-    const candidateBounds = this._collisionBounds(loc);
+  spaceClear(loc, isCenter = false) {
+    const candidateBounds = this._collisionBounds(loc, isCenter);
 
     if (this.options.visualize) {
       canvas.controls.debug
         .lineStyle(2, 0xff0000, 0.5)
         .drawShape(candidateBounds);
+    }
+
+    if (this.options.avoidWalls && this._offsetCollidesWall(this.bounds.center, candidateBounds.center)) {
+      return false;
     }
 
     for (const layer of this.options.collisionLayers) {
@@ -162,10 +174,13 @@ export class PlaceableFit {
    * Searches for and returns the bounds origin point at which it does
    * not overlap other placeables.
    *
+   * @param {Object<string, *>} [options]
+   * @param {Boolean} [options.center=false] Return the _center-point_ of the valid freespace bounds, rather than its origin (top-left)
+   *
    * @returns {{x: Number, y: Number}|undefined} Identified bounds origin free of overlap
    * @memberof PlaceableFit
    */
-  find() {
+  find({center = false} = {}) {
     if (game.release?.generation < 11) {
       return Propagator.getFreePosition(this.bounds, this.bounds);
     }
@@ -174,20 +189,16 @@ export class PlaceableFit {
 
     let testLoc = null;
 
-    const newCenter = (x, y) => ({
-      x: x + this.bounds.width / 2,
-      y: y + this.bounds.height / 2,
-    });
-
     while (!(testLoc = locIter.next()).done) {
-      const { x, y } = testLoc.value;
 
-      let clear = this.spaceClear({ x, y });
-      if (clear && this.options.avoidWalls) {
-        clear = !this._offsetCollidesWall(this.bounds.center, newCenter(x, y));
+      const newCenter = {
+        x: testLoc.value.x + this.bounds.width / 2,
+        y: testLoc.value.y + this.bounds.height / 2,
+      };
+
+      if (this.spaceClear(newCenter, true)) {
+        return center ? newCenter : testLoc.value;
       }
-
-      if (clear) return { x, y };
     }
 
     return;
