@@ -11,7 +11,7 @@ let id = 0;
 const removeIf = function (array, condition) {
   let i = array.length;
   while (i--) {
-    if (condition(this[i], i)) {
+    if (condition(array[i], i)) {
       this.splice(i, 1);
       return true;
     }
@@ -133,11 +133,18 @@ export class Events {
    * @see warpgate.event.trigger
    */
   static remove(id) {
-    const searchFn = (elem) => {
-      return elem.id === id
-    };
 
-    const tryRemove = (page) => removeIf(page, searchFn);
+    const tryRemove = (page) => {
+      let i = page.length;
+      while (i--) {
+        if (page[i].id == id) {
+          page.splice(i, 1);
+          return true;
+        }
+      }
+
+      return false;
+    }
 
     const hookRemove = Object.values(watches).map(tryRemove).reduce((sum, current) => {
       return sum || current
