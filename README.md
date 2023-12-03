@@ -1,7 +1,8 @@
-
-# Warp Gate
-
-<h3 align="center"><img alt="GitHub all releases" src="https://img.shields.io/github/v/release/trioderegion/warpgate?color=blue&label=release">  Reinforcements have arrived  <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/downloads/trioderegion/warpgate/latest/module.zip?color=blue&label=downloads%20%28latest%29">  </h3>
+<p align="center">
+<img src="https://storage.googleapis.com/badgerwerks/branding/warpgate-badge-sm.webp" title="Warp Gate badge"><br>
+<img alt="GitHub all releases" src="https://img.shields.io/github/v/release/trioderegion/warpgate?color=blue&label=release"> <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/downloads/trioderegion/warpgate/latest/module.zip?color=blue&label=downloads%20%28latest%29">
+</p>
+<h3 align="center">  Reinforcements have arrived   </h3>
 
 
 Warp Gate is a system-agnostic library module for Foundry VTT that provides a growing number of API functions to make programmatically spawning tokens and modifying those tokens easier for players and GMs alike. Usable both directly via client Macros and as a dependency for other modules to build and expand upon.
@@ -21,3 +22,12 @@ Warp Gate is a system-agnostic library module for Foundry VTT that provides a gr
 * Wasp for pushing me to make Crosshairs more full featured.
 * Arbron for the initial v9+v10 conversion updates.
 * Mr. Vaux for stretching warpgate's malleability to its limit.
+* Devioushearts for the wonderful branding badges.
+
+<p align="center">
+<em>Bundled with care by</em>
+<br>
+<a href="https://www.npmjs.com/package/rollup-config-badger-den">
+<img alt="built with Badger Den" src="https://storage.googleapis.com/badgerwerks/branding/badger-den-badge-sm.webp">
+</a>
+</p>
