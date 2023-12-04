@@ -255,7 +255,7 @@ export class Crosshairs extends MeasuredTemplate {
 
   /** @override */
   refresh() {
-    if (!this.template) return;
+    if (!this.template || this._destroyed) return;
     let d = canvas.dimensions;
     const document = this.document;
     this.position.set(document.x, document.y);
@@ -345,10 +345,15 @@ export class Crosshairs extends MeasuredTemplate {
   /**
    * Creates a preview of the spell template
    */
+
+  get layer() {
+    return canvas.activeLayer;
+  }
+
   async drawPreview() {
     // Draw the template and switch to the template layer
-    this.initialLayer = canvas.activeLayer;
-    this.layer.activate();
+    //this.initialLayer = canvas.activeLayer;
+    //this.layer.activate();
     await this.draw();
     this.layer.preview.addChild(this);
     this.layer.interactiveChildren = false;
@@ -398,6 +403,8 @@ export class Crosshairs extends MeasuredTemplate {
   }
 
   _leftClickHandler(event) {
+    event.preventDefault();
+
     const document = this.document;
     const thisSceneSize = this.scene.grid.size;
 
@@ -408,6 +415,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.document.updateSource({ ...destination });
     
     this.clearHandlers(event);
+    return true;
   }
 
   // Rotate the template by 3 degree increments (mouse-wheel)
@@ -457,14 +465,19 @@ export class Crosshairs extends MeasuredTemplate {
     }
   }
 
+  /* Disable left drag monitoring */
+  //_onDragLeftStart(evt) {}
+  //_onDragStart(evt) {}
+  //_onDragLeftMove(evt) {}
+
   _clearHandlers(event) {
-    //WARPGATE BEGIN
-    /* destroy ourselves */
-    this.document.object.destroy();
     this.template.destroy();
-    this.layer.preview.removeChild(this);
     this._destroyed = true;
+    this.layer.preview.removeChild(this);
+
+    this.inFlight = false;
     
+    //WARPGATE BEGIN
     canvas.stage.off("mousemove", this.activeMoveHandler);
     canvas.stage.off("mousedown", this.activeLeftClickHandler);
     canvas.app.view.onmousedown = null;
@@ -473,19 +486,11 @@ export class Crosshairs extends MeasuredTemplate {
 
     // Show the sheet that originated the preview
     if (this.actorSheet) this.actorSheet.maximize();
-    this.activeHandlers = false;
-    this.inFlight = false;
-	//WARPGATE END
-    
-    /* re-enable interactivity on this layer */
-    this.layer.interactiveChildren = true;
+    //WARPGATE END
 
-    /* moving off this layer also deletes ALL active previews?
-     * unexpected, but manageable
-     */
-    if (this.layer.preview.children.length == 0) {
-      this.initialLayer.activate();
-    }
+    /* re-enable interactivity on this layer */
+    canvas.mouseInteractionManager.reset({interactionData: true});
+    this.layer.interactiveChildren = true;
   }
 
   /**
@@ -495,8 +500,7 @@ export class Crosshairs extends MeasuredTemplate {
     this.moveTime =  0;
     this.initTime = Date.now();
     //BEGIN WARPGATE
-    this.activeHandlers = true;
-
+    this.removeAllListeners();
     /* Activate listeners */
     this.activeMoveHandler = this._mouseMoveHandler.bind(this);
     this.activeLeftClickHandler = this._leftClickHandler.bind(this);
