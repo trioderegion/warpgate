@@ -21,7 +21,7 @@
     "jsdoc": "^3.6.11",
     "jsdoc-plugin-intersection": "^1.0.4",
     "rollup": "^3.23.1",
-    "rollup-config-badger-den": ">=1.0.3"
+    "rollup-config-badger-den": ">=1.0.4"
   },
   "scripts": {
     "dev": "rollup -c node:rollup-config-badger-den --config-den src/warpgate:dev",
