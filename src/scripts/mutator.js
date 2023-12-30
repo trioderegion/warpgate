@@ -795,4 +795,4 @@ class Mutator {
   }
 }
 
-export const register = Mutator.register, mutate = Mutator.mutate, revertMutation = Mutator.revertMutation, batchMutate = Mutator.batchMutate, batchRevert = Mutator.batchRevert, clean = Mutator.clean, _updateActor = Mutator._updateActor;
+export const register = Mutator.register, mutate = Mutator.mutate, revertMutation = Mutator.revertMutation, batchMutate = Mutator.batchMutate, batchRevert = Mutator.batchRevert, clean = Mutator.clean, _updateActor = Mutator._updateActor, _createDelta = Mutator._createDelta;

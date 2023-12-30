@@ -6,3 +6,4 @@
 *.sw*
 node_modules/*
 dist
+foundry

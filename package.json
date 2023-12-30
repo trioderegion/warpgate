@@ -15,13 +15,13 @@
   },
   "homepage": "https://github.com/trioderegion/warpgate#readme",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": ">=9",
     "better-docs": "^2.7.2",
+    "eslint-plugin-jsdoc": "^46.9.1",
     "foodoc": "^0.0.9",
     "jsdoc": "^3.6.11",
     "jsdoc-plugin-intersection": "^1.0.4",
     "rollup": "^3.23.1",
-    "rollup-config-badger-den": ">=1.0.4"
+    "rollup-config-badger-den": ">=1.1.0"
   },
   "scripts": {
     "dev": "rollup -c node:rollup-config-badger-den --config-den src/warpgate:dev",

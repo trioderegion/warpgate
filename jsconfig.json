@@ -5,9 +5,8 @@
     "checkJs": true,
     "allowJs": true,
     "noEmit": true,
-    "types": ["@league-of-foundry-developers/foundry-vtt-types"],
     "moduleResolution": "node",
     "strictNullChecks": false
   },
-  "include": ["./scripts/*", "./global.d.ts", "./types.d.ts"]
+  "include": ["src", "foundry"]
 }

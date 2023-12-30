@@ -13,7 +13,10 @@
       "compress":false,
       "sourcemaps": true,
       "clean": false,
-      "hmr": true
+      "hmr": true,
+      "entryPoints": {
+        "main": "scripts/schema/shorthand.mjs"
+      }
     },
     "release":{
       "dest":"../dist",
