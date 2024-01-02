@@ -8,5 +8,6 @@
     "moduleResolution": "node",
     "strictNullChecks": false
   },
-  "include": ["src", "foundry"]
+  "include": ["src", "foundry"],
+  "exclude": ["foundry/client/config.js"]
 }
