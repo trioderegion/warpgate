@@ -2,14 +2,12 @@ import {
   logger
 } from './module.js'
 
-const NAME = 'Events';
-
-let watches = {};
-let triggers = {};
-let id = 0;
-
-export class Events {
-
+export default class {
+  name = 'Events';
+  watches = {};
+  triggers = {};
+  id = 0;
+  
   /**
    * Similar in operation to `Hooks.on`, with two exceptions. First, the provided function 
    * can be asynchronous and will be awaited. Second, an optional `conditionFn` parameter 
@@ -23,17 +21,17 @@ export class Events {
    *
    * @returns {number} Function id assigned to this event, for use with {@link warpgate.event.remove}
    */
-  static watch(name, fn, condition = () => {
+  watch(name, fn, condition = () => {
     return true;
   }) {
-    if (!watches[name]) watches[name] = [];
-    id++;
-    watches[name].push({
+    if (!this.watches[name]) this.watches[name] = [];
+    this.id++;
+    this.watches[name].push({
       fn,
       condition,
-      id
+      id: this.id
     });
-    return id;
+    return this.id;
   }
 
   /**
@@ -41,26 +39,26 @@ export class Events {
    *
    * @see {@link warpgate.event.watch}
    */
-  static trigger(name, fn, condition = () => {
+  trigger(name, fn, condition = () => {
     return true;
   }) {
-    if (!triggers[name]) triggers[name] = [];
-    id++;
-    triggers[name].push({
+    if (!this.triggers[name]) this.triggers[name] = [];
+    this.id++;
+    this.triggers[name].push({
       fn,
       condition,
-      id
+      id: this.id
     });
-    return id;
+    return this.id;
   }
 
 
-  static async run(name, data) {
+  async run(name, data) {
     for (const {
         fn,
         condition,
         id
-      } of watches[name] ?? []) {
+      } of this.watches[name] ?? []) {
       try {
         if (condition(data)) {
           logger.debug(`${name} | ${id} passes watch condition`);
@@ -69,14 +67,14 @@ export class Events {
           logger.debug(`${name} | ${id} fails watch condition`);
         }
       } catch (e) {
-        logger.error(`${NAME} | error`, e, `\n \nIn watch function (${name})\n`, fn);
+        logger.error(`${this.name} | error`, e, `\n \nIn watch function (${name})\n`, fn);
       }
     }
 
     let {
       run,
       keep
-    } = (triggers[name] ?? []).reduce((acum, elem) => {
+    } = (this.triggers[name] ?? []).reduce((acum, elem) => {
       try {
         const passed = elem.condition(data);
         if (passed) {
@@ -87,7 +85,7 @@ export class Events {
           acum.keep.push(elem);
         }
       } catch (e) {
-        logger.error(`${NAME} | error`, e, `\n \nIn trigger condition function (${name})\n`, elem.condition);
+        logger.error(`${this.name} | error`, e, `\n \nIn trigger condition function (${name})\n`, elem.condition);
         return acum;
       } finally {
         return acum;
@@ -105,11 +103,11 @@ export class Events {
       try {
         await fn(data);
       } catch (e) {
-        logger.error(`${NAME} | error`, e, `\n \nIn trigger function (${name})\n`, fn);
+        logger.error(`${this.name} | error`, e, `\n \nIn trigger function (${name})\n`, fn);
       }
     }
 
-    triggers[name] = keep;
+    this.triggers[name] = keep;
   }
 
   /**
@@ -120,7 +118,7 @@ export class Events {
    * @see warpgate.event.watch
    * @see warpgate.event.trigger
    */
-  static remove(id) {
+  remove(id) {
 
     const tryRemove = (page) => {
       let i = page.length;
@@ -134,11 +132,11 @@ export class Events {
       return false;
     }
 
-    const hookRemove = Object.values(watches).map(tryRemove).reduce((sum, current) => {
+    const hookRemove = Object.values(this.watches).map(tryRemove).reduce((sum, current) => {
       return sum || current
     }, false);
 
-    const triggerRemove = Object.values(triggers).map(tryRemove).reduce((sum, current) => {
+    const triggerRemove = Object.values(this.triggers).map(tryRemove).reduce((sum, current) => {
       return sum || current
     }, false);
 

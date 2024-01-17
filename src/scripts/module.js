@@ -530,7 +530,11 @@ export class MODULE {
 
     /* set their data to null */
     Object.keys(additions).forEach((key) => {
-      if (typeof additions[key] != "object") diff[key] = null;
+      if (typeof additions[key] != "object") {
+        const parts = key.split('.');
+        parts[parts.length-1] = '-='+parts.at(-1);
+        diff[parts.join('.')] = null;
+      }
     });
 
     return foundry.utils.expandObject(diff);
@@ -550,7 +554,7 @@ export class MODULE {
         let x = t[k];
 
         // Case 1 - inner object
-        if (has && getType(v) === "Object" && getType(x) === "Object") {
+        if (has && foundry.utils.getType(v) === "Object" && foundry.utils.getType(x) === "Object") {
           filtered[k] = _filter(v, x, {});
         }
 

@@ -7,7 +7,7 @@ const fields = foundry.data.fields;
  * @extends {MeasuredTemplateDocument}
  *
  */
-class CrosshairsDocument extends MeasuredTemplateDocument {
+class Crosshairs extends MeasuredTemplateDocument {
 
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
@@ -31,8 +31,6 @@ class CrosshairsDocument extends MeasuredTemplateDocument {
     })
   }
 
-  
-
   static get placeableClass() {
     return CrosshairsPlaceable;
   }
@@ -47,8 +45,11 @@ class CrosshairsDocument extends MeasuredTemplateDocument {
 
   }
 
-  #layer;
-  token;
+  #layer = null;
+
+  get documentName() {
+    return 'Crosshairs';
+  }
 
   get layer() {
     if (this.#layer) return this.#layer;
@@ -68,18 +69,24 @@ class CrosshairsDocument extends MeasuredTemplateDocument {
     return this.#layer;
   }
 
+
+
+  token = {};
+
   prepareDerivedData() {
     super.prepareDerivedData();
     const gridUnits = this.distance / this.parent.grid.distance;
     this.radius = gridUnits * this.parent.grid.size;
-    this.token ??= {};
-    if (this.t !== CONST.MEASURED_TEMPLATE_TYPES.RECTANGLE) {
-      this.token.x = this.x - this.radius;
-      this.token.y = this.y - this.radius;
+    this.token = {}
+    switch (this.t) {
+      default:
+        this.token.x = this.x - this.radius;
+        this.token.y = this.y - this.radius;
+        this.token.width = gridUnits * 2;
+        this.token.height = gridUnits * 2;
+
     }
 
-    this.token.width = gridUnits * 2;
-    this.token.height = gridUnits * 2;
   }
 
   show() {
@@ -91,16 +98,6 @@ class CrosshairsDocument extends MeasuredTemplateDocument {
 }
 
 class CrosshairsPlaceable extends MeasuredTemplate {
-
-  /** @inheritdoc */
-  //refresh(options={}) {
-  //  //if (this.destroyed) {
-  //  //  this._destroyed = false;
-  //  //  this.draw().then( () => this.layer.preview.addChild(this) )
-  //  //}
-  //  else super.refresh(options);
-  //  return this;
-  //}
 
   #handlers = {
     confirm: null,
@@ -145,32 +142,26 @@ class CrosshairsPlaceable extends MeasuredTemplate {
 
   _onMove(evt) {
 
-    //evt.stopPropagation();
-
-    // Apply a 20ms throttle
     const now = Date.now();
     const leftDown = (evt.buttons & 1) > 0;
     if (canvas.mouseInteractionManager.isDragging) {
       this.#isDrag = true;
       if (leftDown) {
         canvas.mouseInteractionManager.cancel(evt);
+        //TODO try 'canvas.activeLayer._onDragLeftCancel(evt)'
       }
     }
-    //console.debug('mouse tick. left button =', leftDown);
+    
+    // Apply a 20ms throttle
     if (now - this.moveTime <= 20) return;
 
     const center = evt.data.getLocalPosition(this.layer);
     if(this.#isDrag && leftDown) {
-      //console.debug('left dragging');
-      //canvas.mouseInteractionManager.cancel(evt);
-      //evt.preventDefault();
-      //evt.stopPropagation();
-      canvas.activeLayer.preview.removeChildren();
+      //canvas.activeLayer.preview.removeChildren();
       const drag = new Ray(this.document, this.getSnappedPoint(center, this.document.snap.size));
       const distance = drag.distance / this.document.parent.grid.size * this.document.parent.grid.distance
       this.document.updateSource({distance: distance, direction: Math.toDegrees(drag.angle)});
     } else if (!this.#isDrag && !leftDown) {
-      //console.debug('no drag');
       const {x,y} = this.getSnappedPoint(center);
       this.document.updateSource({x, y});
     } 
@@ -179,9 +170,10 @@ class CrosshairsPlaceable extends MeasuredTemplate {
     this.moveTime = now;
   }
 
-  destroy(options={}) {
+  /** @override */
+  _destroy(options={}) {
     this._clearHandlers();
-    super.destroy();
+    super._destroy(options);
   }
 
   _clearHandlers(evt) {
@@ -193,11 +185,13 @@ class CrosshairsPlaceable extends MeasuredTemplate {
   }
 
   _onConfirm(evt) {
+    evt.preventDefault();
+
     if (this.#isDrag) {
       this.#isDrag = false;
       return;
     }
-    evt.preventDefault();
+
     this.destroy();
     this.#promise.resolve(this.document);
   }
@@ -212,19 +206,30 @@ class CrosshairsPlaceable extends MeasuredTemplate {
   }
 
   _onWheel(evt) {
-    if (evt.altKey) return;
-    evt.stopPropagation();
+    if (!evt.altKey || !evt.ctrlKey || !evt.shiftKey) return;
 
-    /* scroll up = bigger */
-    const step = this.document.parent.grid.distance / 2
-    const delta = step * Math.sign(-evt.deltaY);
-    const distance = this.document.distance + delta;
-    this.document.updateSource({distance: distance.toNearest(step)});
-    this.refresh();
+    evt.stopPropagation();
+    if (evt.shiftKey) {
+
+      /* scroll up = bigger */
+      const step = this.document.parent.grid.distance / 2
+      const delta = step * Math.sign(-evt.deltaY);
+      const distance = this.document.distance + delta;
+      this.document.updateSource({distance: distance.toNearest(step)});
+      this.refresh();
+    }
+
+    if (evt.altKey) {
+      // TODO rotate
+    }
+
+    if (evt.ctrlKey) {
+      // TODO widen
+    }
   }
 }
 
 Hooks.on("ready", () => {
   console.log('Crosshairs2 loaded'); 
-  globalThis.Crosshairs = CrosshairsDocument;
+  globalThis.Crosshairs = Crosshairs;
 });
