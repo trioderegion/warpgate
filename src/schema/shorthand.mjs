@@ -99,11 +99,12 @@ export class MutationOptions extends fields.SchemaField{
         required: true,
         initial: () => game.user.id
       }),
+      permanent: new fields.BooleanField({initial: false, nullable: false}),
       comparisonKeys: new EmbeddedShorthand(Actor.implementation, fields.StringField, {initial: 'name'}),
       name: new fields.StringField({
-        blank: false,
+        nullable: true,
+        required: false,
         trim: true,
-        initial: () => foundry.utils.randomID()
       }),
       updateOpts: new KeyedShorthand(['token','actor','embedded'], () => new fields.ObjectField()),
       overrides: new fields.ObjectField({
@@ -111,6 +112,28 @@ export class MutationOptions extends fields.SchemaField{
         initial: ()=>({})
       }),
     }, options)
+  }
+
+  clean(data, options) {
+    data = super.clean(data, options);
+
+    /* if `id` is being used as the comparison key, 
+     * change it to `_id` and set the option to `keepId=true`
+     * if either are present
+     */
+    data.updateOpts ??= {};
+    Object.keys(data.comparisonKeys ?? {}).forEach( embName => {
+
+      /* switch to _id if needed */
+      if(data.comparisonKeys[embName] == 'id') data.comparisonKeys[embName] = '_id'
+
+      /* flag this update to preserve ids */
+      if(data.comparisonKeys[embName] == '_id') {
+        data.updateOpts = foundry.utils.mergeObject(data.updateOpts, {embedded: {[embName]: {keepId: true}}});
+      }
+    });
+
+    return data;
   }
 }
 
@@ -133,23 +156,39 @@ export class Mutation extends Shorthand {
     }
   }
 
+  // @TODO temp wrapper
+  apply(driver = globalThis.Mutator) {
+    return driver.mutate(this) ;
+  }
+
 
 }
 
+/**
+ *
+ * @class MutationDelta
+ * @prop {object} options
+ */
 export class MutationDelta extends foundry.abstract.DataModel {
 
-  constructor(mutation, options={}) { 
+  constructor(mutation, {id = null, ...options} = {}) { 
     
     const delta = _createDelta(mutation.parent, mutation.toObject(), mutation.options);
+
     super({
+      id: id ?? mutation.options.name,
       delta,
       options: mutation.options,
-    }, {parent: mutation.parent, ...options})
-      
+    }, {parent: mutation, ...options})
   }
 
   static defineSchema() {
     return {
+      id: new fields.StringField({
+        required: true,
+        nullable: false,
+        initial: () => foundry.utils.randomID(),
+      }),
       delta: new fields.ObjectField({
         required: true,
         nullable: false,
@@ -160,7 +199,67 @@ export class MutationDelta extends foundry.abstract.DataModel {
   }
 }
 
+
+/**
+ *
+ *
+ * @export
+ * @class MutationStack
+ * @extends {foundry.abstract.DataModel}
+ * @param {Array<object>} stack
+ */
+export class MutationStack extends foundry.abstract.DataModel {
+
+  constructor(parent, {name = 'mutate', ...options} = {}) {
+    const stack = parent.getFlag('%config.id%', name) ?? [];
+    super({stack, name}, {parent, ...options});
+  }
+
+  static defineSchema() {
+    return {
+      name: new fields.StringField({
+        required: true,
+      }),
+      stack: new fields.ArrayField(MutationDelta.schema)
+    }
+  }
+
+  static cleanData(source = {}, options = {}) {
+    const data = super.cleanData(source, options);
+    data.stack = data.stack.reduce( (acc, curr) => {
+      const existing = acc.find( e => e.id === curr.id );
+      if (existing) {
+        foundry.utils.mergeObject(existing, curr);
+      } else {
+        acc.push(curr);
+      }
+
+      return acc;
+    }, []);
+
+    return data;
+  }
+
+  push(...elements) {
+    const updated = this.updateSource({stack: [...this.stack, ...elements]})?.stack;
+    if (updated) {
+      return foundry.utils.expandObject({
+        [`flags.%config.id%.${this.name}`]: updated
+      })
+    }
+
+    return;
+  }
+
+  get(id) {
+    return this.stack.find( e => e.id === id );
+  }
+
+
+}
+
 Hooks.on("ready", () => {
   globalThis.Mutation = Mutation;
   globalThis.MutationDelta = MutationDelta;
+  globalThis.MutationStack = MutationStack;
 });
