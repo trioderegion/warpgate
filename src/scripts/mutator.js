@@ -751,7 +751,7 @@ class Mutator {
    * parse the changes that need to be applied to *reverse*
    * the mutate operation
    */
-  static _createDelta(tokenDoc, updates, options) {
+  static _createDelta(tokenDoc, updates, config) {
 
     /* get token changes */
     let tokenData = tokenDoc.toObject()
@@ -769,14 +769,14 @@ class Mutator {
       
       for( const embeddedName of Object.keys(updates.embedded) ) {
         const collection = tokenDoc.actor.getEmbeddedCollection(embeddedName);
-        const invertedShorthand = Mutator._invertShorthand(collection, updates.embedded[embeddedName], getProperty(options.comparisonKeys, embeddedName) ?? 'name');
+        const invertedShorthand = Mutator._invertShorthand(collection, updates.embedded[embeddedName], getProperty(config.comparisonKeys, embeddedName) ?? 'name');
         embeddedDelta[embeddedName] = invertedShorthand;
       }
     }
 
     logger.debug(MODULE.localize('debug.tokenDelta'), tokenDelta, MODULE.localize('debug.actorDelta'), actorDelta, MODULE.localize('debug.embeddedDelta'), embeddedDelta);
 
-    return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta}
+    return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta, config}
   }
 
   /* returns the actor data sans ALL embedded collections */

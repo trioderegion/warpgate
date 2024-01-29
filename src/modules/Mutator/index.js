@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import {MODULE, logger} from '../scripts/module.js'
-import {remoteMutate, remoteRevert, remoteBatchMutate, remoteBatchRevert} from '../scripts/remote-mutator.js'
-import { Mutation, MutationDelta } from '../schema/shorthand.mjs'
+import {MODULE, logger} from '../../scripts/module.js'
+import {remoteMutate, remoteRevert, remoteBatchMutate, remoteBatchRevert} from '../../scripts/remote-mutator.js'
+import { Mutation, MutationDelta } from '../../models'
 
 /** @ignore */
 const NAME = "Mutator";
@@ -479,66 +479,6 @@ class Mutator {
     return Promise.all(promises.flat());
   }
 
-  /**
-   * Cleans and validates mutation data
-   * @param {Mutation} mutation
-   * @param {SpawningOptions & MutationOptions} [options]
-   */
-  static async clean(mutation, options = undefined) {
-
-    /* ensure we are working with raw objects */
-    //Mutator._cleanInner(updates);
-
-    ///* perform cleaning on shorthand embedded updates */
-    //Object.values(updates.embedded ?? {}).forEach( type => Mutator._cleanInner(type));
-
-    /* if the token is getting an image update, preload it */
-    let source;
-    if('src' in (updates.token?.texture ?? {})) {
-      source = updates.token.texture.src; 
-    }
-    //else if( 'img' in (updates.token ?? {})){
-    //  source = updates.token.img;
-    //}
-
-    /* load texture if provided */
-    try {
-      !!source ? await loadTexture(source) : null;
-    } catch (err) {
-      logger.debug(err);
-    }
-
-    //if(!!options) {
-    //  /* insert the better ActiveEffect default ONLY IF
-    //   * one wasn't provided in the options object initially
-    //   */
-    //  options.comparisonKeys = foundry.utils.mergeObject(
-    //    options.comparisonKeys ?? {},
-    //    {ActiveEffect: 'label'},
-    //    {overwrite:false, inplace:false});
-
-    //  /* if `id` is being used as the comparison key, 
-    //   * change it to `_id` and set the option to `keepId=true`
-    //   * if either are present
-    //   */
-    //  //options.comparisonKeys ??= {};
-    //  //options.updateOpts ??= {};
-    //  //Object.keys(options.comparisonKeys).forEach( embName => {
-
-    //  //  /* switch to _id if needed */
-    //  //  if(options.comparisonKeys[embName] == 'id') options.comparisonKeys[embName] = '_id'
-
-    //  //  /* flag this update to preserve ids */
-    //  //  if(options.comparisonKeys[embName] == '_id') {
-    //  //    foundry.utils.mergeObject(options.updateOpts, {embedded: {[embName]: {keepId: true}}});
-    //  //  }
-    //  //});
-    //  
-    //}
-
-  }
-
-
   /* @return {Promise} */
   static async _update(mutation) {
 
@@ -684,7 +624,7 @@ class Mutator {
    * parse the changes that need to be applied to *reverse*
    * the mutate operation
    */
-  static _createDelta(tokenDoc, updates, options) {
+  static _createDelta(tokenDoc, updates, config) {
 
     /* get token changes */
     let tokenData = tokenDoc.toObject()
@@ -702,14 +642,14 @@ class Mutator {
       
       for( const embeddedName of Object.keys(updates.embedded) ) {
         const collection = tokenDoc.actor.getEmbeddedCollection(embeddedName);
-        const invertedShorthand = Mutator._invertShorthand(collection, updates.embedded[embeddedName], foundry.utils.getProperty(options.comparisonKeys, embeddedName) ?? 'name');
+        const invertedShorthand = Mutator._invertShorthand(collection, updates.embedded[embeddedName], foundry.utils.getProperty(config.comparisonKeys, embeddedName) ?? 'name');
         embeddedDelta[embeddedName] = invertedShorthand;
       }
     }
 
     logger.debug(MODULE.localize('debug.tokenDelta'), tokenDelta, MODULE.localize('debug.actorDelta'), actorDelta, MODULE.localize('debug.embeddedDelta'), embeddedDelta);
 
-    return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta}
+    return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta, config}
   }
 
   /* returns the actor data sans ALL embedded collections */

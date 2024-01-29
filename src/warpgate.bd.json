@@ -15,7 +15,7 @@
       "clean": false,
       "hmr": true,
       "entryPoints": {
-        "main": ["modules/Crosshairs/index.mjs", "schema/shorthand.mjs", "modules/mutator.js"]
+        "main": ["modules/Crosshairs/index.mjs", "models/index.js", "modules/Mutator/index.js"]
       }
     },
     "release":{
