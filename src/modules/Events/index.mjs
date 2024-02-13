@@ -1,8 +1,8 @@
 import {
   logger
-} from './module.js'
+} from '../../scripts/module.js';
 
-export default class {
+export default class Events {
   name = 'Events';
   watches = {};
   triggers = {};

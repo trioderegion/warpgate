@@ -6,7 +6,8 @@
     "allowJs": true,
     "noEmit": true,
     "moduleResolution": "node",
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "pretty": true
   },
   "include": ["src", "foundry"],
   "exclude": ["foundry/client/config.js"]

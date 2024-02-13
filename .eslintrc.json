@@ -1,8 +1,7 @@
 {
   "env": {
     "browser": true,
-    "es6": true,
-    "node": true,
+    "es2022": true,
     "jquery": true
   },
   "parserOptions": {
@@ -16,7 +15,7 @@
     "array-bracket-spacing": ["warn", "never"],
     "array-callback-return": "warn",
     "arrow-spacing": "warn",
-    "comma-dangle": ["warn", "never"],
+    "comma-dangle": ["warn", "always"],
     "comma-style": "warn",
     "computed-property-spacing": "warn",
     "constructor-super": "error",
@@ -145,7 +144,7 @@
     }],
     "prefer-template": "warn",
     "quote-props": ["warn", "as-needed", {"keywords": false}],
-    "quotes": ["warn", "double", {"avoidEscape": true, "allowTemplateLiterals": false}],
+    "quotes": ["warn", "single", {"avoidEscape": true, "allowTemplateLiterals": false}],
     "semi": "warn",
     "space-before-blocks": ["warn", "always"],
     "space-before-function-paren": ["warn", {

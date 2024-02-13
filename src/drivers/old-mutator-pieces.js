@@ -17,7 +17,7 @@
 
 import {MODULE, logger} from '../../scripts/module.js'
 import {remoteMutate, remoteRevert, remoteBatchMutate, remoteBatchRevert} from '../../scripts/remote-mutator.js'
-import { Mutation, MutationDelta } from '../../models'
+import { Mutation, RollbackDelta } from '../../models'
 
 /** @ignore */
 const NAME = "Mutator";
@@ -261,12 +261,12 @@ class Mutator {
 
     /* @TODO check for any recursive embeds*/
     //if (embeddedUpdates?.embedded) delete embeddedUpdates.embedded;
-
+    const updates = mutation.getDiff('embedded');
     const promises = [];
-    for(const embeddedName of Object.keys(mutation.changes.embedded ?? {})) {
-      promises.push(Mutator._performEmbeddedUpdates(mutation.parent.actor, embeddedName, mutation.changes.embedded[embeddedName],
-        mutation.options.comparisonKeys[embeddedName],
-        mutation.options.updateOpts.embedded[embeddedName] ?? {}))
+    for(const embeddedName of Object.keys(updates)) {
+      promises.push(Mutator._performEmbeddedUpdates(mutation.parent.actor, embeddedName, updates[embeddedName],
+        mutation.config.comparisonKeys[embeddedName],
+        mutation.config.updateOpts.embedded[embeddedName] ?? {}))
     }
 
     return promises;
@@ -294,41 +294,10 @@ class Mutator {
       return false;
     }
 
-    ///* the provided update object will be mangled for our use -- copy it to
-    // * preserve the user's original input if requested (default).
-    // */
-    //if(!options.overrides?.preserveData) {
-    //  updates = MODULE.copy(updates, 'error.badUpdate.complex');
-    //  if(!updates) return false;
-    //  options = foundry.utils.mergeObject(options, {overrides: {preserveData: true}}, {inplace: false});
-    //}
-    //const mutation = new Mutation({...updates, options}, {parent:tokenDoc});
-    /* ensure that we are working with clean data */
-    //await Mutator.clean(updates, options);
-
-    /* providing a delta means you are managing the
-     * entire data change (including mutation stack changes).
-     * Typically used by remote requests */
-
-    /* create a default mutation info assuming we were provided
-     * with the final delta already or the change is permanent
-     */
-    //let mutateInfo = Mutator._createMutateInfo( options.delta ?? {}, options );
-
-    /* check that this mutation name is unique */
-    //const present = warpgate.mutationStack(tokenDoc).getName(mutation.options.name);
-    //if(!!present) {
-    //  logger.warn(MODULE.format('error.badMutate.duplicate', {name: mutation.options.name}));
-    //  return false;
-    //}
-
-    /* expand the object to handle property paths correctly */
-    //MODULE.shimUpdate(updates);
-
     /* permanent changes are not tracked */
-    if(!mutation.options.permanent) {
+    if(!mutation.config.permanent) {
 
-      const delta = new MutationDelta(mutation);
+      const delta = new RollbackDelta(mutation);
 
       /* allow user to modify delta if needed (remote updates will never have callbacks) */
       if (options.callbacks?.delta) {
@@ -357,18 +326,18 @@ class Mutator {
       
       await Mutator._update(mutation);
 
-      if(options.callbacks?.post) await options.callbacks.post(mutation.parent, mutation.changes, true);
+      if(options.callbacks?.post) await options.callbacks.post(mutation.parent, mutation, true);
 
       await warpgate.event.notify(warpgate.EVENT.MUTATE, {
         uuid: mutation.parent.uuid, 
         name: options.name,
-        updates: (options.overrides?.includeRawData ?? false) ? mutation.changes : 'omitted',
+        updates: (options.overrides?.includeRawData ?? false) ? mutation : 'omitted',
         options
       });
 
     } else {
       /* this is a remote mutation request, hand it over to that system */
-      return remoteMutate( mutation.parent, {updates: mutation.changes, callbacks: options.callbacks, options} );
+      return remoteMutate( mutation, options);
 
     }
 
@@ -482,20 +451,19 @@ class Mutator {
   /* @return {Promise} */
   static async _update(mutation) {
 
-    const changes = mutation.changes;
     const promises = []
 
     /* update the token */
-    if (mutation.parent.id) promises.push(mutation.parent.update(changes.token, mutation.options.updateOpts.token));
+    if (mutation.parent.id) promises.push(mutation.parent.update(mutation.getDiff('token'), mutation.config.updateOpts.token));
 
     /** perform the updates */
-    promises.push(mutation.parent.actor.update(changes.actor, mutation.options.updateOpts.actor));
+    promises.push(mutation.parent.actor.update(mutation.getDiff('actor'), mutation.config.updateOpts.actor));
 
     promises.push(...Mutator._updateEmbedded(mutation));
     
     const results = await Promise.all(promises);
 
-    if(!mutation.options.noMoveWait && !!mutation.parent.object) {
+    if(!mutation.config.noMoveWait && !!mutation.parent.object) {
       await CanvasAnimation.getAnimation(mutation.parent.object.animationName)?.promise
     }
 
@@ -512,7 +480,7 @@ class Mutator {
    * @return {Promise<MutationData|undefined>} The mutation data (updates) used for this 
    *  revert operation or `undefined` if none occured.
    */
-  static async revertMutation(tokenDoc, mutationName = undefined, options = {}) {
+  static async _revertMutation(tokenDoc, mutationName = undefined, options = {}) {
 
     const mutateData = await Mutator._popMutation(tokenDoc?.actor, mutationName);
 
@@ -619,53 +587,7 @@ class Mutator {
 
     return mutateData;
   }
-
-  /* given a token document and the standard update object,
-   * parse the changes that need to be applied to *reverse*
-   * the mutate operation
-   */
-  static _createDelta(tokenDoc, updates, config) {
-
-    /* get token changes */
-    let tokenData = tokenDoc.toObject()
-    //tokenData.actorData = {};
-    
-    const tokenDelta = MODULE.strictUpdateDiff(updates.token ?? {}, tokenData);
-
-    /* get the actor changes (no embeds) */
-    const actorData = Mutator._getRootActorData(tokenDoc.actor);
-    const actorDelta = MODULE.strictUpdateDiff(updates.actor ?? {}, actorData);
-
-    /* get the changes from the embeds */
-    let embeddedDelta = {};
-    if(updates.embedded) {
-      
-      for( const embeddedName of Object.keys(updates.embedded) ) {
-        const collection = tokenDoc.actor.getEmbeddedCollection(embeddedName);
-        const invertedShorthand = Mutator._invertShorthand(collection, updates.embedded[embeddedName], foundry.utils.getProperty(config.comparisonKeys, embeddedName) ?? 'name');
-        embeddedDelta[embeddedName] = invertedShorthand;
-      }
-    }
-
-    logger.debug(MODULE.localize('debug.tokenDelta'), tokenDelta, MODULE.localize('debug.actorDelta'), actorDelta, MODULE.localize('debug.embeddedDelta'), embeddedDelta);
-
-    return {token: tokenDelta, actor: actorDelta, embedded: embeddedDelta, config}
-  }
-
-  /* returns the actor data sans ALL embedded collections */
-  static _getRootActorData(actorDoc) {
-    let actorData = actorDoc.toObject();
-
-    /* get the key NAME of the embedded document type.
-     * ex. not 'ActiveEffect' (the class name), 'effect' the collection's field name
-     */
-    let embeddedFields = Object.values(Actor.implementation.metadata.embedded);
-
-    /* delete any embedded fields from the actor data */
-    embeddedFields.forEach( field => { delete actorData[field] } )
-
-    return actorData;
-  }
+ 
 }
 
 Hooks.on("ready", () => {

@@ -1,103 +1,4 @@
-const fields = foundry.data.fields;
-
-/**
- *
- *
- * @class CrosshairsDocument
- * @extends {MeasuredTemplateDocument}
- *
- */
-class Crosshairs extends MeasuredTemplateDocument {
-
-  static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      borderDisplay: new fields.BooleanField(),
-      icon: new fields.SchemaField({
-        display: new fields.BooleanField(),
-        texture: new fields.FilePathField({categories: ["IMAGE", "VIDEO"]}),
-      }),
-      snap: new fields.SchemaField({
-        position: new fields.NumberField({initial: CONST.GRID_SNAPPING_MODES.VERTEX}),
-        size: new fields.NumberField({initial: CONST.GRID_SNAPPING_MODES.VERTEX | CONST.GRID_SNAPPING_MODES.CENTER | CONST.GRID_SNAPPING_MODES.EDGE_MIDPOINT}),
-      }),
-      fillAlpha: new fields.AlphaField(),
-      label: new fields.SchemaField({
-        display: new fields.BooleanField(),
-        text: new fields.StringField(),
-        dx: new fields.NumberField(),
-        dy: new fields.NumberField(),
-      }),
-      textureTile: new fields.NumberField(),
-    })
-  }
-
-  static get placeableClass() {
-    return CrosshairsPlaceable;
-  }
-  
-  /** @inheritdoc */
-  constructor() {
-    super({
-      t:"cone",
-      user: game.user.id,
-      distance: 10,
-    }, {parent: canvas.scene});
-
-  }
-
-  #layer = null;
-
-  get documentName() {
-    return 'Crosshairs';
-  }
-
-  get layer() {
-    if (this.#layer) return this.#layer;
-    const create = (doc) => new this.constructor.placeableClass(doc);
-    const sink = {
-      get(target, prop) {
-        switch (prop) {
-          case 'createObject':
-            return create;
-          default:
-            return target[prop];
-        }
-      }
-    }
-
-    this.#layer = new Proxy(canvas.activeLayer, sink);
-    return this.#layer;
-  }
-
-
-
-  token = {};
-
-  prepareDerivedData() {
-    super.prepareDerivedData();
-    const gridUnits = this.distance / this.parent.grid.distance;
-    this.radius = gridUnits * this.parent.grid.size;
-    this.token = {}
-    switch (this.t) {
-      default:
-        this.token.x = this.x - this.radius;
-        this.token.y = this.y - this.radius;
-        this.token.width = gridUnits * 2;
-        this.token.height = gridUnits * 2;
-
-    }
-
-  }
-
-  show() {
-    this._destroyed = false;
-    this.#layer = null;
-    return this.object.show();
-  }
-
-}
-
-class CrosshairsPlaceable extends MeasuredTemplate {
+export default class CrosshairsPlaceable extends MeasuredTemplate {
 
   #handlers = {
     confirm: null,
@@ -124,7 +25,7 @@ class CrosshairsPlaceable extends MeasuredTemplate {
     return new Promise( (resolve, reject) => {
       this.#promise.resolve = resolve;
       this.#promise.reject = reject;
-      this.#handlers.move = this._onMove.bind(this); 
+      this.#handlers.move = this._onMove.bind(this);
       this.#handlers.confirm = this._onConfirm.bind(this);
       this.#handlers.cancel = this._onCancel.bind(this);
       this.#handlers.wheel = this._onWheel.bind(this);
@@ -228,8 +129,3 @@ class CrosshairsPlaceable extends MeasuredTemplate {
     }
   }
 }
-
-Hooks.on("ready", () => {
-  console.log('Crosshairs2 loaded'); 
-  globalThis.Crosshairs = Crosshairs;
-});
