@@ -1,0 +1,8 @@
+@mixin app() {
+  &.mutation-inspect {
+    nav,
+    footer {
+      flex-grow:0;
+    }
+  }
+}

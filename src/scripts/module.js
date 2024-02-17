@@ -10,11 +10,12 @@
  * | checkbox | `boolean`| `false` | Initial checked state |
  * | radio | `[string, boolean]` | `['radio', false]` | Group name and initial checked state, respectively |
  * | select | `{html: string, value: any, selected: boolean}[]` or `string[]` | `[]` | HTML string for select option element, the value to be return if selected, and initial state. If only a string is provided, it will be used as both the HTML and return value. |
- * 
+ *
  * @typedef {Object} MenuInput
- * @prop {string} type Type of input, controlling display and return values. See "options property details," above, and {@link MenuResult MenuResult.button}.
- * @prop {string} label Display text for this inputs label element. Accepts HTML.
- * @prop {boolean|string|Array<string|boolean>} [options] See "options property details," above.
+ * @property {string} type Type of input, controlling display and return values. See "options property details," above, and {@link MenuResult MenuResult.button}.
+ * @property {string} label Display text for this inputs label element. Accepts HTML.
+ * @property {boolean|string|Array<string|boolean>} [options] See "options property details," above.
+ * @property
  */
 
 /**
@@ -25,23 +26,25 @@
 
 /**
  * @typedef {object} MenuButton
- * @prop {string} label Display text for this button, accepts HTML.
- * @prop {*} value Arbitrary object to return if selected.
- * @prop {MenuCallback} [callback] Additional callback to be executed
+ * @property {string} label Display text for this button, accepts HTML.
+ * @property {*} value Arbitrary object to return if selected.
+ * @property {MenuCallback} [callback] Additional callback to be executed
  *   when this button is selected. Can be used to modify the menu's results object.
- * @prop {boolean} [default] Any truthy value sets this button as 
+ * @property {boolean} [default] Any truthy value sets this button as
+ * @property
  *  default for the 'submit' or 'ENTER' dialog event. If none provided, the last button provided
  *  will be used.
  */
 
 /**
  * @typedef {object} MenuConfig
- * @prop {string} title='Prompt' Title of dialog
- * @prop {string} defaultButton='Ok' Button label if no buttons otherwise provided
- * @prop {boolean} checkedText=false Return the associated label's `innerText` (no html) of `'checkbox'` or `'radio'` type inputs as opposed to its checked state.
- * @prop {Function} close=((resolve)=>resolve({buttons:false})) Override default behavior and return value if the menu is closed without a button selected.
- * @prop {function(HTMLElement):void} render=()=>{} 
- * @prop {object} options Passed to the Dialog options argument.
+ * @property {string} title='Prompt' Title of dialog
+ * @property {string} defaultButton='Ok' Button label if no buttons otherwise provided
+ * @property {boolean} checkedText=false Return the associated label's `innerText` (no html) of `'checkbox'` or `'radio'` type inputs as opposed to its checked state.
+ * @property {Function} close=((resolve)=>resolve({buttons:false})) Override default behavior and return value if the menu is closed without a button selected.
+ * @property {function(HTMLElement):void} render=()=>{}
+ * @property {object} options Passed to the Dialog options argument.
+ * @property
  */
 
 /**
@@ -54,13 +57,14 @@
  * | select | `any` | `value` of the chosen select option, as provided by {@link MenuInput MenuInput.options[i].value} |
  *
  * @typedef {object} MenuResult
- * @prop {Array} inputs See "inputs return details," above.
- * @prop {*} buttons `value` of the selected menu button, as provided by {@link MenuButton MenuButton.value}
+ * @property {Array} inputs See "inputs return details," above.
+ * @property {*} buttons `value` of the selected menu button, as provided by {@link MenuButton MenuButton.value}
+ * @property
  */
 
 
 /** @ignore */
-const NAME = "warpgate";
+const NAME = 'warpgate';
 /** @ignore */
 const PATH = `/modules/${NAME}`;
 
@@ -68,7 +72,7 @@ export class MODULE {
   static data = {
     name: NAME,
     path: PATH,
-    title: "Warp Gate",
+    title: 'Warp Gate',
   };
 
   /**
@@ -83,24 +87,24 @@ export class MODULE {
   static compat(shimId, root = globalThis) {
     const gen = game.release?.generation;
     switch (shimId) {
-      case "interaction.pointer":
+      case 'interaction.pointer':
         return gen < 11 ? root.canvas.app.renderer.plugins.interaction.mouse : canvas.app.renderer.events.pointer;
-      case "crosshairs.computeShape":
+      case 'crosshairs.computeShape':
         return (
           {
             10: () => {
-              if (root.document.t != "circle") {
-                logger.error("Non-circular Crosshairs is unsupported!");
+              if (root.document.t != 'circle') {
+                logger.error('Non-circular Crosshairs is unsupported!');
               }
               return root._getCircleShape(root.ray.distance);
             },
           }[gen] ?? (() => root._computeShape())
         )();
-      case "token.delta":
+      case 'token.delta':
         return (
           {
-            10: "actorData",
-          }[gen] ?? "delta"
+            10: 'actorData',
+          }[gen] ?? 'delta'
         );
       default:
         return null;
@@ -108,7 +112,7 @@ export class MODULE {
   }
 
   static async register() {
-    logger.info("Initializing Module");
+    logger.info('Initializing Module');
     MODULE.settings();
   }
 
@@ -134,13 +138,13 @@ export class MODULE {
   }
 
   static canSpawn(user) {
-    const reqs = ["TOKEN_CREATE", "TOKEN_CONFIGURE", "FILES_BROWSE"];
+    const reqs = ['TOKEN_CREATE', 'TOKEN_CONFIGURE', 'FILES_BROWSE'];
 
     return MODULE.canUser(user, reqs);
   }
 
   static canMutate(user) {
-    const reqs = ["TOKEN_CONFIGURE", "FILES_BROWSE"];
+    const reqs = ['TOKEN_CONFIGURE', 'FILES_BROWSE'];
 
     return MODULE.canUser(user, reqs);
   }
@@ -149,19 +153,19 @@ export class MODULE {
    * Handles notice request from spawns and mutations
    *
    * @static
-   * @param {{x: Number, y: Number}} location
+   * @param {{x: number, y: number}} location
    * @param {string} sceneId
    * @param {NoticeConfig} config
    * @memberof MODULE
    */
   static async handleNotice({ x, y }, sceneId, config) {
-    /* can only operate if the user is on the scene requesting notice */
+    /* Can only operate if the user is on the scene requesting notice */
     if (
-      canvas.ready &&
-      !!sceneId &&
-      !!config &&
-      config.receivers.includes(game.userId) &&
-      canvas.scene?.id === sceneId
+      canvas.ready
+      && sceneId
+      && config
+      && config.receivers.includes(game.userId)
+      && canvas.scene?.id === sceneId
     ) {
       const panSettings = {};
       const hasLoc = x !== undefined && y !== undefined;
@@ -193,32 +197,34 @@ export class MODULE {
         const user = game.users.get(config.sender);
         const location = { x: panSettings.x, y: panSettings.y };
 
-        /* draw the ping, either onscreen or offscreen */
+        /* Draw the ping, either onscreen or offscreen */
         canvas.isOffscreen(location)
           ? canvas.controls.drawOffscreenPing(location, {
-              scene: sceneId,
-              style: CONFIG.Canvas.pings.types.ARROW,
-              user,
-            })
+            scene: sceneId,
+            style: CONFIG.Canvas.pings.types.ARROW,
+            user,
+          })
           : canvas.controls.drawPing(location, {
-              scene: sceneId,
-              style: config.ping,
-              user,
-            });
+            scene: sceneId,
+            style: config.ping,
+            user,
+          });
       }
     }
   }
 
   /**
-   * @return {Array<String>} missing permissions for this operation
+   * @param user
+   * @param requiredPermissions
+   * @returns {Array<string>} missing permissions for this operation
    */
   static canUser(user, requiredPermissions) {
-    if (MODULE.setting("disablePermCheck")) return [];
+    if (MODULE.setting('disablePermCheck')) return [];
     const { role } = user;
-    const permissions = game.settings.get("core", "permissions");
+    const permissions = game.settings.get('core', 'permissions');
     return requiredPermissions
-      .filter((req) => !permissions[req].includes(role))
-      .map((missing) =>
+      .filter(req => !permissions[req].includes(role))
+      .map(missing =>
         game.i18n.localize(CONST.USER_PERMISSIONS[missing].label)
       );
   }
@@ -228,7 +234,7 @@ export class MODULE {
    * @returns {User|undefined} First active GM User
    */
   static firstGM() {
-    return game.users?.find((u) => u.isGM && u.active);
+    return game.users?.find(u => u.isGM && u.active);
   }
 
   /**
@@ -247,8 +253,8 @@ export class MODULE {
 
   static removeEmptyObjects(obj) {
     let result = foundry.utils.flattenObject(obj);
-    Object.keys(result).forEach((key) => {
-      if (typeof result[key] == "object" && MODULE.emptyObject(result[key])) {
+    Object.keys(result).forEach(key => {
+      if (typeof result[key] == 'object' && MODULE.emptyObject(result[key])) {
         delete result[key];
       }
     });
@@ -259,30 +265,33 @@ export class MODULE {
   /**
    * Duplicates a compatible object (non-complex).
    *
+   * @param source
+   * @param errorString
    * @returns {Object}
    */
-  static copy(source, errorString = "error.unknown") {
+  static copy(source, errorString = 'error.unknown') {
     try {
       return foundry.utils.deepClone(source, { strict: true });
-    } catch (err) {
+    } catch(err) {
       logger.catchThrow(err, MODULE.localize(errorString));
     }
 
-    return;
+
   }
 
   /**
    * Removes top level empty objects from the provided object.
    *
    * @static
+   * @param inplace
    * @param {object} obj
    * @memberof MODULE
    */
   static stripEmpty(obj, inplace = true) {
     const result = inplace ? obj : MODULE.copy(obj);
 
-    Object.keys(result).forEach((key) => {
-      if (typeof result[key] == "object" && MODULE.emptyObject(result[key])) {
+    Object.keys(result).forEach(key => {
+      if (typeof result[key] == 'object' && MODULE.emptyObject(result[key])) {
         delete result[key];
       }
     });
@@ -291,10 +300,10 @@ export class MODULE {
   }
 
   static ownerSublist(docList) {
-    /* break token list into sublists by first owner */
+    /* Break token list into sublists by first owner */
     const subLists = docList.reduce((lists, doc) => {
       if (!doc) return lists;
-      const owner = MODULE.firstOwner(doc)?.id ?? "none";
+      const owner = MODULE.firstOwner(doc)?.id ?? 'none';
       lists[owner] ??= [];
       lists[owner].push(doc);
       return lists;
@@ -314,10 +323,10 @@ export class MODULE {
    * @returns {User|undefined}
    */
   static firstOwner(doc) {
-    /* null docs could mean an empty lookup, null docs are not owned by anyone */
+    /* Null docs could mean an empty lookup, null docs are not owned by anyone */
     if (!doc) return undefined;
 
-    /* while conceptually correct, tokens derive permissions from their
+    /* While conceptually correct, tokens derive permissions from their
      * (synthetic) actor data.
      */
     const corrected =
@@ -325,10 +334,10 @@ export class MODULE {
         ? doc.actor
         : // @ts-ignore 2589
         doc instanceof Token
-        ? doc.document.actor
-        : doc;
+          ? doc.document.actor
+          : doc;
 
-    const permissionObject = getProperty(corrected ?? {}, "ownership") ?? {};
+    const permissionObject = getProperty(corrected ?? {}, 'ownership') ?? {};
 
     const playerOwners = Object.entries(permissionObject)
       .filter(
@@ -341,7 +350,7 @@ export class MODULE {
       return game.users.get(playerOwners[0]);
     }
 
-    /* if no online player owns this actor, fall back to first GM */
+    /* If no online player owns this actor, fall back to first GM */
     return MODULE.firstGM();
   }
 
@@ -352,6 +361,7 @@ export class MODULE {
    *
    * As `firstOwner`, biases towards players first.
    *
+   * @param doc
    * @returns {boolean} the current user is the first player owner. If no owning player, first GM.
    */
   static isFirstOwner(doc) {
@@ -362,25 +372,25 @@ export class MODULE {
    * Helper function. Waits for a specified amount of time in milliseconds (be sure to await!).
    * Useful for timings with animations in the pre/post callbacks.
    *
-   * @param {Number} ms Time to delay, in milliseconds
+   * @param {number} ms Time to delay, in milliseconds
    * @returns Promise
    */
   static async wait(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
    * Advanced helper function similar to `warpgate.wait` that allows for non-deterministic waits based on the predicate function, `fn`, provided.
    *
-   * @param {function(iteration, currentTime):Boolean} fn Given the current wait iteration number and the time spent waiting as parameters, return a boolean indicating if we should continue to wait.
+   * @param {function(iteration, currentTime): boolean} fn Given the current wait iteration number and the time spent waiting as parameters, return a boolean indicating if we should continue to wait.
    * @param {number} [maxIter=600] Negative value will allow unbounded wait based on `fn`. Positive values act as a timeout. Defaults will cause a timeout after 1 minute.
    * @param {number} [iterWaitTime=100] Time (in ms) between each predicate function check for continued waiting
-   * @returns {Boolean} Indicates if the function return was caused by timeout during waiting
+   * @returns {boolean} Indicates if the function return was caused by timeout during waiting
    */
   static async waitFor(fn, maxIter = 600, iterWaitTime = 100) {
     let i = 0;
     const continueWait = (current, max) => {
-      /* negative max iter means wait forever */
+      /* Negative max iter means wait forever */
       if (maxIter < 0) return true;
 
       return current < max;
@@ -390,14 +400,14 @@ export class MODULE {
       i++;
       await MODULE.wait(iterWaitTime);
     }
-    return i === maxIter ? false : true;
+    return i !== maxIter;
   }
 
   static settings() {
     const data = {
       disablePermCheck: {
         config: true,
-        scope: "world",
+        scope: 'world',
         type: Boolean,
         default: false,
       },
@@ -424,12 +434,12 @@ export class MODULE {
    */
   static async getTokenData(actorNameDoc, tokenUpdates) {
     let sourceActor = actorNameDoc;
-    if (typeof actorNameDoc == "string") {
-      /* lookup by actor name */
+    if (typeof actorNameDoc == 'string') {
+      /* Lookup by actor name */
       sourceActor = game.actors.getName(actorNameDoc);
     }
 
-    //get source actor
+    // Get source actor
     if (!sourceActor) {
       logger.error(
         `Could not find world actor named "${actorNameDoc}" or no souce actor document provided.`
@@ -437,7 +447,7 @@ export class MODULE {
       return false;
     }
 
-    //get prototoken data -- need to prepare potential wild cards for the template preview
+    // Get prototoken data -- need to prepare potential wild cards for the template preview
     let protoData = await sourceActor.getTokenDocument(tokenUpdates);
     if (!protoData) {
       logger.error(`Could not find proto token data for ${sourceActor.name}`);
@@ -451,16 +461,17 @@ export class MODULE {
 
   static async updateProtoToken(protoToken, changes) {
     protoToken.updateSource(changes);
-    const img = getProperty(changes, "texture.src");
+    const img = getProperty(changes, 'texture.src');
     if (img) await loadTexture(img);
   }
 
   static getMouseStagePos() {
-    const mouse = MODULE.compat("interaction.pointer");
+    const mouse = MODULE.compat('interaction.pointer');
     return mouse.getLocalPosition(canvas.app.stage);
   }
 
   /**
+   * @param updates
    * @returns {undefined} provided updates object modified in-place
    */
   static shimUpdate(updates) {
@@ -470,13 +481,13 @@ export class MODULE {
     );
     updates.actor = MODULE.shimClassData(Actor.implementation, updates.actor);
 
-    Object.keys(updates.embedded ?? {}).forEach((embeddedName) => {
+    Object.keys(updates.embedded ?? {}).forEach(embeddedName => {
       const cls = CONFIG[embeddedName].documentClass;
 
       Object.entries(updates.embedded[embeddedName]).forEach(
         ([shortId, data]) => {
           updates.embedded[embeddedName][shortId] =
-            typeof data == "string" ? data : MODULE.shimClassData(cls, data);
+            typeof data == 'string' ? data : MODULE.shimClassData(cls, data);
         }
       );
     });
@@ -485,8 +496,8 @@ export class MODULE {
   static shimClassData(cls, change) {
     if (!change) return change;
 
-    if (!!change && !foundry.utils.isEmpty(change)) {
-      /* shim data if needed */
+    if (change && !foundry.utils.isEmpty(change)) {
+      /* Shim data if needed */
       return cls.migrateData(foundry.utils.expandObject(change));
     }
 
@@ -498,18 +509,18 @@ export class MODULE {
     suppressToast = false,
   } = {}) {
     const acceptSetting =
-      MODULE.setting("alwaysAcceptLocal") == 0
-        ? MODULE.setting("alwaysAccept")
-        : { 1: true, 2: false }[MODULE.setting("alwaysAcceptLocal")];
+      MODULE.setting('alwaysAcceptLocal') == 0
+        ? MODULE.setting('alwaysAccept')
+        : { 1: true, 2: false }[MODULE.setting('alwaysAcceptLocal')];
 
-    const accepted = !!alwaysAccept ? true : acceptSetting;
+    const accepted = alwaysAccept ? true : acceptSetting;
 
     const suppressSetting =
-      MODULE.setting("suppressToastLocal") == 0
-        ? MODULE.setting("suppressToast")
-        : { 1: true, 2: false }[MODULE.setting("suppressToastLocal")];
+      MODULE.setting('suppressToastLocal') == 0
+        ? MODULE.setting('suppressToast')
+        : { 1: true, 2: false }[MODULE.setting('suppressToastLocal')];
 
-    const suppress = !!suppressToast ? true : suppressSetting;
+    const suppress = suppressToast ? true : suppressSetting;
 
     return { alwaysAccept: accepted, suppressToast: suppress };
   }
@@ -518,21 +529,23 @@ export class MODULE {
    * Collects the changes in 'other' compared to 'base'.
    * Also includes "delete update" keys for elements in 'base' that do NOT
    * exist in 'other'.
+   * @param base
+   * @param other
    */
   static strictUpdateDiff(base, other) {
-    /* get the changed fields */
+    /* Get the changed fields */
     const diff = foundry.utils.flattenObject(
       foundry.utils.diffObject(base, other, { inner: true })
     );
 
-    /* get any newly added fields */
+    /* Get any newly added fields */
     const additions = MODULE.unique(flattenObject(base), flattenObject(other));
 
-    /* set their data to null */
-    Object.keys(additions).forEach((key) => {
-      if (typeof additions[key] != "object") {
+    /* Set their data to null */
+    Object.keys(additions).forEach(key => {
+      if (typeof additions[key] != 'object') {
         const parts = key.split('.');
-        parts[parts.length-1] = '-='+parts.at(-1);
+        parts[parts.length-1] = `-=${parts.at(-1)}`;
         diff[parts.join('.')] = null;
       }
     });
@@ -544,17 +557,16 @@ export class MODULE {
     // Validate input
     const ts = getType(object);
     const tt = getType(remove);
-    if (ts !== "Object" || tt !== "Object")
-      throw new Error("One of source or template are not Objects!");
+    if (ts !== 'Object' || tt !== 'Object') throw new Error('One of source or template are not Objects!');
 
     // Define recursive filtering function
-    const _filter = function (s, t, filtered) {
+    const _filter = function(s, t, filtered) {
       for (let [k, v] of Object.entries(s)) {
         let has = t.hasOwnProperty(k);
         let x = t[k];
 
         // Case 1 - inner object
-        if (has && foundry.utils.getType(v) === "Object" && foundry.utils.getType(x) === "Object") {
+        if (has && foundry.utils.getType(v) === 'Object' && foundry.utils.getType(x) === 'Object') {
           filtered[k] = _filter(v, x, {});
         }
 
@@ -582,13 +594,13 @@ export class MODULE {
    *
    * @param {string} [direction = 'row'] 'column' or 'row' accepted. Controls layout direction of dialog.
    */
-  static async buttonDialog(data, direction = "row") {
-    return await new Promise(async (resolve) => {
+  static async buttonDialog(data, direction = 'row') {
+    return await new Promise(async resolve => {
       /** @type Object<string, object> */
-      let buttons = {},
-        dialog;
+      let buttons = {};
+      let dialog;
 
-      data.buttons.forEach((button) => {
+      data.buttons.forEach(button => {
         buttons[button.label] = {
           label: button.label,
           callback: () => resolve(button.value),
@@ -597,53 +609,53 @@ export class MODULE {
 
       dialog = new Dialog(
         {
-          title: data.title ?? "",
-          content: data.content ?? "",
+          title: data.title ?? '',
+          content: data.content ?? '',
           buttons,
           close: () => resolve(false),
         },
         {
-          /*width: '100%',*/
-          height: "100%",
+          /* Width: '100%',*/
+          height: '100%',
           ...data.options,
         }
       );
 
       await dialog._render(true);
-      dialog.element.find(".dialog-buttons").css({
-        "flex-direction": direction,
+      dialog.element.find('.dialog-buttons').css({
+        'flex-direction': direction,
       });
     });
   }
 
-  static dialogInputs = (data) => {
-    /* correct legacy input data */
-    data.forEach((inputData) => {
-      if (inputData.type === "select") {
+  static dialogInputs = data => {
+    /* Correct legacy input data */
+    data.forEach(inputData => {
+      if (inputData.type === 'select') {
         inputData.options.forEach((e, i) => {
           switch (typeof e) {
-            case "string":
-              /* if we are handed legacy string values, convert them to objects */
+            case 'string':
+              /* If we are handed legacy string values, convert them to objects */
               inputData.options[i] = { value: e, html: e };
-            /* fallthrough to tweak missing values from object */
+              /* Fallthrough to tweak missing values from object */
 
-            case "object":
-              /* if no HMTL provided, use value */
+            case 'object':
+              /* If no HMTL provided, use value */
               inputData.options[i].html ??= inputData.options[i].value;
 
-              /* sanity check */
+              /* Sanity check */
               if (
-                !!inputData.options[i].html &&
-                inputData.options[i].value != undefined
+                inputData.options[i].html
+                && inputData.options[i].value != undefined
               ) {
                 break;
               }
 
-            /* fallthrough to throw error if all else fails */
+              /* Fallthrough to throw error if all else fails */
 
             default: {
-              const emsg = MODULE.format("error.badSelectOpts", {
-                fnName: "menu",
+              const emsg = MODULE.format('error.badSelectOpts', {
+                fnName: 'menu',
               });
               logger.error(emsg);
               throw new Error(emsg);
@@ -657,34 +669,34 @@ export class MODULE {
       .map(({ type, label, options }, i) => {
         type = type.toLowerCase();
         switch (type) {
-          case "header":
+          case 'header':
             return `<tr><td colspan = "2"><h2>${label}</h2></td></tr>`;
-          case "button":
-            return "";
-          case "info":
+          case 'button':
+            return '';
+          case 'info':
             return `<tr><td colspan="2">${label}</td></tr>`;
-          case "select": {
+          case 'select': {
             const optionString = options
               .map((e, i) => {
                 return `<option value="${i}" ${e.selected ? 'selected' : ''}>${e.html}</option>`;
               })
-              .join("");
+              .join('');
 
             return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><select id="${i}qd">${optionString}</select></td></tr>`;
           }
-          case "radio":
+          case 'radio':
             return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
               (options instanceof Array ? options[1] : false ?? false)
-                ? "checked"
-                : ""
+                ? 'checked'
+                : ''
             } value="${i}" name="${
-              options instanceof Array ? options[0] : options ?? "radio"
+              options instanceof Array ? options[0] : options ?? 'radio'
             }"/></td></tr>`;
-          case "checkbox":
+          case 'checkbox':
             return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" ${
               (options instanceof Array ? options[0] : options ?? false)
-                ? "checked"
-                : ""
+                ? 'checked'
+                : ''
             } value="${i}"/></td></tr>`;
           default:
             return `<tr><th style="width:50%"><label for="${i}qd">${label}</label></th><td style="width:50%"><input type="${type}" id="${i}qd" value="${
@@ -692,7 +704,7 @@ export class MODULE {
             }"/></td></tr>`;
         }
       })
-      .join(``);
+      .join('');
 
     const content = `
 <table style="width:100%">
@@ -708,18 +720,18 @@ export class MODULE {
    * @static
    * @param {Object} [prompts]
    * @param {Array<MenuInput>} [prompts.inputs]
-   * @param {Array<MenuButton>} [prompts.buttons] If no default button is specified, the last 
+   * @param {Array<MenuButton>} [prompts.buttons] If no default button is specified, the last
    *  button provided will be set as default
    * @param {MenuConfig} [config]
    *
-   * @return {Promise<MenuResult>} Object with `inputs` containing the chosen values for each provided input, in order, and the provided `value` of the pressed button or `false`, if closed.
+   * @returns {Promise<MenuResult>} Object with `inputs` containing the chosen values for each provided input, in order, and the provided `value` of the pressed button or `false`, if closed.
    *
    * @example
    * const results = await warpgate.menu({
    * inputs: [{
    *   label: 'My Way',
    *   type: 'radio',
-   *   options: 'group1',  
+   *   options: 'group1',
    * }, {
    *   label: 'The Highway',
    *   type: 'radio',
@@ -762,14 +774,14 @@ export class MODULE {
    *  render: (...args) => { console.log(...args); ui.notifications.info('render!')},
    *  options: {
    *    width: '100px',
-   *    height: '100%',    
+   *    height: '100%',
    *  }
    * })
-   * 
+   *
    * console.log('results', results)
-   *  
+   *
    * // EXAMPLE OUTPUT
-   * 
+   *
    * // Ex1: Default state (Press enter when displayed)
    * // -------------------------------
    * // Foundry VTT | Rendering Dialog
@@ -788,9 +800,9 @@ export class MODULE {
    * //             ],
    * //             "buttons": 3
    * //         }
-   * // 
+   * //
    * // Ex 2: Output for selecting 'My Way', super sizing
-   * //       the combo, and clicking 'Yes' 
+   * //       the combo, and clicking 'Yes'
    * // -------------------------------
    * // Foundry VTT | Rendering Dialog
    * // S.fn.init(3) [div.dialog-content, text, div.dialog-buttons]
@@ -807,15 +819,15 @@ export class MODULE {
    * //                 }
    * //             ],
    * //             "buttons": 1
-   * //         }       
+   * //         }
    */
   static async menu(prompts = {}, config = {}) {
-    /* apply defaults to optional params */
+    /* Apply defaults to optional params */
     const configDefaults = {
-      title: "Prompt",
-      defaultButton: "Ok",
+      title: 'Prompt',
+      defaultButton: 'Ok',
       render: null,
-      close: (resolve) => resolve({ buttons: false }),
+      close: resolve => resolve({ buttons: false }),
       options: {},
     };
 
@@ -826,34 +838,33 @@ export class MODULE {
       prompts
     );
 
-    return await new Promise((resolve) => {
+    return await new Promise(resolve => {
       let content = MODULE.dialogInputs(inputs);
       /** @type Object<string, object> */
       let buttonData = {};
       let def = buttons.at(-1)?.label;
-      buttons.forEach((button) => {
-        if ("default" in button) def = button.label;
+      buttons.forEach(button => {
+        if ('default' in button) def = button.label;
         buttonData[button.label] = {
           label: button.label,
-          callback: (html) => {
+          callback: html => {
             const results = {
               inputs: MODULE._innerValueParse(inputs, html, {checkedText}),
               buttons: button.value,
             };
-            if (button.callback instanceof Function)
-              button.callback(results, html);
+            if (button.callback instanceof Function) button.callback(results, html);
             return resolve(results);
           },
         };
       });
 
-      /* insert standard submit button if none provided */
+      /* Insert standard submit button if none provided */
       if (buttons.length < 1) {
         def = defaultButton;
         buttonData = {
           [defaultButton]: {
             label: defaultButton,
-            callback: (html) =>
+            callback: html =>
               resolve({
                 inputs: MODULE._innerValueParse(inputs, html, {checkedText}),
                 buttons: true,
@@ -881,17 +892,17 @@ export class MODULE {
       .fill()
       .map((e, i) => {
         let { type } = data[i];
-        if (type.toLowerCase() === `select`) {
+        if (type.toLowerCase() === 'select') {
           return data[i].options[html.find(`select#${i}qd`).val()].value;
         } else {
           switch (type.toLowerCase()) {
-            case `text`:
-            case `password`:
+            case 'text':
+            case 'password':
               return html.find(`input#${i}qd`)[0].value;
-            case `radio`:
-            case `checkbox`: {
+            case 'radio':
+            case 'checkbox': {
               const ele = html.find(`input#${i}qd`)[0];
-              
+
               if (checkedText) {
                 const label = html.find(`[for="${i}qd"]`)[0];
                 return ele.checked ? label.innerText : '';
@@ -899,7 +910,7 @@ export class MODULE {
 
               return ele.checked;
             }
-            case `number`:
+            case 'number':
               return html.find(`input#${i}qd`)[0].valueAsNumber;
           }
         }
@@ -910,23 +921,23 @@ export class MODULE {
 /** @ignore */
 export class logger {
   static info(...args) {
-    console.log(`${MODULE?.data?.title ?? ""}  | `, ...args);
+    console.log(`${MODULE?.data?.title ?? ''}  | `, ...args);
   }
+
   static debug(...args) {
-    if (MODULE.setting("debug"))
-      console.debug(`${MODULE?.data?.title ?? ""}  | `, ...args);
+    if (MODULE.setting('debug')) console.debug(`${MODULE?.data?.title ?? ''}  | `, ...args);
   }
 
   static warn(...args) {
-    console.warn(`${MODULE?.data?.title ?? ""} | WARNING | `, ...args);
+    console.warn(`${MODULE?.data?.title ?? ''} | WARNING | `, ...args);
     ui.notifications.warn(
-      `${MODULE?.data?.title ?? ""} | WARNING | ${args[0]}`
+      `${MODULE?.data?.title ?? ''} | WARNING | ${args[0]}`
     );
   }
 
   static error(...args) {
-    console.error(`${MODULE?.data?.title ?? ""} | ERROR | `, ...args);
-    ui.notifications.error(`${MODULE?.data?.title ?? ""} | ERROR | ${args[0]}`);
+    console.error(`${MODULE?.data?.title ?? ''} | ERROR | `, ...args);
+    ui.notifications.error(`${MODULE?.data?.title ?? ''} | ERROR | ${args[0]}`);
   }
 
   static catchThrow(thrown, toastMsg = undefined) {
@@ -942,7 +953,7 @@ export class logger {
     const config = true;
     const settingsData = {
       debug: {
-        scope: "client",
+        scope: 'client',
         config,
         default: false,
         type: Boolean,

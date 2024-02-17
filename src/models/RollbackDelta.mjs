@@ -1,4 +1,4 @@
-import Mutation from "./Mutation.mjs";
+import Mutation from './Mutation.mjs';
 
 const {fields} = foundry.data;
 const {DataModel} = foundry.abstract;
@@ -6,7 +6,7 @@ const {DataModel} = foundry.abstract;
 export default class RollbackDelta extends DataModel {
 
   constructor(mutation, {id = null, delta = null, ...options} = {}) {
-    super({id, delta}, {parent: mutation, ...options})
+    super({id, delta}, {parent: mutation, ...options});
   }
 
   static defineSchema() {
@@ -19,7 +19,7 @@ export default class RollbackDelta extends DataModel {
       delta: new fields.ObjectField({
         required: false,
         nullable: false,
-        initial: ()=>({}),
+        initial: () => ({}),
       }),
     };
   }
@@ -38,13 +38,13 @@ export default class RollbackDelta extends DataModel {
   computeRollbackDelta() {
     const {actor, token, config, embedded} = this.mutation.toObject();
     const base = new Mutation(this.mutation.parent).toObject();
-    /* token diff */
+    /* Token diff */
     const tokenDiff = this.constructor._strictDiff(token, base.token);
 
-    /* actor diff */
+    /* Actor diff */
     const actorDiff = this.constructor._strictDiff(actor, base.actor);
 
-    /* embedded diff */
+    /* Embedded diff */
     const embeddedDiff = this._computeEmbeddedRollback(embedded);
 
     return {token: tokenDiff, actor: actorDiff, embedded: embeddedDiff, config};
@@ -59,49 +59,49 @@ export default class RollbackDelta extends DataModel {
         this.mutation.config.comparisonKeys[type]
       );
       return change;
-    },{});
+    }, {});
 
     return rollback;
   }
 
   static #findByQuery( list, key, comparisonPath ) {
-    return list.find( element => foundry.utils.getProperty(element, comparisonPath) === key )
+    return list.find( element => foundry.utils.getProperty(element, comparisonPath) === key );
   }
 
-  static _invertShorthand(collection, updates, comparisonKey){
+  static _invertShorthand(collection, updates, comparisonKey) {
     let inverted = {};
-    Object.keys(updates).forEach( (key) => {
+    Object.keys(updates).forEach( key => {
 
-      /* find this item currently and copy off its data */ 
+      /* Find this item currently and copy off its data */
       const currentData = this.#findByQuery(collection, key, comparisonKey);
 
-      /* this is a delete */
+      /* This is a delete */
       if (updates[key] === warpgate.CONST.DELETE) {
 
-        /* hopefully we found something */
-        if(currentData) foundry.utils.setProperty(inverted, key, currentData.toObject());
+        /* Hopefully we found something */
+        if (currentData) foundry.utils.setProperty(inverted, key, currentData.toObject());
         else logger.debug('Delta Creation: Could not locate shorthand identified document for deletion.', collection, key, updates[key]);
 
         return;
       }
 
-      /* this is an update */
-      if (currentData){
-        /* grab the current value of any updated fields and store */
+      /* This is an update */
+      if (currentData) {
+        /* Grab the current value of any updated fields and store */
         // TODO check that these updates are already expanded
-        //const expandedUpdate = expandObject(updates[key]);
+        // const expandedUpdate = expandObject(updates[key]);
         const sourceData = currentData.toObject();
         const updatedData = foundry.utils.mergeObject(sourceData, updates[key], {inplace: false});
 
         const diff = this._strictDiff(updatedData, sourceData);
-        
+
         foundry.utils.setProperty(inverted, updatedData[comparisonKey], diff);
         return;
       }
-      
-      /* must be an add, so we delete */
+
+      /* Must be an add, so we delete */
       foundry.utils.setProperty(inverted, key, warpgate.CONST.DELETE);
-      
+
     });
 
     return inverted;
@@ -112,14 +112,14 @@ export default class RollbackDelta extends DataModel {
       foundry.utils.diffObject(base, other, {inner: true})
     );
 
-    /* get any newly added fields */
+    /* Get any newly added fields */
     const additions = this._newFields(base, other);
 
-    /* set their data to null */
-    Object.keys(additions).forEach((key) => {
-      if (typeof additions[key] != "object") {
+    /* Set their data to null */
+    Object.keys(additions).forEach(key => {
+      if (typeof additions[key] != 'object') {
         const parts = key.split('.');
-        parts[parts.length - 1] = '-=' + parts.at(-1);
+        parts[parts.length - 1] = `-=${parts.at(-1)}`;
         diff[parts.join('.')] = null;
       }
     });
@@ -133,17 +133,16 @@ export default class RollbackDelta extends DataModel {
 
     const ts = getType(base);
     const tt = getType(other);
-    if (ts !== "Object" || tt !== "Object")
-      throw new Error("One of source or template are not Objects!");
+    if (ts !== 'Object' || tt !== 'Object') throw new Error('One of source or template are not Objects!');
 
     // Define recursive filtering function
-    const _filter = function (s, t, filtered) {
+    const _filter = function(s, t, filtered) {
       for (let [k, v] of Object.entries(s)) {
         let has = t.hasOwnProperty(k);
         let x = t[k];
 
         // Case 1 - inner object
-        if (has && foundry.utils.getType(v) === "Object" && foundry.utils.getType(x) === "Object") {
+        if (has && foundry.utils.getType(v) === 'Object' && foundry.utils.getType(x) === 'Object') {
           filtered[k] = _filter(v, x, {});
         }
 

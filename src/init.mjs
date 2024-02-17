@@ -1,3 +1,3 @@
 import _modules from './modules';
 
-_modules.Nexus.init();
+_modules.Nexus.announce();

@@ -1,5 +1,5 @@
 {
-  "version": "x",
+  "version": "dev",
   "title": "Warp Gate",
   "description": "Library module providing system-agnostic functions for creating tokens, modifying and reverting actors, canvas interactions, peer-to-peer hooks, and more. Warp Gate makes your life easier and your code safer.",
   "projectUrl": "https://trioderegion.github.io/warpgate/warpgate.html",
@@ -15,8 +15,9 @@
       "clean": false,
       "hmr": true,
       "entryPoints": {
-        "main": ["init.mjs"]
-      }
+        "main": ["init.mjs", "lib/json-viewer.js"]
+      },
+      "static": ["apps/**/*.hbs"]
     },
     "release":{
       "dest":"../dist",

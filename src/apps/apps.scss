@@ -1,0 +1,5 @@
+@use './MutationInspect/_style.scss' as inspect;
+
+.%config.id% {
+  @include inspect.app;
+}

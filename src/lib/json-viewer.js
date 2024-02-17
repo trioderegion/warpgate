@@ -1,0 +1,1 @@
+import '@alenaksu/json-viewer';

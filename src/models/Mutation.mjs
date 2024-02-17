@@ -6,6 +6,7 @@ const {DataModel} = foundry.abstract;
 
 export default class Mutation extends DataModel {
   constructor(token, options = {}) {
+    if (typeof token === 'string') token = fromUuidSync(token, {strict: true});
     const initial = {
       actor: token.actor.toObject(),
       token: token.toObject(),
@@ -77,11 +78,6 @@ export default class Mutation extends DataModel {
 
   getDiff(field) {
     return foundry.utils.deepClone(this.#changes[field]);
-  }
-
-  // @TODO temp wrapper
-  apply(driver = globalThis.Mutator) {
-    return driver.mutate(this);
   }
 
 }

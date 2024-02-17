@@ -1,5 +1,4 @@
 import warpdata from '../../models';
-import {MODULE} from '../../scripts/module.js';
 
 /**
  *
@@ -8,89 +7,63 @@ import {MODULE} from '../../scripts/module.js';
  * @class BaseMutator
  */
 export default class BaseMutator {
-  
-  models = {
+
+  static get DEFAULT_MODELS() {
+    return {
+      mutation: warpdata.Mutation,
       delta: warpdata.RollbackDelta,
       stack: warpdata.RollbackStack,
-  };
+    };
+  }
+
+  /** @type {BaseMutator.DEFAULT_MODELS} */
+  models;
+
+  mutation;
+
+  results;
 
   constructor(mutation, models = {}) {
     this.mutation = mutation;
-    Object.assign(this.models, models);
+    this.models = foundry.utils.mergeObject(this.constructor.DEFAULT_MODELS, models);
   }
 
   async mutate(options = {}) {
-    if (!await this._setup(options)) return;
-    if (!await this._updateStack(options)) return;
-    const results = await this._mutate(options);
+    if (!await this._setup(options)) return false;
+    if (!await this._updateStack(options)) return false;
+    this.results = await this._mutate(options);
     await this._cleanup(options);
-    return results;
+    return this.results;
   }
 
-  async _setup(options = {}) {
-    const neededPerms = MODULE.canMutate(game.user)
-    if (neededPerms.length > 0) {
-      logger.warn(MODULE.format('error.missingPerms', {permList: neededPerms.join(', ')}));
-      return false;
-    }
-
+  async _setup(options) {
     return true;
   }
 
-  async _updateStack(options = {}) {
-    /* Permanent changes are not tracked */
-    if (!this.mutation.config.permanent) {
-
-      const delta = new this.models.delta(this.mutation);
-
-      /* Allow user to modify delta if needed */
-      const cont = await options.callbacks?.delta(delta) ?? true;
-
-      if (cont === false) return false;
-
-      /* Update the mutation info with the final updates including mutate stack info */
-      const stack = new this.models.stack(this.mutation.parent.actor).push(delta);
-      this.mutation.updateSource({actor: stack});
-    }
-
+  async _updateStack(options) {
     return true;
   }
 
-  async _mutate(options = {}) {
-
-    if(options.notice && this.mutation.getScene() && this.mutation.getToken().object) {
-
-      const placement = {
-        scene: this.mutation.getScene(),
-        ...this.mutation.getToken().object.center,
-      };
-
-      warpgate.plugin.notice(placement, options.notice);
-    }
-
-    await this.#apply(options);
-  }
-  async _cleanup(options = {}) {
-    if(!this.mutation.config.noMoveWait && !!this.mutation.getToken().object) {
-      await CanvasAnimation.getAnimation(this.mutation.getToken().object.animationName)?.promise
-    }
+  /**
+   * @return {Promise<*>} results
+   */
+  async _mutate(options) {
+    return await this.#apply(options);
   }
 
+  async _cleanup(options) {}
 
-  async #apply(options = {}) {
 
-    const promises = []
+  #apply(options) {
 
-    /* update the token, actor, and actor-embeds */
+    const promises = [];
+
+    /* Update the token, actor, and actor-embeds */
     promises.push(this.mutation.applyToken());
     promises.push(this.mutation.applyActor());
     promises.push(...this.mutation.applyEmbedded());
 
-    const results = await Promise.all(promises);
-
-    
-
-    return results;
+    return Promise.all(promises);
   }
 
 }

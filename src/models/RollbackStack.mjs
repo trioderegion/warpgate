@@ -16,13 +16,13 @@ export default class RollbackStack extends DataModel {
         required: true,
       }),
       stack: new fields.ArrayField(RollbackDelta.schema)
-    }
+    };
   }
 
   static cleanData(source = {}, options = {}) {
     const data = super.cleanData(source, options);
 
-    /* @TODO re-eval if this is a good idea */
+    /* TODO re-eval if this is a good idea */
     /* Allow duplicate delta IDs by merging */
     data.stack = data.stack.reduce((acc, curr) => {
       const existing = acc.find(e => e.id === curr.id);
@@ -49,9 +49,20 @@ export default class RollbackStack extends DataModel {
     return {};
   }
 
+  pop() {
+    const delta = this.stack.pop();
+    this.updateSource({stack: [...this.stack]});
+    return delta;
+  }
+
+  toFlag() {
+    return foundry.utils.expandObject({
+      [`flags.%config.id%.${this.name}`]: [...this.stack]
+    });
+  }
+
   get(id) {
     return this.stack.find(e => e.id === id);
   }
-
 
 }

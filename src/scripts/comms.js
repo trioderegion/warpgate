@@ -15,21 +15,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { MODULE, logger } from "./module.js";
-import { handleDismissSpawn } from "./gateway.js";
-import { Events } from "./events.js";
+import { MODULE, logger } from './module.js';
+import { handleDismissSpawn } from './gateway.js';
+import { Events } from './events.js';
 import {
   handleMutationRequest,
   handleRevertRequest,
-} from "./remote-mutator.js";
-import { queueUpdate } from "./update-queue.js";
+} from './remote-mutator.js';
+import { queueUpdate } from './update-queue.js';
 
 const ops = {
-  DISMISS_SPAWN: "dismiss", //tokenId, sceneId, userId
-  EVENT: "event", //name, ...payload
-  REQUEST_MUTATE: "req-mutate", // ...payload
-  REQUEST_REVERT: "req-revert", // ...payload
-  NOTICE: "req-notice",
+  DISMISS_SPAWN: 'dismiss', // TokenId, sceneId, userId
+  EVENT: 'event', // Name, ...payload
+  REQUEST_MUTATE: 'req-mutate', // ...payload
+  REQUEST_REVERT: 'req-revert', // ...payload
+  NOTICE: 'req-notice',
 };
 
 class Comms {
@@ -38,19 +38,19 @@ class Comms {
   }
 
   static hooks() {
-    Hooks.on("ready", Comms._ready);
+    Hooks.on('ready', Comms._ready);
   }
 
   static _ready() {
-    logger.info("Registering sockets");
+    logger.info('Registering sockets');
 
     game.socket.on(`module.${MODULE.data.name}`, Comms._receiveSocket);
   }
 
   static _receiveSocket(socketData) {
-    logger.debug("Received socket data => ", socketData);
+    logger.debug('Received socket data => ', socketData);
 
-    /* all users should immediately respond to notices */
+    /* All users should immediately respond to notices */
     if (socketData.op == ops.NOTICE) {
       MODULE.handleNotice(
         socketData.payload.location,
@@ -61,13 +61,13 @@ class Comms {
     }
 
     queueUpdate(async () => {
-      logger.debug("Routing operation: ", socketData.op);
+      logger.debug('Routing operation: ', socketData.op);
       switch (socketData.op) {
         case ops.DISMISS_SPAWN:
           await handleDismissSpawn(socketData.payload);
           break;
         case ops.EVENT:
-          /* all users should respond to events */
+          /* All users should respond to events */
           await Events.run(socketData.eventName, socketData.payload);
           break;
         case ops.REQUEST_MUTATE:
@@ -79,7 +79,7 @@ class Comms {
           await handleRevertRequest(socketData.payload);
           break;
         default:
-          logger.error("Unrecognized socket request", socketData);
+          logger.error('Unrecognized socket request', socketData);
           break;
       }
     });
@@ -90,12 +90,12 @@ class Comms {
   static _emit(socketData) {
     game.socket.emit(`module.${MODULE.data.name}`, socketData);
 
-    /* always send events to self as well */
+    /* Always send events to self as well */
     return Comms._receiveSocket(socketData);
   }
 
   static requestDismissSpawn(tokenId, sceneId) {
-    /** craft the socket data */
+    /** Craft the socket data */
     const data = {
       op: ops.DISMISS_SPAWN,
       payload: { tokenId, sceneId, userId: game.user.id },
@@ -105,7 +105,7 @@ class Comms {
   }
 
   /*
-   * payload = {userId, tokenId, sceneId, updates, options}
+   * Payload = {userId, tokenId, sceneId, updates, options}
    */
   static requestMutate(
     tokenId,
@@ -113,7 +113,7 @@ class Comms {
     { updates = {}, options = {} } = {},
     onBehalf = game.user.id
   ) {
-    /* insert common fields */
+    /* Insert common fields */
     const payload = {
       userId: onBehalf,
       tokenId,
@@ -122,7 +122,7 @@ class Comms {
       options,
     };
 
-    /* craft the socket data */
+    /* Craft the socket data */
     const data = {
       op: ops.REQUEST_MUTATE,
       payload,
@@ -136,7 +136,7 @@ class Comms {
     sceneId,
     { mutationId = undefined, onBehalf = game.user.id, options = {} }
   ) {
-    /* insert common fields */
+    /* Insert common fields */
     const payload = {
       userId: onBehalf,
       tokenId,
@@ -145,7 +145,7 @@ class Comms {
       options,
     };
 
-    /* craft the socket data */
+    /* Craft the socket data */
     const data = {
       op: ops.REQUEST_REVERT,
       payload,
@@ -194,11 +194,11 @@ class Comms {
    *  this event, sent to all watching and triggering clients.
    */
   static notifyEvent(name, payload = {}, onBehalf = game.user?.id) {
-    /** insert common fields */
+    /** Insert common fields */
     payload.sceneId = canvas.scene?.id;
     payload.userId = onBehalf;
 
-    /* craft the socket data */
+    /* Craft the socket data */
     const data = {
       op: ops.EVENT,
       eventName: name,
@@ -209,10 +209,10 @@ class Comms {
   }
 }
 
-export const register = Comms.register,
-  requestMutate = Comms.requestMutate,
-  requestRevert = Comms.requestRevert,
-  packToken = Comms.packToken,
-  requestDismissSpawn = Comms.requestDismissSpawn,
-  notifyEvent = Comms.notifyEvent,
-  requestNotice = Comms.requestNotice;
+export const register = Comms.register;
+export const requestMutate = Comms.requestMutate;
+export const requestRevert = Comms.requestRevert;
+export const packToken = Comms.packToken;
+export const requestDismissSpawn = Comms.requestDismissSpawn;
+export const notifyEvent = Comms.notifyEvent;
+export const requestNotice = Comms.requestNotice;

@@ -15,6 +15,7 @@
   },
   "homepage": "https://github.com/trioderegion/warpgate#readme",
   "devDependencies": {
+    "@alenaksu/json-viewer": "^2.0.1",
     "better-docs": "^2.7.2",
     "eslint-plugin-jsdoc": "^46.9.1",
     "foodoc": "^0.0.9",
