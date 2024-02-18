@@ -34,8 +34,8 @@ class RequestMutator extends BaseMutator {
 export default class RemoteMutator extends LocalMutator {
 
   static EVENT = {
-    REQUEST: '%config.id%.RemoteMutator.request',
-    RESPONSE: id => `%config.id%.response:${id}`,
+    REQUEST: 'RemoteMutator.request',
+    RESPONSE: id => `RemoteMutator.response:${id}`,
   };
 
   static getFeedbackSettings({alwaysAccept = false, suppressToast = false} = {}) {
@@ -58,7 +58,7 @@ export default class RemoteMutator extends LocalMutator {
 
   static init(nexus) {
     this._registerSettings(nexus);
-    this._registerSockets();
+    this._registerSockets(nexus);
   }
 
   static _registerSettings(n) {
@@ -90,24 +90,34 @@ export default class RemoteMutator extends LocalMutator {
     n.utils.config.register(settingsData);
   }
 
-  static _registerSockets() {
-    game.socket.on(this.EVENT.REQUEST, this.handleRequest);
+  static _registerSockets(n) {
+    n.comms.on(this.EVENT.REQUEST, this.handleRequest.bind(this));
   }
 
-  static handleRequest({id, target, mutation}) {
+  static async handleRequest({id, target, mutation}) {
+    let accepted = false;
     /* Create local mutation */
-    const remoteMutation = new this.models.mutation(target);
-    remoteMutation.updateSource(mutation);
+    try {
+      const driver = new RequestMutator();
+      const remoteMutation = new driver.models.mutation(target);
+      remoteMutation.updateSource(mutation);
+      driver.mutation = remoteMutation;
 
-    /* Create our specific local mutator and apply */
-    const driver = new RequestMutator(remoteMutation);
-    const accepted = driver.mutate({requestId: id});
-    game.socket.emit(this.EVENT.RESPONSE(id), accepted);
+      /* Create our specific local mutator and apply */
+      accepted = await driver.mutate({requestId: id});
+    } catch(e) {
+      logger.warn(e);
+    } finally {
+      nexus.comms.emit(this.EVENT.RESPONSE(id), accepted);
+    }
   }
 
 
   #requestMutate(id = '**ERROR**') {
-    game.socket.emit(this.constructor.EVENT.REQUEST, {id, mutation: this.mutation});
+    nexus.comms.emit(
+      this.constructor.EVENT.REQUEST,
+      {id, target: this.mutation.getToken().uuid, mutation: this.mutation.getDiff()}
+    );
   }
 
   async _setup(options) {
@@ -115,6 +125,8 @@ export default class RemoteMutator extends LocalMutator {
       logger.error(MODULE.localize('error.noOwningUserMutate'));
       return false;
     }
+
+    return true;
   }
 
   async _mutate(options) {
@@ -122,9 +134,9 @@ export default class RemoteMutator extends LocalMutator {
      * this update to a remote client */
     const requestId = foundry.utils.randomID();
     const promise = new Promise( (resolve, reject) => {
-      game.socket.once(
+      nexus.comms.once(
         this.constructor.EVENT.RESPONSE(requestId),
-        response => response.accepted ? resolve(response) : reject(response)
+        resolve,
       );
     });
 

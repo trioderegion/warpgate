@@ -5,23 +5,28 @@
 >
   <a data-tab="summary"><i class="fas fa-user"></i>
     Summary</a>
-  <a data-tab="details"><i class="fas fa-expand"></i>
-    Details</a>
+  <a data-tab="token"><i class="fas fa-expand"></i>
+    Token</a>
+  <a data-tab="actor"><i class="fas fa-expand"></i>
+    Actor</a>
+  <a data-tab="embedded"><i class="fas fa-expand"></i>
+    Embedded</a>
 </nav>
 <div class="body">
   <section class="tab" data-group="main" data-tab="summary">
     <p>Summary of who what where</p>
   </section>
-  <section class="tab" data-group="main" data-tab="details">
-    <h2>Token</h2>
+  <section class="tab" data-group="main" data-tab="token">
     <json-viewer>
       {{{changes.token}}}
     </json-viewer>
-    <h2>Actor</h2>
+  </section>
+  <section class="tab" data-group="main" data-tab="actor">
     <json-viewer>
       {{{changes.actor}}}
     </json-viewer>
-    <h2>Embedded</h2>
+  </section>
+  <section class="tab" data-group="main" data-tab="embedded">
     <json-viewer>
       {{{changes.embedded}}}
     </json-viewer>

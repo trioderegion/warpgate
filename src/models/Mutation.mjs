@@ -73,10 +73,11 @@ export default class Mutation extends DataModel {
   }
 
   getScene() {
-    this.getToken().parent;
+    return this.getToken().parent;
   }
 
   getDiff(field) {
+    if (!field) return foundry.utils.deepClone(this.#changes);
     return foundry.utils.deepClone(this.#changes[field]);
   }
 

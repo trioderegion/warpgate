@@ -24,14 +24,20 @@ export default class MutationInspect extends Application {
   }
 
   locate() {
-
+    const token = this.mutation.getToken();
+    if (token.object) {
+      token.object.control({releaseOthers: true});
+      return canvas.animatePan(token.object.center);
+    }
   }
 
   activateListeners(html) {
     super.activateListeners(html);
 
     const handler = this._onClick.bind(this);
-    html[0].addEventListener('click', handler);
+    for (const element of html) {
+      if (element.tagName !== 'NAV') element.addEventListener('click', handler);
+    }
   }
 
   _onClick(evt) {
