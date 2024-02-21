@@ -1,4 +1,4 @@
-const { fields, } = foundry.data;
+const { fields } = foundry.data;
 
 /**
  *
@@ -13,10 +13,10 @@ export default class BaseCrosshairs extends MeasuredTemplateDocument {
       borderDisplay: new fields.BooleanField(),
       icon: new fields.SchemaField({
         display: new fields.BooleanField(),
-        texture: new fields.FilePathField({categories: ['IMAGE', 'VIDEO',],}),
+        texture: new fields.FilePathField({categories: ['IMAGE', 'VIDEO']}),
       }),
       snap: new fields.SchemaField({
-        position: new fields.NumberField({initial: CONST.GRID_SNAPPING_MODES.VERTEX,}),
+        position: new fields.NumberField({initial: CONST.GRID_SNAPPING_MODES.VERTEX}),
         size: new fields.NumberField({initial:
           CONST.GRID_SNAPPING_MODES.VERTEX
           | CONST.GRID_SNAPPING_MODES.CENTER

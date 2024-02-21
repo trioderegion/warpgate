@@ -1,5 +1,3 @@
-import { Propagator } from "./propagator.js";
-
 /**
  * Generator function for exploring vertex-connected grid locations in an
  * outward "ring" pattern.
@@ -86,7 +84,7 @@ export class PlaceableFit {
     };
 
     foundry.utils.mergeObject(this.options, options);
-
+    this.tree = new Quadtree(canvas.scene.dimensions.sceneRect);
     this.bounds = new PIXI.Rectangle(
       bounds.x,
       bounds.y,
@@ -98,7 +96,8 @@ export class PlaceableFit {
   }
 
   /**
-   *
+   * Generates a new rectangle based on the
+   * provided, shifted, origin/center.
    *
    * @param {{x:Number, y:Number}} loc `{x,y}` location value (in pixels) defining the testing bound's origin (top left)
    * @param {Boolean} isCenter provided location defines the bounds new center, rather than origin
@@ -140,20 +139,30 @@ export class PlaceableFit {
         .drawShape(candidateBounds);
     }
 
+    /* Check if the putative offset (may be 0 length)
+     * hits a wall and consider as an invalid location
+     */
     if (this.options.avoidWalls && this._offsetCollidesWall(this.bounds.center, candidateBounds.center)) {
       return false;
     }
 
+    /* Check rectangular overlap with configured placeable layers */
     for (const layer of this.options.collisionLayers) {
       const hits = layer.quadtree.getObjects(candidateBounds);
-      if (hits.size == 0) return true;
+      if (hits.size > 0) return false;
     }
 
-    return false;
+    /* Check for rectangular overlap with previous placements
+     * of this instance */
+    const localHits = this.tree.getObjects(candidateBounds);
+    if (localHits.size > 0) return false;
+
+    return true;
   }
 
   /**
-   *
+   * Tests if segment defined by two points hits a move blocking
+   * wall.
    *
    * @param {{x:Number, y:Number}} originalCenter
    * @param {{x:Number, y:Number}} shiftedCenter
@@ -181,9 +190,6 @@ export class PlaceableFit {
    * @memberof PlaceableFit
    */
   find({center = false} = {}) {
-    if (game.release?.generation < 11) {
-      return Propagator.getFreePosition(this.bounds, this.bounds);
-    }
 
     const locIter = RingGenerator(this.bounds, this.options.searchRange);
 
@@ -197,10 +203,11 @@ export class PlaceableFit {
       };
 
       if (this.spaceClear(newCenter, true)) {
+        this.bounds.x = testLoc.value.x;
+        this.bounds.y = testLoc.value.y;
+        this.tree.insert({r: this.bounds.clone(), t: {x: this.bounds.x, y: this.bounds.y}});
         return center ? newCenter : testLoc.value;
       }
     }
-
-    return;
   }
 }

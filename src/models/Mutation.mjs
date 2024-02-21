@@ -1,10 +1,8 @@
 import warpfields from './schema';
-import EmbeddedShorthandField from './schema/EmbeddedShorthandField.mjs';
-
+import BaseShorthand from './BaseShorthand.mjs';
 const {fields} = foundry.data;
-const {DataModel} = foundry.abstract;
 
-export default class Mutation extends DataModel {
+export default class Mutation extends BaseShorthand {
   constructor(token, options = {}) {
     if (typeof token === 'string') token = fromUuidSync(token, {strict: true});
     const initial = {
@@ -14,23 +12,13 @@ export default class Mutation extends DataModel {
     super(initial, {...options, parent: token});
   }
 
-  #changes = {}
-
   static defineSchema() {
-    return {
-      actor: new warpfields.DocSchemaField(Actor.implementation, {required: false, nullable: true}),
-      token: new warpfields.DocSchemaField(TokenDocument.implementation, {required: false, nullable: true}),
-      embedded: new warpfields.EmbeddedShorthandField(Actor.implementation, fields.ObjectField),
-      config: new warpfields.MutationConfigField(),
-    }
+    return this.mergeSchema(super.defineSchema(), {
+      config: new warpfields.ShorthandConfigField({
+        permanent: new fields.BooleanField({initial: false, nullable: false}),
+      }),
+    });
   }
-
-  updateSource(changes, options) {
-    const delta = super.updateSource(changes, options);
-    foundry.utils.mergeObject(this.#changes, delta);
-    return delta;
-  }
-
 
   /* Mutation Fields */
   getToken() {
@@ -51,7 +39,7 @@ export default class Mutation extends DataModel {
       this.getToken(),
       diff,
       this.config.updateOpts.token
-    )
+    );
   }
 
   getActor() {
@@ -69,16 +57,15 @@ export default class Mutation extends DataModel {
 
   applyEmbedded() {
     const shorthand = this.getDiff('embedded');
-    return EmbeddedShorthandField.submit(this.getActor(), shorthand, this.config.comparisonKeys, this.config.updateOpts);
+    return warpfields.EmbeddedShorthandField.submit(
+      this.getActor(),
+      shorthand,
+      this.config.comparisonKeys,
+      this.config.updateOpts
+    );
   }
 
   getScene() {
     return this.getToken().parent;
   }
-
-  getDiff(field) {
-    if (!field) return foundry.utils.deepClone(this.#changes);
-    return foundry.utils.deepClone(this.#changes[field]);
-  }
-
 }

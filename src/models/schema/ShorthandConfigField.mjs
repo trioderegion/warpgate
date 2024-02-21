@@ -3,25 +3,35 @@ import ShorthandField from './ShorthandField.mjs';
 
 const {fields} = foundry.data;
 
-export default class extends fields.SchemaField {
-  constructor(options = {}) {
-    super({
-      user: new fields.StringField({
-        required: true,
-        initial: () => game.user.id
+export default class ShorthandConfigField extends fields.SchemaField {
+  constructor(extraFields = {}, options = {}) {
+
+    const finalFields = foundry.utils.mergeObject({
+      user: new fields.ForeignDocumentField(foundry.documents.BaseUser, {
+        nullable: false,
+        initial: () => game?.user?.id,
       }),
-      permanent: new fields.BooleanField({initial: false, nullable: false}),
       comparisonKeys: new EmbeddedShorthandField(Actor.implementation, fields.StringField, {initial: 'name'}),
       name: new fields.StringField({
         blank: false,
         required: false,
         trim: true,
       }),
-      updateOpts: new ShorthandField(['token', 'actor', 'embedded'], () => new fields.ObjectField()),
+      description: new fields.StringField({
+        blank: false,
+        required: false,
+        trim: true,
+      }),
+      updateOpts: new ShorthandField(
+        ['token', 'actor', 'embedded'],
+        () => new fields.ObjectField()
+      ),
       overrides: new fields.ObjectField({
         required: false,
       }),
-    }, options);
+    }, extraFields);
+
+    super(finalFields, options);
   }
 
   clean(data, options) {

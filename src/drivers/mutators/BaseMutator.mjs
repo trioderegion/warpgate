@@ -16,9 +16,10 @@ export default class BaseMutator {
     };
   }
 
-  /** @type {BaseMutator.DEFAULT_MODELS} */
+  /** @type {typeof BaseMutator.DEFAULT_MODELS} */
   models;
 
+  /** @type {typeof BaseMutator.DEFAULT_MODELS.mutation} */
   mutation;
 
   results;
@@ -31,7 +32,14 @@ export default class BaseMutator {
   async mutate(options = {}) {
     if (!await this._setup(options)) return false;
     if (!await this._updateStack(options)) return false;
-    this.results = await this._mutate(options);
+
+    try {
+      this.results = await this._mutate(options);
+    } catch(e) {
+      this.results = [];
+      options.error = e;
+    }
+
     await this._cleanup(options);
     return this.results;
   }
