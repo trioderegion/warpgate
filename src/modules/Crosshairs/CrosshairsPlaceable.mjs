@@ -5,12 +5,12 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
     cancel: null,
     move: null,
     wheel: null
-  }
+  };
 
   #promise = {
     resolve: null,
     reject: null,
-  }
+  };
 
   #isDrag = false;
 
@@ -29,9 +29,9 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
       this.#handlers.confirm = this._onConfirm.bind(this);
       this.#handlers.cancel = this._onCancel.bind(this);
       this.#handlers.wheel = this._onWheel.bind(this);
-      //canvas.stage.removeAllListeners();
-      canvas.stage.on("mousemove", this.#handlers.move);
-      canvas.stage.on("mouseup", this.#handlers.confirm);
+      // Canvas.stage.removeAllListeners();
+      canvas.stage.on('mousemove', this.#handlers.move);
+      canvas.stage.on('mouseup', this.#handlers.confirm);
       canvas.app.view.oncontextmenu = this.#handlers.cancel;
       canvas.app.view.onwheel = this.#handlers.wheel;
     });
@@ -49,23 +49,23 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
       this.#isDrag = true;
       if (leftDown) {
         canvas.mouseInteractionManager.cancel(evt);
-        //TODO try 'canvas.activeLayer._onDragLeftCancel(evt)'
+        // TODO try 'canvas.activeLayer._onDragLeftCancel(evt)'
       }
     }
-    
+
     // Apply a 20ms throttle
     if (now - this.moveTime <= 20) return;
 
     const center = evt.data.getLocalPosition(this.layer);
-    if(this.#isDrag && leftDown) {
-      //canvas.activeLayer.preview.removeChildren();
+    if (this.#isDrag && leftDown) {
+      // Canvas.activeLayer.preview.removeChildren();
       const drag = new Ray(this.document, this.getSnappedPoint(center, this.document.snap.size));
-      const distance = drag.distance / this.document.parent.grid.size * this.document.parent.grid.distance
+      const distance = drag.distance / this.document.parent.grid.size * this.document.parent.grid.distance;
       this.document.updateSource({distance: distance, direction: Math.toDegrees(drag.angle)});
     } else if (!this.#isDrag && !leftDown) {
-      const {x,y} = this.getSnappedPoint(center);
+      const {x, y} = this.getSnappedPoint(center);
       this.document.updateSource({x, y});
-    } 
+    }
 
     this.refresh();
     this.moveTime = now;
@@ -78,8 +78,8 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
   }
 
   _clearHandlers(evt) {
-    canvas.stage.off("mousemove", this.#handlers.move);
-    canvas.stage.off("mouseup", this.#handlers.confirm);
+    canvas.stage.off('mousemove', this.#handlers.move);
+    canvas.stage.off('mouseup', this.#handlers.confirm);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
     this.layer.interactiveChildren = true;
@@ -112,8 +112,8 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
     evt.stopPropagation();
     if (evt.shiftKey) {
 
-      /* scroll up = bigger */
-      const step = this.document.parent.grid.distance / 2
+      /* Scroll up = bigger */
+      const step = this.document.parent.grid.distance / 2;
       const delta = step * Math.sign(-evt.deltaY);
       const distance = this.document.distance + delta;
       this.document.updateSource({distance: distance.toNearest(step)});

@@ -1,4 +1,5 @@
 import warpdata from '../../models';
+import crosshairs from '../../modules/Crosshairs';
 import { PlaceableFit } from '../../scripts/lib/PlaceableFit.mjs';
 
 /**
@@ -10,15 +11,18 @@ import { PlaceableFit } from '../../scripts/lib/PlaceableFit.mjs';
 export default class BaseSpawner {
   static get DEFAULT_MODELS() {
     return {
-      warp: warpdata.WarpIn,
-      crosshairs: warpdata.BaseCrosshairs,
+      warpin: warpdata.WarpIn,
+      crosshairs: crosshairs.Crosshairs
     };
   }
 
+  /** @type {typeof BaseSpawner.DEFAULT_MODELS} */
   models;
 
+  /** @type {import('../../models/WarpIn.mjs').default} */
   warpin;
 
+  /** @type Array<foundry.documents.BaseToken> */
   toSpawn;
 
   constructor(warpin, models = {}) {
@@ -30,7 +34,9 @@ export default class BaseSpawner {
   async spawn(options = {}) {
     if (await this._setup(options) === false) return false;
     this.toSpawn = await this._prepareTokens(options);
-    options.callbacks?.prepare(this.toSpawn);
+
+    if (await options.callbacks?.prepare(this.toSpawn) === false) return false;
+
     await this._placeTokens(options);
     this.results = await this._spawn(options);
     await this._cleanup(options);
@@ -38,17 +44,35 @@ export default class BaseSpawner {
   }
 
   async _setup(options) {
-    // TODO add our flags and ownership
+    /* Flag this user as the tokens's creator,
+     * and add ownership entry */
+    this.warpin.updateSource({
+      'actor.flags.%config.id%.control': {
+        user: this.warpin.config.user,
+        actor: options.controllingActor?.uuid,
+      },
+      [`actor.ownership.${this.warpin.config.user}`]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER,
+    });
+
     return true;
   }
 
   async _prepareTokens(options) {
+    /* Generate temporary proxy actor and token instance data */
     const actor = this.warpin.warpActor();
-    // TODO where to get initial position?
+
+    const linked = this.warpin.position.toObject();
+    const unlinked = {
+      ...linked,
+      delta: this.warpin.getDiff('actor'),
+    };
+
+    /* Create N token instances (with position data) from warp actor */
     const tokens = Array.from({ length: this.warpin.config.duplicates }, () => {
-      if (!actor.prototypeToken.actorLink) return actor.getTokenDocument({delta: this.warpin.getDiff('actor')});
-      return actor.getTokenDocument();
+      const instance = actor.prototypeToken.actorLink ? linked : unlinked;
+      return actor.getTokenDocument(instance);
     });
+
     this.toSpawn.push(...await Promise.all(tokens));
 
     return await Promise.all(tokens);

@@ -10,6 +10,8 @@ export default class ShorthandConfigField extends fields.SchemaField {
       user: new fields.ForeignDocumentField(foundry.documents.BaseUser, {
         nullable: false,
         initial: () => game?.user?.id,
+        idOnly: true,
+        readonly: true,
       }),
       comparisonKeys: new EmbeddedShorthandField(Actor.implementation, fields.StringField, {initial: 'name'}),
       name: new fields.StringField({

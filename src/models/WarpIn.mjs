@@ -1,5 +1,6 @@
 import warpfields from './schema';
 import BaseShorthand from './BaseShorthand.mjs';
+import SpatialOrientation from './SpatialOrientation.mjs';
 const {fields} = foundry.data;
 
 export default class WarpIn extends BaseShorthand {
@@ -13,6 +14,7 @@ export default class WarpIn extends BaseShorthand {
 
   static defineSchema() {
     return this.mergeSchema(super.defineSchema(), {
+      position: new fields.EmbeddedDataField(SpatialOrientation),
       token: new fields.EmbeddedDataField(foundry.data.PrototypeToken),
       config: new warpfields.ShorthandConfigField({
         controller: new fields.StringField(),

@@ -1,12 +1,6 @@
+import CrosshairsPlaceable from './CrosshairsPlaceable.mjs';
 const { fields } = foundry.data;
 
-/**
- *
- *
- * @export
- * @class BaseCrosshairs
- * @extends {MeasuredTemplateDocument}
- */
 export default class BaseCrosshairs extends MeasuredTemplateDocument {
   static defineSchema() {
     return foundry.utils.mergeObject(super.defineSchema(), {
@@ -32,5 +26,22 @@ export default class BaseCrosshairs extends MeasuredTemplateDocument {
       }),
       textureTile: new fields.NumberField(),
     });
+  }
+
+  static get placeableClass() {
+    return CrosshairsPlaceable;
+  }
+
+  getOrientation() {
+    return {
+      x: this.x,
+      y: this.y,
+      elevation: 0, // TODO
+      rotation: this.rotation,
+    };
+  }
+
+  get documentName() {
+    return 'Crosshairs';
   }
 }
