@@ -17,7 +17,7 @@ export default class LocalMutator extends BaseMutator {
   async _updateStack(options) {
     /* Permanent changes are not tracked */
     if (!this.mutation.config.permanent) {
-      const delta = new this.models.delta(this.mutation);
+      const delta = new this.models.delta({}, {parent: this.mutation});
 
       /* Allow user to modify delta if needed */
       const cont = await options.callbacks?.delta(delta) ?? true;
@@ -33,14 +33,16 @@ export default class LocalMutator extends BaseMutator {
   }
 
   async _mutate(options) {
-    if (options.notice && this.mutation.getScene() && this.mutation.getToken().object) {
 
-      const placement = {
-        scene: this.mutation.getScene(),
-        ...this.mutation.getToken().object.center,
-      };
+    if (options.notice && this.mutation.getTokens().length > 0) {
 
-      warpgate.plugin.notice(placement, options.notice);
+      const active = this.mutation.getTokens().filter( t => !!t.object );
+
+      active.forEach( t => warpgate.plugin.notice({
+        scene: t.parent,
+        ...t.object.center
+      }, options.notice ));
+
     }
 
     return await super._mutate(options);
@@ -48,8 +50,10 @@ export default class LocalMutator extends BaseMutator {
   }
 
   async _cleanup(options) {
-    if (!this.mutation.config.noMoveWait && this.mutation.getToken().object) {
-      await CanvasAnimation.getAnimation(this.mutation.getToken().object.animationName)?.promise;
+    if (!this.mutation.config.noMoveWait && this.mutation.getTokens().length > 0) {
+      await Promise.all(this.mutation.getTokens().map(
+        t => CanvasAnimation.getAnimation(t.object?.animationName)?.promise)
+      );
     }
 
     /* Only need to do this if we have a post callback */

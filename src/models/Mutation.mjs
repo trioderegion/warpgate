@@ -3,13 +3,23 @@ import BaseShorthand from './BaseShorthand.mjs';
 const {fields} = foundry.data;
 
 export default class Mutation extends BaseShorthand {
-  constructor(token, options = {}) {
-    if (typeof token === 'string') token = fromUuidSync(token, {strict: true});
+  constructor(data = {}, options = {}) {
+
+    const templateToken = options.parent instanceof TokenDocument
+      ? options.parent
+      : options.parent.token ?? options.parent.prototypeToken;
+
+    options.parent = options.parent instanceof TokenDocument
+      ? options.parent.actor
+      : options.parent;
+
+
     const initial = {
-      actor: token.actor.toObject(),
-      token: token.toObject(),
+      actor: foundry.utils.mergeObject(options.parent.toObject(), data?.actor?.toObject?.() ?? data?.actor ?? {}),
+      token: foundry.utils.mergeObject(templateToken.toObject(), data?.token?.toObject?.() ?? data?.token ?? {}),
     };
-    super(initial, {...options, parent: token});
+
+    super(initial, options);
   }
 
   static defineSchema() {
@@ -21,8 +31,12 @@ export default class Mutation extends BaseShorthand {
   }
 
   /* Mutation Fields */
-  getToken() {
-    return this.parent;
+
+  /**
+   * Retrieve active tokens on current scene
+   */
+  getTokens() {
+    return this.parent.getActiveTokens();
   }
 
   static async _apply(doc, changes, options) {
@@ -33,17 +47,25 @@ export default class Mutation extends BaseShorthand {
     }
   }
 
+  static async _applyBatch(owner, embeddedName, data, targetIds, options = {}) {
+    const updates = targetIds.map( id => ({_id: id, ...data}) );
+    return owner.updateEmbeddedDocuments(embeddedName, updates, options);
+  }
+
   async applyToken() {
     const diff = this.getDiff('token');
-    return this.constructor._apply(
-      this.getToken(),
+    const ids = this.getTokens().map( t => t.id );
+    return this.constructor._applyBatch(
+      this.getScene(),
+      'Token',
       diff,
+      ids,
       this.config.updateOpts.token
     );
   }
 
   getActor() {
-    return this.parent.actor;
+    return this.parent;
   }
 
   async applyActor() {
@@ -65,7 +87,8 @@ export default class Mutation extends BaseShorthand {
     );
   }
 
+  // TODO will likely need to collect a list of scenes
   getScene() {
-    return this.getToken().parent;
+    return this.getTokens().find( t => !!t.document.parent )?.document.parent;
   }
 }

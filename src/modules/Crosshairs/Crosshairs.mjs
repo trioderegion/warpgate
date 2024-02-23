@@ -38,13 +38,18 @@ export default class Crosshairs extends BaseCrosshairs {
     super.prepareDerivedData();
     const gridUnits = this.distance / this.parent.grid.distance;
     this.radius = gridUnits * this.parent.grid.size;
-    this.token = {}
+    this.token = {};
+    this.token.width = gridUnits * 2;
+    this.token.height = gridUnits * 2;
     switch (this.t) {
+      case 'rect':
+        this.token.x = this.x;
+        this.token.y = this.y;
+        break;
+      case 'circle':
       default:
         this.token.x = this.x - this.radius;
         this.token.y = this.y - this.radius;
-        this.token.width = gridUnits * 2;
-        this.token.height = gridUnits * 2;
     }
   }
 

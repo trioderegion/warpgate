@@ -42,17 +42,17 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
   }
 
   _onMove(evt) {
+    evt.preventDefault();
 
     const now = Date.now();
     const leftDown = (evt.buttons & 1) > 0;
-    if (canvas.mouseInteractionManager.isDragging) {
+    if (leftDown && canvas.mouseInteractionManager.isDragging) {
       this.#isDrag = true;
-      if (leftDown) {
-        canvas.mouseInteractionManager.cancel(evt);
-        // TODO try 'canvas.activeLayer._onDragLeftCancel(evt)'
-      }
+    } else {
+      this.#isDrag = false;
     }
 
+    canvas.mouseInteractionManager.cancel(evt);
     // Apply a 20ms throttle
     if (now - this.moveTime <= 20) return;
 
@@ -82,14 +82,16 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
     canvas.stage.off('mouseup', this.#handlers.confirm);
     canvas.app.view.oncontextmenu = null;
     canvas.app.view.onwheel = null;
+    canvas.mouseInteractionManager.reset({interactionData:true, state:true});
     this.layer.interactiveChildren = true;
   }
 
   _onConfirm(evt) {
     evt.preventDefault();
-
+    canvas.mouseInteractionManager.cancel(evt);
     if (this.#isDrag) {
       this.#isDrag = false;
+      canvas.mouseInteractionManager.reset({interactionData:true, state:true});
       return;
     }
 
@@ -100,6 +102,7 @@ export default class CrosshairsPlaceable extends MeasuredTemplate {
   _onCancel(evt) {
     if (this.#isDrag) {
       this.#isDrag = false;
+    canvas.mouseInteractionManager.reset({interactionData:true, state:true});
       return;
     }
     this.destroy();

@@ -1,13 +1,13 @@
-import RollbackDelta from "./RollbackDelta.mjs";
+import RollbackDelta from './RollbackDelta.mjs';
 
 const {fields} = foundry.data;
 const {DataModel} = foundry.abstract;
 
 export default class RollbackStack extends DataModel {
 
-  constructor(parent, {name = 'mutate', ...options} = {}) {
-    const stack = parent.getFlag('%config.id%', name) ?? [];
-    super({stack, name}, {parent, ...options});
+  constructor(actor, {name = 'mutate', ...options} = {}) {
+    const stack = actor.getFlag('%config.id%', name) ?? [];
+    super({stack, name}, {parent: actor, ...options});
   }
 
   static defineSchema() {
@@ -15,7 +15,7 @@ export default class RollbackStack extends DataModel {
       name: new fields.StringField({
         required: true,
       }),
-      stack: new fields.ArrayField(RollbackDelta.schema)
+      stack: new fields.ArrayField(new fields.EmbeddedDataField(RollbackDelta)),
     };
   }
 
@@ -34,7 +34,7 @@ export default class RollbackStack extends DataModel {
 
       return acc;
     }, []);
-    data.stack = data.stack.map( d => new RollbackDelta(null, {id: d.id, delta: d.delta, ...options}) )
+    data.stack = data.stack.map( d => new RollbackDelta({id: d.id, delta: d.delta}, options) )
     return data;
   }
 

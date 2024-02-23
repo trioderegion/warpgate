@@ -33,9 +33,7 @@ export default class Nexus {
   models = _models;
 
   /* Default canvas tools */
-  canvas = {
-    Crosshairs: _crosshairs.Crosshairs,
-  };
+  crosshairs = _crosshairs;
 
   /* Core applications */
   apps = _apps;

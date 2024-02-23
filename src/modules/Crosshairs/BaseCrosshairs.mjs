@@ -17,7 +17,6 @@ export default class BaseCrosshairs extends MeasuredTemplateDocument {
           | CONST.GRID_SNAPPING_MODES.EDGE_MIDPOINT,
         }),
       }),
-      fillAlpha: new fields.AlphaField(),
       label: new fields.SchemaField({
         display: new fields.BooleanField(),
         text: new fields.StringField(),

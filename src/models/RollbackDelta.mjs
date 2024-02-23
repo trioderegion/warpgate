@@ -5,8 +5,8 @@ const {DataModel} = foundry.abstract;
 
 export default class RollbackDelta extends DataModel {
 
-  constructor(mutation, {id = null, delta = null, ...options} = {}) {
-    super({id, delta}, {parent: mutation, ...options});
+  constructor(data = {}, options = {}) {
+    super(data, options);
   }
 
   static defineSchema() {
@@ -29,7 +29,7 @@ export default class RollbackDelta extends DataModel {
   }
 
   _initialize(options = {}) {
-    if (this.parent ) {
+    if (this.parent instanceof Mutation ) {
       this._source.delta = this.computeRollbackDelta();
     }
     super._initialize(options);
@@ -37,7 +37,10 @@ export default class RollbackDelta extends DataModel {
 
   computeRollbackDelta() {
     const {actor, token, config, embedded} = this.mutation.toObject();
-    const base = new Mutation(this.mutation.parent).toObject();
+
+    //const templateToken = this.mutation.getActiveTokens().at(-1) ?? this.mutation.getActor()?.prototypeToken;
+
+    const base = new Mutation(null, {parent: this.mutation.getActor()}).toObject();
     /* Token diff */
     const tokenDiff = this.constructor._strictDiff(token, base.token);
 
@@ -52,7 +55,7 @@ export default class RollbackDelta extends DataModel {
 
   _computeEmbeddedRollback(changes) {
     const rollback = Reflect.ownKeys(changes).reduce( (change, type) => {
-      const collection = this.mutation.parent.actor.getEmbeddedCollection(type);
+      const collection = this.mutation.getActor().getEmbeddedCollection(type);
       change[type] = this.constructor._invertShorthand(
         collection,
         changes[type],
@@ -131,8 +134,8 @@ export default class RollbackDelta extends DataModel {
     base = foundry.utils.flattenObject(base);
     other = foundry.utils.flattenObject(other);
 
-    const ts = getType(base);
-    const tt = getType(other);
+    const ts = foundry.utils.getType(base);
+    const tt = foundry.utils.getType(other);
     if (ts !== 'Object' || tt !== 'Object') throw new Error('One of source or template are not Objects!');
 
     // Define recursive filtering function
