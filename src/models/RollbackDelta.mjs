@@ -5,10 +5,6 @@ const {DataModel} = foundry.abstract;
 
 export default class RollbackDelta extends DataModel {
 
-  constructor(data = {}, options = {}) {
-    super(data, options);
-  }
-
   static defineSchema() {
     return {
       id: new fields.StringField({

@@ -25,7 +25,7 @@ export default class LocalMutator extends BaseMutator {
       if (cont === false) return false;
 
       /* Update the mutation info with the final updates including mutate stack info */
-      const stack = new this.models.stack(this.mutation.getActor()).push(delta);
+      const stack = new this.models.stack(null, {parent: this.mutation.getActor()}).push(delta);
       this.mutation.updateSource({actor: stack});
     }
 

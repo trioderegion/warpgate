@@ -25,10 +25,10 @@ export default class BaseShorthand extends DataModel {
 
   #changes = {};
 
-  updateSource(changes, options) {
+  updateSource(changes, options = {}) {
     const delta = super.updateSource(changes, options);
-    foundry.utils.mergeObject(this.#changes, delta);
-    return delta;
+    foundry.utils.mergeObject(this.#changes, options.diff ? delta : changes);
+    return options.diff ? delta : changes;
   }
 
   getDiff(field) {

@@ -16,7 +16,7 @@ export default class Mutation extends BaseShorthand {
 
     const initial = {
       actor: foundry.utils.mergeObject(options.parent.toObject(), data?.actor?.toObject?.() ?? data?.actor ?? {}),
-      token: foundry.utils.mergeObject(templateToken.toObject(), data?.token?.toObject?.() ?? data?.token ?? {}),
+      token: foundry.utils.mergeObject(templateToken?.toObject() ?? {}, data?.token?.toObject?.() ?? data?.token ?? {}),
     };
 
     super(initial, options);

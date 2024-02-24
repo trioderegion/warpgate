@@ -9,11 +9,11 @@ export default class LocalReverter extends LocalMutator {
 
   async _updateStack(options) {
 
-    const stack = new this.models.stack(this.mutation.getActor());
+    const stack = new this.models.stack(null, {parent: this.mutation.getActor()});
 
     const delta = stack.pop();
 
-    this.mutation.updateSource(delta.delta);
+    this.mutation.updateSource(delta.delta, {diff: false});
 
     this.mutation.updateSource({actor: stack.toFlag()});
 

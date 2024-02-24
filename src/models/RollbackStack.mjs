@@ -5,9 +5,12 @@ const {DataModel} = foundry.abstract;
 
 export default class RollbackStack extends DataModel {
 
-  constructor(actor, {name = 'mutate', ...options} = {}) {
-    const stack = actor.getFlag('%config.id%', name) ?? [];
-    super({stack, name}, {parent: actor, ...options});
+  constructor(data = {}, options = {}) {
+    // TODO this should be initialized elsewhere im pretty sure
+    data ??= {};
+    data.name ??= 'mutate';
+    if (options.parent) data.stack = options.parent.getFlag('%config.id%', data.name) ?? [];
+    super(data, options);
   }
 
   static defineSchema() {
